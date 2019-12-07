@@ -138,7 +138,7 @@ module Spectre
     end
 
     def fail_with message
-      raise ExpectationError, message
+      raise ExpectationError.new(nil, message)
     end
   end
 
