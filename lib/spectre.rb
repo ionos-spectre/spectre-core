@@ -145,6 +145,10 @@ module Spectre
   
   class << self
 
+    def subjects
+      @@subjects
+    end
+
     def run specs, tags
       $err_count = 0
 

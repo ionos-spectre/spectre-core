@@ -89,7 +89,7 @@ end
 if action == 'list'
   Spectre::subjects.each do |subject|
     subject.specs.each do |spec|
-      tags = spec.tags.map { |x| '#' + x }.join ' '
+      tags = spec.tags.map { |x| '#' + x.to_s }.join ' '
       puts "[#{spec.id}]".blue + " #{subject.desc} #{spec.desc} #{tags.cyan}"
     end
   end
