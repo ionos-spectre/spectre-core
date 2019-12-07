@@ -28,23 +28,30 @@ end
 
 class Object
   def should_be(val)
-    raise ExpectationError.new(val, self), self unless self == val
+    raise Spectre::ExpectationError.new(val, self) unless self == val
   end
 
   def should_not_be(val)
-    raise ExpectationError.new(val, self), self unless self != val
+    raise Spectre::ExpectationError.new(val, self) unless self != val
   end
 end
 
 
 class Array
   def should_contain(val)
-    raise ExpectationError.new(val, self), self unless self.include? val
+    raise Spectre::ExpectationError.new(val, self) unless self.include? val
   end
 end
 
 
 module Spectre
+  module Version
+    MAJOR = 0
+    MINOR = 1
+    TINY  = 0
+  end
+
+  VERSION = [Version::MAJOR, Version::MINOR, Version::TINY].compact * '.'
   
   # Module Variables
   
@@ -56,11 +63,11 @@ module Spectre
   
   
   class ExpectationError < Exception
-    attr_reader :expected, :actual
+    attr_reader :expectation, :failure
 
-    def initialize expected, actual
-      @expected = expected
-      @actual = actual
+    def initialize expectation, failure
+      @expectation = expectation
+      @failure = failure
     end
   end
 
@@ -129,6 +136,10 @@ module Spectre
     def log message
       puts ("    #{message} " + ('.' * (57 - message.length)) + '[info]').grey
     end
+
+    def fail_with message
+      raise ExpectationError, message
+    end
   end
 
   
@@ -164,7 +175,7 @@ module Spectre
             
             if !e.cause
               puts '    ' + ('.' * 58) + "[error - #{$err_count+1}]".red
-            end
+            end 
             
             $err_count += 1
           ensure
@@ -180,9 +191,22 @@ module Spectre
 
 
     def report subjects
+      def print_exception error
+        file, line = error.backtrace[0].match(/(.*\.rb):(\d+)/).captures
+        file.slice!(Dir.pwd)
+        str = ''
+        str += "       file.....: .#{file}\n"
+        str += "       line.....: #{line}\n"
+        str += "       type.....: #{error.class}\n"
+        str += "       message..: #{error.message}\n"
+        str
+      end
+
       report_str = ''
 
       counter = 0
+      errors = 0
+      failures = 0
 
       subjects.each do |subject|
         subject.specs.each do |spec|
@@ -192,19 +216,32 @@ module Spectre
           report_str += "\n#{counter}) #{subject.desc} #{spec.desc} [#{spec.id}]\n"
         
           if spec.error.cause
-            report_str += "     Expected #{spec.error}\n"
+            report_str += "     expected #{spec.error}\n"
         
             if spec.error.cause.is_a? ExpectationError
-              report_str += "     but it failed with #{spec.error.cause.actual}\n"
+              report_str += "     but it failed with #{spec.error.cause.failure}\n"
+              failures += 1
             else
-              report_str += "     but it failed with an unexpected error: #{spec.error.cause}\n"
+              report_str += "     but it failed with an unexpected error\n"
+              report_str += print_exception(spec.error.cause)
+              errors += 1
             end
         
           else
-            report_str += "     An unexpected error occured during run:\n"
-            report_str += "     #{spec.error}\n"
+            report_str += "     but an unexpected error occured during run\n"
+            report_str += print_exception(spec.error)
+            errors += 1
           end
         end
+      end
+
+      if failures + errors > 0
+        summary = ''
+        summary += "#{failures} failures " if failures > 0
+        summary += "#{errors} errors" if errors > 0
+        puts "\n#{summary}".red
+      else
+        puts "Run finished successfully".green
       end
 
       puts report_str.red
