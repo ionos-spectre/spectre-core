@@ -42,6 +42,11 @@ opt_parser = OptionParser.new do |opts|
   opts.separator ''
   opts.separator 'Common options:'
 
+  opts.on('--version', 'Print current installed version') do
+    puts "spectre v#{Spectre::VERSION}"
+    exit
+  end
+
   opts.on_tail('-h', '--help', 'Print this help') do
     puts opts
     exit
