@@ -193,9 +193,9 @@ module Spectre
     def report subjects
       def print_exception error
         file, line = error.backtrace[0].match(/(.*\.rb):(\d+)/).captures
-        file.slice!(Dir.pwd)
+        file.slice!(Dir.pwd + '/')
         str = ''
-        str += "       file.....: .#{file}\n"
+        str += "       file.....: #{file}\n"
         str += "       line.....: #{line}\n"
         str += "       type.....: #{error.class}\n"
         str += "       message..: #{error.message}\n"
