@@ -1,0 +1,4 @@
+log_path: ./logs
+env_path: ./environments
+modules:
+  - http
