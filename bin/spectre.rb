@@ -1,3 +1,5 @@
+#! /usr/bin/ruby
+
 require 'yaml'
 require 'ostruct'
 require 'optparse'
@@ -6,7 +8,6 @@ require_relative '../lib/spectre'
 
 
 options = OpenStruct.new({
-  action: nil,
   config_file: './spectre.yml',
   spec_pattern: '**/*.spec.rb',
   env: 'default',
@@ -47,7 +48,7 @@ opt_parser = OptionParser.new do |opts|
   end
 end.parse!
 
-options.action = ARGV[0] || 'run'
+action = ARGV[0] || 'run'
 
 
 # Start
@@ -60,19 +61,27 @@ end
 SPEC_CFG = YAML.load_file(options.config_file)
 SPEC_ENV = YAML.load_file File.join(SPEC_CFG['env_path'], "#{options.env}.env.yml")
 
+
+# Load Modules
+
+
 SPEC_CFG['modules'].each do |mod_name|
   require_relative "../lib/#{mod_name}"
 end
+
+
+# Load Specs
+
 
 Dir.glob(options.spec_pattern).each do|f|
   require_relative File.join(Dir.pwd, f)
 end
 
 
-# Run Specs
+# Execute Action
 
 
-if options.action == 'list'
+if action == 'list'
   Spectre::subjects.each do |subject|
     subject.specs.each do |spec|
       tags = spec.tags.map { |x| '#' + x }.join ' '
@@ -82,7 +91,7 @@ if options.action == 'list'
 end
 
 
-if options.action == 'run'
+if action == 'run'
   subjects = Spectre.run(options.specs, options.tags)
   Spectre.report(subjects)
 end
