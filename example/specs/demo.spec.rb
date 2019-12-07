@@ -64,4 +64,10 @@ describe 'Awesome API' do
       @answer.should_be 42
     end
   end
+
+  it 'fails with a message' do
+    expect 'to raise a message' do
+      fail_with 'some controlled failure'
+    end
+  end
 end
