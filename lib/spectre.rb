@@ -37,6 +37,13 @@ class Object
 end
 
 
+class Hash
+  def contains? other
+    self.merge(other) == self
+  end
+end
+
+
 class Array
   def should_contain(val)
     raise Spectre::ExpectationError.new(val, self) unless self.include? val
