@@ -6,6 +6,8 @@ Spectre is a DSL to describe blackbox tests and a command line tool to run these
 
 It is written in the scripting language [Ruby](https://www.ruby-lang.org/de/) and based on the Unit-Test framework [rspec](https://rspec.info/).
 
+This DSL is not only helpful for writing tests, it can also be used to describe a subject (e.g. a REST API) and provide readable examples of usage for on technical documentation.
+
 ## Installation
 
 To use the command line tool, Ruby has to be installed on your system. To install Ruby on Debian or Ubuntu run:
