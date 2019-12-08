@@ -93,20 +93,29 @@ end.parse!
 
 action = ARGV[0] || 'run'
 
+
 ###########################################
 # Load Config
 ###########################################
 
-file_options = YAML.load_file(cmd_options['config_file'] || DEFAULT_CONFIG['config_file'])
 
 SPEC_CFG = {}
 SPEC_CFG.merge! DEFAULT_CONFIG
-SPEC_CFG.merge! file_options
+
+config_file = cmd_options['config_file'] || DEFAULT_CONFIG['config_file']
+
+if File.exists? config_file
+  file_options = YAML.load_file(config_file)
+  SPEC_CFG.merge! file_options
+end
+
 SPEC_CFG.merge! cmd_options
+
 
 ###########################################
 # Load Environment
 ###########################################
+
 
 envs = {}
 
@@ -118,11 +127,14 @@ SPEC_CFG['env_patterns'].each do |pattern|
   end
 end
 
-SPEC_CFG.merge! envs[SPEC_CFG['environment']]
+env = envs[SPEC_CFG['environment']]
+SPEC_CFG.merge! env if env
+
 
 ###########################################
 # Load Modules
 ###########################################
+
 
 SPEC_CFG['modules'].each do |mod|
   if !File.exists? mod
@@ -132,9 +144,11 @@ SPEC_CFG['modules'].each do |mod|
   end
 end
 
+
 ###########################################
 # Load Specs
 ###########################################
+
 
 SPEC_CFG['spec_patterns'].each do |pattern|
   Dir.glob(pattern).each do|f|
@@ -142,24 +156,25 @@ SPEC_CFG['spec_patterns'].each do |pattern|
   end
 end
 
+
 ###########################################
 # Execute Action
 ###########################################
+
 
 String.colored! if SPEC_CFG['colored']
 
 
 if action == 'list'
   colors = [:blue, :magenta, :yellow, :green]
-  counter = 0
+
+  exit 1 if Spectre::subjects.length == 0
 
   Spectre::subjects.each do |subject|
     subject.specs.each do |spec|
       tags = spec.tags.map { |x| '#' + x.to_s }.join ' '
       puts "[#{spec.id}]".send(colors[counter % colors.length]) + " #{subject.desc} #{spec.desc} #{tags.cyan}"
     end
-
-    counter += 1
   end
 end
 
@@ -172,6 +187,7 @@ end
 
 
 if action == 'envs'
+  exit 1 if envs.length == 0
   puts envs.pretty
 end
 
