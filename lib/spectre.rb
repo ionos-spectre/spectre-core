@@ -29,7 +29,7 @@ module Spectre
 
 
   class Subject
-    attr_reader :desc, :block, :specs, :before_blocks, :after_blocks
+    attr_reader :id, :desc, :block, :specs, :before_blocks, :after_blocks
     def initialize desc, block
       @id = desc.downcase.gsub(/[^a-z0-9]+/, '_')
       @desc = desc

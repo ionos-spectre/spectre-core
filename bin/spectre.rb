@@ -28,6 +28,7 @@ DEFAULT_CONFIG = {
     'spectre/helpers',
     'spectre/helpers/console',
     'spectre/reporter/console',
+    'spectre/reporter/junit',
     'spectre/logger/console',
     'spectre/assertion',
     'spectre/http',
