@@ -1,4 +1,9 @@
 log_path: ./logs
-env_path: ./environments
+env_pattern: '**/*.env.yml'
+spec_pattern: '**/*.spec.rb'
 modules:
-  - http
+  - spectre/logger
+  - spectre/reporter/console
+  - spectre/assertion
+  - spectre/helpers
+  - spectre/http

@@ -116,11 +116,11 @@ module Spectre
 
 
       def configure config, env_cfg
-        @@logger = Logger.new File.join(config['log_path'], 'http.log'), progname: self.name
+        @@logger = ::Logger.new File.join(config['log_path'], 'http.log'), progname: self.name
       
         @@http_cfg = {}
       
-        env_cfg['http'].each do |name, cfg|
+        env_cfg.each do |name, cfg|
           @@http_cfg[name] = cfg
         end
       
@@ -128,7 +128,7 @@ module Spectre
       end
     end
 
-    configure SPEC_CFG, SPEC_ENV
+    configure SPEC_CFG, SPEC_ENV['http']
   end
 
   delegate :http, :response, to: Http

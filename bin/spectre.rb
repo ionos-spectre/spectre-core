@@ -15,16 +15,17 @@ options = OpenStruct.new({
   colored: true,
   specs: [],
   tags: [],
+  reporter: 'Spectre::Reporter::Console',
 })
 
 opt_parser = OptionParser.new do |opts|
   opts.banner = %{Spectre #{Spectre::VERSION}
 
-Usage: spectre.rb command [options]
+Usage: spectre [command] [options]
 
 Commands:
   list        List specs
-  run         Run specs
+  run         Run specs (default)
 
 Specific options:}
   
@@ -40,14 +41,20 @@ Specific options:}
     options.spec_pattern = spec_pattern
   end
 
-  opts.on('--[no]-colored', 'Enable colored output') do |colored|
+  opts.on('--color', 'Enable colored output') do |colored|
     options.colored = colored
   end
 
-  opts.separator ''
-  opts.separator 'Common options:'
+  opts.on('-r name', '--reporter name', Array, 
+    "The name of the reporter to use", 
+    "(default: #{options.reporter})"
+  ) do |reporter|
+    options.reporter = reporter
+  end
 
-  opts.on('--version', 'Print current installed version') do
+  opts.separator "\nCommon options:"
+
+  opts.on_tail('--version', 'Print current installed version') do
     puts Spectre::VERSION
     exit
   end
@@ -58,39 +65,54 @@ Specific options:}
   end
 end.parse!
 
+
 action = ARGV[0] || 'run'
 
-
-# Start
-
-
-if options.colored
-  String.colored!
-end
+###########################################
+# Load Config
+###########################################
 
 SPEC_CFG = YAML.load_file(options.config_file)
-SPEC_ENV = YAML.load_file File.join(SPEC_CFG['env_path'], "#{options.env}.env.yml")
 
+###########################################
+# Load Environment
+###########################################
 
-# Load Modules
+envs = {}
 
-
-$LOAD_PATH << '../lib/spectre'
-
-SPEC_CFG['modules'].each do |mod_name|
-  require mod_name
+Dir.glob(SPEC_CFG['env_pattern']).each do|f|
+  spec_env = YAML.load_file(f)
+  name = spec_env['name'] || 'default'
+  envs[name] = spec_env
 end
 
+SPEC_ENV = envs[options.env]
 
+###########################################
+# Load Modules
+###########################################
+
+SPEC_CFG['modules'].each do |mod|
+  if !File.exists? mod
+    require_relative File.join('../lib', mod)
+  else
+    require_relative mod
+  end
+end
+
+###########################################
 # Load Specs
+###########################################
 
-
-Dir.glob(options.spec_pattern).each do|f|
+Dir.glob(SPEC_CFG['spec_pattern'] || options.spec_pattern).each do|f|
   require_relative File.join(Dir.pwd, f)
 end
 
-
+###########################################
 # Execute Action
+###########################################
+
+String.colored! if options.colored
 
 
 if action == 'list'
@@ -109,6 +131,7 @@ end
 
 
 if action == 'run'
-  runs = Spectre.run(options.specs, options.tags)
-  Spectre.report(runs)
+  reporter = Kernel.const_get(options.reporter).new
+  run_infos = Spectre.run(options.specs, options.tags)
+  reporter.report(run_infos)
 end
