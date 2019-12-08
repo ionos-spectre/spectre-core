@@ -17,6 +17,7 @@ end
 
 module Spectre
   module Http
+    @@modules = []
   
     class HttpRequest
       attr_accessor :headers, :params, :body, :http_method, :url_path
@@ -44,7 +45,7 @@ module Spectre
       end
     
       def json data
-        @body = JSON.parse(data)
+        @body = JSON.pretty_generate(data)
       end
     end
 
@@ -84,10 +85,18 @@ module Spectre
         # Request
         
         start_time = Time.now
+
+        @@modules.each do |mod|
+          mod.on_req(net_http, net_req, client_cfg) if mod.respond_to? :on_req
+        end
       
         @@response = net_http.request(net_req)
         
         end_time = Time.now
+
+        @@modules.each do |mod|
+          mod.on_res(net_http, @@response, client_cfg) if mod.respond_to? :on_res
+        end
       
         # Log response
       
@@ -115,21 +124,25 @@ module Spectre
       end
 
 
-      def configure config
-        @@logger = ::Logger.new File.join(config['log_path'], 'http.log'), progname: self.name
-      
-        @@http_cfg = {}
-      
-        config['http'].each do |name, cfg|
-          @@http_cfg[name] = cfg
-        end
-      
-        @@response = nil
+      def register mod
+        @@modules << mod
       end
+
     end
 
-  end
+    Spectre.register do |config|
+      @@logger = ::Logger.new File.join(config['log_path'], 'http.log'), progname: self.name
+      
+      @@http_cfg = {}
+      
+      config['http'].each do |name, cfg|
+        @@http_cfg[name] = cfg
+      end
+      
+      @@response = nil
+    end
 
-  delegate :http, :response, to: Http
-  register Http
+    Spectre.delegate :http, :response, to: Http
+  
+  end
 end
