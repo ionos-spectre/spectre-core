@@ -19,7 +19,7 @@ module Spectre::Logger
         puts "  #{spec.desc.cyan}"
       end
 
-      def log_expectation desc
+      def log_expect desc
         print "    expect #{desc} " + ('.' * (50 - desc.length))
       end
 
@@ -27,7 +27,7 @@ module Spectre::Logger
         puts ("    #{message} " + ('.' * (57 - message.length)) + Spectre::Logger::Status::INFO).grey
       end
 
-      def log_exception exception
+      def log_error exception
         puts '    ' + ('.' * 58) + "#{Spectre::Logger::Status::ERROR} #{exception.class.name.red}"
       end
 

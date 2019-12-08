@@ -75,7 +75,7 @@ module Spectre
 
     def expect desc
       begin
-        @logger.log_expectation(desc)
+        @logger.log_expect(desc)
         yield
         @logger.log_status(Logger::Status::OK)
       
@@ -160,7 +160,7 @@ module Spectre
             spec.error = e
             
             if !e.cause
-              @logger.log_exception(e)
+              @logger.log_error(e)
             end 
           ensure
             subject.after_blocks.each do |after|
