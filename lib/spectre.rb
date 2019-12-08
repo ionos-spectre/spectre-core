@@ -38,8 +38,8 @@ end
 
 
 class Hash
-  def contains? other
-    self.merge(other) == self
+  def should_contain(other)
+    raise Spectre::ExpectationError.new(other, self) unless self.merge(other) == self
   end
 end
 
@@ -47,6 +47,13 @@ end
 class Array
   def should_contain(val)
     raise Spectre::ExpectationError.new(val, self) unless self.include? val
+  end
+end
+
+
+class String
+  def as_json
+    JSON.parse(self)
   end
 end
 
@@ -122,7 +129,7 @@ module Spectre
   end
 
 
-  class Run
+  class RunContext
     def expect desc
       begin
         print "    expect #{desc} " + ('.' * (50 - desc.length))
@@ -130,11 +137,11 @@ module Spectre
         print "[ok]\n".green
       
       rescue ExpectationError => e
-        print "[failed - #{$err_count+1}]\n".red
+        print "[failed]\n".red
         raise desc, cause: e
 
       rescue Exception => e
-        print "[error - #{$err_count+1}]\n".red
+        print "[error] #{e.class.name}\n".red
         raise desc, cause: e
       
       end
@@ -149,6 +156,30 @@ module Spectre
     end
   end
 
+
+  class RunInfo
+    attr_reader :subject, :spec
+
+    def initialize subject, spec
+      @subject = subject
+      @spec = spec
+      @started = nil
+      @finished = nil
+    end
+
+    def duration
+      @finished - @started
+    end
+
+    def start
+      @started = Time.now
+    end
+
+    def end
+      @finished = Time.now
+    end
+  end
+
   
   class << self
 
@@ -157,6 +188,7 @@ module Spectre
     end
 
     def run specs, tags
+      runs = []
       $err_count = 0
 
       @@subjects.each do |subject|
@@ -168,40 +200,43 @@ module Spectre
 
           puts "  #{spec.desc.cyan}"
 
-          spec_run = Run.new
+          run_ctx = RunContext.new
+          run_info = RunInfo.new(subject, spec)
+          run_info.start
 
           subject.before_blocks.each do |before|
-            spec_run.instance_eval &before
+            run_ctx.instance_eval &before
           end
         
           begin
-            spec_run.instance_eval &spec.block
+            run_ctx.instance_eval &spec.block
 
           rescue ExpectationError => e
             spec.error = e
-            $err_count += 1
           
           rescue Exception => e
             spec.error = e
             
             if !e.cause
-              puts '    ' + ('.' * 58) + "[error - #{$err_count+1}]".red
+              puts '    ' + ('.' * 58) + "[error] #{e.class.name}".red
             end 
-            
-            $err_count += 1
           ensure
             subject.after_blocks.each do |after|
-              spec_run.instance_eval &after
+              run_ctx.instance_eval &after
             end
+
+            run_info.end
+
+            runs << run_info
           end
         end
       end
 
-      @@subjects
+      runs
     end
 
 
-    def report subjects
+    def report spec_runs
       def print_exception error
         file, line = error.backtrace[0].match(/(.*\.rb):(\d+)/).captures
         file.slice!(Dir.pwd + '/')
@@ -215,47 +250,58 @@ module Spectre
 
       report_str = ''
 
-      counter = 0
       errors = 0
       failures = 0
 
-      subjects.each do |subject|
-        subject.specs.each do |spec|
-          next unless spec.error
+      spec_runs
+        .select { |x| x.spec.error }
+        .each_with_index do |run_info, index|
+        
+        subject = run_info.subject
+        spec = run_info.spec
 
-          counter += 1
-          report_str += "\n#{counter}) #{subject.desc} #{spec.desc} [#{spec.id}]\n"
-        
-          if spec.error.cause
-            report_str += "     expected #{spec.error}\n"
-        
-            if spec.error.cause.is_a? ExpectationError
-              report_str += "     but it failed with #{spec.error.cause.failure}\n"
-              failures += 1
-            else
-              report_str += "     but it failed with an unexpected error\n"
-              report_str += print_exception(spec.error.cause)
-              errors += 1
-            end
-        
+        report_str += "\n#{index+1}) #{subject.desc} #{spec.desc} (#{'%.3f' % run_info.duration}s) [#{spec.id}]\n"
+      
+        if spec.error.cause
+          report_str += "     expected #{spec.error}\n"
+      
+          if spec.error.cause.is_a? ExpectationError
+            report_str += "     but it failed with #{spec.error.cause.failure}\n"
+            failures += 1
           else
-            report_str += "     but an unexpected error occured during run\n"
-            report_str += print_exception(spec.error)
+            report_str += "     but it failed with an unexpected error\n"
+            report_str += print_exception(spec.error.cause)
             errors += 1
           end
+      
+        else
+          report_str += "     but an unexpected error occured during run\n"
+          report_str += print_exception(spec.error)
+          errors += 1
         end
       end
 
       if failures + errors > 0
         summary = ''
+        summary += "#{spec_runs.length - failures - errors} succeeded "
         summary += "#{failures} failures " if failures > 0
-        summary += "#{errors} errors" if errors > 0
+        summary += "#{errors} errors " if errors > 0
+        summary += "#{spec_runs.length} total"
         puts "\n#{summary}".red
       else
         puts "Run finished successfully".green
       end
 
       puts report_str.red
+    end
+
+
+    def delegate *module_names, to: nil
+      module_names.each do |method_name|
+        Kernel.define_method(method_name) do |*args, &block|
+          to.send(method_name, *args, &block)
+        end
+      end
     end
 
 
@@ -267,17 +313,8 @@ module Spectre
       subject.instance_eval &block
       @@subjects << subject
     end
-
+    
   end
   
-  
-  # Function Exports
-  
-  
-  [:describe].each do |method_name|
-    Kernel.define_method(method_name) do |*args, &block|
-      Spectre.send(method_name, *args, &block)
-    end
-  end
-
+  delegate :describe, to: Spectre
 end
