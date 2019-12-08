@@ -34,6 +34,7 @@ describe 'Awesome API' do
   end
 end
 
+
 describe 'Error API' do
   it 'raises an unexpected error', tags: [:fatal] do
     expect 'to be everything all right first' do
@@ -52,21 +53,27 @@ describe 'Error API' do
   end
 end
 
+
 describe 'Some API' do
   before do
     @answer = 42
-  end
-
-  it 'runs successfully', tags: [:success] do
-    expect 'foo to be foo' do
-      'foo'.should_be 'foo'
-    end
   end
 
   it 'uses a precreated variable', tags: [:success] do
     expect '@answer to be 42' do
       @answer.should_be 42
     end
+  end
+end
+
+
+describe 'Some API' do
+  it 'runs successfully', tags: [:success] do
+    expect 'foo to be foo' do
+      'foo'.should_be 'foo'
+    end
+
+    fail_with 'no log dir found' if not `ls`.include? 'logs'
   end
 
   it 'fails with a message', tags: [:failure, :controlled] do

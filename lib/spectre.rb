@@ -215,9 +215,14 @@ module Spectre
 
 
     def describe desc, &block
-      subject = Subject.new(desc, block)
+      subject = @@subjects.find { |x| x.desc == desc }
+
+      if !subject
+        subject = Subject.new(desc, block)
+        @@subjects << subject
+      end
+
       subject.instance_eval &block
-      @@subjects << subject
     end
     
   end
