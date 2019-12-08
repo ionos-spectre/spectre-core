@@ -181,7 +181,7 @@ module Spectre
   
   class << self
     @@subjects = []
-    @@modules = []
+    @@configs = []
     
     def subjects
       @@subjects
@@ -197,14 +197,14 @@ module Spectre
     end
 
 
-    def register mod
-      @@modules << mod
+    def register &block
+      @@configs << block
     end
 
 
-    def configure
-      @@modules.each do |mod|
-        yield mod
+    def configure config
+      @@configs.each do |block|
+        block.call(config)
       end
     end
 
