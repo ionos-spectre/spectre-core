@@ -31,6 +31,7 @@ DEFAULT_CONFIG = {
     'spectre/logger/console',
     'spectre/assertion',
     'spectre/http',
+    'spectre/http/basic_auth',
   ],
 }
 
@@ -161,14 +162,7 @@ SPEC_CFG['modules'].each do |mod|
 end
 
 
-###########################################
-# Configure Modules
-###########################################
-
-
-Spectre.configure do |mod|
-  mod.configure(SPEC_CFG)
-end
+Spectre.configure(SPEC_CFG)
 
 
 ###########################################
