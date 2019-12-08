@@ -5,18 +5,36 @@ require 'ostruct'
 require 'optparse'
 
 require_relative '../lib/spectre'
+require_relative '../lib/spectre/helpers/console'
 
 
-options = OpenStruct.new({
-  config_file: './spectre.yml',
-  spec_pattern: '**/*.spec.rb',
-  env: 'default',
-  verbose: false,
-  colored: true,
-  specs: [],
-  tags: [],
-  reporter: 'Spectre::Reporter::Console',
-})
+DEFAULT_CONFIG = {
+  'config_file' => './spectre.yml',
+  'environment' => 'default',
+  'specs' => [],
+  'tags' => [],
+  'colored' => true,
+  'verbose' => false,
+  'reporter' => 'Spectre::Reporter::Console',
+  'log_path' => './logs',
+  'spec_patterns' => ['./specs/**/*.spec.rb'],
+  'env_patterns' => ['./environments/**/*.env.yml'],
+  # 'resource_paths' => ['./resources'],
+  # 'helper_paths' => ['./helpers'],
+  # 'conf_patterns' => ['./config/**/*.conf.rb'],
+  # 'mixin_patterns' => ['./mixins/**/*.mixin.rb'],
+  'modules' => [
+    'spectre/helpers',
+    'spectre/helpers/console',
+    'spectre/reporter/console',
+    'spectre/logger',
+    'spectre/assertion',
+    'spectre/http',
+  ],
+}
+
+
+cmd_options = {}
 
 opt_parser = OptionParser.new do |opts|
   opts.banner = %{Spectre #{Spectre::VERSION}
@@ -30,26 +48,33 @@ Commands:
 Specific options:}
   
   opts.on('-s spec1,spec2', '--specs spec1,spec2', Array, 'The specs to run') do |specs|
-    options.specs = specs
+    cmd_options['specs'] = specs
   end
 
   opts.on('-t tag1,tag2', '--tags tag1,tag2', Array, 'Run only specs with give tags') do |tags|
-    options.tags = tags
+    cmd_options['tags'] = tags
   end
 
-  opts.on('--spec-pattern', 'File pattern for spec files') do |spec_pattern|
-    options.spec_pattern = spec_pattern
+  opts.on('-e env_name', '--env env_name', 'Name of the environment to load') do |env_name|
+    cmd_options['environment'] = env_name
+  end
+
+  opts.on('--spec-pattern', Array, 'File pattern for spec files') do |spec_pattern|
+    cmd_options['spec_patterns'] = spec_pattern
+  end
+
+  opts.on('--env-pattern', Array, 'File pattern for environment files') do |env_patterns|
+    cmd_options['env_patterns'] = env_patterns
   end
 
   opts.on('--color', 'Enable colored output') do |colored|
-    options.colored = colored
+    cmd_options['colored'] = colored
   end
 
   opts.on('-r name', '--reporter name', Array, 
-    "The name of the reporter to use", 
-    "(default: #{options.reporter})"
+    "The name of the reporter to use",
   ) do |reporter|
-    options.reporter = reporter
+    cmd_options['reporter'] = reporter
   end
 
   opts.separator "\nCommon options:"
@@ -72,7 +97,12 @@ action = ARGV[0] || 'run'
 # Load Config
 ###########################################
 
-SPEC_CFG = YAML.load_file(options.config_file)
+file_options = YAML.load_file(cmd_options['config_file'] || DEFAULT_CONFIG['config_file'])
+
+SPEC_CFG = {}
+SPEC_CFG.merge! DEFAULT_CONFIG
+SPEC_CFG.merge! file_options
+SPEC_CFG.merge! cmd_options
 
 ###########################################
 # Load Environment
@@ -80,13 +110,15 @@ SPEC_CFG = YAML.load_file(options.config_file)
 
 envs = {}
 
-Dir.glob(SPEC_CFG['env_pattern']).each do|f|
-  spec_env = YAML.load_file(f)
-  name = spec_env['name'] || 'default'
-  envs[name] = spec_env
+SPEC_CFG['env_patterns'].each do |pattern|
+  Dir.glob(pattern).each do|f|
+    spec_env = YAML.load_file(f)
+    name = spec_env.delete('name') || 'default'
+    envs[name] = spec_env
+  end
 end
 
-SPEC_ENV = envs[options.env]
+SPEC_CFG.merge! envs[SPEC_CFG['environment']]
 
 ###########################################
 # Load Modules
@@ -104,15 +136,17 @@ end
 # Load Specs
 ###########################################
 
-Dir.glob(SPEC_CFG['spec_pattern'] || options.spec_pattern).each do|f|
-  require_relative File.join(Dir.pwd, f)
+SPEC_CFG['spec_patterns'].each do |pattern|
+  Dir.glob(pattern).each do|f|
+    require_relative File.join(Dir.pwd, f)
+  end
 end
 
 ###########################################
 # Execute Action
 ###########################################
 
-String.colored! if options.colored
+String.colored! if SPEC_CFG['colored']
 
 
 if action == 'list'
@@ -131,7 +165,22 @@ end
 
 
 if action == 'run'
-  reporter = Kernel.const_get(options.reporter).new
-  run_infos = Spectre.run(options.specs, options.tags)
+  reporter = Kernel.const_get(SPEC_CFG['reporter']).new
+  run_infos = Spectre.run(SPEC_CFG['specs'], SPEC_CFG['tags'])
   reporter.report(run_infos)
+end
+
+
+if action == 'envs'
+  puts envs.pretty
+end
+
+
+if action == 'show'
+  puts SPEC_CFG.pretty
+end
+
+
+if action == 'init'
+
 end

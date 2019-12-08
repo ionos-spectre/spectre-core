@@ -1,27 +1,4 @@
-class String
-  @@colored = false
-
-  def self.colored!
-    @@colored = true
-  end
-
-  def white;   self; end
-  def red; colored '31'; end
-  def green; colored '32'; end
-  def yellow; colored '33'; end
-  def blue; colored '34'; end
-  def magenta; colored '35'; end
-  def cyan; colored '36'; end
-  def grey; colored '90'; end
-
-  private
-
-  def colored ansi_color
-    return self if !@@colored
-    "\e[#{ansi_color}m#{self}\e[0m"
-  end
-end
-
+require_relative 'helpers/console'
 
 module Spectre::Logger
   module Status
