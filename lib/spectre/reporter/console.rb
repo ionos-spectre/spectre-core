@@ -30,7 +30,8 @@ module Spectre::Reporter
           report_str += "     expected #{spec.error}\n"
       
           if spec.error.cause.is_a? Spectre::ExpectationFailure
-            report_str += "     but it failed with #{spec.error.cause.failure}\n"
+            failure = spec.error.cause.failure || 'nil'
+            report_str += "     but it failed with #{failure}\n"
             failures += 1
           else
             report_str += "     but it failed with an unexpected error\n"

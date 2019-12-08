@@ -128,8 +128,8 @@ module Spectre
       end
     end
 
-    configure SPEC_CFG
   end
 
   delegate :http, :response, to: Http
+  register Http
 end

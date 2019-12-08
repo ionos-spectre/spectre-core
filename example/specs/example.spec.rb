@@ -1,8 +1,4 @@
 describe 'Awesome API' do
-  before do
-    @answer = 42
-  end
-
   after do
     log 'finished'
   end
@@ -57,6 +53,10 @@ describe 'Error API' do
 end
 
 describe 'Some API' do
+  before do
+    @answer = 42
+  end
+
   it 'runs successfully', tags: [:success] do
     expect 'foo to be foo' do
       'foo'.should_be 'foo'

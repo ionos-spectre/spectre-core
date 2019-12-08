@@ -16,6 +16,7 @@ DEFAULT_CONFIG = {
   'colored' => true,
   'verbose' => false,
   'reporter' => 'Spectre::Reporter::Console',
+  'logger' => 'Spectre::Logger::Console',
   'log_path' => './logs',
   'spec_patterns' => ['./specs/**/*.spec.rb'],
   'env_patterns' => ['./environments/**/*.env.yml'],
@@ -27,7 +28,7 @@ DEFAULT_CONFIG = {
     'spectre/helpers',
     'spectre/helpers/console',
     'spectre/reporter/console',
-    'spectre/logger',
+    'spectre/logger/console',
     'spectre/assertion',
     'spectre/http',
   ],
@@ -57,6 +58,10 @@ Specific options:}
 
   opts.on('-e env_name', '--env env_name', 'Name of the environment to load') do |env_name|
     cmd_options['environment'] = env_name
+  end
+
+  opts.on('-c file', '--config file', 'Config file to load') do |file_path|
+    cmd_options['config_file'] = file_path
   end
 
   opts.on('--spec-pattern', Array, 'File pattern for spec files') do |spec_pattern|
@@ -132,6 +137,17 @@ SPEC_CFG.merge! env if env
 
 
 ###########################################
+# Create Log Path
+###########################################
+
+
+log_path = SPEC_CFG['log_path']
+if !File.directory? log_path
+  Dir.mkdir(log_path)
+end
+
+
+###########################################
 # Load Modules
 ###########################################
 
@@ -142,6 +158,16 @@ SPEC_CFG['modules'].each do |mod|
   else
     require_relative mod
   end
+end
+
+
+###########################################
+# Configure Modules
+###########################################
+
+
+Spectre.configure do |mod|
+  mod.configure(SPEC_CFG)
 end
 
 
@@ -170,18 +196,25 @@ if action == 'list'
 
   exit 1 if Spectre::subjects.length == 0
 
+  counter = 0
+
   Spectre::subjects.each do |subject|
     subject.specs.each do |spec|
       tags = spec.tags.map { |x| '#' + x.to_s }.join ' '
       puts "[#{spec.id}]".send(colors[counter % colors.length]) + " #{subject.desc} #{spec.desc} #{tags.cyan}"
     end
+    counter += 1
   end
 end
 
 
 if action == 'run'
+  logger = Kernel.const_get(SPEC_CFG['logger'])
   reporter = Kernel.const_get(SPEC_CFG['reporter']).new
-  run_infos = Spectre.run(SPEC_CFG['specs'], SPEC_CFG['tags'])
+
+  runner = Spectre::Runner.new(Spectre.subjects, logger)
+  run_infos = runner.run(SPEC_CFG['specs'], SPEC_CFG['tags'])
+
   reporter.report(run_infos)
 end
 
@@ -198,5 +231,9 @@ end
 
 
 if action == 'init'
-
+  %w(environments logs specs).each do |dir_name|
+    if !File.directory? dir_name
+      Dir.mkdir(dir_name)
+    end
+  end
 end

@@ -1,2 +1,4 @@
 .vscode/
 **/*.log
+tmp/
+temp/

@@ -7,16 +7,12 @@ module Spectre
 
   VERSION = [Version::MAJOR, Version::MINOR, Version::TINY].compact * '.'
   
-  ###########################################
-  # Module Variables
-  ###########################################
-  
-  @@subjects = []
-  
+
   ###########################################
   # Custom Exceptions
   ###########################################
   
+
   class ExpectationFailure < Exception
     attr_reader :expectation, :failure
 
@@ -26,9 +22,11 @@ module Spectre
     end
   end
 
+
   ###########################################
   # Internal Classes
   ###########################################
+
 
   class Subject
     attr_reader :desc, :block, :specs, :before_blocks, :after_blocks
@@ -71,26 +69,29 @@ module Spectre
 
 
   class RunContext
+    def initialize logger
+      @logger = logger
+    end
+
     def expect desc
       begin
-        Logger::log_expectation(desc)
+        @logger.log_expectation(desc)
         yield
-        Logger::log_status(Logger::Status::OK)
+        @logger.log_status(Logger::Status::OK)
       
       rescue ExpectationFailure => e
-        Logger::log_status(Logger::Status::FAILED)
+        @logger.log_status(Logger::Status::FAILED)
         raise desc, cause: e
 
       rescue Exception => e
-        Logger::log_status(Logger::Status::ERROR)
+        @logger.log_status(Logger::Status::ERROR)
         
         raise desc, cause: e
-      
       end
     end
 
     def log message
-      Logger::log_info(message)
+      @logger.log_info(message)
     end
 
     def fail_with message
@@ -122,27 +123,26 @@ module Spectre
     end
   end
 
-  
-  class << self
 
-    def subjects
-      @@subjects
+  class Runner
+    def initialize subjects, logger
+      @subjects = subjects
+      @logger = logger
     end
 
     def run specs, tags
       runs = []
-      $err_count = 0
 
-      @@subjects.each do |subject|
-        Logger::log_subject(subject)
+      @subjects.each do |subject|
+        @logger.log_subject(subject)
 
         subject.specs.each do |spec|
           next unless specs.empty? or specs.include? spec.id
           next unless tags.empty? or tags.any? { |x| spec.tags.include? x.to_sym }
 
-          Logger::log_spec(spec)
+          @logger.log_spec(spec)
 
-          run_ctx = RunContext.new
+          run_ctx = RunContext.new(@logger)
           run_info = RunInfo.new(subject, spec)
           run_info.start
 
@@ -160,7 +160,7 @@ module Spectre
             spec.error = e
             
             if !e.cause
-              Logger::log_exception(e)
+              @logger.log_exception(e)
             end 
           ensure
             subject.after_blocks.each do |after|
@@ -176,6 +176,16 @@ module Spectre
 
       runs
     end
+  end
+
+  
+  class << self
+    @@subjects = []
+    @@modules = []
+    
+    def subjects
+      @@subjects
+    end
 
 
     def delegate *module_names, to: nil
@@ -186,9 +196,23 @@ module Spectre
       end
     end
 
+
+    def register mod
+      @@modules << mod
+    end
+
+
+    def configure
+      @@modules.each do |mod|
+        yield mod
+      end
+    end
+
+
     ###########################################
     # Global Functions
     ###########################################
+
 
     def describe desc, &block
       subject = Subject.new(desc, block)
