@@ -137,6 +137,9 @@ env = envs[SPEC_CFG['environment']]
 SPEC_CFG.merge! env if env
 
 
+String.colored! if SPEC_CFG['colored']
+
+
 ###########################################
 # Create Log Path
 ###########################################
@@ -180,9 +183,6 @@ end
 ###########################################
 # Execute Action
 ###########################################
-
-
-String.colored! if SPEC_CFG['colored']
 
 
 if action == 'list'
