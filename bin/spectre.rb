@@ -77,9 +77,7 @@ Specific options:}
     cmd_options['colored'] = colored
   end
 
-  opts.on('-r name', '--reporter name', Array,
-    "The name of the reporter to use",
-  ) do |reporter|
+  opts.on('-r name', '--reporter name', Array, "The name of the reporter to use") do |reporter|
     cmd_options['reporter'] = reporter
   end
 
@@ -146,9 +144,7 @@ String.colored! if cfg['colored']
 
 
 log_path = cfg['log_path']
-if !File.directory? log_path
-  Dir.mkdir(log_path)
-end
+Dir.mkdir(log_path) unless File.directory? log_path
 
 
 ###########################################
@@ -211,6 +207,9 @@ if action == 'run'
   reporter = Kernel.const_get(cfg['reporter']).new
 
   specs = Spectre.specs(cfg['specs'], cfg['tags'])
+
+  exit 1 if specs.length == 0
+
   runner = Spectre::Runner.new(logger)
   run_infos = runner.run(specs)
 
@@ -231,8 +230,6 @@ end
 
 if action == 'init'
   %w(environments logs specs).each do |dir_name|
-    if !File.directory? dir_name
-      Dir.mkdir(dir_name)
-    end
+    Dir.mkdir(dir_name) unless File.directory? dir_name
   end
 end

@@ -78,7 +78,8 @@ module Spectre
     end
 
     def add_spec desc, tags, block, context
-      @specs << Spec.new("#{@name}-#{@specs.length+1}", self, desc, tags, block, context)
+      name = @name + '-' + (@specs.length+1).to_s
+      @specs << Spec.new(name, self, desc, tags, block, context)
     end
   end
 
@@ -116,8 +117,8 @@ module Spectre
 
       rescue Exception => e
         @logger.log_status(Logger::Status::ERROR)
-
         raise desc, cause: e
+
       end
     end
 
@@ -194,10 +195,8 @@ module Spectre
       
                   rescue Exception => e
                     spec.error = e
-      
-                    if !e.cause
-                      @logger.log_error(e)
-                    end
+                    @logger.log_error(e) unless e.cause
+
                   ensure
                     context.after_blocks.each do |block|
                       run_ctx.instance_eval &block
