@@ -191,18 +191,20 @@ end
 
 if action == 'list'
   colors = [:blue, :magenta, :yellow, :green]
+  specs = Spectre.specs(SPEC_CFG['specs'], SPEC_CFG['tags'])
 
-  exit 1 if Spectre::subjects.length == 0
-
+  exit 1 if specs.length == 0
+  
   counter = 0
 
-  Spectre::subjects.each do |subject|
-    subject.specs.each do |spec|
+  specs.group_by { |x| x.subject }.each do |subject, spec_group|
+    spec_group.each do |spec|
       tags = spec.tags.map { |x| '#' + x.to_s }.join ' '
       desc = "#{subject.desc} #{spec.desc}"
       desc += ' ' + spec.context.desc if spec.context.desc
       puts "[#{spec.name}]".send(colors[counter % colors.length]) + " #{desc} #{tags.cyan}"
     end
+    
     counter += 1
   end
 end
@@ -212,8 +214,9 @@ if action == 'run'
   logger = Kernel.const_get(SPEC_CFG['logger'])
   reporter = Kernel.const_get(SPEC_CFG['reporter']).new
 
-  runner = Spectre::Runner.new(Spectre.subjects, logger)
-  run_infos = runner.run(SPEC_CFG['specs'], SPEC_CFG['tags'])
+  specs = Spectre.specs(SPEC_CFG['specs'], SPEC_CFG['tags'])
+  runner = Spectre::Runner.new(logger)
+  run_infos = runner.run(specs)
 
   reporter.report(run_infos)
 end

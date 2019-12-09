@@ -156,26 +156,19 @@ module Spectre
 
 
   class Runner
-    def initialize subjects, logger
-      @subjects = subjects
+    def initialize logger
       @logger = logger
     end
 
-    def run filter, tags
+    def run specs
       runs = []
 
-      @subjects.each do |subject|
-        filtered_specs = subject.specs.select do |spec|
-          (filter.empty? or filter.include? spec.name) and (tags.empty? or tags.any? { |x| spec.tags.include? x.to_sym })
-        end
-
-        next if filtered_specs.length == 0
-
+      specs.group_by { |x| x.subject }.each do |subject, spec_group|
         @logger.log_subject(subject)
 
         setup_ctx = RunContext.new(@logger)
 
-        filtered_specs.group_by { |x| x.context }.each do |context, specs|
+        spec_group.group_by { |x| x.context }.each do |context, specs|
           @logger.log_context(context) do
 
             context.setup_blocks.each do |block|
@@ -235,8 +228,14 @@ module Spectre
     @@subjects = []
     @@configs = []
 
-    def subjects
+
+    def specs spec_filter=[], tags=[]
       @@subjects
+        .map { |x| x.specs }
+        .flatten
+        .select do |spec|
+          (spec_filter.empty? or spec_filter.include? spec.name) and (tags.empty? or tags.any? { |x| spec.tags.include? x.to_sym })
+        end
     end
 
 
