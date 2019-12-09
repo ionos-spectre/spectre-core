@@ -40,9 +40,10 @@ module Spectre::Reporter
 
       xml_str += '</testsuites>'
 
-      File.open('report.xml', 'w') do |file|
-        file.write(xml_str)
-      end
+      # File.open('report.xml', 'w') do |file|
+      #   file.write(xml_str)
+      # end
+      print xml_str
     end
   end
 end
