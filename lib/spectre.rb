@@ -28,13 +28,12 @@ module Spectre
   ###########################################
 
 
-  class Subject
-    attr_reader :id, :desc, :block, :specs, :before_blocks, :after_blocks, :setup_blocks, :teardown_blocks
-    def initialize desc, block
-      @id = desc.downcase.gsub(/[^a-z0-9]+/, '_')
+  class SpecContext
+    attr_reader :subject, :desc, :before_blocks, :after_blocks, :setup_blocks, :teardown_blocks
+
+    def initialize subject, desc, parent: nil
+      @subject = subject
       @desc = desc
-      @block = block
-      @specs = []
       @before_blocks = []
       @after_blocks = []
       @setup_blocks = []
@@ -42,7 +41,7 @@ module Spectre
     end
 
     def it desc, tags: [], &block
-      @specs << Spec.new("#{@id}-#{@specs.length+1}", self, desc, tags, block)
+      @subject.specs << Spec.new("#{@subject.name}-#{@subject.specs.length+1}", self, desc, tags, block)
     end
 
     def before &block
@@ -60,15 +59,31 @@ module Spectre
     def teardown &block
       @teardown_blocks << block
     end
+
+    def context desc, &block
+      ctx = SpecContext.new(desc, parent: self)
+      ctx.instance_eval &block
+    end
+  end
+
+
+  class Subject < SpecContext
+    attr_reader :name, :specs
+
+    def initialize desc
+      super(desc)
+      @specs = []
+      @name = desc.downcase.gsub(/[^a-z0-9]+/, '_')
+    end
   end
 
 
   class Spec
-    attr_reader :id, :subject, :desc, :tags, :block
+    attr_reader :name, :subject, :desc, :tags, :block
     attr_accessor :error
 
-    def initialize id, subject, desc, tags, block
-      @id = id
+    def initialize name, subject, desc, tags, block
+      @name = name
       @subject = subject
       @desc = desc
       @tags = tags
@@ -145,7 +160,7 @@ module Spectre
 
       @subjects.each do |subject|
         specs = subject.specs.select do |spec|
-          (spec_list.empty? or spec_list.include? spec.id) and (tags.empty? or tags.any? { |x| spec.tags.include? x.to_sym })
+          (spec_list.empty? or spec_list.include? spec.name) and (tags.empty? or tags.any? { |x| spec.tags.include? x.to_sym })
         end
 
         next if specs.length == 0
@@ -166,11 +181,11 @@ module Spectre
             run_info = RunInfo.new(subject, spec)
             run_info.start
 
-            subject.before_blocks.each do |block|
-              run_ctx.instance_eval &block
-            end
-
             begin
+              subject.before_blocks.each do |block|
+                run_ctx.instance_eval &block
+              end
+
               run_ctx.instance_eval &spec.block
 
             rescue ExpectationFailure => e
@@ -243,7 +258,7 @@ module Spectre
       subject = @@subjects.find { |x| x.desc == desc }
 
       if !subject
-        subject = Subject.new(desc, block)
+        subject = Subject.new(desc)
         @@subjects << subject
       end
 

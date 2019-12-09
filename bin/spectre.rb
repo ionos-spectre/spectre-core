@@ -199,7 +199,7 @@ if action == 'list'
   Spectre::subjects.each do |subject|
     subject.specs.each do |spec|
       tags = spec.tags.map { |x| '#' + x.to_s }.join ' '
-      puts "[#{spec.id}]".send(colors[counter % colors.length]) + " #{subject.desc} #{spec.desc} #{tags.cyan}"
+      puts "[#{spec.name}]".send(colors[counter % colors.length]) + " #{subject.desc} #{spec.desc} #{tags.cyan}"
     end
     counter += 1
   end

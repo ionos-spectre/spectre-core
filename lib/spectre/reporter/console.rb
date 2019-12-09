@@ -20,15 +20,15 @@ module Spectre::Reporter
       run_infos
         .select { |x| x.spec.error }
         .each_with_index do |run_info, index|
-        
+
         subject = run_info.subject
         spec = run_info.spec
 
         report_str += "\n#{index+1}) #{format_title run_info}\n"
-      
+
         if spec.error.cause
           report_str += "     expected #{spec.error}\n"
-      
+
           if spec.error.cause.is_a? Spectre::ExpectationFailure
             failure = spec.error.cause.failure || 'nil'
             report_str += "     but it failed with #{failure}\n"
@@ -38,7 +38,7 @@ module Spectre::Reporter
             report_str += format_exception(spec.error.cause)
             errors += 1
           end
-      
+
         else
           report_str += "     but an unexpected error occured during run\n"
           report_str += format_exception(spec.error)
@@ -59,14 +59,14 @@ module Spectre::Reporter
 
       puts report_str.red
     end
-    
-    private 
+
+    private
 
     def format_title run_info
       title = run_info.subject.desc
       title += ' ' + run_info.spec.desc
       title += " (#{'%.3f' % run_info.duration}s)"
-      title += " [#{run_info.spec.id}]"
+      title += " [#{run_info.spec.name}]"
       title
     end
 

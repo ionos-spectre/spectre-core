@@ -7,10 +7,10 @@ module Spectre::Reporter
       xml_str += '<testsuites id="" name="" tests="" failures="" time="">'
 
       run_infos.group_by { |x| x.subject }.each do |subject, run_infos|
-        xml_str += '<testsuite id="' + subject.id + '" name="' + subject.desc + '" tests="' + subject.specs.length.to_s + '" failures="" time="">'
+        xml_str += '<testsuite id="' + subject.name + '" name="' + subject.desc + '" tests="' + subject.specs.length.to_s + '" failures="" time="">'
 
         run_infos.each do |run_info|
-          xml_str += '<testcase id="' + run_info.spec.id + '" name="' + run_info.spec.desc + '" time="' + ('%.3f' % run_info.duration) + '">'
+          xml_str += '<testcase id="' + run_info.spec.name + '" name="' + run_info.spec.desc + '" time="' + ('%.3f' % run_info.duration) + '">'
 
           if run_info.spec.error
             if run_info.spec.error.cause
