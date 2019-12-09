@@ -29,7 +29,7 @@ module Spectre
 
 
   class Subject
-    attr_reader :id, :desc, :block, :specs, :before_blocks, :after_blocks
+    attr_reader :id, :desc, :block, :specs, :before_blocks, :after_blocks, :setup_blocks, :teardown_blocks
     def initialize desc, block
       @id = desc.downcase.gsub(/[^a-z0-9]+/, '_')
       @desc = desc
@@ -37,6 +37,8 @@ module Spectre
       @specs = []
       @before_blocks = []
       @after_blocks = []
+      @setup_blocks = []
+      @teardown_blocks = []
     end
 
     def it desc, tags: [], &block
@@ -49,6 +51,14 @@ module Spectre
 
     def after &block
       @after_blocks << block
+    end
+
+    def setup &block
+      @setup_blocks << block
+    end
+
+    def teardown &block
+      @teardown_blocks << block
     end
   end
 
@@ -142,37 +152,49 @@ module Spectre
 
         @logger.log_subject(subject)
 
-        specs.each do |spec|
-          @logger.log_spec(spec)
+        setup_ctx = RunContext.new(@logger)
 
-          run_ctx = RunContext.new(@logger)
-          run_info = RunInfo.new(subject, spec)
-          run_info.start
-
-          subject.before_blocks.each do |before|
-            run_ctx.instance_eval &before
+        begin
+          subject.setup_blocks.each do |block|
+            setup_ctx.instance_eval &block
           end
 
-          begin
-            run_ctx.instance_eval &spec.block
+          specs.each do |spec|
+            @logger.log_spec(spec)
 
-          rescue ExpectationFailure => e
-            spec.error = e
+            run_ctx = RunContext.new(@logger)
+            run_info = RunInfo.new(subject, spec)
+            run_info.start
 
-          rescue Exception => e
-            spec.error = e
-
-            if !e.cause
-              @logger.log_error(e)
-            end
-          ensure
-            subject.after_blocks.each do |after|
-              run_ctx.instance_eval &after
+            subject.before_blocks.each do |block|
+              run_ctx.instance_eval &block
             end
 
-            run_info.end
+            begin
+              run_ctx.instance_eval &spec.block
 
-            runs << run_info
+            rescue ExpectationFailure => e
+              spec.error = e
+
+            rescue Exception => e
+              spec.error = e
+
+              if !e.cause
+                @logger.log_error(e)
+              end
+            ensure
+              subject.after_blocks.each do |block|
+                run_ctx.instance_eval &block
+              end
+
+              run_info.end
+
+              runs << run_info
+            end
+          end
+        ensure
+          subject.teardown_blocks.each do |block|
+            setup_ctx.instance_eval &block
           end
         end
       end
