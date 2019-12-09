@@ -6,12 +6,12 @@ module Spectre
   end
 
   VERSION = [Version::MAJOR, Version::MINOR, Version::TINY].compact * '.'
-  
+
 
   ###########################################
   # Custom Exceptions
   ###########################################
-  
+
 
   class ExpectationFailure < Exception
     attr_reader :expectation, :failure
@@ -78,14 +78,14 @@ module Spectre
         @logger.log_expect(desc)
         yield
         @logger.log_status(Logger::Status::OK)
-      
+
       rescue ExpectationFailure => e
         @logger.log_status(Logger::Status::FAILED)
         raise desc, cause: e
 
       rescue Exception => e
         @logger.log_status(Logger::Status::ERROR)
-        
+
         raise desc, cause: e
       end
     end
@@ -130,16 +130,19 @@ module Spectre
       @logger = logger
     end
 
-    def run specs, tags
+    def run spec_list, tags
       runs = []
 
       @subjects.each do |subject|
+        specs = subject.specs.select do |spec|
+          (spec_list.empty? or spec_list.include? spec.id) and (tags.empty? or tags.any? { |x| spec.tags.include? x.to_sym })
+        end
+
+        next if specs.length == 0
+
         @logger.log_subject(subject)
 
-        subject.specs.each do |spec|
-          next unless specs.empty? or specs.include? spec.id
-          next unless tags.empty? or tags.any? { |x| spec.tags.include? x.to_sym }
-
+        specs.each do |spec|
           @logger.log_spec(spec)
 
           run_ctx = RunContext.new(@logger)
@@ -149,19 +152,19 @@ module Spectre
           subject.before_blocks.each do |before|
             run_ctx.instance_eval &before
           end
-        
+
           begin
             run_ctx.instance_eval &spec.block
 
           rescue ExpectationFailure => e
             spec.error = e
-          
+
           rescue Exception => e
             spec.error = e
-            
+
             if !e.cause
               @logger.log_error(e)
-            end 
+            end
           ensure
             subject.after_blocks.each do |after|
               run_ctx.instance_eval &after
@@ -178,11 +181,11 @@ module Spectre
     end
   end
 
-  
+
   class << self
     @@subjects = []
     @@configs = []
-    
+
     def subjects
       @@subjects
     end
@@ -224,8 +227,8 @@ module Spectre
 
       subject.instance_eval &block
     end
-    
+
   end
-  
+
   delegate :describe, to: Spectre
 end
