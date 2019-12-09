@@ -52,6 +52,8 @@ module Spectre
 
     class << self
       def http name, &block
+        raise "HTTP client '#{name}' not configured" unless @@http_cfg.has_key? name
+
         client_cfg = @@http_cfg[name]
         base_uri = URI(client_cfg['base_url'])
 
@@ -138,18 +140,19 @@ module Spectre
     end
 
     Spectre.register do |config|
-      @@logger = ::Logger.new File.join(config['log_path'], 'http.log'), progname: self.name
+      if config.has_key? 'http'
+        @@logger = ::Logger.new File.join(config['log_path'], 'http.log'), progname: self.name
 
-      @@http_cfg = {}
+        @@http_cfg = {}
 
-      config['http'].each do |name, cfg|
-        @@http_cfg[name] = cfg
+        config['http'].each do |name, cfg|
+          @@http_cfg[name] = cfg
+        end
+
+        @@response = nil
       end
-
-      @@response = nil
     end
 
     Spectre.delegate :http, :response, to: Http
-
   end
 end
