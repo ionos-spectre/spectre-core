@@ -161,12 +161,12 @@ module Spectre
       @logger = logger
     end
 
-    def run spec_list, tags
+    def run filter, tags
       runs = []
 
       @subjects.each do |subject|
         filtered_specs = subject.specs.select do |spec|
-          (spec_list.empty? or spec_list.include? spec.name) and (tags.empty? or tags.any? { |x| spec.tags.include? x.to_sym })
+          (filter.empty? or filter.include? spec.name) and (tags.empty? or tags.any? { |x| spec.tags.include? x.to_sym })
         end
 
         next if filtered_specs.length == 0
