@@ -1,17 +1,25 @@
 module Spectre::Diagnostic
   @@duration = 0.0
 
-  def self.measure
-    start_time = Time.now
-    yield
-    end_time = Time.now
+  class << self
+    def start
+      @@start_time = Time.now
+    end
 
-    @@duration = end_time - start_time
+    def stop
+      @@end_time = Time.now
+    end
+
+    def measure
+      start
+      yield
+      stop
+    end
+
+    def duration
+      @@end_time - @@start_time
+    end
   end
 
-  def self.duration
-    @@duration
-  end
-
-  Spectre.delegate :duration, :measure, to: self
+  Spectre.delegate :start, :stop, :duration, :measure, to: self
 end
