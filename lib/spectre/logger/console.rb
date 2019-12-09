@@ -5,7 +5,7 @@ module Spectre::Logger
     OK = '[ok]'.green
     FAILED = '[failed]'.red
     ERROR = '[error]'.red
-    INFO = '[info]'
+    INFO = '[info]'.blue
   end
 
   module Console
@@ -24,7 +24,7 @@ module Spectre::Logger
       end
 
       def log_info message
-        puts ("    #{message} " + ('.' * (57 - message.length)) + Spectre::Logger::Status::INFO).grey
+        puts ("    #{message} " + ('.' * (57 - message.length))).grey + Spectre::Logger::Status::INFO
       end
 
       def log_error exception
