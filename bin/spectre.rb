@@ -31,8 +31,11 @@ DEFAULT_CONFIG = {
     'spectre/reporter/junit',
     'spectre/logger/console',
     'spectre/assertion',
+    'spectre/diagnostic',
     'spectre/http',
     'spectre/http/basic_auth',
+    'spectre/http/keystone',
+    'spectre/database/postgre',
   ],
 }
 
@@ -49,7 +52,7 @@ Commands:
   run         Run specs (default)
 
 Specific options:}
-  
+
   opts.on('-s spec1,spec2', '--specs spec1,spec2', Array, 'The specs to run') do |specs|
     cmd_options['specs'] = specs
   end
@@ -78,7 +81,7 @@ Specific options:}
     cmd_options['colored'] = colored
   end
 
-  opts.on('-r name', '--reporter name', Array, 
+  opts.on('-r name', '--reporter name', Array,
     "The name of the reporter to use",
   ) do |reporter|
     cmd_options['reporter'] = reporter
