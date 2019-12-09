@@ -133,10 +133,9 @@ module Spectre
 
 
   class RunInfo
-    attr_reader :subject, :spec
+    attr_reader :spec
 
-    def initialize subject, spec
-      @subject = subject
+    def initialize spec
       @spec = spec
       @started = nil
       @finished = nil
@@ -146,11 +145,9 @@ module Spectre
       @finished - @started
     end
 
-    def start
+    def record
       @started = Time.now
-    end
-
-    def end
+      yield
       @finished = Time.now
     end
   end
@@ -167,58 +164,70 @@ module Spectre
       specs.group_by { |x| x.subject }.each do |subject, spec_group|
         @logger.log_subject(subject)
 
-        setup_ctx = RunContext.new(@logger)
-
         spec_group.group_by { |x| x.context }.each do |context, specs|
           @logger.log_context(context) do
-
-            context.setup_blocks.each do |block|
-              setup_ctx.instance_eval &block
-            end
-
-            begin
-              specs.each do |spec|
-                @logger.log_spec(spec) do
-                  run_ctx = RunContext.new(@logger)
-                  run_info = RunInfo.new(subject, spec)
-                  run_info.start
-      
-                  begin
-                    context.before_blocks.each do |block|
-                      run_ctx.instance_eval &block
-                    end
-      
-                    run_ctx.instance_eval &spec.block
-      
-                  rescue ExpectationFailure => e
-                    spec.error = e
-      
-                  rescue Exception => e
-                    spec.error = e
-                    @logger.log_error(e) unless e.cause
-
-                  ensure
-                    context.after_blocks.each do |block|
-                      run_ctx.instance_eval &block
-                    end
-      
-                    run_info.end
-      
-                    runs << run_info
-                  end
-                end
-              end
-            ensure
-              context.teardown_blocks.each do |block|
-                setup_ctx.instance_eval &block
-              end
-            end
+            runs.concat run_context(context, specs)
           end
-
         end
       end
 
       runs
+    end
+
+    private
+
+    def run_context context, specs
+      runs = []
+
+      ctx = RunContext.new(@logger)
+
+      context.setup_blocks.each do |block|
+        ctx.instance_eval &block
+        ctx.freeze
+      end
+
+      begin
+        specs.each do |spec|
+          @logger.log_spec(spec) do
+            runs << run_spec(spec)
+          end
+        end
+      ensure
+        context.teardown_blocks.each do |block|
+          ctx.instance_eval &block
+        end
+      end
+
+      runs
+    end
+
+    def run_spec spec
+      run_ctx = RunContext.new(@logger)
+      run_info = RunInfo.new(spec)
+      
+      run_info.record do
+        begin
+          spec.context.before_blocks.each do |block|
+            run_ctx.instance_eval &block
+          end
+
+          run_ctx.instance_eval &spec.block
+
+        rescue ExpectationFailure => e
+          spec.error = e
+
+        rescue Exception => e
+          spec.error = e
+          @logger.log_error(e) unless e.cause
+
+        ensure
+          spec.context.after_blocks.each do |block|
+            run_ctx.instance_eval &block
+          end
+        end
+      end
+
+      run_info
     end
   end
 

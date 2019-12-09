@@ -202,6 +202,11 @@ if action == 'list'
 end
 
 
+###########################################
+# Run
+###########################################
+
+
 if action == 'run'
   logger = Kernel.const_get(cfg['logger'])
   reporter = Kernel.const_get(cfg['reporter']).new
@@ -217,15 +222,30 @@ if action == 'run'
 end
 
 
+###########################################
+# Envs
+###########################################
+
+
 if action == 'envs'
   exit 1 if envs.length == 0
   puts envs.pretty
 end
 
 
+###########################################
+# Show
+###########################################
+
+
 if action == 'show'
   puts cfg.pretty
 end
+
+
+###########################################
+# Init
+###########################################
 
 
 if action == 'init'

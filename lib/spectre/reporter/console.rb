@@ -21,7 +21,6 @@ module Spectre::Reporter
         .select { |x| x.spec.error }
         .each_with_index do |run_info, index|
 
-        subject = run_info.subject
         spec = run_info.spec
 
         report_str += "\n#{index+1}) #{format_title run_info}\n"
@@ -65,7 +64,7 @@ module Spectre::Reporter
     private
 
     def format_title run_info
-      title = run_info.subject.desc
+      title = run_info.spec.subject.desc
       title += ' ' + run_info.spec.desc
       title += " (#{'%.3f' % run_info.duration}s)"
       title += " [#{run_info.spec.name}]"
