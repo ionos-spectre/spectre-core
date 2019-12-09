@@ -8,11 +8,11 @@ end
 
 module Spectre
   module Database
-    module Postgre
+    module Postgres
       @@modules = []
 
       class SQLStatement
-        attr_accessor :query
+        attr_accessor :query, :params
 
         def initialize
           @query = nil
@@ -30,8 +30,8 @@ module Spectre
 
 
       class << self
-        def postgre name, &block
-          raise "postgre '#{name}' not configured" unless @@db_cfg.has_key? name
+        def postgres name, &block
+          raise "postgres '#{name}' not configured" unless @@db_cfg.has_key? name
 
           statement = SQLStatement.new
           statement.instance_eval &block
@@ -47,7 +47,11 @@ module Spectre
               password: cfg['username'],
             })
 
-            @@result = con.exec(statement.query)
+            if statement.params
+              @@result = con.exec_params(statement.query, statement.params)
+            else
+              @@result = con.exec(statement.query)
+            end
 
           ensure
             con.close if con
@@ -63,12 +67,12 @@ module Spectre
       Spectre.register do |config|
         @@db_cfg = {}
 
-        config['postgre'].each do |name, cfg|
+        config['postgres'].each do |name, cfg|
           @@db_cfg[name] = cfg
         end
       end
 
-      Spectre.delegate :postgre, :result, to: self
+      Spectre.delegate :postgres, :result, to: self
     end
   end
 end
