@@ -20,10 +20,6 @@ DEFAULT_CONFIG = {
   'log_path' => './logs',
   'spec_patterns' => ['./specs/**/*.spec.rb'],
   'env_patterns' => ['./environments/**/*.env.yml'],
-  # 'resource_paths' => ['./resources'],
-  # 'helper_paths' => ['./helpers'],
-  # 'conf_patterns' => ['./config/**/*.conf.rb'],
-  # 'mixin_patterns' => ['./mixins/**/*.mixin.rb'],
   'modules' => [
     'spectre/helpers',
     'spectre/helpers/console',
@@ -109,17 +105,17 @@ action = ARGV[0] || 'run'
 ###########################################
 
 
-SPEC_CFG = {}
-SPEC_CFG.merge! DEFAULT_CONFIG
+cfg = {}
+cfg.merge! DEFAULT_CONFIG
 
 config_file = cmd_options['config_file'] || DEFAULT_CONFIG['config_file']
 
 if File.exists? config_file
   file_options = YAML.load_file(config_file)
-  SPEC_CFG.merge! file_options
+  cfg.merge! file_options
 end
 
-SPEC_CFG.merge! cmd_options
+cfg.merge! cmd_options
 
 
 ###########################################
@@ -129,7 +125,7 @@ SPEC_CFG.merge! cmd_options
 
 envs = {}
 
-SPEC_CFG['env_patterns'].each do |pattern|
+cfg['env_patterns'].each do |pattern|
   Dir.glob(pattern).each do|f|
     spec_env = YAML.load_file(f)
     name = spec_env.delete('name') || 'default'
@@ -137,11 +133,11 @@ SPEC_CFG['env_patterns'].each do |pattern|
   end
 end
 
-env = envs[SPEC_CFG['environment']]
-SPEC_CFG.merge! env if env
+env = envs[cfg['environment']]
+cfg.merge! env if env
 
 
-String.colored! if SPEC_CFG['colored']
+String.colored! if cfg['colored']
 
 
 ###########################################
@@ -149,7 +145,7 @@ String.colored! if SPEC_CFG['colored']
 ###########################################
 
 
-log_path = SPEC_CFG['log_path']
+log_path = cfg['log_path']
 if !File.directory? log_path
   Dir.mkdir(log_path)
 end
@@ -160,7 +156,7 @@ end
 ###########################################
 
 
-SPEC_CFG['modules'].each do |mod|
+cfg['modules'].each do |mod|
   if !File.exists? mod
     require_relative File.join('../lib', mod)
   else
@@ -169,7 +165,7 @@ SPEC_CFG['modules'].each do |mod|
 end
 
 
-Spectre.configure(SPEC_CFG)
+Spectre.configure(cfg)
 
 
 ###########################################
@@ -177,7 +173,7 @@ Spectre.configure(SPEC_CFG)
 ###########################################
 
 
-SPEC_CFG['spec_patterns'].each do |pattern|
+cfg['spec_patterns'].each do |pattern|
   Dir.glob(pattern).each do|f|
     require_relative File.join(Dir.pwd, f)
   end
@@ -191,7 +187,7 @@ end
 
 if action == 'list'
   colors = [:blue, :magenta, :yellow, :green]
-  specs = Spectre.specs(SPEC_CFG['specs'], SPEC_CFG['tags'])
+  specs = Spectre.specs(cfg['specs'], cfg['tags'])
 
   exit 1 if specs.length == 0
   
@@ -211,10 +207,10 @@ end
 
 
 if action == 'run'
-  logger = Kernel.const_get(SPEC_CFG['logger'])
-  reporter = Kernel.const_get(SPEC_CFG['reporter']).new
+  logger = Kernel.const_get(cfg['logger'])
+  reporter = Kernel.const_get(cfg['reporter']).new
 
-  specs = Spectre.specs(SPEC_CFG['specs'], SPEC_CFG['tags'])
+  specs = Spectre.specs(cfg['specs'], cfg['tags'])
   runner = Spectre::Runner.new(logger)
   run_infos = runner.run(specs)
 
@@ -229,7 +225,7 @@ end
 
 
 if action == 'show'
-  puts SPEC_CFG.pretty
+  puts cfg.pretty
 end
 
 
