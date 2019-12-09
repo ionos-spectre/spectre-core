@@ -9,30 +9,63 @@ module Spectre::Logger
   end
 
   module Console
+    @@level = 0
+    @@width = 60
+    @@indent = 2
+
     class << self
 
       def log_subject subject
         puts "#{subject.desc.blue}"
       end
 
+      def log_context context
+        if context.desc
+          puts "  #{context.desc.magenta}"
+          @@level += 1
+          yield
+          @@level -= 1
+        else
+          yield
+        end
+      end
+
       def log_spec spec
-        puts "  #{spec.desc.cyan}"
+        print_line spec.desc.cyan
+
+        @@level += 1
+        yield
+        @@level -= 1
       end
 
       def log_expect desc
-        print "    expect #{desc} " + ('.' * (50 - desc.length))
+        print_line("expect #{desc}", fill: true)
       end
 
       def log_info message
-        puts ("    #{message} " + ('.' * (57 - message.length))).grey + Spectre::Logger::Status::INFO
+        print_line(message, fill: true)
+        log_status(Spectre::Logger::Status::INFO)
       end
 
       def log_error exception
-        puts '    ' + ('.' * 58) + "#{Spectre::Logger::Status::ERROR} #{exception.class.name.red}"
+        print_line('', fill: true)
+        log_status(Spectre::Logger::Status::ERROR, annotation: exception.class.name.red)
       end
 
-      def log_status status
-        print status + "\n"
+      def log_status status, annotation: nil
+        txt = status
+        txt += ' ' + annotation if annotation
+        print txt + "\n"
+      end
+
+      private
+
+      def print_line text, fill: false
+        indent = (@@level+1) * @@indent
+        line = (' ' * indent) + text
+        line += '.' * (@@width - text.length - indent) if fill
+        line += "\n" unless fill
+        print line
       end
 
     end

@@ -31,9 +31,10 @@ module Spectre
   class SpecContext
     attr_reader :subject, :desc, :before_blocks, :after_blocks, :setup_blocks, :teardown_blocks
 
-    def initialize subject, desc, parent: nil
+    def initialize subject, desc=nil
       @subject = subject
       @desc = desc
+
       @before_blocks = []
       @after_blocks = []
       @setup_blocks = []
@@ -41,7 +42,7 @@ module Spectre
     end
 
     def it desc, tags: [], &block
-      @subject.specs << Spec.new("#{@subject.name}-#{@subject.specs.length+1}", self, desc, tags, block)
+      @subject.add_spec(desc, tags, block, self)
     end
 
     def before &block
@@ -60,30 +61,35 @@ module Spectre
       @teardown_blocks << block
     end
 
-    def context desc, &block
-      ctx = SpecContext.new(desc, parent: self)
+    def context desc=nil, &block
+      ctx = SpecContext.new(@subject, desc)
       ctx.instance_eval &block
     end
   end
 
 
-  class Subject < SpecContext
-    attr_reader :name, :specs
+  class Subject
+    attr_reader :name, :desc, :specs
 
     def initialize desc
-      super(desc)
+      @desc = desc
       @specs = []
       @name = desc.downcase.gsub(/[^a-z0-9]+/, '_')
+    end
+
+    def add_spec desc, tags, block, context
+      @specs << Spec.new("#{@name}-#{@specs.length+1}", self, desc, tags, block, context)
     end
   end
 
 
   class Spec
-    attr_reader :name, :subject, :desc, :tags, :block
+    attr_reader :name, :subject, :context, :desc, :tags, :block
     attr_accessor :error
 
-    def initialize name, subject, desc, tags, block
+    def initialize name, subject, desc, tags, block, context
       @name = name
+      @context = context
       @subject = subject
       @desc = desc
       @tags = tags
@@ -159,58 +165,64 @@ module Spectre
       runs = []
 
       @subjects.each do |subject|
-        specs = subject.specs.select do |spec|
+        filtered_specs = subject.specs.select do |spec|
           (spec_list.empty? or spec_list.include? spec.name) and (tags.empty? or tags.any? { |x| spec.tags.include? x.to_sym })
         end
 
-        next if specs.length == 0
+        next if filtered_specs.length == 0
 
         @logger.log_subject(subject)
 
         setup_ctx = RunContext.new(@logger)
 
-        begin
-          subject.setup_blocks.each do |block|
-            setup_ctx.instance_eval &block
-          end
+        filtered_specs.group_by { |x| x.context }.each do |context, specs|
+          @logger.log_context(context) do
 
-          specs.each do |spec|
-            @logger.log_spec(spec)
-
-            run_ctx = RunContext.new(@logger)
-            run_info = RunInfo.new(subject, spec)
-            run_info.start
+            context.setup_blocks.each do |block|
+              setup_ctx.instance_eval &block
+            end
 
             begin
-              subject.before_blocks.each do |block|
-                run_ctx.instance_eval &block
-              end
-
-              run_ctx.instance_eval &spec.block
-
-            rescue ExpectationFailure => e
-              spec.error = e
-
-            rescue Exception => e
-              spec.error = e
-
-              if !e.cause
-                @logger.log_error(e)
+              specs.each do |spec|
+                @logger.log_spec(spec) do
+                  run_ctx = RunContext.new(@logger)
+                  run_info = RunInfo.new(subject, spec)
+                  run_info.start
+      
+                  begin
+                    context.before_blocks.each do |block|
+                      run_ctx.instance_eval &block
+                    end
+      
+                    run_ctx.instance_eval &spec.block
+      
+                  rescue ExpectationFailure => e
+                    spec.error = e
+      
+                  rescue Exception => e
+                    spec.error = e
+      
+                    if !e.cause
+                      @logger.log_error(e)
+                    end
+                  ensure
+                    context.after_blocks.each do |block|
+                      run_ctx.instance_eval &block
+                    end
+      
+                    run_info.end
+      
+                    runs << run_info
+                  end
+                end
               end
             ensure
-              subject.after_blocks.each do |block|
-                run_ctx.instance_eval &block
+              context.teardown_blocks.each do |block|
+                setup_ctx.instance_eval &block
               end
-
-              run_info.end
-
-              runs << run_info
             end
           end
-        ensure
-          subject.teardown_blocks.each do |block|
-            setup_ctx.instance_eval &block
-          end
+
         end
       end
 
@@ -262,7 +274,8 @@ module Spectre
         @@subjects << subject
       end
 
-      subject.instance_eval &block
+      ctx = SpecContext.new(subject)
+      ctx.instance_eval &block
     end
 
   end

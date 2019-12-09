@@ -81,4 +81,20 @@ describe 'Some API' do
       fail_with 'some controlled failure'
     end
   end
+
+  context 'within a context' do
+    it 'runs successfully', tags: [:success] do
+      expect 'foo to be foo' do
+        'foo'.should_be 'foo'
+      end
+  
+      fail_with 'no log dir found' if not `ls`.include? 'logs'
+    end
+    
+    it 'fails with a message', tags: [:failure, :controlled] do
+      expect 'to raise a message' do
+        fail_with 'some controlled failure'
+      end
+    end
+  end
 end

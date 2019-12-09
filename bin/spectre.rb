@@ -35,7 +35,7 @@ DEFAULT_CONFIG = {
     'spectre/http',
     'spectre/http/basic_auth',
     'spectre/http/keystone',
-    'spectre/database/postgres',
+    # 'spectre/database/postgres',
   ],
 }
 
