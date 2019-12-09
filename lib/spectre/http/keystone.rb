@@ -54,17 +54,27 @@ module Spectre::Http::Keystone
 
     base_uri = URI(keystone_url)
     uri = URI.join(base_uri, 'auth/tokens?nocatalog=true')
+
     http = Net::HTTP.new(base_uri.host, base_uri.port)
-    req = Net::Request::POST.new(uri)
+
+    if cert
+      http.use_ssl = true
+      http.ca_file = cert
+    end
+
+    req = Net::HTTP::Post.new(uri)
     req.body = JSON.pretty_generate(auth_data)
+    req.content_type = 'application/json'
 
     res = http.request(req)
 
     raise "error while authenticating: #{res.code} #{res.message}\n#{res.body}" if res.code != '201'
 
     [
-      response['X-Subject-Token'],
+      res['X-Subject-Token'],
       JSON.parse(res.body),
     ]
   end
+
+  Spectre::Http.register(self)
 end
