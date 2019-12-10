@@ -134,7 +134,7 @@ end
 ### Context
 
 A *context* groups one or more *specifications* and can add an additional description layer.
-The description is optional. Within a *context*, there are 4 additional function available.
+The description is optional. Within a *context*, there are 4 additional blocks available.
 
 A *context* can be created with
 
@@ -144,9 +144,9 @@ context <description> do
 end
 ```
 
-| Function | Description |
+| Block | Description |
 | -------- | ----------- |
-| `setup` | Runs once at the **beginning** of the *context*. It can be used to create some specific state for tests in this context. |
+| `setup` | Runs once at the **beginning** of the *context*. It can be used to create some specific state for tests in this context. Instance variables created in this block are available within the `teardown` block. |
 | `teardown` | Runs once at the **end** of the *context*. This block is ensured to run, even on unexpected errors. It usually contains some logic to restore a previous state. |
 | `before` | Runs **before every** *specification* in this *context*. Use this block to create new resources/values on every run. Values can be made accessible for runs by setting instance variables `@foo = 'bar'`. |
 | `after` | Runs **after every** *specification* in this *context*. This block is ensured to run, even on unexpected errors. It usually contains some cleanup logic for every run. |
