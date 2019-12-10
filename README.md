@@ -41,6 +41,7 @@ spectre --version
 ## Creating a new project
 
 <!-- 
+
 Create a new project structure by executing
 ```bash
 spectre init
@@ -58,7 +59,9 @@ This will create mutliple empty directories and a `spectre.yaml` config file.
 | `resources` | This folder can contain any files, which will be used in *spec* definitions. |
 | `specs` | This is the folder, where all spec files should be placed. The standard file pattern is `**/*_spec.rb` |
 | `spectre.yaml` | This is `spectre`'s default config file. This file includes default file patterns and paths. Options in this file can be overritten with command line arguments. |
-| `.gitignore` | This `.gitignore` file contains files and directories, which should not be tracked by version control. | -->
+| `.gitignore` | This `.gitignore` file contains files and directories, which should not be tracked by version control. | 
+
+-->
 
 ## Writing specs
 
@@ -115,7 +118,7 @@ end
 
 ### Subject
 
-A *subject* is the the top level description of a testsuite. A *subject* can be anything, that groups functionality, e.g. some REST API, or a business domain/process like *Order Process*.
+A *subject* is the the top level description block of a testsuite. A *subject* can be anything, that groups functionality, e.g. some REST API, or an abstract business domain/process like *Order Process*.
 
 A *subject* is described by the `describe` function, and can contain many `context`
 
@@ -124,7 +127,7 @@ describe 'Hollow API' do
   # Add context here
 end
 ```
-
+ 
 > One *subject* can be split into multiple files.
 
 
@@ -133,8 +136,16 @@ end
 A *context* groups one or more *specifications* and can add an additional description layer.
 The description is optional. Within a *context*, there are 4 additional function available.
 
-A *context* can be create with `context <description> do [...] end`
+A *context* can be created with
 
+```
+context <description> do
+
+end
+```
+
+| Function | Description |
+| -------- | ----------- |
 | `setup` | Runs once at the **beginning** of the *context*. It can be used to create some specific state for tests in this context. |
 | `teardown` | Runs once at the **end** of the *context*. This block is ensured to run, even on unexpected errors. It usually contains some logic to restore a previous state. |
 | `before` | Runs **before every** *specification* in this *context*. Use this block to create new resources/values on every run. Values can be made accessible for runs by setting instance variables `@foo = 'bar'`. |
@@ -190,12 +201,18 @@ end
 
 ### Specification
 
-*Specification* or *specs* define the actual tests and will be executed, when a test run is started. These blocks will be defined within a *context* block. Use `it <description> do [...] end` to define a *spec* block.
+*Specification* or *specs* define the actual tests and will be executed, when a test run is started. These blocks will be defined within a *context* block.
+
+```
+it <description> do
+
+end
+```
 
 ```ruby
 describe 'Hollow API' do
   it 'sends out spooky ghosts' do
-    # Do some API calls or what ever here
+    # Do some API calls or whatever here
   end
 
   context 'at midnight' do
@@ -206,14 +223,14 @@ describe 'Hollow API' do
 end
 ```
 
-*spec* blocks contain Ruby code and one or multiple *expectations*.
+*Spec* blocks contain Ruby code and one or multiple *expectations*.
 
 
 ### Expectation
 
-*Expectations* are defined within a *spec*. These blocks are descriptions blocks like `describe`, `context` and `it`, but will be evaluated at runtime.
+*Expectations* are defined within a *spec*. These blocks are description blocks like `describe`, `context` and `it`, but will be evaluated at runtime.
 
-*Expectation* are fullfilled, when the code in this block runs without any errors. Unexpected runtime exceptions will generate an `error` status, will end the *spec* run and and continue with the next *spec*.
+*Expectation* are fullfilled, when the code in this block runs without any errors. Unexpected runtime exceptions will generate an `error` status, will end the *spec* run and continue with the next *spec*.
 
 Raising an `ExpectationFailure` exception in this block, will end up in a `failed` status and also end the *spec* run.
 
@@ -248,7 +265,7 @@ describe 'Hollow API' do
 end
 ```
 
-Additional helper function are available when using the `spectre/assertion` module, which is loaded automatically, when not deactivated explicitly.
+Additional helper functions are available when using the `spectre/assertion` module, which is loaded automatically.
 
 
 ### Assertion
