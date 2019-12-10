@@ -20,7 +20,7 @@ module Spectre
     @@modules = []
 
     class HttpRequest
-      attr_accessor :headers, :params, :body, :http_method, :url_path
+      attr_accessor :headers, :params, :body, :http_method, :url_path, :media_type
 
       def initialize
         @headers = {}
@@ -44,7 +44,12 @@ module Spectre
         @params[name] = value
       end
 
+      def content_type media_type
+        @media_type = media_type
+      end
+
       def json data
+        @media_type = 'application/json'
         @body = JSON.pretty_generate(data)
       end
     end
@@ -75,6 +80,7 @@ module Spectre
 
         net_req = Net::HTTPGenericRequest.new(req.http_method, true, true, uri)
         net_req.body = req.body
+        net_req.content_type = req.media_type if req.media_type
         req.headers.each do |name, value|
           net_req[name] = value
         end
