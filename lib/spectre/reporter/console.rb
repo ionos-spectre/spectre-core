@@ -72,7 +72,9 @@ module Spectre::Reporter
     end
 
     def format_exception error
-      file, line = error.backtrace[0].match(/(.*\.rb):(\d+)/).captures
+      matches = error.backtrace[0].match(/(.*\.rb):(\d+)/)
+      return '' unless matches
+      file, line = matches.captures
       file.slice!(Dir.pwd + '/')
       str = ''
       str += "       file.....: #{file}\n"
