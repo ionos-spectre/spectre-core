@@ -12,13 +12,22 @@ module Spectre
         @output = ''
       end
 
+      def file_exists path
+        exec "ls #{path}"
+        exit_code == 0
+      end
+
+      def owner_of path
+        exec "ls -l #{path}"
+        output.split(' ')[2]
+      end
+
       def exec command
         log_str = "#{@session.options[:user]}@#{@session.host} -p #{@session.options[:port]} #{command}"
-        @logger.info log_str
 
         @channel = @session.open_channel do |channel|
           channel.exec(command) do |ch, success|
-            abort "could not execute #{command}" unless success
+            abort "could not execute #{command} on #{@session.host}" unless success
 
             channel.on_data do |ch, data|
               @output += data
@@ -41,6 +50,9 @@ module Spectre
 
         @channel.wait
         @session.loop
+
+        log_str += "\n" + @output
+        @logger.info log_str
       end
 
       def output
