@@ -8,7 +8,11 @@ require 'logger'
 class Net::HTTPResponse
   def json
     if @data == nil
-      @data = JSON.parse(self.body, object_class: OpenStruct)
+      begin
+        @data = JSON.parse(self.body, object_class: OpenStruct)
+      rescue
+        raise 'invalid json'
+      end
     end
     @data
   end
