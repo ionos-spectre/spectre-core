@@ -204,7 +204,7 @@ module Spectre
     def run_spec spec
       run_ctx = RunContext.new(@logger)
       run_info = RunInfo.new(spec)
-      
+
       run_info.record do
         begin
           spec.context.before_blocks.each do |block|
@@ -247,8 +247,8 @@ module Spectre
     end
 
 
-    def delegate *module_names, to: nil
-      module_names.each do |method_name|
+    def delegate *method_names, to: nil
+      method_names.each do |method_name|
         Kernel.define_method(method_name) do |*args, &block|
           to.send(method_name, *args, &block)
         end
