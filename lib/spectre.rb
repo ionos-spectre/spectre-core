@@ -242,7 +242,7 @@ module Spectre
         .map { |x| x.specs }
         .flatten
         .select do |spec|
-          (spec_filter.empty? or spec_filter.include? spec.name) and (tags.empty? or tags.any? { |x| spec.tags.include? x.to_sym })
+          (spec_filter.empty? or spec_filter.any? { |x| spec.name.match('^' + x.gsub('*', '.*') + '$') }) and (tags.empty? or tags.any? { |x| spec.tags.include? x.to_sym })
         end
     end
 

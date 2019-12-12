@@ -2,7 +2,7 @@
 
 > _You cross the line in this life, you choose the wrong side and you pay the price. All fees collected by -_ [The Spectre](https://dc.fandom.com/wiki/The_Phantom_Stranger_Vol_4_5)
 
-Spectre is a DSL to describe blackbox tests and a command line tool to run these specifications.
+Spectre is a DSL to describe any kind of tests and a command line tool to run these specifications.
 
 It is written in the scripting language [Ruby](https://www.ruby-lang.org/de/) and based on the Unit-Test framework [rspec](https://rspec.info/).
 
@@ -41,6 +41,7 @@ spectre --version
 ## Creating a new project
 
 <!-- 
+
 Create a new project structure by executing
 ```bash
 spectre init
@@ -58,7 +59,9 @@ This will create mutliple empty directories and a `spectre.yaml` config file.
 | `resources` | This folder can contain any files, which will be used in *spec* definitions. |
 | `specs` | This is the folder, where all spec files should be placed. The standard file pattern is `**/*_spec.rb` |
 | `spectre.yaml` | This is `spectre`'s default config file. This file includes default file patterns and paths. Options in this file can be overritten with command line arguments. |
-| `.gitignore` | This `.gitignore` file contains files and directories, which should not be tracked by version control. | -->
+| `.gitignore` | This `.gitignore` file contains files and directories, which should not be tracked by version control. | 
+
+-->
 
 ## Writing specs
 
@@ -99,8 +102,176 @@ describe 'Spooky' do
       cry.should_be 'Boo!'
     end
   end
+
+  context 'at midnight' do
+    it 'only scares some people', tags: [:scary, :dangerous] do
+      cry = scare_people()
+
+      expect 'the cry to be scary' do
+        cry.should_be 'Boo!'
+      end
+    end
+  end
 end
 ```
+
+
+### Subject
+
+A *subject* is the the top level description block of a testsuite. A *subject* can be anything, that groups functionality, e.g. some REST API, or an abstract business domain/process like *Order Process*.
+
+A *subject* is described by the `describe` function, and can contain many `context`
+
+```ruby
+describe 'Hollow API' do
+  # Add context here
+end
+```
+ 
+> One *subject* can be split into multiple files.
+
+
+### Context
+
+A *context* groups one or more *specifications* and can add an additional description layer.
+The description is optional. Within a *context*, there are 4 additional blocks available.
+
+A *context* can be created with
+
+```
+context <description> do
+
+end
+```
+
+| Block | Description |
+| -------- | ----------- |
+| `setup` | Runs once at the **beginning** of the *context*. It can be used to create some specific state for tests in this context. Instance variables created in this block are available within the `teardown` block. |
+| `teardown` | Runs once at the **end** of the *context*. This block is ensured to run, even on unexpected errors. It usually contains some logic to restore a previous state. |
+| `before` | Runs **before every** *specification* in this *context*. Use this block to create new resources/values on every run. Values can be made accessible for runs by setting instance variables `@foo = 'bar'`. |
+| `after` | Runs **after every** *specification* in this *context*. This block is ensured to run, even on unexpected errors. It usually contains some cleanup logic for every run. |
+
+```ruby
+describe 'Hollow API' do
+  context 'at midnight' do
+    setup do
+      # Runs once at the beginning in this context
+      @previous_clock = get_clock()
+      set_clock('00:00')
+    end
+
+    teardown do
+      # Runs once at the end in this context
+      set_clock(@previous_clock)
+    end
+
+    before do
+      # Runs before every `it` block in this context
+      @house = build_a_spooky_house()
+    end
+
+    after do
+      # Runs after every `it` block in this context
+      destroy_building(@house)
+    end
+  end
+end
+```
+
+The *description* is optional. If omitted, all blocks in this context will be added to the main *context*. Blocks in the main context can also be defined in the *subject* directly.
+
+```ruby
+describe 'Hollow API' do
+  setup do
+  end
+
+  teardown do
+  end
+
+  before do
+  end
+
+  after do
+  end
+end
+```
+
+> `setup`, `teardown`, `before` and `after` can be used multiple times within a context. These block will be executed in the provided order.
+
+
+### Specification
+
+*Specification* or *specs* define the actual tests and will be executed, when a test run is started. These blocks will be defined within a *context* block.
+
+```
+it <description> do
+
+end
+```
+
+```ruby
+describe 'Hollow API' do
+  it 'sends out spooky ghosts' do
+    # Do some API calls or whatever here
+  end
+
+  context 'at midnight' do
+    it 'sends out spooky ghosts' do
+      # Do some API calls or whatever
+    end
+  end
+end
+```
+
+*Spec* blocks contain Ruby code and one or multiple *expectations*.
+
+
+### Expectation
+
+*Expectations* are defined within a *spec*. These blocks are description blocks like `describe`, `context` and `it`, but will be evaluated at runtime.
+
+*Expectation* are fullfilled, when the code in this block runs without any errors. Unexpected runtime exceptions will generate an `error` status, will end the *spec* run and continue with the next *spec*.
+
+Raising an `ExpectationFailure` exception in this block, will end up in a `failed` status and also end the *spec* run.
+
+
+```ruby
+describe 'Hollow API' do
+  it 'sends out spooky ghosts' do
+    expect 'some ghosts in the neighborhood' do
+      raise ExpectationFailure, 'no ghosts'
+    end
+  end
+
+  context 'at midnight' do
+    it 'sends out spooky ghosts' do
+      expect 'some ghosts in the neighborhood' do
+        raise 'Opps! The house was accidently destroyed!'
+      end
+    end
+  end
+end
+```
+
+You don't have to raise an `ExpectationFailure` exception manually. In an `expect` block, there is the `fail_with <message>` function available. This function raises an `ExpectationFailure` with the given message.
+
+```ruby
+describe 'Hollow API' do
+  it 'sends out spooky ghosts' do
+    expect 'some ghosts in the neighborhood' do
+      fail_with 'no ghosts'
+    end
+  end
+end
+```
+
+Additional helper functions are available when using the `spectre/assertion` module, which is loaded automatically.
+
+
+### Assertion
+
+
+
 
 ## Listing specs
 
