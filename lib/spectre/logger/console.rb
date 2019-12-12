@@ -10,7 +10,7 @@ module Spectre::Logger
 
   module Console
     @@level = 0
-    @@width = 60
+    @@width = 80
     @@indent = 2
 
     class << self
