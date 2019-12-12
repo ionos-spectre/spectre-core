@@ -63,7 +63,8 @@ module Spectre::Logger
       def print_line text, fill: false
         indent = (@@level+1) * @@indent
         line = (' ' * indent) + text
-        line += '.' * (@@width - text.length - indent) if fill
+        remaining = @@width - text.length - indent
+        line += '.' * (@@width - text.length - indent) if fill and remaining > 0
         line += "\n" unless fill
         print line
       end
