@@ -60,6 +60,8 @@ module Spectre
 
 
     class << self
+      @@http_cfg = {}
+
       def http name, &block
         raise "HTTP client '#{name}' not configured" unless @@http_cfg.has_key? name
 
