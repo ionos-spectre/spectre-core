@@ -64,6 +64,13 @@ class FalseClass
 end
 
 
+class NilClass
+  def pretty width: nil
+    'not set'.grey
+  end
+end
+
+
 class Array
   def pretty width: 25
     list_length = self.map { |x| x.to_s.length }.reduce(:+)
