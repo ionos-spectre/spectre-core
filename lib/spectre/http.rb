@@ -24,12 +24,13 @@ module Spectre
     @@modules = []
 
     class HttpRequest
-      attr_accessor :headers, :params, :body, :http_method, :url_path, :media_type
+      attr_accessor :headers, :params, :body, :http_method, :url_path, :media_type, :auth
 
       def initialize
         @headers = {}
         @params = {}
         @body = nil
+        @auth = nil
       end
 
       def method method_name
@@ -55,6 +56,10 @@ module Spectre
       def json data
         @media_type = 'application/json'
         @body = JSON.pretty_generate(data)
+      end
+
+      def authenticate method
+        @auth = method
       end
     end
 
@@ -108,7 +113,7 @@ module Spectre
         start_time = Time.now
 
         @@modules.each do |mod|
-          mod.on_req(net_http, net_req, client_cfg) if mod.respond_to? :on_req
+          mod.on_req(net_http, net_req, client_cfg, req) if mod.respond_to? :on_req
         end
 
         @@response = net_http.request(net_req)
@@ -116,7 +121,7 @@ module Spectre
         end_time = Time.now
 
         @@modules.each do |mod|
-          mod.on_res(net_http, @@response, client_cfg) if mod.respond_to? :on_res
+          mod.on_res(net_http, @@response, client_cfg, req) if mod.respond_to? :on_res
         end
 
         # Log response
