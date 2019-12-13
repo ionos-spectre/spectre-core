@@ -30,8 +30,10 @@ module Spectre::Logger
         end
       end
 
-      def log_spec spec
-        print_line spec.desc.cyan
+      def log_spec spec, data=nil
+        text = spec.desc
+        text += " with #{data}" if data
+        print_line text.cyan
 
         @@level += 1
         yield

@@ -41,8 +41,8 @@ module Spectre
       @teardown_blocks = []
     end
 
-    def it desc, tags: [], &block
-      @subject.add_spec(desc, tags, block, self)
+    def it desc, tags: [], with: [], &block
+      @subject.add_spec(desc, tags, with, block, self)
     end
 
     def before &block
@@ -77,20 +77,21 @@ module Spectre
       @name = desc.downcase.gsub(/[^a-z0-9]+/, '_')
     end
 
-    def add_spec desc, tags, block, context
+    def add_spec desc, tags, data, block, context
       name = @name + '-' + (@specs.length+1).to_s
-      @specs << Spec.new(name, self, desc, tags, block, context)
+      @specs << Spec.new(name, self, desc, tags, data, block, context)
     end
   end
 
 
   class Spec
-    attr_reader :name, :subject, :context, :desc, :tags, :block
+    attr_reader :name, :subject, :context, :desc, :tags, :data, :block
     attr_accessor :error
 
-    def initialize name, subject, desc, tags, block, context
+    def initialize name, subject, desc, tags, data, block, context
       @name = name
       @context = context
+      @data = data
       @subject = subject
       @desc = desc
       @tags = tags
@@ -188,8 +189,16 @@ module Spectre
 
       begin
         specs.each do |spec|
-          @logger.log_spec(spec) do
-            runs << run_spec(spec)
+          if spec.data.length > 0
+            spec.data.each do |data|
+              @logger.log_spec(spec, data) do
+                runs << run_spec(spec, data)
+              end
+            end
+          else
+            @logger.log_spec(spec) do
+              runs << run_spec(spec)
+            end
           end
         end
       ensure
@@ -201,17 +210,17 @@ module Spectre
       runs
     end
 
-    def run_spec spec
+    def run_spec spec, data=nil
       run_ctx = RunContext.new(@logger)
       run_info = RunInfo.new(spec)
 
       run_info.record do
         begin
           spec.context.before_blocks.each do |block|
-            run_ctx.instance_eval &block
+            run_ctx.instance_exec(data, &block)
           end
 
-          run_ctx.instance_eval &spec.block
+          run_ctx.instance_exec(data, &spec.block)
 
         rescue ExpectationFailure => e
           spec.error = e
@@ -222,7 +231,7 @@ module Spectre
 
         ensure
           spec.context.after_blocks.each do |block|
-            run_ctx.instance_eval &block
+            run_ctx.instance_exec(data, &block)
           end
         end
       end
