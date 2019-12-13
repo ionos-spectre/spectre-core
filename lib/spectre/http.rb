@@ -24,7 +24,7 @@ module Spectre
     @@modules = []
 
     class HttpRequest
-      attr_accessor :headers, :params, :body, :http_method, :url_path, :media_type, :auth
+      attr_accessor :headers, :params, :body, :http_method, :url_path, :media_type, :auth_method
 
       def initialize
         @headers = {}
@@ -59,8 +59,10 @@ module Spectre
       end
 
       def authenticate method
-        @auth = method
+        @auth_method = method
       end
+
+      alias_method :auth, :authenticate
     end
 
 
