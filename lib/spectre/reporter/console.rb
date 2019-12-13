@@ -24,9 +24,10 @@ module Spectre::Reporter
         spec = run_info.spec
 
         report_str += "\n#{index+1}) #{format_title run_info}\n"
-        
+
         if spec.error.cause
           report_str += "     expected #{spec.error}"
+          report_str += " with #{run_info.data}" if run_info.data
           report_str += " #{run_info.spec.context.desc}" if run_info.spec.context.desc
           report_str += "\n"
 
