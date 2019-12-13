@@ -162,6 +162,8 @@ cfg['modules'].each do |mod|
   end
 end
 
+require 'date'
+
 
 Spectre.configure(cfg)
 
