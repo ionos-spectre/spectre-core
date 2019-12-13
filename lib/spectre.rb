@@ -134,10 +134,11 @@ module Spectre
 
 
   class RunInfo
-    attr_reader :spec
+    attr_reader :spec, :data
 
-    def initialize spec
+    def initialize spec, data
       @spec = spec
+      @data = data
       @started = nil
       @finished = nil
     end
@@ -211,16 +212,16 @@ module Spectre
     end
 
     def run_spec spec, data=nil
-      run_ctx = RunContext.new(@logger)
-      run_info = RunInfo.new(spec)
+      ctx = RunContext.new(@logger)
+      run_info = RunInfo.new(spec, data)
 
       run_info.record do
         begin
           spec.context.before_blocks.each do |block|
-            run_ctx.instance_exec(data, &block)
+            ctx.instance_exec(data, &block)
           end
 
-          run_ctx.instance_exec(data, &spec.block)
+          ctx.instance_exec(data, &spec.block)
 
         rescue ExpectationFailure => e
           spec.error = e
@@ -231,7 +232,7 @@ module Spectre
 
         ensure
           spec.context.after_blocks.each do |block|
-            run_ctx.instance_exec(data, &block)
+            ctx.instance_exec(data, &block)
           end
         end
       end
