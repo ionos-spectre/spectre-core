@@ -3,6 +3,7 @@
 require 'yaml'
 require 'ostruct'
 require 'optparse'
+require 'fileutils'
 
 require_relative '../lib/spectre'
 require_relative '../lib/spectre/helpers/console'
@@ -144,7 +145,8 @@ String.colored! if cfg['colored']
 
 
 log_path = cfg['log_path']
-Dir.mkdir(log_path) unless File.directory? log_path
+FileUtils.rm_rf(log_path) if File.directory? log_path
+Dir.mkdir(log_path)
 
 
 ###########################################
@@ -186,7 +188,7 @@ if action == 'list'
   specs = Spectre.specs(cfg['specs'], cfg['tags'])
 
   exit 1 if specs.length == 0
-  
+
   counter = 0
 
   specs.group_by { |x| x.subject }.each do |subject, spec_group|
@@ -196,7 +198,7 @@ if action == 'list'
       desc += ' ' + spec.context.desc if spec.context.desc
       puts "[#{spec.name}]".send(colors[counter % colors.length]) + " #{desc} #{tags.cyan}"
     end
-    
+
     counter += 1
   end
 end
