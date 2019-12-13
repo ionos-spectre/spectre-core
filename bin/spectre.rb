@@ -163,6 +163,7 @@ cfg['modules'].each do |mod|
 end
 
 require 'date'
+require 'json'
 
 
 Spectre.configure(cfg)
