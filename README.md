@@ -38,9 +38,21 @@ spectre -h
 spectre --version
 ```
 
+
+## Quickstart
+
+To create a minimal spectre project run the following command
+
+```bash
+spectre init
+```
+
+This will create a basic folder structure and generate some sample files.
+
+
 ## Creating a new project
 
-<!-- 
+<!--
 
 Create a new project structure by executing
 ```bash
@@ -59,7 +71,7 @@ This will create mutliple empty directories and a `spectre.yaml` config file.
 | `resources` | This folder can contain any files, which will be used in *spec* definitions. |
 | `specs` | This is the folder, where all spec files should be placed. The standard file pattern is `**/*_spec.rb` |
 | `spectre.yaml` | This is `spectre`'s default config file. This file includes default file patterns and paths. Options in this file can be overritten with command line arguments. |
-| `.gitignore` | This `.gitignore` file contains files and directories, which should not be tracked by version control. | 
+| `.gitignore` | This `.gitignore` file contains files and directories, which should not be tracked by version control. |
 
 -->
 
@@ -127,7 +139,7 @@ describe 'Hollow API' do
   # Add context here
 end
 ```
- 
+
 > One *subject* can be split into multiple files.
 
 
