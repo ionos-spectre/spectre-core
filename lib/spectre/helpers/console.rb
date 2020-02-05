@@ -66,13 +66,15 @@ end
 
 class NilClass
   def pretty width: nil
-    'not set'.grey
+    'n/a'.grey
   end
 end
 
 
 class Array
   def pretty width: 25
+    return 'empty'.grey if self.length == 0
+
     list_length = self.map { |x| x.to_s.length }.reduce(:+)
     return self.join ', ' if list_length && list_length < 30
 
@@ -162,7 +164,8 @@ class Hash
         end
 
         s += key.to_s.cyan
-        s += ' ' + '.' * (width-key.to_s.length-indent) + ': '
+        s += ' ' + '.' * (width-key.to_s.length-indent) if width-key.to_s.length > indent
+        s += ': '
         s += value.pretty + "\n"
       end
 
