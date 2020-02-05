@@ -182,7 +182,7 @@ end
 
 
 ###########################################
-# Execute Action
+# List specs
 ###########################################
 
 
@@ -252,6 +252,23 @@ end
 # Init
 ###########################################
 
+DEFAULT_SPECTRE_CFG = %{log_path: ./logs
+env_pattern: '**/*.env.yml'
+spec_pattern: '**/*.spec.rb'
+modules:
+  - spectre/helpers
+  - spectre/helpers/console
+  - spectre/reporter/console
+  - spectre/logger/console
+  - spectre/assertion
+  - spectre/diagnostic
+  - spectre/http
+  - spectre/http/basic_auth
+  - spectre/http/keystone
+  - spectre/ssh
+}
+
+
 DEFAULT_ENV_CFG = %{pukiroot: &pukiroot ./resources/<root_cert>.cer
 http:
   <http_client_name>:
@@ -274,7 +291,7 @@ http:
 }
 
 SAMPLE_SPEC = %[describe '<subject>' do
-  it 'do some http requests', tags: [:sample] do
+  it 'does some http requests', tags: [:sample] do
     log 'doing some http request'
 
     http '<http_client_name>' do
@@ -317,5 +334,11 @@ if action == 'init'
 
   if not File.exists? sample_spec_file
     File.write(sample_spec_file, SAMPLE_SPEC)
+  end
+
+  spectre_cfg_file = './spectre.yml'
+
+  if not File.exists? spectre_cfg_file
+    File.write(spectre_cfg_file, DEFAULT_SPECTRE_CFG)
   end
 end
