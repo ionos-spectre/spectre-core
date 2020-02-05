@@ -252,9 +252,70 @@ end
 # Init
 ###########################################
 
+DEFAULT_ENV_CFG = %{pukiroot: &pukiroot ./resources/<root_cert>.cer
+http:
+  <http_client_name>:
+    base_url: http://localhost:5000/api/v1/
+    # basic_auth:
+    #   username: <username>
+    #   password: <password>
+    # keystone:
+    #   url: https://<keystone_url>/main/v3/
+    #   username: <username>
+    #   password: <password>
+    #   project: <project>
+    #   domain: <domain>
+    #   cert: *pukiroot
+# ssh:
+#   <ssh_client_name>:
+#     host: <hostname>
+#     username: <username>
+#     password: <password>
+}
+
+SAMPLE_SPEC = %[describe '<subject>' do
+  it 'do some http requests', tags: [:sample] do
+    log 'doing some http request'
+
+    http '<http_client_name>' do
+      auth 'basic_auth'
+      # auth 'keystone'
+      method 'GET'
+      path 'path/to/resource'
+      param 'id', 4295118773
+      param 'foo', 'bar'
+      header 'X-Correlation-Id', '4c2367b1-bfee-4cc2-bdc5-ed17a6a9dd4b'
+      header 'Range', 'bytes=500-999'
+      json({
+        message: 'Hello Spectre!'
+      })
+    end
+
+    expect 'the response code to be 200' do
+      response.code.should_be '200'
+    end
+
+    expect 'a message to exist' do
+      response.json.message.should_not_be nil
+    end
+  end
+end
+]
 
 if action == 'init'
   %w(environments logs specs).each do |dir_name|
     Dir.mkdir(dir_name) unless File.directory? dir_name
+  end
+
+  default_env_file = './environments/default.env.yml'
+
+  if not File.exists? default_env_file
+    File.write(default_env_file, DEFAULT_ENV_CFG)
+  end
+
+  sample_spec_file = './specs/sample.spec.rb'
+
+  if not File.exists? sample_spec_file
+    File.write(sample_spec_file, SAMPLE_SPEC)
   end
 end
