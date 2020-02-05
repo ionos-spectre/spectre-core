@@ -395,7 +395,7 @@ For example, when writing *specs* for a REST API, the *specs* could be grouped b
 
 Specs of a RPC API can be grouped by its functions.
 
-Our *Hollow API* has two resources *ghosts* and *monsters*. Each resource can be *created*, *updated* and *deleted*. The project structur could then look something like this:
+Our *Hollow API* has two resources *ghosts* and *monsters*. Each resource can be *created*, *read*, *updated* and *deleted*. The project structur could then look something like this:
 
 ```
 hollow_webapi
@@ -407,11 +407,13 @@ hollow_webapi
 +-- specs
 |   +-- ghosts
 |   |   +-- create.spec.rb
+|   |   +-- read.spec.rb
 |   |   +-- update.spec.rb
 |   |   +-- delete.spec.rb
 |   |   +-- spook.spec.rb
 |   +-- monsters
 |       +-- create.spec.rb
+|       +-- read.spec.rb
 |       +-- update.spec.rb
 |       +-- delete.spec.rb
 +-- spectre.yaml
@@ -445,7 +447,7 @@ http 'dummy_api' do
 end
 ```
 
-Access the response with with the `response` function. This function returns a standard `Net::HTTPResponse` object with additional extension methods available.
+Access the response with the `response` function. This function returns a standard `Net::HTTPResponse` object with additional extension methods available.
 
 ```ruby
 response.code.should_be 200
