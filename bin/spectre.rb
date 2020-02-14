@@ -262,6 +262,7 @@ modules:
   - spectre/logger/console
   - spectre/assertion
   - spectre/diagnostic
+  - spectre/environment
   - spectre/http
   - spectre/http/basic_auth
   - spectre/http/keystone
