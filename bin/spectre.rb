@@ -320,25 +320,19 @@ end
 ]
 
 if action == 'init'
+  DEFAULT_FILES = [
+    ['./environments/default.env.yml', DEFAULT_ENV_CFG],
+    ['./specs/sample.spec.rb', SAMPLE_SPEC],
+    ['./spectre.yml', DEFAULT_SPECTRE_CFG],
+  ]
+
   %w(environments logs specs).each do |dir_name|
     Dir.mkdir(dir_name) unless File.directory? dir_name
   end
 
-  default_env_file = './environments/default.env.yml'
-
-  if not File.exists? default_env_file
-    File.write(default_env_file, DEFAULT_ENV_CFG)
+  DEFAULT_FILES.each do |file, content|
+    if not File.exists? file
+      File.write(file, content)
   end
-
-  sample_spec_file = './specs/sample.spec.rb'
-
-  if not File.exists? sample_spec_file
-    File.write(sample_spec_file, SAMPLE_SPEC)
-  end
-
-  spectre_cfg_file = './spectre.yml'
-
-  if not File.exists? spectre_cfg_file
-    File.write(spectre_cfg_file, DEFAULT_SPECTRE_CFG)
   end
 end
