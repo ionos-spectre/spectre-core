@@ -18,8 +18,8 @@ module Spectre
       end
 
       def owner_of path
-        exec "ls -l #{path}"
-        output.split(' ')[2]
+        exec "stat -c %U #{path}"
+        output.chomp
       end
 
       def exec command
