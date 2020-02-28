@@ -1,0 +1,169 @@
+{
+	"Do HTTP request": {
+		"scope": "ruby",
+		"prefix": "http",
+		"description": "Do a request to a specified HTTP endpoint",
+		"body": [
+			"http '$1' do",
+			"\tmethod '${2:GET}'",
+			"\tpath '$3'",
+			"end",
+			"",
+			"$0"
+		]
+	},
+	"Do HTTP request with status code": {
+		"scope": "ruby",
+		"prefix": "http strict",
+		"description": "Do HTTP request and expect a specific response code",
+		"body": [
+			"http '$1' do",
+			"\tmethod '${2:|GET,POST,DELETE,PUT,PATCH,OPTION,HEAD|}'",
+			"\tpath '$3'",
+			"end",
+			"",
+			"expect 'the response code to be $4' do",
+			"  response.code.should_be '$4'",
+			"end",
+			"",
+			"$0"
+		]
+	},
+	"Configure HTTPS client": {
+		"scope": "yaml",
+		"prefix": "https",
+		"description": "Configure a spectre HTTP client",
+		"body": [
+			"$1:",
+			"\tbase_url: https://$2",
+			"\t# cert: *cert"
+		]
+	},
+	"Configure HTTPS client with basic auth": {
+		"scope": "yaml",
+		"prefix": "https basic",
+		"description": "Configure a spectre HTTP client with basic authentication",
+		"body": [
+			"$1:",
+			"\tbase_url: http://$2",
+			"\t# cert: *cert",
+			"\tbasic_auth:",
+			"\t\tusername: ",
+			"\t\tpassword: "
+		]
+	},
+	"Configure HTTPS client with Keystone auth": {
+		"scope": "yaml",
+		"prefix": "https keystone",
+		"description": "Configure a spectre HTTP client with keystone authentication",
+		"body": [
+			"$1:",
+			"\tbase_url: https://$2",
+			"\t# cert: *cert",
+			"\tkeystone: ",
+			"\t\turl: https://",
+			"\t\tusername: ",
+			"\t\tpassword: ",
+			"\t\tproject: ",
+			"\t\tdomain: ",
+			"\t\t# cert: *cert"
+		]
+	},
+	"Show full HTTP options": {
+		"scope": "ruby",
+		"prefix": "http full",
+		"description": "Do a request to a specified HTTP endpoint",
+		"body": [
+			"http '$1' do",
+			"\t# auth 'basic_auth'",
+			"\t# auth 'keystone'",
+			"\tmethod '${2:GET}'",
+			"\tpath '$3'",
+			"\t# param 'foo', 'bar'",
+			"\t# header 'X-Correlation-Id', ''",
+			"\t# json({",
+			"\t# \t\"message\": \"Hello Spectre!\"",
+			"\t# })",
+			"end",
+			"",
+			"$0"
+		]
+	},
+	"Expect": {
+		"scope": "ruby",
+		"prefix": "expect",
+		"description": "Expect something",
+		"body": [
+			"expect '$1'",
+			"\t$2.should_be '$3'",
+			"end",
+			"",
+			"$0"
+		]
+	},
+	"Expect a response code": {
+		"scope": "ruby",
+		"prefix": "expect response",
+		"description": "Expect a specific response code",
+		"body": [
+			"expect 'the response code to be $1' do",
+			"\tresponse.code.should_be '$1'",
+			"end",
+			"",
+			"$0"
+		]
+	},
+	"Describe a feature": {
+		"scope": "ruby",
+		"prefix": "it",
+		"description": "Describe a feature in an 'it' block",
+		"body": [
+			"it '$1', tags: [$2] do",
+			"\t$0",
+			"end"
+		]
+	},
+	"Describe a subject": {
+		"scope": "ruby",
+		"prefix": "describe",
+		"description": "Describe a spectre subject",
+		"body": [
+			"describe '$1' do",
+			"\tit '$2', tags: [$3] do",
+			"\t\t$0",
+			"\tend",
+			"end"
+		]
+	},
+	"Configure SSH client": {
+		"scope": "yaml",
+		"prefix": "ssh",
+		"description": "Configure a spectre SSH client",
+		"body": [
+			"$1:",
+			"\thost: $2",
+			"\tusername: $3",
+			"\tpassword: $4"
+		]
+	},
+	"Execute SSH command": {
+		"scope": "ruby",
+		"prefix": "ssh",
+		"description": "Execute a SSH command with configured client",
+		"body": [
+			"ssh '$1' do",
+			"\t$0",
+			"end"
+		]
+	},
+	"Log message": {
+		"scope": "ruby",
+		"prefix": "log",
+		"description": "Log info message",
+		"body": [
+			"log '$1'",
+			"",
+			"$0"
+		]
+	}
+}

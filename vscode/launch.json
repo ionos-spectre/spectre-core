@@ -1,0 +1,31 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+          "name": "Run spectre",
+          "type": "Ruby",
+          "request": "launch",
+          "program": "path/to/spectre.rb",
+          "args": [
+            "-e", "${input:environment}"
+          ],
+          "cwd": "${workspaceFolder}/${input:project}"
+        }
+    ],
+    "inputs": [
+      {
+        "type": "promptString",
+        "id": "project",
+        "description": "Enter spectre project to run"
+      },
+      {
+        "type": "promptString",
+        "id": "environment",
+        "default": "default",
+        "description": "Enter test environment name"
+      }
+    ]
+}
