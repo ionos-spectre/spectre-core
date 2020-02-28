@@ -1,10 +1,10 @@
 class Object
   def should_be(val)
-      raise Spectre::ExpectationFailure.new(val, self) unless self == val
+      raise Spectre::ExpectationFailure.new(val, self) unless self.to_s == val.to_s
   end
 
   def should_not_be(val)
-      raise Spectre::ExpectationFailure.new(val, self) unless self != val
+      raise Spectre::ExpectationFailure.new(val, self) unless self.to_s != val.to_s
   end
 end
 
