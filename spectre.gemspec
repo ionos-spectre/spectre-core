@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = 'A tool and DSL to specify and run different kind of tests'
   spec.description   = 'A tool and DSL to specify and run different kind of tests'
-  spec.homepage      = 'https://bitbucket.org/cneubaur/spectre'
+  spec.homepage      = 'https://bitbucket.org/cneubaur/spectre-ruby'
 
   spec.files         += Dir.glob('bin/*')
   spec.files         += Dir.glob('lib/**/*')
