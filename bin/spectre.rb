@@ -112,6 +112,7 @@ config_file = cmd_options['config_file'] || DEFAULT_CONFIG['config_file']
 if File.exists? config_file
   file_options = YAML.load_file(config_file)
   cfg.merge! file_options
+  Dir.chdir File.dirname(config_file)
 end
 
 cfg.merge! cmd_options
