@@ -23,16 +23,25 @@
 			"end",
 			"",
 			"expect 'the response code to be $4' do",
-			"  response.code.should_be '$4'",
+			"  response.code.should_be $4",
 			"end",
 			"",
 			"$0"
 		]
 	},
+	"Configure simple HTTP client": {
+		"scope": "yaml",
+		"prefix": "http",
+		"description": "Configure a simple spectre HTTP client",
+		"body": [
+			"$1:",
+			"\tbase_url: http://$2",
+		]
+	},
 	"Configure HTTPS client": {
 		"scope": "yaml",
 		"prefix": "https",
-		"description": "Configure a spectre HTTP client",
+		"description": "Configure a spectre HTTPS client",
 		"body": [
 			"$1:",
 			"\tbase_url: https://$2",
@@ -42,7 +51,7 @@
 	"Configure HTTPS client with basic auth": {
 		"scope": "yaml",
 		"prefix": "https basic",
-		"description": "Configure a spectre HTTP client with basic authentication",
+		"description": "Configure a spectre HTTPS client with basic authentication",
 		"body": [
 			"$1:",
 			"\tbase_url: http://$2",
@@ -95,7 +104,7 @@
 		"description": "Expect something",
 		"body": [
 			"expect '$1'",
-			"\t$2.should_be '$3'",
+			"\t$2.should_be $3",
 			"end",
 			"",
 			"$0"
@@ -107,7 +116,7 @@
 		"description": "Expect a specific response code",
 		"body": [
 			"expect 'the response code to be $1' do",
-			"\tresponse.code.should_be '$1'",
+			"\tresponse.code.should_be $1",
 			"end",
 			"",
 			"$0"
