@@ -1,5 +1,9 @@
 module Spectre::Reporter
   class Console
+    def initialize config
+      @config = config
+    end
+
     def report run_infos
       def format_exception error
         file, line = error.backtrace[0].match(/(.*\.rb):(\d+)/).captures

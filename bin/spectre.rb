@@ -19,6 +19,7 @@ DEFAULT_CONFIG = {
   'reporter' => 'Spectre::Reporter::Console',
   'logger' => 'Spectre::Logger::Console',
   'log_path' => './logs',
+  'out_path' => './reports',
   'spec_patterns' => ['./specs/**/*.spec.rb'],
   'env_patterns' => ['./environments/**/*.env.yml'],
   'modules' => [
@@ -74,11 +75,15 @@ Specific options:}
     cmd_options['env_patterns'] = env_patterns
   end
 
-  opts.on('--color', 'Enable colored output') do |colored|
-    cmd_options['colored'] = colored
+  opts.on('--no-color', 'Enable colored output') do |colored|
+    cmd_options['colored'] = false
   end
 
-  opts.on('-r name', '--reporter name', Array, "The name of the reporter to use") do |reporter|
+  opts.on('-o path', '--out path', 'Output file path') do |path|
+    cmd_options['out_path'] = path
+  end
+
+  opts.on('-r name', '--reporter name', "The name of the reporter to use") do |reporter|
     cmd_options['reporter'] = reporter
   end
 
@@ -207,7 +212,7 @@ if action == 'list'
   end
 end
 
-
+puts action
 ###########################################
 # Run
 ###########################################
@@ -215,7 +220,7 @@ end
 
 if action == 'run'
   logger = Kernel.const_get(cfg['logger'])
-  reporter = Kernel.const_get(cfg['reporter']).new
+  reporter = Kernel.const_get(cfg['reporter']).new(cfg)
 
   specs = Spectre.specs(cfg['specs'], cfg['tags'])
 
