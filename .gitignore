@@ -2,3 +2,4 @@
 **/*.log
 tmp/
 temp/
+Gemfile.lock
