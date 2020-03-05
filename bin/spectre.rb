@@ -30,9 +30,11 @@ DEFAULT_CONFIG = {
     'spectre/logger/console',
     'spectre/assertion',
     'spectre/diagnostic',
+    'spectre/environment',
     'spectre/http',
     'spectre/http/basic_auth',
     'spectre/http/keystone',
+    'spectre/ssh',
     # 'spectre/database/postgres',
   ],
 }
@@ -48,30 +50,32 @@ Usage: spectre [command] [options]
 Commands:
   list        List specs
   run         Run specs (default)
+  show        Print current environment settings
+  init        Initializes a new spectre project
 
 Specific options:}
 
-  opts.on('-s spec1,spec2', '--specs spec1,spec2', Array, 'The specs to run') do |specs|
+  opts.on('-s SPEC,SPEC', '--specs SPEC,SPEC', Array, 'The specs to run') do |specs|
     cmd_options['specs'] = specs
   end
 
-  opts.on('-t tag1,tag2', '--tags tag1,tag2', Array, 'Run only specs with give tags') do |tags|
+  opts.on('-t TAG,TAG', '--tags TAG,TAG', Array, 'Run only specs with give tags') do |tags|
     cmd_options['tags'] = tags
   end
 
-  opts.on('-e env_name', '--env env_name', 'Name of the environment to load') do |env_name|
+  opts.on('-e NAME', '--env NAME', 'Name of the environment to load') do |env_name|
     cmd_options['environment'] = env_name
   end
 
-  opts.on('-c file', '--config file', 'Config file to load') do |file_path|
+  opts.on('-c FILE', '--config FILE', 'Config file to load') do |file_path|
     cmd_options['config_file'] = file_path
   end
 
-  opts.on('--spec-pattern', Array, 'File pattern for spec files') do |spec_pattern|
+  opts.on('--spec-pattern PATTERN', Array, 'File pattern for spec files') do |spec_pattern|
     cmd_options['spec_patterns'] = spec_pattern
   end
 
-  opts.on('--env-pattern', Array, 'File pattern for environment files') do |env_patterns|
+  opts.on('--env-pattern PATTERN', Array, 'File pattern for environment files') do |env_patterns|
     cmd_options['env_patterns'] = env_patterns
   end
 
@@ -79,11 +83,11 @@ Specific options:}
     cmd_options['colored'] = false
   end
 
-  opts.on('-o path', '--out path', 'Output file path') do |path|
+  opts.on('-o PATH', '--out PATH', 'Output directory path') do |path|
     cmd_options['out_path'] = path
   end
 
-  opts.on('-r name', '--reporter name', "The name of the reporter to use") do |reporter|
+  opts.on('-r NAME', '--reporter NAME', "The name of the reporter to use") do |reporter|
     cmd_options['reporter'] = reporter
   end
 
@@ -212,7 +216,7 @@ if action == 'list'
   end
 end
 
-puts action
+
 ###########################################
 # Run
 ###########################################
@@ -224,7 +228,10 @@ if action == 'run'
 
   specs = Spectre.specs(cfg['specs'], cfg['tags'])
 
-  exit 1 if specs.length == 0
+  if specs.length == 0
+    puts "no specs found in #{Dir.pwd}"
+    exit 1
+  end
 
   runner = Spectre::Runner.new(logger)
   run_infos = runner.run(specs)
@@ -265,6 +272,7 @@ modules:
   - spectre/helpers
   - spectre/helpers/console
   - spectre/reporter/console
+  - spectre/reporter/junit
   - spectre/logger/console
   - spectre/assertion
   - spectre/diagnostic
@@ -276,7 +284,7 @@ modules:
 }
 
 
-DEFAULT_ENV_CFG = %{pukiroot: &pukiroot ./resources/<root_cert>.cer
+DEFAULT_ENV_CFG = %{cert: &cert ./resources/<root_cert>.cer
 http:
   <http_client_name>:
     base_url: http://localhost:5000/api/v1/
@@ -289,7 +297,7 @@ http:
     #   password: <password>
     #   project: <project>
     #   domain: <domain>
-    #   cert: *pukiroot
+    #   cert: *cert
 # ssh:
 #   <ssh_client_name>:
 #     host: <hostname>
@@ -311,12 +319,12 @@ SAMPLE_SPEC = %[describe '<subject>' do
       header 'X-Correlation-Id', '4c2367b1-bfee-4cc2-bdc5-ed17a6a9dd4b'
       header 'Range', 'bytes=500-999'
       json({
-        message: 'Hello Spectre!'
+        "message": "Hello Spectre!"
       })
     end
 
     expect 'the response code to be 200' do
-      response.code.should_be '200'
+      response.code.should_be 200
     end
 
     expect 'a message to exist' do
