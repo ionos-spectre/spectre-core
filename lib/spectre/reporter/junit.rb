@@ -34,9 +34,8 @@ module Spectre::Reporter
               else
                 failure = run_info.spec.error.cause.message
                 type = 'ERROR'
+                text = run_info.spec.error.cause.backtrace.join "\n"
               end
-
-              text = run_info.spec.error.cause.backtrace.join "\n"
             else
               failure = run_info.spec.error.message
               type = 'ERROR'
