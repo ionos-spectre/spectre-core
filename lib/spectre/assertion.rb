@@ -37,3 +37,10 @@ class Array
     raise Spectre::ExpectationFailure.new(val, self) unless self.length > 0
   end
 end
+
+
+class String
+  def should_contain(val)
+      raise Spectre::ExpectationFailure.new(val, self) unless self.include? val
+  end
+end
