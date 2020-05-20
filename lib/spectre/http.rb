@@ -78,7 +78,11 @@ module Spectre
         raise "HTTP client '#{name}' not configured" unless @@http_cfg.has_key? name
 
         client_cfg = @@http_cfg[name]
-        base_uri = URI(client_cfg['base_url'])
+
+        base_url = client_cfg['base_url']
+        base_url = base_url + '/' if !base_url.end_with? '/'
+
+        base_uri = URI(base_url)
 
         req = HttpRequest.new
         req.instance_eval(&block)
