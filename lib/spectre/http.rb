@@ -24,13 +24,14 @@ module Spectre
     @@modules = []
 
     class HttpRequest
-      attr_accessor :headers, :params, :body, :http_method, :url_path, :media_type, :auth_method
+      attr_accessor :headers, :params, :body, :http_method, :url_path, :media_type, :auth_method, :ensure_success
 
       def initialize
         @headers = {}
         @params = {}
         @body = nil
         @auth = nil
+        @ensure = false
       end
 
       def method method_name
@@ -56,6 +57,10 @@ module Spectre
       def json data
         @media_type = 'application/json'
         @body = JSON.pretty_generate(data)
+      end
+
+      def ensure_success!
+        @ensure_success = true
       end
 
       def authenticate method
@@ -144,6 +149,11 @@ module Spectre
         end
 
         @@logger.debug(res_log)
+
+        if req.ensure_success
+          code = Integer(@@response.code)
+          fail "response code of #{req_id} did not indicate success: #{@@response.code} #{@@response.message}" if code >= 400
+        end
       end
 
 
