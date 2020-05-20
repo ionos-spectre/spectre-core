@@ -52,6 +52,8 @@ module Spectre::Http::Keystone
       },
     }
 
+    keystone_url = keystone_url + '/' if !keystone_url.end_with? '/'
+
     base_uri = URI(keystone_url)
     uri = URI.join(base_uri, 'auth/tokens?nocatalog=true')
 
