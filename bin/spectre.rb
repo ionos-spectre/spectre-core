@@ -345,7 +345,7 @@ if action == 'init'
   DEFAULT_FILES = [
     ['./environments/default.env.yml', DEFAULT_ENV_CFG],
     ['./specs/sample.spec.rb', SAMPLE_SPEC],
-    ['./spectre.yml', DEFAULT_SPECTRE_CFG]
+    ['./spectre.yml', DEFAULT_SPECTRE_CFG],
     ['./.gitignore', DEFAULT_GITIGNORE],
   ]
 
