@@ -181,11 +181,11 @@ module Spectre
     def run_context context, specs
       runs = []
 
-      ctx = RunContext.new(@logger)
+      setup_ctx = RunContext.new(@logger)
 
       context.setup_blocks.each do |block|
-        ctx.instance_eval &block
-        ctx.freeze
+        setup_ctx.instance_eval &block
+        setup_ctx.freeze
       end
 
       begin
@@ -204,7 +204,7 @@ module Spectre
         end
       ensure
         context.teardown_blocks.each do |block|
-          ctx.instance_eval &block
+          setup_ctx.instance_eval &block
         end
       end
 
@@ -212,16 +212,16 @@ module Spectre
     end
 
     def run_spec spec, data=nil
-      ctx = RunContext.new(@logger)
+      run_ctx = RunContext.new(@logger)
       run_info = RunInfo.new(spec, data)
 
       run_info.record do
         begin
           spec.context.before_blocks.each do |block|
-            ctx.instance_exec(data, &block)
+            run_ctx.instance_exec(data, &block)
           end
 
-          ctx.instance_exec(data, &spec.block)
+          run_ctx.instance_exec(data, &spec.block)
 
         rescue ExpectationFailure => e
           spec.error = e
@@ -232,7 +232,7 @@ module Spectre
 
         ensure
           spec.context.after_blocks.each do |block|
-            ctx.instance_exec(data, &block)
+            run_ctx.instance_exec(data, &block)
           end
         end
       end
