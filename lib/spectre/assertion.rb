@@ -19,14 +19,22 @@ end
 
 class Hash
   def should_contain(other)
-      raise Spectre::ExpectationFailure.new(other, self) unless self.merge(other) == self
+    raise Spectre::ExpectationFailure.new(other, self) unless self.merge(other) == self
+  end
+
+  def should_not_contain(other)
+    raise Spectre::ExpectationFailure.new(other, self) unless self.merge(other) != self
   end
 end
 
 
 class Array
   def should_contain(val)
-      raise Spectre::ExpectationFailure.new(val, self) unless self.include? val
+    raise Spectre::ExpectationFailure.new(val, self) unless self.include? val
+  end
+
+  def should_not_contain(val)
+    raise Spectre::ExpectationFailure.new(val, self) if self.include? val
   end
 
   def should_be_empty
@@ -42,5 +50,9 @@ end
 class String
   def should_contain(val)
       raise Spectre::ExpectationFailure.new(val, self) unless self.include? val
+  end
+
+  def should_contain(val)
+      raise Spectre::ExpectationFailure.new(val, self) if self.include? val
   end
 end
