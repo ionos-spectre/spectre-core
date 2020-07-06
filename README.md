@@ -52,8 +52,6 @@ This will create a basic folder structure and generate some sample files.
 
 ## Creating a new project
 
-<!--
-
 Create a new project structure by executing
 ```bash
 spectre init
@@ -63,17 +61,15 @@ This will create mutliple empty directories and a `spectre.yaml` config file.
 
 | Directory/File | Description |
 | -------------- | ----------- |
-| `configs` | This directory should include `**/*_conf.rb` files. These configs will be executed once, before running any `spec` files. |
 | `environments` | This directory should contain `**/*_env.yaml` files. In these files, you can define environment variables, which can be accessed during a spec run. |
 | `helpers` | This directory can contain any Ruby files. This path will be appended to Ruby's `$LOAD_PATH` variable. |
 | `logs` | Logs will be placed in this folder |
-| `mixins` | This folder should include mixin definition files `**/*_mixin.rb` |
+| `reports` | This folder contains report files like JUnit, which are written by `reporter` |
 | `resources` | This folder can contain any files, which will be used in *spec* definitions. |
 | `specs` | This is the folder, where all spec files should be placed. The standard file pattern is `**/*_spec.rb` |
 | `spectre.yaml` | This is `spectre`'s default config file. This file includes default file patterns and paths. Options in this file can be overritten with command line arguments. |
-| `.gitignore` | This `.gitignore` file contains files and directories, which should not be tracked by version control. |
+| `.gitignore` | This `.gitignore` file contains files and directories, which should not be tracked by version control. If created manually, make sure your environment files are not tracked. |
 
--->
 
 ## Writing specs
 
@@ -282,7 +278,42 @@ Additional helper functions are available when using the `spectre/assertion` mod
 
 ### Assertion
 
+Make an assertion to any object by prepending one of the following functions
 
+| Function | Description |
+| -------- | ----------- |
+| `should_be` | Compares the objects value, with the given one and fails, if they are not equal. Values will be compared by their string value. |
+| `should_not_be` | Compares the two values like `should_be`, but fails, if they are equal. |
+| `should_be_empty` | Tests if a value is empty and fails if not. Fails, when a `list` has no elements or a `string` has no characters |
+| `should_not_be_empty` | Same as `should_be_empty` but negated. |
+| `should_contain` | Tests if a given value is _in_ the other one. This can be a string containing another string, or a list containing a specific value. |
+| `should_not_contain` | Same like `should_contain` but negated. |
+
+#### Examples
+
+```ruby
+describe 'Hollow API' do
+  it 'sends out spooky ghosts' do
+    expect 'some assertions' do
+      'Casper'.should_be 'Casper' # does not fail
+      'Casper'.should_be 'Boogy' # fails
+      'Casper'.should_not_be 'Boogy' # does not fail
+
+      [].should_be_empty # does not fail´
+      ''.should_be_empty # does not fail
+      ['Casper', 'Boogy'].should_be_empty # fails
+      ['Casper', 'Boogy'].should_not_be_empty # does not fail
+
+      'Casper'.should_contain 'spe' # does not fail
+      'Casper'.should_contain 'foo' # fails
+      ['Casper', 'Boogy'].should_contain 'Casper' # does not fail
+      ['Casper', 'Boogy'].should_contain 'Devy' # fails
+
+      # etc. I think you got the concept
+    end
+  end
+end
+```
 
 
 ## Listing specs
