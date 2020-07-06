@@ -218,10 +218,10 @@ module Spectre
       run_info.record do
         begin
           spec.context.before_blocks.each do |block|
-            run_ctx.instance_exec(data, &block)
+            run_ctx.instance_exec(run_info.data, &block)
           end
 
-          run_ctx.instance_exec(data, &spec.block)
+          run_ctx.instance_exec(run_info.data, &spec.block)
 
         rescue ExpectationFailure => e
           spec.error = e
@@ -232,7 +232,7 @@ module Spectre
 
         ensure
           spec.context.after_blocks.each do |block|
-            run_ctx.instance_exec(data, &block)
+            run_ctx.instance_exec(run_info.data, &block)
           end
         end
       end
