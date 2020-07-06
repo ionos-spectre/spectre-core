@@ -55,6 +55,8 @@ module Spectre::Reporter
 
       xml_str += '</testsuites>'
 
+      Dir.mkdir @config['out_path'] if not Dir.exist? @config['out_path']
+
       file_path = File.join(@config['out_path'], 'junit.xml')
 
       File.open(file_path, 'w') do |file|
