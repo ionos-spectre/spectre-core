@@ -334,11 +334,19 @@ SAMPLE_SPEC = %[describe '<subject>' do
 end
 ]
 
+DEFAULT_GITIGNORE = %[*.code-workspace
+logs/
+reports/
+**/.failed
+**/environments/*.env.yml
+]
+
 if action == 'init'
   DEFAULT_FILES = [
     ['./environments/default.env.yml', DEFAULT_ENV_CFG],
     ['./specs/sample.spec.rb', SAMPLE_SPEC],
-    ['./spectre.yml', DEFAULT_SPECTRE_CFG],
+    ['./spectre.yml', DEFAULT_SPECTRE_CFG]
+    ['./.gitignore', DEFAULT_GITIGNORE],
   ]
 
   %w(environments logs specs).each do |dir_name|
