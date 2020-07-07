@@ -27,6 +27,12 @@ module Spectre::Reporter
         run_infos.each do |run_info|
           xml_str += '<testcase class="' + subject.desc + '" name="' + run_info.spec.full_desc + '" time="' + ('%.3f' % run_info.duration) + '">'
 
+          if run_info.data
+            xml_str += '<properties>'
+            xml_str += '<property name="data" value="' + run_info.data + '" />'
+            xml_str += '</properties>'
+          end
+
           if run_info.error
             text = nil
 
@@ -68,7 +74,7 @@ module Spectre::Reporter
 
       Dir.mkdir @config['out_path'] if not Dir.exist? @config['out_path']
 
-      file_path = File.join(@config['out_path'], 'junit.xml')
+      file_path = File.join(@config['out_path'], "spectre-junit_#{timestamp}.xml")
 
       File.open(file_path, 'w') do |file|
         file.write(xml_str)
