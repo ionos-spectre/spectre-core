@@ -1,4 +1,5 @@
 # https://www.ibm.com/support/knowledgecenter/en/SSQ2R2_14.1.0/com.ibm.rsar.analysis.codereview.cobol.doc/topics/cac_useresults_junit.html
+# https://github.com/windyroad/JUnit-Schema/blob/master/JUnit.xsd
 
 module Spectre::Reporter
   class JUnit
@@ -7,14 +8,23 @@ module Spectre::Reporter
     end
 
     def report run_infos
+      now = Time.now.getutc
+      timestamp = now.strftime('%s')
+      datetime = now.strftime('%FT%T%:z')
+
       xml_str = '<?xml version="1.0" encoding="UTF-8" ?>'
-      xml_str += '<testsuites name="Spectre test" tests="' + run_infos.length.to_s + '">'
+      xml_str += '<testsuites>'
+
+      suite_id = 0
 
       run_infos.group_by { |x| x.spec.subject }.each do |subject, run_infos|
-        xml_str += '<testsuite id="' + subject.name + '" name="' + subject.desc + '" tests="' + run_infos.length.to_s + '">'
+        failures = run_infos.select { |x| x.spec.error != nil }
+
+        xml_str += '<testsuite package="' + subject.desc + '" id="' + suite_id.to_s + '" name="' + subject.desc + '" timestamp="' + datetime + '" tests="' + run_infos.length.to_s + '" failures="' + failures.length.to_s + '">'
+        suite_id += 1
 
         run_infos.each do |run_info|
-          xml_str += '<testcase id="' + run_info.spec.name + '" name="' + run_info.spec.desc + '" time="' + ('%.3f' % run_info.duration) + '">'
+          xml_str += '<testcase name="' + run_info.spec.full_desc + '" time="' + ('%.3f' % run_info.duration) + '">'
 
           if run_info.spec.error
             text = nil
