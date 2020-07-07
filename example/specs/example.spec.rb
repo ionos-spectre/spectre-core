@@ -9,13 +9,13 @@ describe 'Awesome API' do
       http 'dummy_api' do
         method 'GET'
         path 'employee/1'
-        
+
         header 'X-Custom', 'Some Value'
         header 'X-Custom2', 'Another Value'
-        
+
         param 'foo', 'bar'
       end
-      
+
       response.code.should_be '200'
     end
 
@@ -64,6 +64,10 @@ describe 'Some API' do
       @answer.should_be 42
     end
   end
+
+  it 'skips test if interrupted', tags: [:success, :skipped] do
+    skip
+  end
 end
 
 
@@ -87,7 +91,7 @@ describe 'Some API' do
       expect 'foo to be foo' do
         'foo'.should_be 'foo'
       end
-  
+
       fail_with 'no log dir found' if not `ls`.include? 'logs'
     end
 

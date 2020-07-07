@@ -18,41 +18,42 @@ module Spectre::Reporter
       suite_id = 0
 
       run_infos.group_by { |x| x.spec.subject }.each do |subject, run_infos|
-        failures = run_infos.select { |x| x.spec.error != nil }
+        failures = run_infos.select { |x| x.error != nil }
+        skipped = run_infos.select { |x| x.skipped? }
 
-        xml_str += '<testsuite package="' + subject.desc + '" id="' + suite_id.to_s + '" name="' + subject.desc + '" timestamp="' + datetime + '" tests="' + run_infos.length.to_s + '" failures="' + failures.length.to_s + '">'
+        xml_str += '<testsuite package="' + subject.desc + '" id="' + suite_id.to_s + '" name="' + subject.desc + '" timestamp="' + datetime + '" tests="' + run_infos.count.to_s + '" failures="' + failures.count.to_s + '" skipped="' + skipped.count.to_s + '">'
         suite_id += 1
 
         run_infos.each do |run_info|
-          xml_str += '<testcase name="' + run_info.spec.full_desc + '" time="' + ('%.3f' % run_info.duration) + '">'
+          xml_str += '<testcase class="' + subject.desc + '" name="' + run_info.spec.full_desc + '" time="' + ('%.3f' % run_info.duration) + '">'
 
-          if run_info.spec.error
+          if run_info.error
             text = nil
 
-            if run_info.spec.error.cause
-              if run_info.spec.error.cause.is_a? Spectre::ExpectationFailure
-                failure = "Expected #{run_info.spec.error}"
-                failure += " with #{run_info.data}" if run_info.data
+            if run_info.error.is_a? Spectre::ExpectationFailure
+              if !run_info.error.cause
+                failure_message = "Expected #{run_info.error.expectation}"
+                failure_message += " with #{run_info.data}" if run_info.data
 
-                if run_info.spec.error.cause.failure
-                  failure += " but it failed with #{run_info.spec.error.cause.failure}"
+                if run_info.error.message
+                  failure_message += " but it failed with #{run_info.error.message}"
                 else
-                  failure += " but it failed"
+                  failure_message += " but it failed"
                 end
 
                 type = 'FAILURE'
               else
-                failure = run_info.spec.error.cause.message
+                failure_message = run_info.error.cause.message
                 type = 'ERROR'
-                text = run_info.spec.error.cause.backtrace.join "\n"
+                text = run_info.error.cause.backtrace.join "\n"
               end
             else
-              failure = run_info.spec.error.message
+              failure_message = run_info.error.message
               type = 'ERROR'
-              text = run_info.spec.error.backtrace.join "\n"
+              text = run_info.error.backtrace.join "\n"
             end
 
-            xml_str += '<failure message="' + failure.gsub('"', '`') + '" type="' + type + '">'
+            xml_str += '<failure message="' + failure_message.gsub('"', '`') + '" type="' + type + '">'
             xml_str += '<![CDATA[' + text + ']]>' if text
             xml_str += '</failure>'
           end

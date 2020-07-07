@@ -14,11 +14,11 @@ module Spectre
 
 
   class ExpectationFailure < Exception
-    attr_reader :expectation, :failure
+    attr_reader :expectation
 
-    def initialize expectation, failure
+    def initialize expectation, message
+      super message
       @expectation = expectation
-      @failure = failure
     end
   end
 
@@ -86,7 +86,6 @@ module Spectre
 
   class Spec
     attr_reader :name, :subject, :context, :desc, :tags, :data, :block
-    attr_accessor :error
 
     def initialize name, subject, desc, tags, data, block, context
       @name = name
@@ -96,7 +95,6 @@ module Spectre
       @desc = desc
       @tags = tags
       @block = block
-      @error = nil
     end
 
     def full_desc
@@ -118,13 +116,17 @@ module Spectre
 
       rescue ExpectationFailure => e
         @logger.log_status(Logger::Status::FAILED)
-        raise desc, cause: e
+        raise e
 
       rescue Exception => e
         @logger.log_status(Logger::Status::ERROR)
-        raise desc, cause: e
+        raise ExpectationFailure.new(desc, e.message), cause: e
 
       end
+    end
+
+    def skip
+      raise Interrupt
     end
 
     def log message
@@ -138,22 +140,57 @@ module Spectre
 
 
   class RunInfo
-    attr_reader :spec, :data
+    attr_reader :spec, :data, :error
 
-    def initialize spec, data
+    def initialize spec, data, logger
       @spec = spec
       @data = data
       @started = nil
       @finished = nil
+      @logger = logger
+      @error = nil
+      @skipped = false
     end
 
     def duration
       @finished - @started
     end
 
-    def record
+    def skipped?
+      @skipped
+    end
+
+    def failed?
+      @error != nil
+    end
+
+    def record ctx
       @started = Time.now
-      yield
+
+      begin
+        @spec.context.before_blocks.each do |block|
+          ctx.instance_exec(@data, &block)
+        end
+
+        ctx.instance_exec(@data, &@spec.block)
+
+      rescue ExpectationFailure => e
+        @error = e
+
+      rescue Interrupt
+        @skipped = true
+        @logger.log_skipped
+
+      rescue Exception => e
+        @error = e
+        @logger.log_error(e)
+
+      ensure
+        @spec.context.after_blocks.each do |block|
+          ctx.instance_exec(@data, &block)
+        end
+      end
+
       @finished = Time.now
     end
   end
@@ -217,30 +254,8 @@ module Spectre
 
     def run_spec spec, data=nil
       run_ctx = RunContext.new(@logger)
-      run_info = RunInfo.new(spec, data)
-
-      run_info.record do
-        begin
-          spec.context.before_blocks.each do |block|
-            run_ctx.instance_exec(run_info.data, &block)
-          end
-
-          run_ctx.instance_exec(run_info.data, &spec.block)
-
-        rescue ExpectationFailure => e
-          spec.error = e
-
-        rescue Exception => e
-          spec.error = e
-          @logger.log_error(e) unless e.cause
-
-        ensure
-          spec.context.after_blocks.each do |block|
-            run_ctx.instance_exec(run_info.data, &block)
-          end
-        end
-      end
-
+      run_info = RunInfo.new(spec, data, @logger)
+      run_info.record(run_ctx)
       run_info
     end
   end

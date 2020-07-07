@@ -20,47 +20,51 @@ module Spectre::Reporter
 
       errors = 0
       failures = 0
+      skipped = run_infos.select { |x| x.skipped? }.count
 
       run_infos
-        .select { |x| x.spec.error }
+        .select { |x| x.error }
         .each_with_index do |run_info, index|
 
         spec = run_info.spec
 
         report_str += "\n#{index+1}) #{format_title run_info}\n"
 
-        if spec.error.cause
-          report_str += "     expected #{spec.error}"
+        if run_info.error.is_a? Spectre::ExpectationFailure
+          report_str += "     expected #{run_info.error.expectation}"
           report_str += " with #{run_info.data}" if run_info.data
           report_str += " #{spec.context.desc}" if spec.context.desc
           report_str += "\n"
 
-          if spec.error.cause.is_a? Spectre::ExpectationFailure
-            failure = spec.error.cause.failure || 'nil'
-            report_str += "     but it failed with #{failure}\n"
+          if !run_info.error.cause
+            report_str += "     but it failed with #{run_info.error}\n"
             failures += 1
           else
             report_str += "     but it failed with an unexpected error\n"
-            report_str += format_exception(spec.error.cause)
+            report_str += format_exception(run_info.error.cause)
             errors += 1
           end
 
         else
           report_str += "     but an unexpected error occured during run\n"
-          report_str += format_exception(spec.error)
+          report_str += format_exception(run_info.error)
           errors += 1
         end
       end
 
       if failures + errors > 0
         summary = ''
-        summary += "#{run_infos.length - failures - errors} succeeded "
+        summary += "#{run_infos.length - failures - errors - skipped} succeeded "
         summary += "#{failures} failures " if failures > 0
         summary += "#{errors} errors " if errors > 0
+        summary += "#{skipped} skipped " if skipped > 0
         summary += "#{run_infos.length} total"
         print "\n#{summary}\n".red
       else
-        print "\nRun finished successfully\n".green
+        summary = ''
+        summary = "\nRun finished successfully"
+        summary += " (#{skipped} skipped)" if skipped > 0
+        print "#{summary}\n".green
       end
 
       puts report_str.red

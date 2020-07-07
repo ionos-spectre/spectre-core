@@ -6,6 +6,7 @@ module Spectre::Logger
     FAILED = '[failed]'.red
     ERROR = '[error]'.red
     INFO = '[info]'.blue
+    SKIPPED = '[skipped]'.grey
   end
 
   module Console
@@ -52,6 +53,11 @@ module Spectre::Logger
       def log_error exception
         print_line('', fill: true)
         log_status(Spectre::Logger::Status::ERROR, annotation: exception.class.name.red)
+      end
+
+      def log_skipped
+        print_line('', fill: true)
+        log_status(Spectre::Logger::Status::SKIPPED)
       end
 
       def log_status status, annotation: nil
