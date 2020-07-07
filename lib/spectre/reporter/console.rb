@@ -32,7 +32,7 @@ module Spectre::Reporter
         if spec.error.cause
           report_str += "     expected #{spec.error}"
           report_str += " with #{run_info.data}" if run_info.data
-          report_str += " #{run_info.spec.context.desc}" if run_info.spec.context.desc
+          report_str += " #{spec.context.desc}" if spec.context.desc
           report_str += "\n"
 
           if spec.error.cause.is_a? Spectre::ExpectationFailure
