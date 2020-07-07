@@ -95,7 +95,13 @@ describe 'Spooky' do
     end
   end
 
-  it 'does some strange things in the neighbourhood', tags: [:scary] do
+  it 'does some strange things in the neighbourhood', with: ['sword', 'dagger'] tags: [:scary] do |data|
+    # This spec will be run two times. First time with data=sword, second time with data=dagger
+    
+    expect "some action with #{data}" do
+      hack_and_slay(data)
+    end
+
     expect 'some ghosts in the streets' do
       fail_with 'no ghosts'
     end
