@@ -68,6 +68,11 @@ describe 'Some API' do
   it 'skips test if interrupted', tags: [:success, :skipped] do
     skip
   end
+
+  it 'should do something with different things', with: ['this', 'that', 'other'], tags: [:success, :skipped] do |data|
+    expect "somthing to happen with '#{data}'" do
+    end
+  end
 end
 
 
