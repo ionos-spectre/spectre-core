@@ -57,8 +57,8 @@
 			"\tbase_url: http://$2",
 			"\t# cert: *cert",
 			"\tbasic_auth:",
-			"\t\tusername: ",
-			"\t\tpassword: "
+			"\t\tusername: $3",
+			"\t\tpassword: $4"
 		]
 	},
 	"Configure HTTPS client with Keystone auth": {
@@ -70,11 +70,11 @@
 			"\tbase_url: https://$2",
 			"\t# cert: *cert",
 			"\tkeystone: ",
-			"\t\turl: https://",
-			"\t\tusername: ",
-			"\t\tpassword: ",
-			"\t\tproject: ",
-			"\t\tdomain: ",
+			"\t\turl: https://$3",
+			"\t\tusername: $4",
+			"\t\tpassword: $5",
+			"\t\tproject: $6",
+			"\t\tdomain: $7",
 			"\t\t# cert: *cert"
 		]
 	},
