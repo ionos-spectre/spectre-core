@@ -98,6 +98,10 @@ module Spectre
       @block = block
       @error = nil
     end
+
+    def full_desc
+      @subject.desc + ' ' + desc
+    end
   end
 
 
