@@ -55,4 +55,12 @@ class String
   def should_contain(val)
       raise Spectre::ExpectationFailure.new(val, self) if self.include? val
   end
+
+  def should_match(regex)
+    raise Spectre::ExpectationFailure.new(regex, self) unless self.match(regex)
+  end
+
+  def should_not_match(regex)
+    raise Spectre::ExpectationFailure.new(regex, self) if self.match(regex)
+  end
 end
