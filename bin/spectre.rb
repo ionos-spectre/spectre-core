@@ -310,7 +310,7 @@ SAMPLE_SPEC = %[describe '<subject>' do
     log 'doing some http request'
 
     http '<http_client_name>' do
-      auth 'basic_auth'
+      auth 'basic'
       # auth 'keystone'
       method 'GET'
       path 'path/to/resource'
