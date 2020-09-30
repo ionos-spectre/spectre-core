@@ -37,7 +37,7 @@ module Spectre::Reporter
           report_str += "\n"
 
           if !run_info.error.cause
-            report_str += "     but it failed with #{run_info.error}\n"
+            report_str += "     but it failed\n"
             failures += 1
           else
             report_str += "     but it failed with an unexpected error\n"
