@@ -20,10 +20,7 @@
 			"http '$1' do",
 			"\tmethod '${2:|GET,POST,DELETE,PUT,PATCH,OPTION,HEAD|}'",
 			"\tpath '$3'",
-			"end",
-			"",
-			"expect 'the response code to be $4' do",
-			"  response.code.should_be $4",
+			"\tensure_success!",
 			"end",
 			"",
 			"$0"
@@ -57,8 +54,8 @@
 			"\tbase_url: http://$2",
 			"\t# cert: *cert",
 			"\tbasic_auth:",
-			"\t\tusername: $3",
-			"\t\tpassword: $4"
+			"\t\tusername: ",
+			"\t\tpassword: "
 		]
 	},
 	"Configure HTTPS client with Keystone auth": {
@@ -70,11 +67,11 @@
 			"\tbase_url: https://$2",
 			"\t# cert: *cert",
 			"\tkeystone: ",
-			"\t\turl: https://$3",
-			"\t\tusername: $4",
-			"\t\tpassword: $5",
-			"\t\tproject: $6",
-			"\t\tdomain: $7",
+			"\t\turl: https://",
+			"\t\tusername: ",
+			"\t\tpassword: ",
+			"\t\tproject: ",
+			"\t\tdomain: ",
 			"\t\t# cert: *cert"
 		]
 	},
@@ -103,7 +100,7 @@
 		"prefix": "expect",
 		"description": "Expect something",
 		"body": [
-			"expect '$1'",
+			"expect '$1' do",
 			"\t$2.should_be $3",
 			"end",
 			"",
@@ -117,6 +114,18 @@
 		"body": [
 			"expect 'the response code to be $1' do",
 			"\tresponse.code.should_be $1",
+			"end",
+			"",
+			"$0"
+		]
+	},
+	"Expect a json property": {
+		"scope": "ruby",
+		"prefix": "expect json property",
+		"description": "Expect a specified json value",
+		"body": [
+			"expect '$1' do",
+			"\tresponse.json.$2.should_be $3",
 			"end",
 			"",
 			"$0"
