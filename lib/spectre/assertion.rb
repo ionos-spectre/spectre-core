@@ -1,3 +1,5 @@
+require 'ostruct'
+
 class Object
   def should_be(val)
       raise Spectre::ExpectationFailure.new(val, self) unless self.to_s == val.to_s
@@ -30,11 +32,25 @@ end
 
 class Array
   def should_contain(val)
-    raise Spectre::ExpectationFailure.new(val, self) unless self.include? val
+    list = self
+
+    if val.is_a? Hash and self.all? { |x| x.is_a? OpenStruct or x.is_a? Hash }
+      list = self.map { |x| OpenStruct.new(x) }
+      val = OpenStruct.new(val)
+    end
+
+    raise Spectre::ExpectationFailure.new(val, list) unless list.include? val
   end
 
   def should_not_contain(val)
-    raise Spectre::ExpectationFailure.new(val, self) if self.include? val
+    list = self
+
+    if val.is_a? Hash and self.all? { |x| x.is_a? OpenStruct or x.is_a? Hash }
+      list = self.map { |x| OpenStruct.new(x) }
+      val = OpenStruct.new(val)
+    end
+
+    raise Spectre::ExpectationFailure.new(val, list) if list.include? val
   end
 
   def should_be_empty
@@ -52,7 +68,7 @@ class String
       raise Spectre::ExpectationFailure.new(val, self) unless self.include? val
   end
 
-  def should_contain(val)
+  def should_not_contain(val)
       raise Spectre::ExpectationFailure.new(val, self) if self.include? val
   end
 
