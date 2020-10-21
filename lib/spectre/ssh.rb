@@ -4,6 +4,8 @@ require 'logger'
 
 module Spectre
   module SSH
+    @@cfg = {}
+
     class SSHConnection
       def initialize session, logger
         @logger = logger
@@ -66,18 +68,22 @@ module Spectre
 
 
     class << self
-      def ssh name, &block
-        raise "SSH connection '#{name}' not configured" unless @@cfg.has_key? name
+      def ssh name, config = {}, &block
+        raise "SSH connection '#{name}' not configured" unless @@cfg.has_key?(name) or config.count > 0
 
-        cfg = @@cfg[name]
+        cfg = @@cfg[name] || {}
+
+        host = config[:host] || cfg['host']
+        username = config[:username] || cfg['username']
+        password = config[:password] || cfg['password']
 
         opts = {}
-        opts[:port] = cfg['port'] || 22
-        opts[:password] = cfg['password'] if cfg.has_key? 'password'
+        opts[:password] = password
+        opts[:port] = config[:port] || cfg['port'] || 22
         opts[:keys] = [cfg['key']] if cfg.has_key? 'key'
         opts[:passphrase] = cfg['passphrase'] if cfg.has_key? 'passphrase'
 
-        session = Net::SSH.start(cfg['host'], cfg['username'], opts)
+        session = Net::SSH.start(host, username, opts)
 
         begin
           ssh_con = SSHConnection.new(session, @@logger)
@@ -89,11 +95,9 @@ module Spectre
     end
 
     Spectre.register do |config|
+      @@logger = ::Logger.new File.join(config['log_path'], 'ssh.log'), progname: self.name
+
       if config.has_key? 'ssh'
-        @@logger = ::Logger.new File.join(config['log_path'], 'ssh.log'), progname: self.name
-
-        @@cfg = {}
-
         config['ssh'].each do |name, cfg|
           @@cfg[name] = cfg
         end
