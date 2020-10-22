@@ -2,11 +2,10 @@
 
 > _You cross the line in this life, you choose the wrong side and you pay the price. All fees collected by -_ [The Spectre](https://dc.fandom.com/wiki/The_Phantom_Stranger_Vol_4_5)
 
-Spectre is a DSL to describe any kind of tests and a command line tool to run these specifications.
+Spectre is a DSL and tool set for test automation.
 
 It is written in the scripting language [Ruby](https://www.ruby-lang.org/de/) and inspired by the Unit-Test framework [rspec](https://rspec.info/).
 
-This DSL is not only helpful for writing tests, it can also be used to describe a subject (e.g. a REST API) and provide readable examples of usage for on technical documentation.
 
 ## Installation
 
