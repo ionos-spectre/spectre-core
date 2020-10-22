@@ -47,7 +47,7 @@ When using `spectre/database/postgres` module, the gem `pg` has to be installed 
 sudo gem install pg
 ```
 
-If installation failes, try install postgres postgres client first
+If installation fails, try install postgres postgres client first
 
 ```bash
 sudo apt-get install postgresql-client libpq5 libpq-dev
