@@ -39,6 +39,22 @@ spectre --version
 ```
 
 
+### Postgres module
+
+When using `spectre/database/postgres` module, the gem `pg` has to be installed manually.
+
+```bash
+sudo gem install pg
+```
+
+If installation failes, try install postgres postgres client first
+
+```bash
+sudo apt-get install postgresql-client libpq5 libpq-dev
+sudo gem install pg
+```
+
+
 ## Quickstart
 
 To create a minimal spectre project run the following command
