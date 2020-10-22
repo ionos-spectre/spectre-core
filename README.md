@@ -310,6 +310,8 @@ Make an assertion to any object by prepending one of the following functions
 | `should_not_be_empty` | Same as `should_be_empty` but negated. |
 | `should_contain` | Tests if a given value is _in_ the other one. This can be a string containing another string, or a list containing a specific value. |
 | `should_not_contain` | Same like `should_contain` but negated. |
+| `should_match` | Matches the `string` against a given regular expression |
+| `should_not_match` | Same like `should_not_match` but negated. |
 
 #### Examples
 
@@ -321,7 +323,7 @@ describe 'Hollow API' do
       'Casper'.should_be 'Boogy' # fails
       'Casper'.should_not_be 'Boogy' # does not fail
 
-      [].should_be_empty # does not fail´
+      [].should_be_empty # does not fail
       ''.should_be_empty # does not fail
       ['Casper', 'Boogy'].should_be_empty # fails
       ['Casper', 'Boogy'].should_not_be_empty # does not fail
