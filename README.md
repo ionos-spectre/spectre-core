@@ -4,7 +4,7 @@
 
 Spectre is a DSL to describe any kind of tests and a command line tool to run these specifications.
 
-It is written in the scripting language [Ruby](https://www.ruby-lang.org/de/) and based on the Unit-Test framework [rspec](https://rspec.info/).
+It is written in the scripting language [Ruby](https://www.ruby-lang.org/de/) and inspired by the Unit-Test framework [rspec](https://rspec.info/).
 
 This DSL is not only helpful for writing tests, it can also be used to describe a subject (e.g. a REST API) and provide readable examples of usage for on technical documentation.
 
