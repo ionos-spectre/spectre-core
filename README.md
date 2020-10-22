@@ -333,6 +333,9 @@ describe 'Hollow API' do
       ['Casper', 'Boogy'].should_contain 'Casper' # does not fail
       ['Casper', 'Boogy'].should_contain 'Devy' # fails
 
+      'Casper'.should_match /^[a-z]+$/ # fails
+      'Casper'.should_not_match /Boogy/ # does not fail
+
       # etc. I think you got the concept
     end
   end
@@ -511,3 +514,44 @@ response.code.should_be 200
 | Method | Description |
 | -------| ----------- |
 | `json` | Parses the response body as JSON data and returns a `OpenStruct` instance |
+
+
+### SSH
+
+With the SSH helper you can define SSH connection parameter in the environment file and use the `ssh` function in your specs.
+
+Example:
+
+```yaml
+ssh:
+  some_ssh_conn: # name of the connection
+    host: some.server.com
+    username: u123456
+    password: $up3rSecr37
+```
+
+within the `ssh` block there are the following functions available
+
+| Method | Parameters | Description |
+| -------| ---------- | ----------- |
+| `file_exists` | `file_path` | Checks if a file exists and return a boolean value |
+| `owner_of` | `file_path` | Returns the owner of a given file |
+
+
+```ruby
+ssh 'some_ssh_conn' do # use connection name from config
+  file_exists('../path/to/some/existing_file.txt').should_be true
+  owner_of('/bin').should_be 'root'
+end
+```
+
+You can also use the `ssh` function without configuring any connection in you environment file, by providing parameters to the function.
+This is helpful, when generating the connection parameters during the spec run.
+The name of the connection is then only used for logging purposes.
+
+```ruby
+ssh 'some_ssh_conn', host: 'some.server.com', username: 'u123456', password: '$up3rSecr37'  do
+  file_exists('../path/to/some/existing_file.txt').should_be true
+  owner_of('/bin').should_be 'root'
+end
+```
