@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   spec.files         += Dir.glob('bin/*')
   spec.files         += Dir.glob('lib/**/*')
 
-  spec.executables   = ['spectre']
+  spec.executables   = ['spectre', 'spectre.bat']
   spec.require_paths = ['lib']
 
   spec.add_development_dependency 'bundler'
