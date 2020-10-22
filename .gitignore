@@ -1,5 +1,6 @@
 .vscode/
 **/*.log
 tmp/
+pkg/
 temp/
 Gemfile.lock
