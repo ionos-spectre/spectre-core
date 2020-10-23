@@ -33,6 +33,7 @@ DEFAULT_CONFIG = {
     'spectre/assertion',
     'spectre/diagnostic',
     'spectre/environment',
+    'spectre/mixin',
     'spectre/bag',
     'spectre/http',
     'spectre/http/basic_auth',
@@ -281,6 +282,7 @@ modules:
   - spectre/assertion
   - spectre/diagnostic
   - spectre/environment
+  - spectre/mixin
   - spectre/bag
   - spectre/http
   - spectre/http/basic_auth
