@@ -22,6 +22,7 @@ DEFAULT_CONFIG = {
   'log_path' => './logs',
   'out_path' => './reports',
   'spec_patterns' => ['./specs/**/*.spec.rb'],
+  'mixin_patterns' => ['../common/mixins/**/*.mixin.rb'],
   'env_patterns' => ['./environments/**/*.env.yml'],
   'modules' => [
     'spectre/helpers',
@@ -268,8 +269,9 @@ end
 ###########################################
 
 DEFAULT_SPECTRE_CFG = %{log_path: ./logs
-env_pattern: '**/*.env.yml'
-spec_pattern: '**/*.spec.rb'
+out_path: ./reports
+env_patterns: ['**/*.env.yml']
+spec_patterns: ['**/*.spec.rb']
 modules:
   - spectre/helpers
   - spectre/helpers/console
