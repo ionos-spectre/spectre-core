@@ -6,7 +6,7 @@ class Object
   end
 
   def should_be_empty
-    raise Spectre::ExpectationFailure.new(val, self) unless self == nil
+    raise Spectre::ExpectationFailure.new('empty', self) unless self == nil
   end
 
   def should_not_be(val)
@@ -14,7 +14,7 @@ class Object
   end
 
   def should_not_be_empty
-    raise Spectre::ExpectationFailure.new(val, self) unless self != nil
+    raise Spectre::ExpectationFailure.new('not empty', self) unless self != nil
   end
 end
 
@@ -54,11 +54,11 @@ class Array
   end
 
   def should_be_empty
-    raise Spectre::ExpectationFailure.new(val, self) unless self.length == 0
+    raise Spectre::ExpectationFailure.new('empty list', self) unless self.length == 0
   end
 
   def should_not_be_empty
-    raise Spectre::ExpectationFailure.new(val, self) unless self.length > 0
+    raise Spectre::ExpectationFailure.new('no empty list', self) unless self.length > 0
   end
 end
 
