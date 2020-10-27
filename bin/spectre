@@ -95,6 +95,21 @@ Specific options:}
     cmd_options['reporter'] = reporter
   end
 
+  opts.on('-p KEY=VAL', '--option KEY=VAL', "Override config option. Use `spectre show` to get list of available options") do |option|
+    key, val = option.split '='
+    val = val.split ',' if DEFAULT_CONFIG[key].is_a? Array
+    val = ['true', '1'].include? val if [true, false].include? DEFAULT_CONFIG[key]
+    val = val.to_i if DEFAULT_CONFIG[key].is_a? Integer
+    cmd_options[key] = val
+
+    curr_opt = cmd_options
+    (key.split '.').each do |k|
+      curr_opt[k] = {} if not curr_opt.has_key? k
+    end
+    curr_opt = val
+
+  end
+
   opts.separator "\nCommon options:"
 
   opts.on_tail('--version', 'Print current installed version') do
