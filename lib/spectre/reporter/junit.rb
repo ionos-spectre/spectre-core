@@ -25,7 +25,7 @@ module Spectre::Reporter
         suite_id += 1
 
         run_infos.each do |run_info|
-          xml_str += '<testcase class="' + subject.desc + '" name="' + run_info.spec.full_desc + '" time="' + ('%.3f' % run_info.duration) + '">'
+          xml_str += '<testcase class="' + subject.desc + '" name="' + run_info.spec.desc + '" time="' + ('%.3f' % run_info.duration) + '">'
 
           if run_info.data
             xml_str += '<properties>'
