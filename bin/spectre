@@ -273,21 +273,7 @@ DEFAULT_SPECTRE_CFG = %{log_path: ./logs
 out_path: ./reports
 env_patterns: ['**/*.env.yml']
 spec_patterns: ['**/*.spec.rb']
-modules:
-  - spectre/helpers
-  - spectre/helpers/console
-  - spectre/reporter/console
-  - spectre/reporter/junit
-  - spectre/logger/console
-  - spectre/assertion
-  - spectre/diagnostic
-  - spectre/environment
-  - spectre/mixin
-  - spectre/bag
-  - spectre/http
-  - spectre/http/basic_auth
-  - spectre/http/keystone
-  - spectre/ssh
+mixin_patterns: ['../common/mixins/**/*.mixin.rb']
 }
 
 
