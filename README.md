@@ -13,6 +13,7 @@ To use the command line tool, Ruby has to be installed on your system. To instal
 
 ```bash
 sudo apt-get install ruby-full
+sudo gem install bundler
 ```
 
 For other linux distributions see [ruby-lang.org](https://www.ruby-lang.org/en/documentation/installation/).
