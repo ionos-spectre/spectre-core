@@ -5,6 +5,7 @@ require 'yaml'
 require 'ostruct'
 require 'optparse'
 require 'fileutils'
+require 'ectoplasm'
 
 require_relative '../lib/spectre'
 require_relative '../lib/spectre/helpers/console'
