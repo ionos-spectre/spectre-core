@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Christian Neubauer']
   spec.email         = ['me@christianneubauer.de']
 
-  spec.summary       = 'A tool and DSL to specify and run different kind of tests'
-  spec.description   = 'A tool and DSL to specify and run different kind of tests'
+  spec.summary       = 'A DSL and command line tool to describe and run automated tests'
+  spec.description   = 'A DSL and command line tool to describe and run automated tests'
   spec.homepage      = 'https://bitbucket.org/cneubaur/spectre-ruby'
   spec.license       = 'MIT'
 
