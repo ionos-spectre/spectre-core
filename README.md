@@ -13,7 +13,6 @@ To use the command line tool, Ruby has to be installed on your system. To instal
 
 ```bash
 sudo apt-get install ruby-full
-sudo gem install bundler
 ```
 
 For other linux distributions see [ruby-lang.org](https://www.ruby-lang.org/en/documentation/installation/).
@@ -24,11 +23,18 @@ To install Ruby on windows, download an installer from [rubyinstaller.org](https
 choco install ruby
 ```
 
-The *spectre* gem is not yet available from an official gem repository. To install the tool, just clone this repository and execute
+The *spectre* gem is not yet available from an official gem repository. To install the tool, just clone this repository and execute.
+Also the dependency `ectoplasm` is not yet available as a `gem` package. You have to clone the repository and install it manually.
 
 ```bash
-bundle install # to install gem dependencies
-sudo rake install # to install the command line tool
+git clone https://cneubaur@bitbucket.org/cneubaur/ectoplasm-ruby.git
+cd echtoplasm-ruby
+sudo rake install # to install ectoplasm library
+
+git clone https://cneubaur@bitbucket.org/cneubaur/spectre-ruby.git
+cd spectre-ruby
+sudo rake install # to install the spectre command line tool
+
 ```
 
 To test, if the tool is working, try one of the following commands.
