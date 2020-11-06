@@ -129,7 +129,7 @@ describe 'Spooky' do
     end
   end
 
-  it 'only scares some people', tags: [:scary, :dangerous] do
+  it 'only scares some people', tags: [:scary, :dangerous, :spooky] do
     cry = scare_people()
 
     raise 'town was destroyed instead'
@@ -414,7 +414,7 @@ Spooky
     expect the answer to be 42.......................................[ok]
   only scares some people............................................[error - 2]
 
-1 failures 1 errors
+1 errors
 
   1) Spooky only scares some people [spooky-3]
        but an error occured while running the test
@@ -427,14 +427,15 @@ Spooky
 or run only specs with specific tags
 
 ```bash
-spectre --tags scary
+spectre --tags scary+!dangerous,spooky
 ```
+
+This will run all specs with the tags _scary_, but not _dangerous_, or with the tag _spooky_.
 
 ```
 Spooky
   does some strange things in the neighbourhood
     expect some ghost in the streets.................................[failed - 1]
-  only scares some people............................................[error - 2]
 
 1 failures 1 errors
 
