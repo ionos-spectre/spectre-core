@@ -23,8 +23,8 @@ To install Ruby on windows, download an installer from [rubyinstaller.org](https
 choco install ruby
 ```
 
-The *spectre* gem is not yet available from an official gem repository. To install the tool, just clone this repository and execute.
-`spectre` depends on the `ectoplasm` package. This package is also not yet available as a gem. `rake install` will clone the `ectoplasm` repository and install it  automatically.
+The *spectre* gem is not yet available from an official gem repository. To install the tool, just clone this repository and execute `rake install`.
+Note that `spectre` depends on the `ectoplasm` package. This package also is not yet available from an official gem repository. `rake install` will temporary clone the `ectoplasm` repository and install the gem automatically.
 
 ```bash
 git clone https://cneubaur@bitbucket.org/cneubaur/spectre-ruby.git
