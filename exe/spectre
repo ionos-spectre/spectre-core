@@ -289,7 +289,7 @@ DEFAULT_SPECTRE_CFG = %{log_path: ./logs
 out_path: ./reports
 env_patterns: ['**/*.env.yml']
 spec_patterns: ['**/*.spec.rb']
-mixin_patterns: ['../common/mixins/**/*.mixin.rb']
+mixin_patterns: ['**/*.mixin.rb', '../common/**/*.mixin.rb']
 }
 
 
