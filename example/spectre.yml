@@ -1,4 +1,4 @@
 log_path: ./logs
-env_pattern: '**/*.env.yml'
-spec_pattern: '**/*.spec.rb'
+env_patterns: ['**/*.env.yml']
+spec_patterns: ['**/*.spec.rb']
 # reporter: Spectre::Reporter::JUnit
