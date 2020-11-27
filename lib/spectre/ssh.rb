@@ -95,9 +95,9 @@ module Spectre
     end
 
     Spectre.register do |config|
-      @@logger = ::Logger.new File.join(config['log_path'], 'ssh.log'), progname: self.name
-
       if config.has_key? 'ssh'
+        @@logger = ::Logger.new File.join(config['log_path'], 'ssh.log'), progname: self.name
+
         config['ssh'].each do |name, cfg|
           @@cfg[name] = cfg
         end
