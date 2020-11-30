@@ -480,14 +480,17 @@ hollow_webapi
 +-- spectre.yaml
 ```
 
-## Helpers
+## Modules
 
 With the core framework you can run any tests you like, by writing plain Ruby code.
 However, there are additional helper modules, you can use, to make you Specs more readable.
 
-### HTTP
+All `spectre/*` modules are automatically loaded, if no modules are defined in the `spectre.yml` explicitly.
 
-Configure a HTTP client in the environment files at the `http` section.
+
+### HTTP `spectre/http`
+
+Configure a HTTP client in the environment files in the `http` section in you `spectre.yml`.
 
 Example:
 
@@ -504,11 +507,26 @@ http 'dummy_api' do
   method 'GET'
   path 'employee/1'
   param 'foo', 'bar'
+  param 'bla', 'blubb'
   header 'X-Authentication', '*****'
+  header 'X-Correlation-Id', ''
+  json({
+    "message": "Hello Spectre!"
+  })
+  content_type 'plain/text'
+  body 'Some plain text body content'
 end
 ```
 
-Access the response with the `response` function. This function returns a standard `Net::HTTPResponse` object with additional extension methods available.
+| Method | Arguments | Multiple | Description |
+| -------| ----------| -------- | ----------- |
+| `method` | `string` | no | The HTTP request method to use. Usually one of `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`, `HEAD` |
+| `param` | `string`,`string` | yes | Adds a query parameter to the request |
+| `json` | `Hash` | no | Adds the given hash as json and sets content type to `application/json` |
+| `header` | `string`,`string` | yes | Adds a header to the request |
+| `content_type` | `string` | no | Sets the `Content-Type` header to the given value |
+
+Access the response with the `response` function. This function returns a standard [`Net::HTTPResponse`](https://ruby-doc.org/stdlib-2.6.3/libdoc/net/http/rdoc/Net/HTTPResponse.html) object with additional extension methods available.
 
 ```ruby
 response.code.should_be 200
@@ -519,7 +537,62 @@ response.code.should_be 200
 | `json` | Parses the response body as JSON data and returns a `OpenStruct` instance |
 
 
-### SSH
+#### Basic Auth `spectre/http/basic_auth`
+
+Adds basic auth to the HTTP client.
+
+Add username and password in the http client config
+
+```yaml
+http:
+  dummy_api:
+    base_url: http://dummy.restapiexample.com/api/v1/
+    basic_auth:
+      username: 'dummy'
+      password: 'someawesomepass'
+```
+
+And tell the client to use basic auth.
+
+```ruby
+http 'dummy_api' do
+  auth 'basic' # add this to use basic auth
+  method 'GET'
+  path 'employee/1'
+end
+```
+
+#### Basic Auth `spectre/http/keystone`
+
+Adds keystone authentication to the HTTP client.
+
+Add keystone authentication properties to the http client in you `spectre.yml`
+
+```yaml
+http:
+  dummy_api:
+    base_url: http://dummy.restapiexample.com/api/v1/
+    keystone:
+      url: https://some-keystone-server:5000/main/v3/
+      username: dummy
+      password: someawesomepass
+      project: some_project
+      domain: some_domain
+      cert: path/to/cert
+```
+
+And tell the client to use keystone authentication.
+
+```ruby
+http 'dummy_api' do
+  auth 'keystone' # add this to use keystone
+  method 'GET'
+  path 'employee/1'
+end
+```
+
+
+### SSH `spectre/ssh`
 
 With the SSH helper you can define SSH connection parameter in the environment file and use the `ssh` function in your specs.
 
@@ -556,5 +629,140 @@ The name of the connection is then only used for logging purposes.
 ssh 'some_ssh_conn', host: 'some.server.com', username: 'u123456', password: '$up3rSecr37'  do
   file_exists('../path/to/some/existing_file.txt').should_be true
   owner_of('/bin').should_be 'root'
+end
+```
+
+
+### Environment `spectre/environment`
+
+Add arbitrary properties to your `spectre.yml`
+
+```yml
+spooky_house:
+  ghost: capser
+```
+
+and get the property via `env` function.
+
+```ruby
+describe 'Hollow API' do
+  it 'sends out spooky ghosts' do
+    expect 'the environment variable to exist' do
+      env.spooky_house.ghost.should_be 'casper'
+    end
+  end
+end
+```
+
+
+### Resources `spectre/resources`
+
+The `resources` module reads all files in the default `resources` directory.
+
+```
+hollow_webapi
++-- environments
+|   +-- development.env.rb
+|   +-- staging.env.rb
+|   +-- production.env.rb
++-- logs
++-- resources
+|   +-- json
+|       +-- spooky_request_body.json
++-- specs
+|   +-- ghosts
+|   |   +-- create.spec.rb
+|   |   +-- read.spec.rb
+|   |   +-- update.spec.rb
+|   |   +-- delete.spec.rb
+|   |   +-- spook.spec.rb
+|   +-- monsters
+|       +-- create.spec.rb
+|       +-- read.spec.rb
+|       +-- update.spec.rb
+|       +-- delete.spec.rb
++-- spectre.yaml
+```
+
+The paths of these files are provided by the `resources` function. The files are accessed relative to the resources path.
+
+```ruby
+describe 'Hollow API' do
+  it 'sends out spooky ghosts' do
+    expect 'the resource file to exist' do
+      File.exists(resources['json/spooky_request_body.json']).should_be true
+    end
+  end
+end
+```
+
+
+### Mixins `spectre/mixin`
+
+You can define reusable specs by using mixins. Create a `.mixin.rb` file in the mixin directory (default: `mixins`)
+
+```ruby
+mixin 'check health' do |http_name| # the mixin can be parameterized
+  http http_name do
+    auth 'basic'
+    method 'GET'
+    path 'health'
+  end
+
+  expect 'the response code to be 200' do
+    response.code.should_be 200
+  end
+
+  expect 'the status to be ok' do
+    response.json.status.should_be 'Ok'
+  end
+
+  expect 'the alarm to be ok' do
+    response.json.status.should_be 'Ok'
+  end
+end
+```
+
+and add this mixin to any spec with the `also` function.
+
+```ruby
+describe 'Hollow API' do
+  it 'checks health', tags: [:health] do
+    also 'check health', with: ['dummy_api'] # pass mixin parameter as value list
+  end
+end
+```
+
+### Diagnostic `spectre/diagnostic`
+
+This module adds function to track execution time.
+
+
+```ruby
+describe 'Hollow API' do
+  it 'sends out spooky ghosts' do
+    start # start timer
+
+    http 'dummy_api' do
+      auth 'basic' # add this to use basic auth
+      method 'GET'
+      path 'employee/1'
+    end
+
+    stop # stop timer
+
+    # can also be used within the `measure` block
+    measure do
+      http 'dummy_api' do
+        auth 'basic' # add this to use basic auth
+        method 'GET'
+        path 'employee/1'
+      end
+    end
+
+    expect 'the duration to be lower than 1 sec'
+      fail_with duration if duration > 1
+    end
+  end
 end
 ```
