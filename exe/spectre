@@ -25,6 +25,7 @@ DEFAULT_CONFIG = {
   'spec_patterns' => ['./specs/**/*.spec.rb'],
   'mixin_patterns' => ['../common/mixins/**/*.mixin.rb'],
   'env_patterns' => ['./environments/**/*.env.yml'],
+  'resource_paths' => ['../common/resources', './resources'],
   'modules' => [
     'spectre/helpers',
     'spectre/helpers/console',
@@ -40,6 +41,7 @@ DEFAULT_CONFIG = {
     'spectre/http/basic_auth',
     'spectre/http/keystone',
     'spectre/ssh',
+    'spectre/resources',
     # 'spectre/database/postgres',
   ],
 }
@@ -290,6 +292,7 @@ out_path: ./reports
 env_patterns: ['**/*.env.yml']
 spec_patterns: ['**/*.spec.rb']
 mixin_patterns: ['**/*.mixin.rb', '../common/**/*.mixin.rb']
+resource_paths: ['../common/resources', './resources']
 }
 
 
