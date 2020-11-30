@@ -6,6 +6,8 @@ module Spectre::Reporter
 
     def report run_infos
       def format_exception error
+        return '' if !error.backtrace
+
         file, line = error.backtrace[0].match(/(.*\.rb):(\d+)/).captures
         file.slice!(Dir.pwd + '/')
         str = ''
