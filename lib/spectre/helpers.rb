@@ -1,4 +1,5 @@
 require 'securerandom'
+require 'json'
 
 class String
   def as_json
@@ -7,6 +8,19 @@ class String
 
   def as_date
     DateTime.parse(self)
+  end
+
+  def content with: nil
+    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+    file_content = File.read(self)
+
+    if with
+      with.each do |key, value|
+        file_content = file_content.gsub '#{' + key.to_s + '}', value
+      end
+    end
+
+    file_content
   end
 end
 
