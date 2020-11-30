@@ -181,7 +181,7 @@ module Spectre
 
     Spectre.register do |config|
       if config.has_key? 'http'
-        @@logger = ::Logger.new File.join(config['log_path'], 'http.log'), progname: self.name
+        @@logger = ::Logger.new config['log_file'], progname: 'spectre/http'
 
         @@http_cfg = {}
 

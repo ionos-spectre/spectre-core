@@ -20,7 +20,7 @@ DEFAULT_CONFIG = {
   'verbose' => false,
   'reporter' => 'Spectre::Reporter::Console',
   'logger' => 'Spectre::Logger::Console',
-  'log_path' => './logs',
+  'log_file' => './logs/spectre_<date>.log',
   'out_path' => './reports',
   'spec_patterns' => ['./specs/**/*.spec.rb'],
   'mixin_patterns' => ['../common/mixins/**/*.mixin.rb'],
@@ -98,7 +98,7 @@ Specific options:}
     cmd_options['reporter'] = reporter
   end
 
-  opts.on('-p KEY=VAL', '--option KEY=VAL', "Override config option. Use `spectre show` to get list of available options") do |option|
+  opts.on('-p KEY=VAL', '--property KEY=VAL', "Override config option. Use `spectre show` to get list of available options") do |option|
     key, val = option.split '='
     val = val.split ',' if DEFAULT_CONFIG[key].is_a? Array
     val = ['true', '1'].include? val if [true, false].include? DEFAULT_CONFIG[key]
@@ -172,36 +172,6 @@ String.colored! if cfg['colored']
 
 
 ###########################################
-# Create Log Path
-###########################################
-
-
-log_path = cfg['log_path']
-FileUtils.rm_rf(log_path) if File.directory? log_path
-Dir.mkdir(log_path)
-
-
-###########################################
-# Load Modules
-###########################################
-
-
-cfg['modules'].each do |mod|
-  if !File.exists? mod
-    require_relative File.join('../lib', mod)
-  else
-    require_relative mod
-  end
-end
-
-require 'date'
-require 'json'
-
-
-Spectre.configure(cfg)
-
-
-###########################################
 # Load Specs
 ###########################################
 
@@ -245,6 +215,30 @@ end
 
 
 if action == 'run'
+  # Initialize logger
+  now = Time.now
+
+  cfg['log_file'] = cfg['log_file'].frmt({
+    shortdate: now.strftime('%Y-%m-%d'),
+    date: now.strftime('%Y-%m-%d_%H%M%S'),
+    timestamp: now.strftime('%s'),
+    subject: 'spectre',
+  })
+
+  log_dir = File.dirname cfg['log_file']
+  Dir.mkdir log_dir if !Dir.exists? log_dir
+
+  # Load Modules
+  cfg['modules'].each do |mod|
+    if !File.exists? mod
+      require_relative File.join('../lib', mod)
+    else
+      require_relative mod
+    end
+  end
+
+  Spectre.configure(cfg)
+
   logger = Kernel.const_get(cfg['logger'])
   reporter = Kernel.const_get(cfg['reporter']).new(cfg)
 
@@ -287,8 +281,7 @@ end
 # Init
 ###########################################
 
-DEFAULT_SPECTRE_CFG = %{log_path: ./logs
-out_path: ./reports
+DEFAULT_SPECTRE_CFG = %{log_file: ./logs/spectre_<date>.log
 env_patterns: ['**/*.env.yml']
 spec_patterns: ['**/*.spec.rb']
 mixin_patterns: ['**/*.mixin.rb', '../common/**/*.mixin.rb']
