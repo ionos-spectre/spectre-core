@@ -80,6 +80,9 @@ module Spectre
         client_cfg = @@http_cfg[name]
 
         base_url = client_cfg['base_url']
+
+        raise "no base_url set for http client #{name}" if !base_url
+
         base_url = base_url + '/' if !base_url.end_with? '/'
 
         base_uri = URI(base_url)
