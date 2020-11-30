@@ -89,6 +89,56 @@ This will create mutliple empty directories and a `spectre.yaml` config file.
 | `.gitignore` | This `.gitignore` file contains files and directories, which should not be tracked by version control. If created manually, make sure your environment files are not tracked. |
 
 
+### Spectre Config
+
+The following properties can be set in your `spectre.yml`
+
+```yml
+config_file: ./spectre.yml
+environment: default
+specs: empty
+tags: empty
+colored: yes
+verbose: no
+reporter: Spectre::Reporter::Console
+logger: Spectre::Logger::Console
+log_file: ./logs/spectre_<date>.log
+out_path: ./reports
+spec_patterns:
+  - '**/*.spec.rb'
+mixin_patterns:
+  - '**/*.mixin.rb'
+  - ../common/**/*.mixin.rb
+env_patterns:
+  - '**/*.env.yml'
+resource_paths:
+  - ../common/resources
+  - ./resources
+modules:
+  - spectre/helpers
+  - spectre/helpers/console
+  - spectre/reporter/console
+  - spectre/reporter/junit
+  - spectre/logger/console
+  - spectre/assertion
+  - spectre/diagnostic
+  - spectre/environment
+  - spectre/mixin
+  - spectre/bag
+  - spectre/http
+  - spectre/http/basic_auth
+  - spectre/http/keystone
+  - spectre/ssh
+  - spectre/resources
+```
+
+All properties can also be overriden with the command line argument `-p` or `--property`
+
+```bash
+spectre -p config_file=my_custom_spectre.yml -p environment=development
+```
+
+
 ## Writing specs
 
 To write automated tests, just open an editor of your choice and create a file named for example `spooky.spec.rb` in the `specs` folder.
