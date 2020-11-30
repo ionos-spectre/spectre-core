@@ -160,7 +160,7 @@ describe 'Hollow API' do
 end
 ```
 
-> One *subject* can be split into multiple files.
+> One *subject* can be split into multiple files. Note hat every `describe` call creates a new `context` and can contain its own `setup` and `teardown` blocks.
 
 
 ### Context
