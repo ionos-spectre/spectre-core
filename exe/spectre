@@ -41,6 +41,7 @@ DEFAULT_CONFIG = {
     'spectre/http/basic_auth',
     'spectre/http/keystone',
     'spectre/ssh',
+    'spectre/ftp',
     'spectre/resources',
     # 'spectre/database/postgres',
   ],
@@ -206,6 +207,8 @@ if action == 'list'
 
     counter += 1
   end
+
+  exit 0
 end
 
 
@@ -253,6 +256,8 @@ if action == 'run'
   run_infos = runner.run(specs)
 
   reporter.report(run_infos)
+
+  exit 0
 end
 
 
@@ -264,6 +269,7 @@ end
 if action == 'envs'
   exit 1 if envs.length == 0
   puts envs.pretty
+  exit 0
 end
 
 
@@ -274,6 +280,7 @@ end
 
 if action == 'show'
   puts cfg.pretty
+  exit 0
 end
 
 
@@ -361,6 +368,8 @@ if action == 'init'
   DEFAULT_FILES.each do |file, content|
     if not File.exists? file
       File.write(file, content)
+    end
   end
-  end
+
+  exit 0
 end

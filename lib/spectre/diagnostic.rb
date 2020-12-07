@@ -4,11 +4,11 @@ module Spectre
       @@duration = 0.0
 
       class << self
-        def start
+        def start_watch
           @@start_time = Time.now
         end
 
-        def stop
+        def stop_watch
           @@end_time = Time.now
         end
 
