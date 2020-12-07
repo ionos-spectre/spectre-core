@@ -20,7 +20,7 @@ task :update do
   Dir.mktmpdir 'spectre' do |dir|
     `git clone https://cneubaur@bitbucket.org/cneubaur/spectre-ruby.git #{dir}`
     Dir.chdir dir
-    `rake install`
+    `rake install:full`
     Dir.chdir pwd
   end
 end
