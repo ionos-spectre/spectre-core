@@ -683,7 +683,7 @@ end
 ```
 
 
-### SSH `spectre/ftp`
+### FTP `spectre/ftp`
 
 With the FTP helper you can define FTP connection parameter in the environment file and use either `ftp` or `sftp` function in your specs.
 
