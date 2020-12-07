@@ -83,6 +83,11 @@ module Spectre
         opts[:keys] = [cfg['key']] if cfg.has_key? 'key'
         opts[:passphrase] = cfg['passphrase'] if cfg.has_key? 'passphrase'
 
+        opts[:auth_methods] = []
+        opts[:auth_methods].push 'publickey' if opts[:keys]
+        opts[:auth_methods].push 'password' if opts[:password]
+
+
         session = Net::SSH.start(host, username, opts)
 
         begin
