@@ -24,12 +24,13 @@ choco install ruby
 ```
 
 The *spectre* gem is not yet available from an official gem repository. To install the tool, just clone this repository and execute `rake install`.
-Note that `spectre` depends on the `ectoplasm` package. This package also is not yet available from an official gem repository. `rake install` will temporary clone the `ectoplasm` repository and install the gem automatically.
+Note that `spectre` depends on the `ectoplasm` package. This package also is not yet available from an official gem repository. `rake install:full` will temporary clone the `ectoplasm` repository and install the gem automatically.
 
 ```bash
 git clone https://cneubaur@bitbucket.org/cneubaur/spectre-ruby.git
 cd spectre-ruby
 sudo rake install # to install the spectre command line tool
+sudo rake install:full # to install the spectre command line tool and the ectoplasm library
 
 ```
 
