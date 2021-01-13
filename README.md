@@ -40,6 +40,29 @@ spectre -h
 spectre --version
 ```
 
+#### Troubleshoot
+
+When getting an error message, like the one below, you have to install `bundler` first by running `sudo gem install bundler`.
+
+```
+$ sudo rake install --trace
+rake aborted!
+LoadError: cannot load such file -- bundler/gem_tasks
+/usr/lib/ruby/2.5.0/rubygems/core_ext/kernel_require.rb:59:in `require'
+/usr/lib/ruby/2.5.0/rubygems/core_ext/kernel_require.rb:59:in `require'
+/home/spectre/spectre-ruby/Rakefile:1:in `<top (required)>'
+/usr/lib/ruby/vendor_ruby/rake/rake_module.rb:29:in `load'
+/usr/lib/ruby/vendor_ruby/rake/rake_module.rb:29:in `load_rakefile'
+/usr/lib/ruby/vendor_ruby/rake/application.rb:703:in `raw_load_rakefile'
+/usr/lib/ruby/vendor_ruby/rake/application.rb:104:in `block in load_rakefile'
+/usr/lib/ruby/vendor_ruby/rake/application.rb:186:in `standard_exception_handling'
+/usr/lib/ruby/vendor_ruby/rake/application.rb:103:in `load_rakefile'
+/usr/lib/ruby/vendor_ruby/rake/application.rb:82:in `block in run'
+/usr/lib/ruby/vendor_ruby/rake/application.rb:186:in `standard_exception_handling'
+/usr/lib/ruby/vendor_ruby/rake/application.rb:80:in `run'
+/usr/bin/rake:27:in `<main>'
+```
+
 
 ### Postgres module
 
