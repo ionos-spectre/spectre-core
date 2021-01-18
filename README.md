@@ -34,6 +34,8 @@ sudo rake install:full # to install the spectre command line tool and the ectopl
 
 ```
 
+If in doubt use `sudo rake install:full`.
+
 To test, if the tool is working, try one of the following commands.
 
 ```bash
@@ -154,6 +156,7 @@ modules:
   - spectre/http/keystone
   - spectre/ssh
   - spectre/resources
+  - ...
 ```
 
 All properties can also be overriden with the command line argument `-p` or `--property`
@@ -416,6 +419,61 @@ describe 'Hollow API' do
     end
   end
 end
+```
+
+
+## Environments
+
+Environment files provide a variable structure and module configuration, which can be accessed in any place of you spec definitions.
+In the environment folder, create a plain yaml file with some variables.
+
+`default.env.yml`
+
+```yml
+foo: bar
+```
+
+and access these variables with `env` in you spec files.
+
+```ruby
+describe 'Hollow API' do
+  it 'reads values from environment' do
+    expect 'foo to be bar' do
+      env.foo.should_be 'bar'
+    end
+  end
+end
+```
+
+You can add more environment files and give them a name
+
+`development.env.yml`
+
+```yml
+name: development
+foo: bar
+```
+
+and use the environment by running spectre with the `-e NAME` parameter
+
+```bash
+spectre -e development
+```
+
+When no `-e` is given, the `default` environment is used. Any env yaml file without a specified `name` property, will be the default environment.
+
+The environment file is merged with the `spectre.yml`, so you can override any property of you spectre config in each environment.
+To show all variables of an environment, execute
+
+```bash
+spectre show
+spectre show -e development
+```
+
+You can also override any of those variables with the command line parameter `-p` or `--property`
+
+```bash
+spectre -p foo=bla
 ```
 
 
