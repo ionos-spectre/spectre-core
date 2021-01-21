@@ -13,9 +13,9 @@ module Spectre
         end
 
         def measure
-          start
+          start_watch
           yield
-          stop
+          stop_watch
         end
 
         def duration
@@ -23,7 +23,7 @@ module Spectre
         end
       end
 
-      Spectre.delegate :start, :stop, :duration, :measure, to: self
+      Spectre.delegate :start_watch, :stop_watch, :duration, :measure, to: Stopwatch
     end
   end
 end
