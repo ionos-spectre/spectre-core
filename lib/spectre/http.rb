@@ -180,9 +180,9 @@ module Spectre
     end
 
     Spectre.register do |config|
-      if config.has_key? 'http'
         @@logger = ::Logger.new config['log_file'], progname: 'spectre/http'
 
+      if config.has_key? 'http'
         @@http_cfg = {}
 
         config['http'].each do |name, cfg|

@@ -100,15 +100,15 @@ module Spectre
     end
 
     Spectre.register do |config|
-      if config.has_key? 'ssh'
-        @@logger = ::Logger.new config['log_file'], progname: 'spectre/ssh'
+      @@logger = ::Logger.new config['log_file'], progname: 'spectre/ssh'
 
+      if config.has_key? 'ssh'
         config['ssh'].each do |name, cfg|
           @@cfg[name] = cfg
         end
       end
     end
 
-    Spectre.delegate :ssh, to: self
+    Spectre.delegate :ssh, to: SSH
   end
 end
