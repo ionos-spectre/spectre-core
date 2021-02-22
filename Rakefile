@@ -12,6 +12,8 @@ task "install:full" do
     `rake install`
     Dir.chdir pwd
   end
+
+  Rake::Task['install'].execute
 end
 
 task :update do
