@@ -35,6 +35,20 @@ module Spectre
 
     @@modules = []
 
+    class SpectreHttpHeader
+      def initialize response
+        @headers = {}
+
+        response.each_header do |header, value|
+          @headers[header.downcase] = value
+        end
+      end
+
+      def [] key
+        @headers[key.downcase]
+      end
+    end
+
     class SpectreHttpRequest < DslClass
       attr_reader :ensure_success
 
@@ -105,13 +119,9 @@ module Spectre
         @res = {
           code: res.code,
           message: res.message,
-          headers: {},
+          headers: SpectreHttpHeader.new(res),
           body: res.body,
         }
-
-        res.each_header do |header, value|
-          @res[:headers][header] = value
-        end
 
         @res.freeze
 
