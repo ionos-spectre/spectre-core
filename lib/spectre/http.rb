@@ -35,7 +35,7 @@ module Spectre
 
     @@modules = []
 
-    class SpectreHttpRequest
+    class SpectreHttpRequest < DslClass
       attr_reader :ensure_success
 
       def initialize config

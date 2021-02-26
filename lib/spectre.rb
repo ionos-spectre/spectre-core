@@ -28,42 +28,24 @@ module Spectre
   ###########################################
 
 
-  class SpecContext
-    attr_reader :subject, :desc, :before_blocks, :after_blocks, :setup_blocks, :teardown_blocks
-
-    def initialize subject, desc=nil
-      @subject = subject
-      @desc = desc
-
-      @before_blocks = []
-      @after_blocks = []
-      @setup_blocks = []
-      @teardown_blocks = []
+  # https://www.dan-manges.com/blog/ruby-dsls-instance-eval-with-delegation
+  class DslClass
+    def _evaluate &block
+      @__bound_self__ = eval 'self', block.binding
+      instance_eval(&block)
     end
 
-    def it desc, tags: [], with: [], &block
-      @subject.add_spec(desc, tags, with, block, self)
+    def _execute args, &block
+      @__bound_self__ = eval 'self', block.binding
+      instance_exec(args, &block)
     end
 
-    def before &block
-      @before_blocks << block
-    end
-
-    def after &block
-      @after_blocks << block
-    end
-
-    def setup &block
-      @setup_blocks << block
-    end
-
-    def teardown &block
-      @teardown_blocks << block
-    end
-
-    def context desc=nil, &block
-      ctx = SpecContext.new(@subject, desc)
-      ctx.instance_eval &block
+    def method_missing method, *args, &block
+      if @__bound_self__.respond_to? method
+        @__bound_self__.send method, *args, &block
+      else
+        Delegator.redirect method, *args, &block
+      end
     end
   end
 
@@ -103,42 +85,6 @@ module Spectre
   end
 
 
-  class RunContext
-    def initialize logger
-      @logger = logger
-    end
-
-    def expect desc
-      begin
-        @logger.log_expect(desc)
-        yield
-        @logger.log_status(Logger::Status::OK)
-
-      rescue ExpectationFailure => e
-        @logger.log_status(Logger::Status::FAILED)
-        raise ExpectationFailure.new(desc, e.message), cause: nil
-
-      rescue Exception => e
-        @logger.log_status(Logger::Status::ERROR)
-        raise ExpectationFailure.new(desc, e.message), cause: e
-
-      end
-    end
-
-    def skip
-      raise Interrupt
-    end
-
-    def log message
-      @logger.log_info(message)
-    end
-
-    def fail_with message
-      raise ExpectationFailure.new(nil, message)
-    end
-  end
-
-
   class RunInfo
     attr_reader :spec, :data, :error
 
@@ -169,10 +115,10 @@ module Spectre
 
       begin
         @spec.context.before_blocks.each do |block|
-          ctx.instance_exec(@data, &block)
+          ctx._execute(@data, &block)
         end
 
-        ctx.instance_exec(@data, &@spec.block)
+        ctx._execute(@data, &@spec.block)
 
       rescue ExpectationFailure => e
         @error = e
@@ -187,7 +133,7 @@ module Spectre
 
       ensure
         @spec.context.after_blocks.each do |block|
-          ctx.instance_exec(@data, &block)
+          ctx._execute(@data, &block)
         end
       end
 
@@ -225,7 +171,7 @@ module Spectre
       setup_ctx = RunContext.new(@logger)
 
       context.setup_blocks.each do |block|
-        setup_ctx.instance_eval &block
+        setup_ctx._evaluate &block
         setup_ctx.freeze
       end
 
@@ -245,7 +191,7 @@ module Spectre
         end
       ensure
         context.teardown_blocks.each do |block|
-          setup_ctx.instance_eval &block
+          setup_ctx._evaluate &block
         end
       end
 
@@ -257,6 +203,111 @@ module Spectre
       run_info = RunInfo.new(spec, data, @logger)
       run_info.record(run_ctx)
       run_info
+    end
+  end
+
+
+  ###########################################
+  # DSL Classes
+  ###########################################
+
+
+  class SpecContext < DslClass
+    attr_reader :subject, :desc, :before_blocks, :after_blocks, :setup_blocks, :teardown_blocks
+
+    def initialize subject, desc=nil
+      @subject = subject
+      @desc = desc
+
+      @before_blocks = []
+      @after_blocks = []
+      @setup_blocks = []
+      @teardown_blocks = []
+    end
+
+    def it desc, tags: [], with: [], &block
+      @subject.add_spec(desc, tags, with, block, self)
+    end
+
+    def before &block
+      @before_blocks << block
+    end
+
+    def after &block
+      @after_blocks << block
+    end
+
+    def setup &block
+      @setup_blocks << block
+    end
+
+    def teardown &block
+      @teardown_blocks << block
+    end
+
+    def context desc=nil, &block
+      ctx = SpecContext.new(@subject, desc)
+      ctx._evaluate &block
+    end
+  end
+
+
+  class RunContext < DslClass
+    def initialize logger
+      @logger = logger
+    end
+
+    def expect desc
+      begin
+        @logger.log_expect(desc)
+        yield
+        @logger.log_status(Logger::Status::OK)
+
+      rescue ExpectationFailure => e
+        @logger.log_status(Logger::Status::FAILED)
+        raise ExpectationFailure.new(desc, e.message), cause: nil
+
+      rescue Exception => e
+        @logger.log_status(Logger::Status::ERROR)
+        raise ExpectationFailure.new(desc, e.message), cause: e
+
+      end
+    end
+
+    def skip
+      raise Interrupt
+    end
+
+    def log message
+      @logger.log_info(message)
+    end
+
+    def fail_with message
+      raise ExpectationFailure.new(nil, message)
+    end
+  end
+
+
+  module Delegator
+    @@mappings = {}
+
+    def self.delegate(*methods, target)
+      methods.each do |method_name|
+        define_method(method_name) do |*args, &block|
+          return super(*args, &block) if respond_to? method_name
+          target.send(method_name, *args, &block)
+        end
+
+        @@mappings[method_name] = target
+
+        private method_name
+      end
+    end
+
+    def self.redirect method_name, *args, &block
+      target = @@mappings[method_name]
+      raise "no method or variable '#{method_name}' defined" if !target
+      target.send(method_name, *args, &block)
     end
   end
 
@@ -286,11 +337,7 @@ module Spectre
 
 
     def delegate *method_names, to: nil
-      method_names.each do |method_name|
-        Kernel.define_method(method_name) do |*args, &block|
-          to.send(method_name, *args, &block)
-        end
-      end
+      Spectre::Delegator.delegate *method_names, to
     end
 
 
@@ -320,10 +367,13 @@ module Spectre
       end
 
       ctx = SpecContext.new(subject)
-      ctx.instance_eval &block
+      ctx._evaluate &block
     end
 
   end
 
   delegate :describe, to: Spectre
 end
+
+
+extend Spectre::Delegator

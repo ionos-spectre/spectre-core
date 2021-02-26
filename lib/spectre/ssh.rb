@@ -6,7 +6,7 @@ module Spectre
   module SSH
     @@cfg = {}
 
-    class SSHConnection
+    class SSHConnection < DslClass
       def initialize session, logger
         @logger = logger
         @session = session
