@@ -1,5 +1,13 @@
 describe 'Awesome API' do
 
+  setup do
+    log 'do something to setup it all up'
+  end
+
+  teardown do
+    log 'do something to tear it all down'
+  end
+
   it 'does a HTTP API request with a preconfigured client', tags: [:demo, :http, :request] do
 
     http 'dummy_api' do

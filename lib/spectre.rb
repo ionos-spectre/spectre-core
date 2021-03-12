@@ -172,7 +172,6 @@ module Spectre
 
       context.setup_blocks.each do |block|
         setup_ctx._evaluate &block
-        setup_ctx.freeze
       end
 
       begin
