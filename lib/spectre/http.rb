@@ -5,20 +5,6 @@ require 'securerandom'
 require 'logger'
 
 
-class Net::HTTPResponse
-  def json
-    if @data == nil
-      begin
-        @data = JSON.parse(self.body, object_class: OpenStruct)
-      rescue
-        raise 'invalid json'
-      end
-    end
-    @data
-  end
-end
-
-
 module Spectre
   module Http
     DEFAULT_HTTP_CONFIG = {
@@ -183,7 +169,6 @@ module Spectre
         raise "`name' must not be nil or empty" if name == nil or name == ''
 
         @@request = nil
-        @@response = nil
 
         req_config = DEFAULT_HTTP_CONFIG.clone
 

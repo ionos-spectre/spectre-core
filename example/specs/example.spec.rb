@@ -28,6 +28,12 @@ describe 'Awesome API' do
     expect 'the ID to be 1' do
       response.json.data.id.should_be 1
     end
+
+    http 'dummy_api' do
+      method 'GET'
+      path "employee/#{response.json.id}"
+      auth 'basic_auth'
+    end
   end
 
   it 'does a HTTP API request with dynamic client', tags: [:demo, :http, :request] do
