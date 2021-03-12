@@ -1038,3 +1038,13 @@ describe 'Hollow API' do
   end
 end
 ```
+
+## Release Notes
+
+### v1.5.0
+ - HTTP module refactored
+   See HTTP section above
+ - Duplicate environment definition check added.
+   When there are more than one environments defined with the same name in different files, spectre will not continue executing.
+ - Method delegation fixed. For example, it is now possible to use `log` within other blocks like `http` or `ssh`, within an `it` block.
+ - Minor bugfixes
