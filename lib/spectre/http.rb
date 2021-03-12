@@ -47,6 +47,10 @@ module Spectre
       def [] key
         @headers[key.downcase]
       end
+
+      def pretty
+        @headers.pretty
+      end
     end
 
     class SpectreHttpRequest < DslClass
