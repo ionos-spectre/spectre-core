@@ -462,7 +462,7 @@ and use the environment by running spectre with the `-e NAME` parameter
 spectre -e development
 ```
 
-When no `-e` is given, the `default` environment is used. Any env yaml file without a specified `name` property, will be the default environment.
+When no `-e` is given, the `default` environment is used. Any env yaml file without a specified `name` property, will be used as the default environment.
 
 The environment file is merged with the `spectre.yml`, so you can override any property of you spectre config in each environment.
 To show all variables of an environment, execute
@@ -476,6 +476,58 @@ You can also override any of those variables with the command line parameter `-p
 
 ```bash
 spectre -p foo=bla
+```
+
+By default all files in `environments/**/*.env.yml` will be read.
+This can be changed by providing `env_patterns` in your `spectre.yml`
+
+```yml
+env_patterns:
+  - environments/**/*.env.yml
+  - ../common/environments/**/*.env.yml
+  - ../*.environment.yml
+```
+
+
+#### Partial environment files
+
+Environment files can be split into sperarate files. By default environment files with name `*.env.secret.yml` will be merged
+with the corrensponding environment defined by the name property.
+
+`environments/development.env.yml`
+
+```yml
+name: development
+spooky_house:
+  ghost: casper
+  secret:
+```
+
+`environments/development.env.secret.yml`
+
+```yml
+name: development
+spooky_house:
+  secret: supersecret
+```
+
+These two files will result in the following config
+
+```yml
+name: development
+spooky_house:
+  ghost: casper
+  secret: supersecret
+```
+
+With this approach you can check in your common environment files into your Version Control and store secrets separately.
+
+You can change the partial environment pattern, by adding the `env_partial_patterns` in you `spectre.yml`
+
+```yml
+env_partial_patterns:
+  - environments/**/*.env.secret.yml
+  - environments/**/*.env.partial.yml
 ```
 
 
@@ -864,74 +916,6 @@ describe 'Hollow API' do
     end
   end
 end
-```
-
-You can also define environment files. By default all files in `environments/**/*.env.yml` will be read.
-This can be changed by providing `env_patterns` in your `spectre.yml`
-
-```yml
-env_patterns:
-  - environments/**/*.env.yml
-  - ../common/environments/**/*.env.yml
-  - ../*.environment.yml
-```
-
-You can specify the environment to use by providing `-e` argument to the command line.
-
-`environments/development.env.yml`
-
-```yml
-name: development
-spooky_house:
-  ghost: casper
-```
-
-```bash
-spectre -e development
-```
-
-This will merge the environment file with your `spectre.yml`. When the environment file does not have a `name` property,
-the name of the environment is `default` and will be used, when the `-e` argument is not given.
-
-#### Partial environment files
-
-Environment files can be split into sperarate files. By default environment files with name `*.env.secret.yml` will be merged
-with the corrensponding environment defined by the name property.
-
-`environments/development.env.yml`
-
-```yml
-name: development
-spooky_house:
-  ghost: casper
-  secret:
-```
-
-`environments/development.env.secret.yml`
-
-```yml
-name: development
-spooky_house:
-  secret: supersecret
-```
-
-These two files will result in the following config
-
-```yml
-name: development
-spooky_house:
-  ghost: casper
-  secret: supersecret
-```
-
-With this approach you can check in your common environment files into your Version Control and store secrets separately.
-
-You can change the partial environment pattern, by adding the `env_partial_patterns` in you `spectre.yml`
-
-```yml
-env_partial_patterns:
-  - environments/**/*.env.secret.yml
-  - environments/**/*.env.partial.yml
 ```
 
 
