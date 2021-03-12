@@ -156,11 +156,19 @@ cfg.merge! cmd_options
 
 
 envs = {}
-
+read_env_files = {}
 cfg['env_patterns'].each do |pattern|
   Dir.glob(pattern).each do|f|
     spec_env = YAML.load_file(f)
     name = spec_env.delete('name') || 'default'
+
+    if envs.has_key? name
+      existing_env_file = read_env_files[name]
+      puts "Duplicate environment definition detected with name #{name} in '#{f}'. Previously defined in '#{existing_env_file}'"
+      exit 1
+    end
+
+    read_env_files[name] = f
     envs[name] = spec_env
   end
 end
