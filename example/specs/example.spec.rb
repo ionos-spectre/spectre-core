@@ -20,18 +20,13 @@ describe 'Awesome API' do
     expect 'the ID to be 1' do
       response.json.data.id.should_be 1
     end
-
-    puts
-    puts request.pretty
-    puts
-    puts response.pretty
-    puts
   end
 
   it 'does a HTTP API request with dynamic client', tags: [:demo, :http, :request] do
 
     https 'dummy.restapiexample.com/api/v1/' do
       method 'GET'
+      basic_auth 'dummy', 'foobar'
       path 'employee/1'
     end
 

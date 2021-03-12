@@ -700,9 +700,17 @@ response.headers['server'].should_be 'nginx'
 
 #### Basic Auth `spectre/http/basic_auth`
 
-Adds basic auth to the HTTP client.
+Adds `basic_auth` to the HTTP module.
 
-Add username and password in the http client config
+```ruby
+http 'dummy_api' do
+  basic_auth 'someuser', 'somepassword'
+  method 'GET'
+  path 'employee/1'
+end
+```
+
+You can also add basic auth config parameters to your `spectre.yml` or environment files.
 
 ```yaml
 http:
@@ -717,7 +725,7 @@ And tell the client to use basic auth.
 
 ```ruby
 http 'dummy_api' do
-  auth 'basic' # add this to use basic auth
+  auth 'basic_auth' # add this to use basic auth
   method 'GET'
   path 'employee/1'
 end
@@ -1042,9 +1050,7 @@ end
 ## Release Notes
 
 ### v1.5.0
- - HTTP module refactored
-   See HTTP section above
- - Duplicate environment definition check added.
-   When there are more than one environments defined with the same name in different files, spectre will not continue executing.
+ - HTTP module refactored. See _HTTP_ section above.
+ - Duplicate environment definition check added. When there are more than one environments defined with the same name in different files, spectre will not continue executing.
  - Method delegation fixed. For example, it is now possible to use `log` within other blocks like `http` or `ssh`, within an `it` block.
  - Minor bugfixes
