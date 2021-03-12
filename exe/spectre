@@ -11,6 +11,14 @@ require_relative '../lib/spectre'
 require_relative '../lib/spectre/helpers/console'
 
 
+class ::Hash
+  def deep_merge!(second)
+    merger = proc { |key, v1, v2| Hash === v1 && Hash === v2 ? v1.merge!(v2, &merger) : v2 }
+    self.merge!(second, &merger)
+  end
+end
+
+
 DEFAULT_CONFIG = {
   'config_file' => './spectre.yml',
   'environment' => 'default',
@@ -25,6 +33,7 @@ DEFAULT_CONFIG = {
   'spec_patterns' => ['./specs/**/*.spec.rb'],
   'mixin_patterns' => ['../common/mixins/**/*.mixin.rb'],
   'env_patterns' => ['./environments/**/*.env.yml'],
+  'env_partial_patterns' => ['./environments/**/*.env.secret.yml'],
   'resource_paths' => ['../common/resources', './resources'],
   'modules' => [
     'spectre/helpers',
@@ -170,6 +179,17 @@ cfg['env_patterns'].each do |pattern|
 
     read_env_files[name] = f
     envs[name] = spec_env
+  end
+end
+
+# Merge partial environment configs with existing environments
+cfg['env_partial_patterns'].each do |pattern|
+  Dir.glob(pattern).each do|f|
+    partial_env = YAML.load_file(f)
+    name = partial_env.delete('name') || 'default'
+    next if not envs.has_key? name
+
+    envs[name].deep_merge! partial_env
   end
 end
 
