@@ -137,6 +137,8 @@ mixin_patterns:
   - ../common/**/*.mixin.rb
 env_patterns:
   - '**/*.env.yml'
+env_partial_patterns:
+  - '**/*.env.secret.yml'
 resource_paths:
   - ../common/resources
   - ./resources
@@ -622,20 +624,10 @@ All `spectre/*` modules are automatically loaded, if no modules are defined in t
 
 ### HTTP `spectre/http`
 
-Configure a HTTP client in the environment files in the `http` section in you `spectre.yml`.
-
-Example:
-
-```yaml
-http:
-  dummy_api:
-    base_url: http://dummy.restapiexample.com/api/v1/
-```
-
-In order to do requests with this HTTP client, use the `http` helper function.
+HTTP requests can be invoked like follows
 
 ```ruby
-http 'dummy_api' do
+http 'dummy.restapiexample.com/api/v1/' do
   method 'GET'
   path 'employee/1'
   param 'foo', 'bar'
@@ -650,6 +642,38 @@ http 'dummy_api' do
 end
 ```
 
+You can also use `https` to enable SSL requests.
+
+```ruby
+https 'dummy.restapiexample.com/api/v1/' do
+  method 'GET'
+  path 'employee/1'
+end
+```
+
+The parameter can either be a valid URL or a name of the config section in your environment file under `http`.
+
+Example:
+
+```yaml
+http:
+  dummy_api:
+    base_url: http://dummy.restapiexample.com/api/v1/
+```
+
+In order to do requests with this HTTP client, use the `http` or `https` helper function.
+
+```ruby
+http 'dummy_api' do
+  method 'GET'
+  path 'employee/1'
+end
+```
+
+When using `https` it will override the protocol specified in the config.
+
+You can set the following properties in the `http` block:
+
 | Method | Arguments | Multiple | Description |
 | -------| ----------| -------- | ----------- |
 | `method` | `string` | no | The HTTP request method to use. Usually one of `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`, `HEAD` |
@@ -658,16 +682,21 @@ end
 | `header` | `string`,`string` | yes | Adds a header to the request |
 | `content_type` | `string` | no | Sets the `Content-Type` header to the given value |
 
-Access the response with the `response` function. This function returns a standard [`Net::HTTPResponse`](https://ruby-doc.org/stdlib-2.6.3/libdoc/net/http/rdoc/Net/HTTPResponse.html) object with additional extension methods available.
 
-```ruby
-response.code.should_be 200
-```
+Access the response with the `response` function. This is an object with the following properties:
 
 | Method | Description |
 | -------| ----------- |
-| `json` | Parses the response body as JSON data and returns a `OpenStruct` instance |
+| `code` | The response code of the HTTP request |
+| `message` | The status message of the HTTP response, e.g. `Ok` or `Bad Request` |
+| `body` | The plain response body as a string |
+| `json` | The response body as JSON data of type `OpenStruct` |
+| `headers` | The response headers as a dictionary. Header values can be accessed with `res.headers['Server']`. The header key is case-insensitive. |
 
+```ruby
+response.code.should_be 200
+response.headers['server'].should_be 'nginx'
+```
 
 #### Basic Auth `spectre/http/basic_auth`
 
@@ -814,7 +843,7 @@ Add arbitrary properties to your `spectre.yml`
 
 ```yml
 spooky_house:
-  ghost: capser
+  ghost: casper
 ```
 
 and get the property via `env` function.
@@ -827,6 +856,74 @@ describe 'Hollow API' do
     end
   end
 end
+```
+
+You can also define environment files. By default all files in `environments/**/*.env.yml` will be read.
+This can be changed by providing `env_patterns` in your `spectre.yml`
+
+```yml
+env_patterns:
+  - environments/**/*.env.yml
+  - ../common/environments/**/*.env.yml
+  - ../*.environment.yml
+```
+
+You can specify the environment to use by providing `-e` argument to the command line.
+
+`environments/development.env.yml`
+
+```yml
+name: development
+spooky_house:
+  ghost: casper
+```
+
+```bash
+spectre -e development
+```
+
+This will merge the environment file with your `spectre.yml`. When the environment file does not have a `name` property,
+the name of the environment is `default` and will be used, when the `-e` argument is not given.
+
+#### Partial environment files
+
+Environment files can be split into sperarate files. By default environment files with name `*.env.secret.yml` will be merged
+with the corrensponding environment defined by the name property.
+
+`environments/development.env.yml`
+
+```yml
+name: development
+spooky_house:
+  ghost: casper
+  secret:
+```
+
+`environments/development.env.secret.yml`
+
+```yml
+name: development
+spooky_house:
+  secret: supersecret
+```
+
+These two files will result in the following config
+
+```yml
+name: development
+spooky_house:
+  ghost: casper
+  secret: supersecret
+```
+
+With this approach you can check in your common environment files into your Version Control and store secrets separately.
+
+You can change the partial environment pattern, by adding the `env_partial_patterns` in you `spectre.yml`
+
+```yml
+env_partial_patterns:
+  - environments/**/*.env.secret.yml
+  - environments/**/*.env.partial.yml
 ```
 
 
