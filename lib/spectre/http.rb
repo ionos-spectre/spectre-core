@@ -149,13 +149,16 @@ module Spectre
       end
 
       def json
+        return nil if not @res[:body]
+
         if @data == nil
           begin
-            @data = JSON.parse(self.body, object_class: OpenStruct)
+            @data = JSON.parse(@res[:body], object_class: OpenStruct)
           rescue
             raise 'invalid json'
           end
         end
+
         @data
       end
 
