@@ -231,7 +231,7 @@ module Spectre
         end
         req_log += net_req.body if net_req.body != nil and not net_req.body.empty?
 
-        @@logger.debug(req_log)
+        @@logger.info(req_log)
 
         # Request
 
@@ -266,7 +266,7 @@ module Spectre
           res_log += response_content
         end
 
-        @@logger.debug(res_log)
+        @@logger.info(res_log)
 
         if spectre_req.ensure_success
           code = Integer(net_res.code)
