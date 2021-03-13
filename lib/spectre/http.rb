@@ -257,7 +257,7 @@ module Spectre
         end
 
         # Log response body
-        if net_res.body != nil and net_res.body.empty?
+        if net_res.body != nil and !net_res.body.empty?
           begin
             response_content = JSON.pretty_generate(JSON.parse net_res.body)
           rescue
