@@ -313,7 +313,7 @@ module Spectre
 
   class << self
     @@subjects = []
-    @@configs = []
+    @@modules = []
 
 
     def specs spec_filter=[], tags=[]
@@ -341,12 +341,12 @@ module Spectre
 
 
     def register &block
-      @@configs << block
+      @@modules << block
     end
 
 
     def configure config
-      @@configs.each do |block|
+      @@modules.each do |block|
         block.call(config)
       end
     end
