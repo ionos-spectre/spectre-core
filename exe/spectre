@@ -29,6 +29,7 @@ DEFAULT_CONFIG = {
   'reporter' => 'Spectre::Reporter::Console',
   'logger' => 'Spectre::Logger::Console',
   'log_file' => './logs/spectre_<date>.log',
+  'log_level' => 'INFO',
   'out_path' => './reports',
   'spec_patterns' => ['./specs/**/*.spec.rb'],
   'mixin_patterns' => ['../common/mixins/**/*.mixin.rb'],

@@ -151,13 +151,21 @@ module Spectre
       runs = []
 
       specs.group_by { |x| x.subject }.each do |subject, spec_group|
+        Spectre.logger.debug("Start running #{subject.desc} [#{subject.name}] specs")
+        
         @logger.log_subject(subject)
 
         spec_group.group_by { |x| x.context }.each do |context, specs|
+          Spectre.logger.debug("Entering context #{context.desc}")
+          
           @logger.log_context(context) do
             runs.concat run_context(context, specs)
           end
+
+          Spectre.logger.debug("Leaving context #{context.desc}")
         end
+
+        Spectre.logger.debug("Running #{subject.desc} [#{subject.name}] specs finished")
       end
 
       runs
@@ -178,9 +186,13 @@ module Spectre
         specs.each do |spec|
           if spec.data.length > 0
             spec.data.each do |data|
+              Spectre.logger.debug("Running spec [#{spec.name}] (#{spec.desc})")
+
               @logger.log_spec(spec, data) do
                 runs << run_spec(spec, data)
               end
+
+              Spectre.logger.debug("Running spec [#{spec.name}] (#{spec.desc}) finished")
             end
           else
             @logger.log_spec(spec) do
@@ -260,13 +272,16 @@ module Spectre
       begin
         @logger.log_expect(desc)
         yield
+        Spectre.logger.debug("Expect #{desc} -> OK")
         @logger.log_status(Logger::Status::OK)
 
       rescue ExpectationFailure => e
+        Spectre.logger.debug("Expect #{desc} -> FAILED: #{e.message}")
         @logger.log_status(Logger::Status::FAILED)
         raise ExpectationFailure.new(desc, e.message), cause: nil
 
       rescue Exception => e
+        Spectre.logger.debug("Expect #{desc} -> ERROR: #{e.message}")
         @logger.log_status(Logger::Status::ERROR)
         raise ExpectationFailure.new(desc, e.message), cause: e
 
@@ -278,6 +293,7 @@ module Spectre
     end
 
     def log message
+      Spectre.logger.info(message)
       @logger.log_info(message)
     end
 
@@ -315,6 +331,8 @@ module Spectre
     @@subjects = []
     @@modules = []
 
+    attr_reader :logger
+
 
     def specs spec_filter=[], tags=[]
       @@subjects
@@ -346,6 +364,9 @@ module Spectre
 
 
     def configure config
+      @logger = ::Logger.new config['log_file'], progname: 'spectre'
+      @logger.level = config['log_level']
+
       @@modules.each do |block|
         block.call(config)
       end
