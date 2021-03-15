@@ -156,13 +156,13 @@ module Spectre
         @logger.log_subject(subject)
 
         spec_group.group_by { |x| x.context }.each do |context, specs|
-          Spectre.logger.debug("Entering context #{context.desc}")
+          Spectre.logger.debug("Entering context #{context.__desc}")
 
           @logger.log_context(context) do
             runs.concat run_context(context, specs)
           end
 
-          Spectre.logger.debug("Leaving context #{context.desc}")
+          Spectre.logger.debug("Leaving context #{context.__desc}")
         end
 
         Spectre.logger.debug("Running #{subject.desc} [#{subject.name}] specs finished")
