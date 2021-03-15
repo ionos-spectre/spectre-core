@@ -64,4 +64,8 @@ describe 'Awesome API' do
     end
 
   end
+
+  it 'just fails' do
+    raise 'Opps!'
+  end
 end

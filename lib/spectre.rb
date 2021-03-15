@@ -114,6 +114,7 @@ module Spectre
       @started = Time.now
 
       begin
+        Spectre.logger.debug("Running 'before' blocks of #{@spec.name}")
         @spec.context.__before_blocks.each do |block|
           ctx._execute(@data, &block)
         end
@@ -125,13 +126,17 @@ module Spectre
 
       rescue Interrupt
         @skipped = true
+        Spectre.logger.debug("#{@spec.name} canceled by user.")
         @logger.log_skipped
 
       rescue Exception => e
         @error = e
+        file, line = e.backtrace[0].match(/(.*\.rb):(\d+)/).captures
+        Spectre.logger.error("An unexpected errro occured at '#{file}:#{line}' while running spec '#{@spec.name}': [#{e.class}] #{e.message}\n#{e.backtrace.join "\n"}")
         @logger.log_error(e)
 
       ensure
+        Spectre.logger.debug("Running 'after' blocks of #{@spec.name}")
         @spec.context.__after_blocks.each do |block|
           ctx._execute(@data, &block)
         end
@@ -272,16 +277,16 @@ module Spectre
       begin
         @__logger.log_expect(desc)
         yield
-        Spectre.logger.debug("Expect #{desc} -> OK")
+        Spectre.logger.debug("Expect #{desc} => OK")
         @__logger.log_status(Logger::Status::OK)
 
       rescue ExpectationFailure => e
-        Spectre.logger.debug("Expect #{desc} -> FAILED: #{e.message}")
+        Spectre.logger.debug("Expect #{desc} => FAILED: #{e.message}")
         @__logger.log_status(Logger::Status::FAILED)
         raise ExpectationFailure.new(desc, e.message), cause: nil
 
       rescue Exception => e
-        Spectre.logger.debug("Expect #{desc} -> ERROR: #{e.message}")
+        Spectre.logger.debug("Expect #{desc} => ERROR: #{e.message}")
         @__logger.log_status(Logger::Status::ERROR)
         raise ExpectationFailure.new(desc, e.message), cause: e
 
