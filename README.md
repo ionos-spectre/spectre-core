@@ -1038,4 +1038,6 @@ end
  - HTTP module refactored. See _HTTP_ section above.
  - Duplicate environment definition check added. When there are more than one environments defined with the same name in different files, spectre will not continue executing.
  - Method delegation fixed. For example, it is now possible to use `response` within other `http` blocks for refering to a previous HTTP response.
+ - `log_level` config property added. When set to `DEBUG`, additional `spectre` log will be written.
+ - Debug logging added. use `debug 'some info text'` to create debug log entries in files and console output
  - Minor bugfixes

@@ -271,7 +271,7 @@ if action == 'run'
 
   Spectre.configure(cfg)
 
-  logger = Kernel.const_get(cfg['logger'])
+  logger = Kernel.const_get(cfg['logger']).new(cfg)
   reporter = Kernel.const_get(cfg['reporter']).new(cfg)
 
   specs = Spectre.specs(cfg['specs'], cfg['tags'])

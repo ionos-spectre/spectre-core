@@ -297,9 +297,16 @@ module Spectre
       @__logger.log_info(message)
     end
 
+    def debug message
+      Spectre.logger.debug(message)
+      @__logger.log_debug(message)
+    end
+
     def fail_with message
       raise ExpectationFailure.new(nil, message)
     end
+
+    alias_method :info, :log
   end
 
 

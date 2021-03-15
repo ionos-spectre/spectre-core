@@ -2,18 +2,19 @@ describe 'Awesome API' do
 
   setup do
     log 'do something to setup it all up'
+    debug 'this is a debug log text'
   end
 
   teardown do
-    log 'do something to bring it all down'
+    info 'do something to bring it all down'
   end
 
   before do
-    log 'do some things before the spec'
+    info 'do some things before the spec'
   end
 
   after do
-    log 'do some things afterwards'
+    info 'do some things afterwards'
   end
 
   it 'does a HTTP API request with a preconfigured client', tags: [:demo, :http, :request] do
