@@ -987,12 +987,36 @@ mixin 'check health' do |http_name| # the mixin can be parameterized
 end
 ```
 
-and add this mixin to any spec with the `also` function.
+and add this mixin to any spec with the `run`, `step` or `also` function.
 
 ```ruby
 describe 'Hollow API' do
   it 'checks health', tags: [:health] do
     also 'check health', with: ['dummy_api'] # pass mixin parameter as value list
+  end
+end
+```
+
+Like every ruby block or function, a mixin has also a return value (the last expression in the `do` block)
+
+```ruby
+mixin 'do some spooky stuff' do
+  # spook around
+
+  'Boo!'
+end
+```
+
+This can be used like that:
+
+```ruby
+describe 'Hollow API' do
+  it 'is scary' do
+    result = run 'do some spooky stuff'
+
+    expect 'some spooky things' do
+      result.should_be 'Boo!'
+    end
   end
 end
 ```
