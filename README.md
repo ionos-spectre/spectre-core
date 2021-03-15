@@ -1040,4 +1040,5 @@ end
  - Method delegation fixed. For example, it is now possible to use `response` within other `http` blocks for refering to a previous HTTP response.
  - `log_level` config property added. When set to `DEBUG`, additional `spectre` log will be written.
  - Debug logging added. use `debug 'some info text'` to create debug log entries in files and console output
+ - Mixins can now be executed with `run`, `step` or `also`
  - Minor bugfixes
