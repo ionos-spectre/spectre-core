@@ -114,7 +114,7 @@ module Spectre
       @started = Time.now
 
       begin
-        @spec.context.before_blocks.each do |block|
+        @spec.context.__before_blocks.each do |block|
           ctx._execute(@data, &block)
         end
 
@@ -132,7 +132,7 @@ module Spectre
         @logger.log_error(e)
 
       ensure
-        @spec.context.after_blocks.each do |block|
+        @spec.context.__after_blocks.each do |block|
           ctx._execute(@data, &block)
         end
       end
@@ -170,7 +170,7 @@ module Spectre
 
       setup_ctx = RunContext.new(@logger)
 
-      context.setup_blocks.each do |block|
+      context.__setup_blocks.each do |block|
         setup_ctx._evaluate &block
       end
 
@@ -189,7 +189,7 @@ module Spectre
           end
         end
       ensure
-        context.teardown_blocks.each do |block|
+        context.__teardown_blocks.each do |block|
           setup_ctx._evaluate &block
         end
       end
@@ -212,40 +212,40 @@ module Spectre
 
 
   class SpecContext < DslClass
-    attr_reader :subject, :desc, :before_blocks, :after_blocks, :setup_blocks, :teardown_blocks
+    attr_reader :__subject, :__desc, :__before_blocks, :__after_blocks, :__setup_blocks, :__teardown_blocks
 
     def initialize subject, desc=nil
-      @subject = subject
-      @desc = desc
+      @__subject = subject
+      @__desc = desc
 
-      @before_blocks = []
-      @after_blocks = []
-      @setup_blocks = []
-      @teardown_blocks = []
+      @__before_blocks = []
+      @__after_blocks = []
+      @__setup_blocks = []
+      @__teardown_blocks = []
     end
 
     def it desc, tags: [], with: [], &block
-      @subject.add_spec(desc, tags, with, block, self)
+      @__subject.add_spec(desc, tags, with, block, self)
     end
 
     def before &block
-      @before_blocks << block
+      @__before_blocks << block
     end
 
     def after &block
-      @after_blocks << block
+      @__after_blocks << block
     end
 
     def setup &block
-      @setup_blocks << block
+      @__setup_blocks << block
     end
 
     def teardown &block
-      @teardown_blocks << block
+      @__teardown_blocks << block
     end
 
     def context desc=nil, &block
-      ctx = SpecContext.new(@subject, desc)
+      ctx = SpecContext.new(@__subject, desc)
       ctx._evaluate &block
     end
   end
@@ -253,21 +253,21 @@ module Spectre
 
   class RunContext < DslClass
     def initialize logger
-      @logger = logger
+      @__logger = logger
     end
 
     def expect desc
       begin
-        @logger.log_expect(desc)
+        @__logger.log_expect(desc)
         yield
-        @logger.log_status(Logger::Status::OK)
+        @__logger.log_status(Logger::Status::OK)
 
       rescue ExpectationFailure => e
-        @logger.log_status(Logger::Status::FAILED)
+        @__logger.log_status(Logger::Status::FAILED)
         raise ExpectationFailure.new(desc, e.message), cause: nil
 
       rescue Exception => e
-        @logger.log_status(Logger::Status::ERROR)
+        @__logger.log_status(Logger::Status::ERROR)
         raise ExpectationFailure.new(desc, e.message), cause: e
 
       end
@@ -278,7 +278,7 @@ module Spectre
     end
 
     def log message
-      @logger.log_info(message)
+      @__logger.log_info(message)
     end
 
     def fail_with message

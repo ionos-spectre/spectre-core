@@ -21,8 +21,8 @@ module Spectre::Logger
       end
 
       def log_context context
-        if context.desc
-          puts "  #{context.desc.magenta}"
+        if context.__desc
+          puts "  #{context.__desc.magenta}"
           @@level += 1
           yield
           @@level -= 1

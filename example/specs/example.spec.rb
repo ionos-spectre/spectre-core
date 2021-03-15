@@ -5,7 +5,15 @@ describe 'Awesome API' do
   end
 
   teardown do
-    log 'do something to tear it all down'
+    log 'do something to bring it all down'
+  end
+
+  before do
+    log 'do some things before the spec'
+  end
+
+  after do
+    log 'do some things afterwards'
   end
 
   it 'does a HTTP API request with a preconfigured client', tags: [:demo, :http, :request] do
@@ -29,9 +37,11 @@ describe 'Awesome API' do
       response.json.data.id.should_be 1
     end
 
+    log 'get next data'
+
     http 'dummy_api' do
       method 'GET'
-      path "employee/#{response.json.id}"
+      path "employee/#{response.json.data.id + 1}"
       auth 'basic_auth'
     end
   end
