@@ -812,6 +812,16 @@ http 'dummy_api' do
 end
 ```
 
+You can also use the keystone method, to use keystone authentication directly from the `http` block
+
+```ruby
+http 'dummy_api' do
+  method 'GET'
+  path 'employee/1'
+  keystone 'https://some-keystone-server:5000/main/v3/', 'dummy', 'someawesomepass', 'some_project', 'some_domain', 'path/to/cert'
+end
+```
+
 
 ### SSH `spectre/ssh`
 
