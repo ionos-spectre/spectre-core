@@ -15,17 +15,23 @@ module Spectre
     end
 
     class Spectre::SpecContext
-      def also desc, tags: []
+      def run desc, tags: []
         raise "no mixin with desc '#{desc}' defined" unless Mixin._mixins.has_key? desc
         @subject.add_spec(desc, tags, [], Mixin._mixins[desc], self)
       end
+
+      alias_method :also, :run
+      alias_method :step, :run
     end
 
     class Spectre::RunContext
-      def also desc, with: []
+      def run desc, with: []
         raise "no mixin with desc '#{desc}' defined" unless Mixin._mixins.has_key? desc
         self.instance_exec(*with, &Mixin._mixins[desc])
       end
+
+      alias_method :also, :run
+      alias_method :step, :run
     end
 
     Spectre.register do |config|

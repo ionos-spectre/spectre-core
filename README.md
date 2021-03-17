@@ -137,6 +137,8 @@ mixin_patterns:
   - ../common/**/*.mixin.rb
 env_patterns:
   - '**/*.env.yml'
+env_partial_patterns:
+  - '**/*.env.secret.yml'
 resource_paths:
   - ../common/resources
   - ./resources
@@ -190,7 +192,7 @@ describe 'Spooky' do
     end
   end
 
-  it 'does some strange things in the neighbourhood', with: ['sword', 'dagger'] tags: [:scary] do |data|
+  it 'does some strange things in the neighbourhood', with: ['sword', 'dagger'], tags: [:scary] do |data|
     # This spec will be run two times. First time with data=sword, second time with data=dagger
 
     expect "some action with #{data}" do
@@ -460,7 +462,7 @@ and use the environment by running spectre with the `-e NAME` parameter
 spectre -e development
 ```
 
-When no `-e` is given, the `default` environment is used. Any env yaml file without a specified `name` property, will be the default environment.
+When no `-e` is given, the `default` environment is used. Any env yaml file without a specified `name` property, will be used as the default environment.
 
 The environment file is merged with the `spectre.yml`, so you can override any property of you spectre config in each environment.
 To show all variables of an environment, execute
@@ -474,6 +476,58 @@ You can also override any of those variables with the command line parameter `-p
 
 ```bash
 spectre -p foo=bla
+```
+
+By default all files in `environments/**/*.env.yml` will be read.
+This can be changed by providing `env_patterns` in your `spectre.yml`
+
+```yml
+env_patterns:
+  - environments/**/*.env.yml
+  - ../common/environments/**/*.env.yml
+  - ../*.environment.yml
+```
+
+
+#### Partial environment files
+
+Environment files can be split into sperarate files. By default environment files with name `*.env.secret.yml` will be merged
+with the corrensponding environment defined by the name property.
+
+`environments/development.env.yml`
+
+```yml
+name: development
+spooky_house:
+  ghost: casper
+  secret:
+```
+
+`environments/development.env.secret.yml`
+
+```yml
+name: development
+spooky_house:
+  secret: supersecret
+```
+
+These two files will result in the following config
+
+```yml
+name: development
+spooky_house:
+  ghost: casper
+  secret: supersecret
+```
+
+With this approach you can check in your common environment files into your Version Control and store secrets separately.
+
+You can change the partial environment pattern, by adding the `env_partial_patterns` in you `spectre.yml`
+
+```yml
+env_partial_patterns:
+  - environments/**/*.env.secret.yml
+  - environments/**/*.env.partial.yml
 ```
 
 
@@ -622,20 +676,10 @@ All `spectre/*` modules are automatically loaded, if no modules are defined in t
 
 ### HTTP `spectre/http`
 
-Configure a HTTP client in the environment files in the `http` section in you `spectre.yml`.
-
-Example:
-
-```yaml
-http:
-  dummy_api:
-    base_url: http://dummy.restapiexample.com/api/v1/
-```
-
-In order to do requests with this HTTP client, use the `http` helper function.
+HTTP requests can be invoked like follows
 
 ```ruby
-http 'dummy_api' do
+http 'dummy.restapiexample.com/api/v1/' do
   method 'GET'
   path 'employee/1'
   param 'foo', 'bar'
@@ -650,6 +694,38 @@ http 'dummy_api' do
 end
 ```
 
+You can also use `https` to enable SSL requests.
+
+```ruby
+https 'dummy.restapiexample.com/api/v1/' do
+  method 'GET'
+  path 'employee/1'
+end
+```
+
+The parameter can either be a valid URL or a name of the config section in your environment file under `http`.
+
+Example:
+
+```yaml
+http:
+  dummy_api:
+    base_url: http://dummy.restapiexample.com/api/v1/
+```
+
+In order to do requests with this HTTP client, use the `http` or `https` helper function.
+
+```ruby
+http 'dummy_api' do
+  method 'GET'
+  path 'employee/1'
+end
+```
+
+When using `https` it will override the protocol specified in the config.
+
+You can set the following properties in the `http` block:
+
 | Method | Arguments | Multiple | Description |
 | -------| ----------| -------- | ----------- |
 | `method` | `string` | no | The HTTP request method to use. Usually one of `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`, `HEAD` |
@@ -658,22 +734,35 @@ end
 | `header` | `string`,`string` | yes | Adds a header to the request |
 | `content_type` | `string` | no | Sets the `Content-Type` header to the given value |
 
-Access the response with the `response` function. This function returns a standard [`Net::HTTPResponse`](https://ruby-doc.org/stdlib-2.6.3/libdoc/net/http/rdoc/Net/HTTPResponse.html) object with additional extension methods available.
 
-```ruby
-response.code.should_be 200
-```
+Access the response with the `response` function. This is an object with the following properties:
 
 | Method | Description |
 | -------| ----------- |
-| `json` | Parses the response body as JSON data and returns a `OpenStruct` instance |
+| `code` | The response code of the HTTP request |
+| `message` | The status message of the HTTP response, e.g. `Ok` or `Bad Request` |
+| `body` | The plain response body as a string |
+| `json` | The response body as JSON data of type `OpenStruct` |
+| `headers` | The response headers as a dictionary. Header values can be accessed with `res.headers['Server']`. The header key is case-insensitive. |
 
+```ruby
+response.code.should_be 200
+response.headers['server'].should_be 'nginx'
+```
 
 #### Basic Auth `spectre/http/basic_auth`
 
-Adds basic auth to the HTTP client.
+Adds `basic_auth` to the HTTP module.
 
-Add username and password in the http client config
+```ruby
+http 'dummy_api' do
+  basic_auth 'someuser', 'somepassword'
+  method 'GET'
+  path 'employee/1'
+end
+```
+
+You can also add basic auth config parameters to your `spectre.yml` or environment files.
 
 ```yaml
 http:
@@ -688,7 +777,7 @@ And tell the client to use basic auth.
 
 ```ruby
 http 'dummy_api' do
-  auth 'basic' # add this to use basic auth
+  auth 'basic_auth' # add this to use basic auth
   method 'GET'
   path 'employee/1'
 end
@@ -720,6 +809,16 @@ http 'dummy_api' do
   auth 'keystone' # add this to use keystone
   method 'GET'
   path 'employee/1'
+end
+```
+
+You can also use the keystone method, to use keystone authentication directly from the `http` block
+
+```ruby
+http 'dummy_api' do
+  method 'GET'
+  path 'employee/1'
+  keystone 'https://some-keystone-server:5000/main/v3/', 'dummy', 'someawesomepass', 'some_project', 'some_domain', 'path/to/cert'
 end
 ```
 
@@ -814,7 +913,7 @@ Add arbitrary properties to your `spectre.yml`
 
 ```yml
 spooky_house:
-  ghost: capser
+  ghost: casper
 ```
 
 and get the property via `env` function.
@@ -898,12 +997,36 @@ mixin 'check health' do |http_name| # the mixin can be parameterized
 end
 ```
 
-and add this mixin to any spec with the `also` function.
+and add this mixin to any spec with the `run`, `step` or `also` function.
 
 ```ruby
 describe 'Hollow API' do
   it 'checks health', tags: [:health] do
     also 'check health', with: ['dummy_api'] # pass mixin parameter as value list
+  end
+end
+```
+
+Like every ruby block or function, a mixin has also a return value (the last expression in the `do` block)
+
+```ruby
+mixin 'do some spooky stuff' do
+  # spook around
+
+  'Boo!'
+end
+```
+
+This can be used like that:
+
+```ruby
+describe 'Hollow API' do
+  it 'is scary' do
+    result = run 'do some spooky stuff'
+
+    expect 'some spooky things' do
+      result.should_be 'Boo!'
+    end
   end
 end
 ```
@@ -941,3 +1064,15 @@ describe 'Hollow API' do
   end
 end
 ```
+
+## Release Notes
+
+### v1.5.0
+ - Partial environment files added. See _Environment_ section above.
+ - HTTP module refactored. See _HTTP_ section above.
+ - Duplicate environment definition check added. When there are more than one environments defined with the same name in different files, spectre will not continue executing.
+ - Method delegation fixed. For example, it is now possible to use `response` within other `http` blocks for refering to a previous HTTP response.
+ - `log_level` config property added. When set to `DEBUG`, additional `spectre` log will be written.
+ - Debug logging added. use `debug 'some info text'` to create debug log entries in files and console output
+ - Mixins can now be executed with `run`, `step` or `also`
+ - Minor bugfixes

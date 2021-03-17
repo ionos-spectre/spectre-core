@@ -5,62 +5,80 @@ require 'securerandom'
 require 'logger'
 
 
-class Net::HTTPResponse
-  def json
-    if @data == nil
-      begin
-        @data = JSON.parse(self.body, object_class: OpenStruct)
-      rescue
-        raise 'invalid json'
-      end
-    end
-    @data
-  end
-end
-
-
 module Spectre
   module Http
+    DEFAULT_HTTP_CONFIG = {
+      'method' => 'GET',
+      'host' => nil,
+      'port' => 80,
+      'scheme' => 'http',
+      'use_ssl' => false,
+      'url_path' => '',
+      'headers' => nil,
+      'query' => nil,
+      'content_type' => '',
+    }
+
     @@modules = []
 
-    class HttpRequest
-      attr_accessor :headers, :params, :req_body, :http_method, :url_path, :media_type, :auth_method, :ensure_success
-
-      def initialize
+    class SpectreHttpHeader
+      def initialize response
         @headers = {}
-        @params = {}
-        @req_body = nil
-        @auth = nil
-        @ensure = false
+
+        response.each_header do |header, value|
+          @headers[header.downcase] = value
+        end
+      end
+
+      def [] key
+        @headers[key.downcase]
+      end
+
+      def pretty
+        @headers.pretty
+      end
+    end
+
+    class SpectreHttpRequest < DslClass
+      attr_reader :ensure_success
+
+      def initialize config
+        @config = config
+      end
+
+      def config
+        @config.freeze
       end
 
       def method method_name
-        @http_method = method_name
+        @config['method'] = method_name
       end
 
       def path url_path
-        @url_path = url_path
+        @config['path'] = url_path
       end
 
       def header name, value
-        @headers[name] = value
+        @config['headers'] = {} if not @config['headers']
+        @config['headers'][name] = value
       end
 
       def param name, value
-        @params[name] = value
+        @config['query'] = {} if not @config['query']
+        @config['query'][name] = value
       end
 
       def content_type media_type
-        @media_type = media_type
+        @config['content_type'] = media_type
       end
 
       def json data
-        @media_type = 'application/json'
-        @req_body = JSON.pretty_generate(data)
+        body JSON.pretty_generate(data)
+        content_type 'application/json'
       end
 
       def body body_content
-        @req_body = body_content
+        @config['body'] = body_content
       end
 
       def ensure_success!
@@ -68,10 +86,71 @@ module Spectre
       end
 
       def authenticate method
-        @auth_method = method
+        @config['auth'] = method
+      end
+
+      def certificate path
+        @config['cert'] = path
+        use_ssl
+      end
+
+      def use_ssl
+        @config['ssl'] = true
       end
 
       alias_method :auth, :authenticate
+      alias_method :cert, :certificate
+      alias_method :media_type, :content_type
+    end
+
+
+    class SpectreHttpResponse
+      def initialize res
+        @res = {
+          code: res.code,
+          message: res.message,
+          headers: SpectreHttpHeader.new(res),
+          body: res.body,
+        }
+
+        @res.freeze
+
+        @data = nil
+      end
+
+      def code
+        @res[:code]
+      end
+
+      def message
+        @res[:message]
+      end
+
+      def headers
+        @res[:headers]
+      end
+
+      def body
+        @res[:body]
+      end
+
+      def json
+        return nil if not @res[:body]
+
+        if @data == nil
+          begin
+            @data = JSON.parse(@res[:body], object_class: OpenStruct)
+          rescue
+            raise 'invalid json'
+          end
+        end
+
+        @data
+      end
+
+      def pretty
+        @res.pretty
+      end
     end
 
 
@@ -79,39 +158,67 @@ module Spectre
       @@http_cfg = {}
 
       def http name, &block
-        raise "HTTP client '#{name}' not configured" unless @@http_cfg.has_key? name
+        invoke_req(name, 'http', &block)
+      end
 
-        client_cfg = @@http_cfg[name]
+      def https name, &block
+        invoke_req(name, 'https', &block)
+      end
 
-        base_url = client_cfg['base_url']
+      def invoke_req name, scheme, &block
+        raise "`name' must not be nil or empty" if name == nil or name == ''
 
-        raise "no base_url set for http client #{name}" if !base_url
+        @@request = nil
 
-        base_url = base_url + '/' if !base_url.end_with? '/'
+        req_config = DEFAULT_HTTP_CONFIG.clone
 
-        base_uri = URI(base_url)
-
-        req = HttpRequest.new
-        req.instance_eval(&block)
-
-        uri = URI.join(base_uri, req.url_path)
-        uri.query = URI.encode_www_form(req.params) unless req.params.empty?
-
-        net_http = Net::HTTP.new(base_uri.host, base_uri.port)
-
-        if client_cfg.has_key? 'cert'
-          net_http.use_ssl = true
-          net_http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-          net_http.ca_file = client_cfg['cert']
+        if @@http_cfg.has_key? name
+          req_config.merge! @@http_cfg[name]
+          raise "No `base_url' set for http client '#{name}'. Check your http config in your environment." if !req_config['base_url']
         else
-          net_http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          if not name.match /http(?:s)?:\/\//
+            req_config['base_url'] = scheme + '://' + name
+          else
+            req_config['base_url'] = name
+          end
         end
 
-        net_req = Net::HTTPGenericRequest.new(req.http_method, true, true, uri)
-        net_req.body = req.req_body
-        net_req.content_type = req.media_type if req.media_type
-        req.headers.each do |name, value|
-          net_req[name] = value
+        base_url = req_config['base_url']
+        base_url = base_url + '/' if not base_url.end_with? '/'
+        base_uri = URI(base_url)
+
+        raise "'#{base_url}' is not a valid uri" if not base_uri.host
+
+        req_config['host'] = base_uri.host
+        req_config['port'] = base_uri.port
+
+        spectre_req = SpectreHttpRequest.new req_config
+        spectre_req.instance_eval(&block) if block_given?
+
+        uri = URI.join(base_uri, spectre_req.config['path'])
+        uri.query = URI.encode_www_form(spectre_req.config['query']) unless not spectre_req.config['query'] or spectre_req.config['query'].empty?
+
+        net_http = Net::HTTP.new(uri.host, uri.port)
+
+        if spectre_req.config['ssl'] or uri.scheme == 'https'
+          net_http.use_ssl = true
+
+          if spectre_req.config.has_key? 'cert'
+            net_http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+            net_http.ca_file = spectre_req.config['cert']
+          else
+            net_http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          end
+        end
+
+        net_req = Net::HTTPGenericRequest.new(spectre_req.config['method'], true, true, uri)
+        net_req.body = spectre_req.config['body']
+        net_req.content_type = spectre_req.config['content_type'] if spectre_req.config['content_type'] and not spectre_req.config['content_type'].empty?
+
+        if spectre_req.config['headers']
+          spectre_req.config['headers'].each do |name, value|
+            net_req[name] = value
+          end
         end
 
         req_id = SecureRandom.uuid()[0..5]
@@ -122,49 +229,57 @@ module Spectre
         net_req.each_header do |header, value|
           req_log += "#{header.to_s.ljust(30, '.')}: #{value}\n"
         end
-        req_log += net_req.body if net_req.body != nil && net_req.body != ''
+        req_log += net_req.body if net_req.body != nil and not net_req.body.empty?
 
-        @@logger.debug(req_log)
+        @@logger.info(req_log)
 
         # Request
 
         start_time = Time.now
 
         @@modules.each do |mod|
-          mod.on_req(net_http, net_req, client_cfg, req) if mod.respond_to? :on_req
+          mod.on_req(net_http, net_req, spectre_req) if mod.respond_to? :on_req
         end
 
-        @@response = net_http.request(net_req)
+        net_res = net_http.request(net_req)
 
         end_time = Time.now
 
         @@modules.each do |mod|
-          mod.on_res(net_http, @@response, client_cfg, req) if mod.respond_to? :on_res
+          mod.on_res(net_http, net_res, spectre_req) if mod.respond_to? :on_res
         end
 
         # Log response
 
-        res_log = "[<] #{req_id} #{@@response.code} #{@@response.message} (#{end_time - start_time}s)\n"
-        @@response.each_header do |header, value|
+        res_log = "[<] #{req_id} #{net_res.code} #{net_res.message} (#{end_time - start_time}s)\n"
+        net_res.each_header do |header, value|
           res_log += "#{header.to_s.ljust(30, '.')}: #{value}\n"
         end
 
         # Log response body
-        if @@response.body != nil && @@response.body != ''
+        if net_res.body != nil and !net_res.body.empty?
           begin
-            response_content = JSON.pretty_generate(JSON.parse @@response.body)
+            response_content = JSON.pretty_generate(JSON.parse net_res.body)
           rescue
-            response_content = @@response.body
+            response_content = net_res.body
           end
           res_log += response_content
         end
 
-        @@logger.debug(res_log)
+        @@logger.info(res_log)
 
-        if req.ensure_success
-          code = Integer(@@response.code)
-          fail "response code of #{req_id} did not indicate success: #{@@response.code} #{@@response.message}" if code >= 400
+        if spectre_req.ensure_success
+          code = Integer(net_res.code)
+          fail "response code of #{req_id} did not indicate success: #{net_res.code} #{net_res.message}" if code >= 400
         end
+
+        @@request = req_config
+        @@response = SpectreHttpResponse.new net_res
+      end
+
+
+      def request
+        @@request
       end
 
 
@@ -180,19 +295,17 @@ module Spectre
     end
 
     Spectre.register do |config|
-      if config.has_key? 'http'
-        @@logger = ::Logger.new config['log_file'], progname: 'spectre/http'
+      @@logger = ::Logger.new config['log_file'], progname: 'spectre/http'
 
+      if config.has_key? 'http'
         @@http_cfg = {}
 
         config['http'].each do |name, cfg|
           @@http_cfg[name] = cfg
         end
-
-        @@response = nil
       end
     end
 
-    Spectre.delegate :http, :response, to: Http
+    Spectre.delegate :http, :https, :request, :response, to: Http
   end
 end

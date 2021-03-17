@@ -4,19 +4,20 @@ module Spectre::Reporter
       @config = config
     end
 
-    def report run_infos
-      def format_exception error
-        return '' if !error.backtrace
+    def format_exception error
+      return '' if !error.backtrace
 
-        file, line = error.backtrace[0].match(/(.*\.rb):(\d+)/).captures
-        file.slice!(Dir.pwd + '/')
-        str = ''
-        str += "       file.....: #{file}\n"
-        str += "       line.....: #{line}\n"
-        str += "       type.....: #{error.class}\n"
-        str += "       message..: #{error.message}\n"
-        str
-      end
+      file, line = error.backtrace[0].match(/(.*\.rb):(\d+)/).captures
+      file.slice!(Dir.pwd + '/')
+      str = ''
+      str += "       file.....: #{file}\n"
+      str += "       line.....: #{line}\n"
+      str += "       type.....: #{error.class}\n"
+      str += "       message..: #{error.message}\n"
+      str
+    end
+
+    def report run_infos
 
       report_str = ''
 
@@ -35,7 +36,7 @@ module Spectre::Reporter
         if run_info.error.is_a? Spectre::ExpectationFailure
           report_str += "     expected #{run_info.error.expectation}"
           report_str += " with #{run_info.data}" if run_info.data
-          report_str += " #{spec.context.desc}" if spec.context.desc
+          report_str += " #{spec.context.__desc}" if spec.context.__desc
           report_str += "\n"
 
           if !run_info.error.cause

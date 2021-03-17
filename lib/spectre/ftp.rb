@@ -8,7 +8,7 @@ module Spectre
   module FTP
     @@cfg = {}
 
-    class FTPConnection
+    class FTPConnection < DslClass
       def initialize session, logger
         @logger = logger
         @session = session
@@ -32,7 +32,7 @@ module Spectre
     end
 
 
-    class SFTPConnection
+    class SFTPConnection < DslClass
       def initialize session, logger
         @logger = logger
         @session = session

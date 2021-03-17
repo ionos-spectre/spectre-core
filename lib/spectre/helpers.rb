@@ -2,7 +2,7 @@ require 'securerandom'
 require 'json'
 require 'date'
 
-class String
+class ::String
   def as_json
     JSON.parse(self)
   end
