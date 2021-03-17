@@ -107,6 +107,78 @@
 			"$0"
 		]
 	},
+	"Should be": {
+		"scope": "ruby",
+		"prefix": "should be",
+		"description": "Expect a value to be",
+		"body": [
+			"expect '$1' do",
+			"\t$2.should_be $3",
+			"end",
+			"",
+			"$0"
+		]
+	},
+	"Should not be": {
+		"scope": "ruby",
+		"prefix": "should not be",
+		"description": "Expect a value not to be",
+		"body": [
+			"expect '$1' do",
+			"\t$2.should_not_be $3",
+			"end",
+			"",
+			"$0"
+		]
+	},
+	"Should contain": {
+		"scope": "ruby",
+		"prefix": "should contain",
+		"description": "Expect a value to contain",
+		"body": [
+			"expect '$1' do",
+			"\t$2.should_contain $3",
+			"end",
+			"",
+			"$0"
+		]
+	},
+	"Should not contain": {
+		"scope": "ruby",
+		"prefix": "should not contain",
+		"description": "Expect a value not to contain",
+		"body": [
+			"expect '$1' do",
+			"\t$2.should_not_contain $3",
+			"end",
+			"",
+			"$0"
+		]
+	},
+	"Should match": {
+		"scope": "ruby",
+		"prefix": "should match",
+		"description": "Expect a value to match",
+		"body": [
+			"expect '$1' do",
+			"\t$2.should_match $3",
+			"end",
+			"",
+			"$0"
+		]
+	},
+	"Should not match": {
+		"scope": "ruby",
+		"prefix": "should not match",
+		"description": "Expect a value not to match",
+		"body": [
+			"expect '$1' do",
+			"\t$2.should_not_match $3",
+			"end",
+			"",
+			"$0"
+		]
+	},
 	"Expect a response code": {
 		"scope": "ruby",
 		"prefix": "expect response",
@@ -153,6 +225,46 @@
 			"end"
 		]
 	},
+	"Setup": {
+		"scope": "ruby",
+		"prefix": "setup",
+		"description": "Create a 'setup' block",
+		"body": [
+			"setup do",
+			"\t$0",
+			"end"
+		]
+	},
+	"Teardown": {
+		"scope": "ruby",
+		"prefix": "teardown",
+		"description": "Create a 'teardown' block",
+		"body": [
+			"teardown do",
+			"\t$0",
+			"end"
+		]
+	},
+	"Before spec": {
+		"scope": "ruby",
+		"prefix": "before",
+		"description": "Create a 'before' block",
+		"body": [
+			"before do",
+			"\t$0",
+			"end"
+		]
+	},
+	"After spec": {
+		"scope": "ruby",
+		"prefix": "after",
+		"description": "Create a 'after' block",
+		"body": [
+			"after do",
+			"\t$0",
+			"end"
+		]
+	},
 	"Configure SSH client": {
 		"scope": "yaml",
 		"prefix": "ssh",
@@ -180,6 +292,26 @@
 		"description": "Log info message",
 		"body": [
 			"log '$1'",
+			"",
+			"$0"
+		]
+	},
+	"Info message": {
+		"scope": "ruby",
+		"prefix": "info",
+		"description": "Log info message",
+		"body": [
+			"info '$1'",
+			"",
+			"$0"
+		]
+	},
+	"Debug message": {
+		"scope": "ruby",
+		"prefix": "debug",
+		"description": "Log debug message",
+		"body": [
+			"debug '$1'",
 			"",
 			"$0"
 		]
