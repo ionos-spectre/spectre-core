@@ -1067,6 +1067,10 @@ end
 
 ## Release Notes
 
+### v1.5.1
+ - `secure` parameter added for `http` module. You can now use `https` by calling `http url, secure: true do`
+ - The `path` parameter for the `http` block is now optional
+
 ### v1.5.0
  - Partial environment files added. See _Environment_ section above.
  - HTTP module refactored. See _HTTP_ section above.
