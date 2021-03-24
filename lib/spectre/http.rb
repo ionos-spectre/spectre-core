@@ -14,7 +14,7 @@ module Spectre
       'port' => 80,
       'scheme' => 'http',
       'use_ssl' => false,
-      'url_path' => '',
+      'cert' => nil,
       'headers' => nil,
       'query' => nil,
       'content_type' => '',
