@@ -73,7 +73,7 @@ describe 'Awesome API' do
 
     curl 'dummy.restapiexample.com/api/v1/' do
       method 'GET'
-      basic_auth 'dummy', 'foobar'
+      # basic_auth 'dummy', 'foobar'
       path 'employee/1'
     end
 
