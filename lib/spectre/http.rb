@@ -9,6 +9,7 @@ module Spectre
   module Http
     DEFAULT_HTTP_CONFIG = {
       'method' => 'GET',
+      'path' => '',
       'host' => nil,
       'port' => 80,
       'scheme' => 'http',
@@ -157,8 +158,8 @@ module Spectre
     class << self
       @@http_cfg = {}
 
-      def http name, &block
-        invoke_req(name, 'http', &block)
+      def http name secure: false &block
+        invoke_req(name, secure ? 'https' : 'http', &block)
       end
 
       def https name, &block
