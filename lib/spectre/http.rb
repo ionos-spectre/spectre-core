@@ -158,7 +158,7 @@ module Spectre
     class << self
       @@http_cfg = {}
 
-      def http name, secure: false &block
+      def http name, secure: false, &block
         invoke_req(name, secure ? 'https' : 'http', &block)
       end
 
