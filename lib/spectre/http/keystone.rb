@@ -1,3 +1,5 @@
+require 'net/http'
+
 class HttpRequest
   def keystone url, username, password, project, domain, cert
     @__req['keystone'] = {} if not @__req.has_key? 'keystone'
