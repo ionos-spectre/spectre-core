@@ -9,7 +9,7 @@ module Spectre::Http
     end
 
     def method method_name
-      @__req['method'] = method_name
+      @__req['method'] = method_name.upcase
     end
 
     def path url_path
@@ -233,7 +233,7 @@ module Spectre::Http
       end
 
       cmd.append '"' + uri + '"'
-      cmd.append '-X', req['method'] unless req['method'] == 'GET'
+      cmd.append '-X', req['method'] unless req['method'] == 'GET' or (req['body'] and req['method'] == 'POST')
 
       # Call all registered modules
       @@modules.each do |mod|
@@ -249,13 +249,15 @@ module Spectre::Http
       if req['body'] != nil and not req['body'].empty?
         req_body = try_format_json(req['body']).gsub(/"/, '\"')
         cmd.append '-d', '"' + req_body + '"'
+      elsif ['POST', 'PUT', 'PATCH'].include? req['method'].upcase
+        cmd.append '-d', '"\n"'
       end
 
       # Add certificate path if one if given
       if req['cert']
         raise "Certificate '#{req['cert']}' does not exist" unless File.exists? req['cert']
         cmd.append '--cacert', req['cert']
-      elsif req['use_ssl']
+      elsif req['use_ssl'] or uri.start_with? 'https'
         cmd.append '-k'
       end
 
