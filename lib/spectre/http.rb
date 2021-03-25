@@ -41,11 +41,11 @@ module Spectre::Http
     end
 
     def ensure_success!
-      @ensure_success = true
+      @__req['ensure_success'] = true
     end
 
     def ensure_success?
-      @ensure_success
+      @__req['ensure_success']
     end
 
     def authenticate method
@@ -64,6 +64,16 @@ module Spectre::Http
     alias_method :auth, :authenticate
     alias_method :cert, :certificate
     alias_method :media_type, :content_type
+  end
+
+  class SpectreHttpHeader
+    def initialize headers
+      @headers = headers || {}
+    end
+
+    def [] key
+      @headers[key.downcase]
+    end
   end
 
   class SpectreHttpResponse
@@ -88,9 +98,8 @@ module Spectre::Http
       @res[:version]
     end
 
-    def headers name
-      return nil if !@res[:headers]
-      @res[:headers][name.downcase]
+    def headers
+      SpectreHttpHeader.new @res[:headers]
     end
 
     def body
@@ -109,6 +118,10 @@ module Spectre::Http
       end
 
       @data
+    end
+
+    def success?
+      @res[:code] < 400
     end
 
     def pretty
@@ -184,6 +197,24 @@ module Spectre::Http
 
     private
 
+    def try_format_json str, pretty: false
+      return str unless str or str.empty?
+
+      begin
+        json = JSON.parse str
+
+        if pretty
+          str = JSON.pretty_generate(json)
+        else
+          str = JSON.dump(json)
+        end
+      rescue
+        # do nothing
+      end
+
+      str
+    end
+
     def invoke req
       cmd = [@@curl_path]
 
@@ -201,16 +232,28 @@ module Spectre::Http
           .join '&'
       end
 
-      cmd.append uri
-      cmd.append '-X', req['method']
+      cmd.append '"' + uri + '"'
+      cmd.append '-X', req['method'] unless req['method'] == 'GET'
 
+      # Call all registered modules
+      @@modules.each do |mod|
+        mod.on_req(req, cmd) if mod.respond_to? :on_req
+      end
+
+      # Add headers to curl command
       req['headers'].each do |header|
         cmd.append '-H', '"' + header.join(':') + '"'
       end if req['headers']
 
-      cmd.append '-d', req['body'] if req['body']
+      # Add request body
+      if req['body'] != nil and not req['body'].empty?
+        req_body = try_format_json(req['body']).gsub(/"/, '\"')
+        cmd.append '-d', '"' + req_body + '"'
+      end
 
+      # Add certificate path if one if given
       if req['cert']
+        raise "Certificate '#{req['cert']}' does not exist" unless File.exists? req['cert']
         cmd.append '--cacert', req['cert']
       elsif req['use_ssl']
         cmd.append '-k'
@@ -218,11 +261,6 @@ module Spectre::Http
 
       cmd.append '-i'
       cmd.append '-v'
-
-      # Call all registered modules
-      @@modules.each do |mod|
-        mod.on_req(req, cmd) if mod.respond_to? :on_req
-      end
 
       @@request = OpenStruct.new req
 
@@ -246,32 +284,31 @@ module Spectre::Http
 
       end_time = Time.now
 
-      body = stdout.gets(nil)
+      output = stdout.gets(nil)
       stdout.close
 
-      output = stderr.gets(nil)
+      debug_log = stderr.gets(nil)
       stderr.close
 
-      debug_log = output.lines
-        .select { |x| x.start_with? '* ' }
-        .map { |x| x.sub '* ', '' }
+      header, body = output.split "\n\n"
 
-      debug_log.each { |x| @@logger.debug x }
+      result = header.lines.first
+
+      debug_log.lines.each { |x| @@logger.debug x unless x.empty? }
 
       exit_code = wait_thr.value.exitstatus
 
-      raise Exception.new "An error occured while executing curl:\n#{debug_log.join "\n"}" unless exit_code == 0
+      raise Exception.new "An error occured while executing curl:\n#{debug_log}" unless exit_code == 0
 
       # Parse protocol, version, status code and status message from response
-      match = /^< (?<protocol>[A-Za-z0-9]+)\/(?<version>\d+\.?\d*) (?<code>\d+) (?<message>.*)/.match output
+      match = /^(?<protocol>[A-Za-z0-9]+)\/(?<version>\d+\.?\d*) (?<code>\d+) (?<message>.*)/.match result
 
-      raise "Unexpected curl output:\n#{output}" unless match
+      raise "Unexpected result from curl request:\n#{result}" unless match
 
-      res_headers = output.lines
-        .select { |x| x.start_with? '< ' }
-        .map { |x| /^< (?<header>[A-Za-z0-9-]+):\s*(?<value>.*)$/.match x }
+      res_headers = header.lines[1..-1]
+        .map { |x| /^(?<key>[A-Za-z0-9-]+):\s*(?<value>.*)$/.match x }
         .select { |x| x != nil }
-        .collect { |x| [x[:header].downcase, x[:value]] }
+        .map { |x| [x[:key].downcase, x[:value]] }
 
       res = {
         protocol: match[:protocol],
@@ -287,15 +324,20 @@ module Spectre::Http
         mod.on_res(res, output) if mod.respond_to? :on_res
       end
 
-      res_log = "[<] #{req_id} #{res.code} #{res.message} (#{end_time - start_time}s)\n"
+      res_log = "[<] #{req_id} #{res[:code]} #{res[:message]} (#{end_time - start_time}s)\n"
       res_headers.each do |header|
         res_log += "#{header[0].to_s.ljust(30, '.')}: #{header[1].to_s}\n"
       end
-      res_log += res.body if res.body != nil and not res.body.empty?
+
+      if res[:body] != nil and not res[:body].empty?
+        res_log += try_format_json(res[:body], pretty: true)
+      end
 
       @@logger.info res_log
 
       @@response = SpectreHttpResponse.new res
+
+      raise "Response did not indicate success: #{@@response.code} #{@@response.message}" if req['ensure_success'] and not @@response.success?
 
       @@response
     end
