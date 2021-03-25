@@ -53,7 +53,6 @@ DEFAULT_CONFIG = {
     'spectre/ssh',
     'spectre/ftp',
     'spectre/resources',
-    'spectre/curl',
     # 'spectre/database/postgres',
   ],
 }

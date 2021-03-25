@@ -1,15 +1,15 @@
 class HttpRequest
   def keystone url, username, password, project, domain, cert
-    @config['keystone'] = {} if not @config.has_key? 'keystone'
+    @__req['keystone'] = {} if not @__req.has_key? 'keystone'
 
-    @config['keystone']['url'] = url
-    @config['keystone']['username'] = username
-    @config['keystone']['password'] = password
-    @config['keystone']['project'] = project
-    @config['keystone']['domain'] = domain
-    @config['keystone']['cert'] = cert
+    @__req['keystone']['url'] = url
+    @__req['keystone']['username'] = username
+    @__req['keystone']['password'] = password
+    @__req['keystone']['project'] = project
+    @__req['keystone']['domain'] = domain
+    @__req['keystone']['cert'] = cert
 
-    @config.config['auth'] = 'keystone'
+    @__req['auth'] = 'keystone'
   end
 end
 
@@ -17,10 +17,10 @@ end
 module Spectre::Http::Keystone
   @@cache = {}
 
-  def self.on_req http, req, req_opts
-    return unless req_opts.config.has_key? 'keystone' and req_opts.config['auth'] == 'keystone'
+  def self.on_req req, cmd
+    return unless req.has_key? 'keystone' and req['auth'] == 'keystone'
 
-    keystone_cfg = req_opts.config['keystone']
+    keystone_cfg = req['keystone']
 
     if @@cache.has_key? keystone_cfg
       token = @@cache[keystone_cfg]
@@ -37,7 +37,7 @@ module Spectre::Http::Keystone
       @@cache[keystone_cfg] = token
     end
 
-    req['X-Auth-Token'] = token
+    cmd.append '-H', "X-Auth-Token:#{token}"
   end
 
   private
@@ -94,5 +94,5 @@ module Spectre::Http::Keystone
     ]
   end
 
-  Spectre::Http.register(self)
+  Spectre::Http.register self
 end

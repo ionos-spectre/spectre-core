@@ -68,22 +68,4 @@ describe 'Awesome API' do
   it 'just fails' do
     raise 'Opps!'
   end
-
-  it 'does a curl HTTP request', tags: [:curl, :demo, :http, :request] do
-
-    curl 'dummy.restapiexample.com/api/v1/' do
-      method 'GET'
-      # basic_auth 'dummy', 'foobar'
-      path 'employee/1'
-    end
-
-    expect 'the response code to be 200' do
-      response.code.should_be '200'
-    end
-
-    expect 'the ID to be 1' do
-      response.json.data.id.should_be 1
-    end
-
-  end
 end
