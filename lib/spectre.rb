@@ -109,7 +109,7 @@ module Spectre
       @error != nil
     end
 
-    def record ctx
+    def record
       @started = Time.now
 
       begin
@@ -117,12 +117,12 @@ module Spectre
           before_ctx = SpecContext.new @spec.subject, 'before'
           Logger.log_context before_ctx do
             @spec.context.__before_blocks.each do |block|
-              ctx._execute(@data, &block)
+              block.call @data
             end
           end
         end
 
-        ctx._execute(@data, &@spec.block)
+        @spec.block.call @data
 
       rescue ExpectationFailure => e
         @error = e
@@ -140,7 +140,7 @@ module Spectre
           before_ctx = SpecContext.new @spec.subject, 'after'
           Logger.log_context before_ctx do
             @spec.context.__after_blocks.each do |block|
-              ctx._execute(@data, &block)
+              block.call @data
             end
           end
         end
@@ -173,13 +173,11 @@ module Spectre
     def run_context context, specs
       runs = []
 
-      setup_ctx = RunContext.new
-
       if context.__setup_blocks.count > 0
         before_ctx = SpecContext.new context, 'setup'
         Logger.log_context before_ctx do
           context.__setup_blocks.each do |block|
-            setup_ctx._evaluate &block
+            block.call
           end
         end
       end
@@ -203,7 +201,7 @@ module Spectre
           before_ctx = SpecContext.new context, 'teardown'
           Logger.log_context before_ctx do
             context.__teardown_blocks.each do |block|
-              setup_ctx._evaluate &block
+              block.call
             end
           end
         end
@@ -213,9 +211,8 @@ module Spectre
     end
 
     def run_spec spec, data=nil
-      run_ctx = RunContext.new
       run_info = RunInfo.new(spec, data)
-      run_info.record(run_ctx)
+      run_info.record
       run_info
     end
   end

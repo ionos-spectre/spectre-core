@@ -110,6 +110,9 @@ module Spectre
           yield
           Logger.log_status(desc, Logger::Status::OK)
 
+        rescue Interrupt => e
+          raise e
+
         rescue Spectre::ExpectationFailure => e
           Logger.log_status(desc, Logger::Status::FAILED)
           raise Spectre::ExpectationFailure.new(desc, e.message), cause: nil
