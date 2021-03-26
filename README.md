@@ -43,7 +43,30 @@ spectre -h
 spectre --version
 ```
 
-#### Troubleshoot
+### CURL
+
+The `spectre/http` module requires `curl` to be installed on your system.
+
+```
+$ sudo apt install curl
+```
+
+Windows users can download `curl` from [https://curl.se/windows/](https://curl.se/windows/).
+PowerShell has already a command named `curl`, which is an alias to `Invoke-WebRequest`
+In order to use `curl` in the PowerShell, you have to remove the `curl` alias by executing
+
+```
+PS C:\> rm alias:curl
+```
+
+and add the `bin` directory of the `curl` installation to your `PATH` environment variable.
+
+```
+PS C:\> $env:Path += ";<path\to\curl\bin>"
+```
+
+
+### Troubleshoot
 
 When getting an error message, like the one below, you have to install `bundler` first by running `sudo gem install bundler`.
 
