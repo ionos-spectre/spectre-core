@@ -59,7 +59,7 @@ module Spectre
       def log_status desc, status, annotation=nil
         msg = "expected #{desc}...#{status.upcase}"
         msg += " - #{annotation}" if annotation
-        @file_log.info msg
+        @file_log.debug msg
       end
     end
   end
