@@ -1,5 +1,3 @@
-require_relative '../helpers/console'
-
 module Spectre::Logger
   module Status
     OK = '[ok]'.green

@@ -8,7 +8,6 @@ require 'fileutils'
 require 'ectoplasm'
 
 require_relative '../lib/spectre'
-require_relative '../lib/spectre/helpers/console'
 
 
 class ::Hash
@@ -269,10 +268,8 @@ if action == 'run'
     end
   end
 
-  Spectre.configure(cfg)
-
   logger = Kernel.const_get(cfg['logger']).new(cfg)
-  reporter = Kernel.const_get(cfg['reporter']).new(cfg)
+  Spectre.configure(cfg, logger)
 
   specs = Spectre.specs(cfg['specs'], cfg['tags'])
 
@@ -284,6 +281,7 @@ if action == 'run'
   runner = Spectre::Runner.new(logger)
   run_infos = runner.run(specs)
 
+  reporter = Kernel.const_get(cfg['reporter']).new(cfg)
   reporter.report(run_infos)
 
   exit 0
