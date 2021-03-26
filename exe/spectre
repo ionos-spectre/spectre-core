@@ -26,7 +26,10 @@ DEFAULT_CONFIG = {
   'colored' => true,
   'verbose' => false,
   'reporter' => 'Spectre::Reporter::Console',
-  'logger' => 'Spectre::Logger::Console',
+  'loggers' => [
+    'Spectre::Logger::Console',
+    'Spectre::Logger::File',
+  ],
   'log_file' => './logs/spectre_<date>.log',
   'debug' => false,
   'out_path' => './reports',
@@ -271,8 +274,11 @@ if action == 'run'
   Spectre.configure(cfg)
 
   Spectre::Logger.debug! if cfg['debug']
-  Spectre::Logger.add(Spectre::Logger::File.new cfg['log_file'])
-  Spectre::Logger.add(Spectre::Logger::Console.new)
+
+  cfg['loggers'].each do |logger_name|
+    logger = Kernel.const_get(logger_name).new(cfg)
+    Spectre::Logger.add(logger)
+  end if cfg['loggers']
 
   specs = Spectre.specs(cfg['specs'], cfg['tags'])
 

@@ -1,9 +1,9 @@
 module Spectre
   module Logger
     class File
-      def initialize log_file
-        @file_log = ::Logger.new log_file, progname: 'spectre'
-        @file_log.level = Logger.debug? ? 'DEBUG' : 'INFO'
+      def initialize config
+        @file_log = ::Logger.new config['log_file'], progname: 'spectre'
+        @file_log.level = config['debug'] ? 'DEBUG' : 'INFO'
       end
 
       def start_subject subject
@@ -57,7 +57,7 @@ module Spectre
       end
 
       def log_status desc, status, annotation=nil
-        msg = "expected #{desc}... #{status}"
+        msg = "expected #{desc}...#{status.upcase}"
         msg += " - #{annotation}" if annotation
         @file_log.info msg
       end

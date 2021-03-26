@@ -8,6 +8,10 @@ module Spectre
       @@indent = 2
       @@expectation = nil
 
+      def initialize config
+        # Do nothing for now. Maybe later. I dont't know.
+      end
+
       def start_subject subject
         puts subject.desc.blue
       end
