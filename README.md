@@ -1090,16 +1090,27 @@ end
 
 ## Release Notes
 
-### v1.5.1
+### v1.6.0
+
+#### Major
+ - The `http` module now uses `curl` to perform HTTP requests. This requires `curl` to be installed. Windows users can download `curl` [https://curl.se/windows/](https://curl.se/windows/). Either add the `bin` dir to you `PATH` environment variable, or set `curl_path` in your `spectre.yml` to the path where`curl.exe` is located.
+
+#### Minor
  - `secure` parameter added for `http` module. You can now use `https` by calling `http url, secure: true do`
  - The `path` parameter for the `http` block is now optional
+ - The `ssh` and `ftp` module have new a new function `can_connect?` to test connection
+
 
 ### v1.5.0
- - Partial environment files added. See _Environment_ section above.
+
+#### Major
  - HTTP module refactored. See _HTTP_ section above.
+
+#### Minor
+ - Partial environment files added. See _Environment_ section above.
+ - Debug logging added. use `debug 'some info text'` to create debug log entries in files and console output
+ - `log_level` config property added. When set to `DEBUG`, additional `spectre` log will be written.
  - Duplicate environment definition check added. When there are more than one environments defined with the same name in different files, spectre will not continue executing.
  - Method delegation fixed. For example, it is now possible to use `response` within other `http` blocks for refering to a previous HTTP response.
- - `log_level` config property added. When set to `DEBUG`, additional `spectre` log will be written.
- - Debug logging added. use `debug 'some info text'` to create debug log entries in files and console output
  - Mixins can now be executed with `run`, `step` or `also`
- - Minor bugfixes
+ - Small bugfixes
