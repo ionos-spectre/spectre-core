@@ -38,6 +38,8 @@ module Spectre
       end
 
       def can_connect?
+        @__output = nil
+
         begin
           connect!
           @__session.open_channel.close
@@ -61,6 +63,8 @@ module Spectre
         @channel = @__session.open_channel do |channel|
           channel.exec(command) do |ch, success|
             abort "could not execute #{command} on #{@__session.host}" unless success
+
+            @__output = ''
 
             channel.on_data do |ch, data|
               @__output += data
