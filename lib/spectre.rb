@@ -86,14 +86,13 @@ module Spectre
 
 
   class RunInfo
-    attr_reader :spec, :data, :error
+    attr_reader :spec, :data, :error, :started, :finished
 
-    def initialize spec, data, logger
+    def initialize spec, data
       @spec = spec
       @data = data
       @started = nil
       @finished = nil
-      @logger = logger
       @error = nil
       @skipped = false
     end
@@ -114,9 +113,13 @@ module Spectre
       @started = Time.now
 
       begin
-        Spectre.logger.debug("Running 'before' blocks of #{@spec.name}")
-        @spec.context.__before_blocks.each do |block|
-          ctx._execute(@data, &block)
+        if @spec.context.__before_blocks.count > 0
+          before_ctx = SpecContext.new @spec.subject, 'before'
+          Logger.log_context before_ctx do
+            @spec.context.__before_blocks.each do |block|
+              ctx._execute(@data, &block)
+            end
+          end
         end
 
         ctx._execute(@data, &@spec.block)
@@ -126,19 +129,20 @@ module Spectre
 
       rescue Interrupt
         @skipped = true
-        Spectre.logger.debug("#{@spec.name} canceled by user.")
-        @logger.log_skipped
+        Logger.log_skipped @spec
 
       rescue Exception => e
         @error = e
-        file, line = e.backtrace[0].match(/(.*\.rb):(\d+)/).captures
-        Spectre.logger.error("An unexpected errro occured at '#{file}:#{line}' while running spec '#{@spec.name}': [#{e.class}] #{e.message}\n#{e.backtrace.join "\n"}")
-        @logger.log_error(e)
+        Logger.log_error @spec, e
 
       ensure
-        Spectre.logger.debug("Running 'after' blocks of #{@spec.name}")
-        @spec.context.__after_blocks.each do |block|
-          ctx._execute(@data, &block)
+        if @spec.context.__after_blocks.count > 0
+          before_ctx = SpecContext.new @spec.subject, 'after'
+          Logger.log_context before_ctx do
+            @spec.context.__after_blocks.each do |block|
+              ctx._execute(@data, &block)
+            end
+          end
         end
       end
 
@@ -148,29 +152,17 @@ module Spectre
 
 
   class Runner
-    def initialize logger
-      @logger = logger
-    end
-
     def run specs
       runs = []
 
       specs.group_by { |x| x.subject }.each do |subject, spec_group|
-        Spectre.logger.debug("Start running #{subject.desc} [#{subject.name}] specs")
-
-        @logger.log_subject(subject)
-
-        spec_group.group_by { |x| x.context }.each do |context, specs|
-          Spectre.logger.debug("Entering context #{context.__desc}")
-
-          @logger.log_context(context) do
-            runs.concat run_context(context, specs)
+        Logger.log_subject subject do
+          spec_group.group_by { |x| x.context }.each do |context, specs|
+            Logger.log_context(context) do
+              runs.concat run_context(context, specs)
+            end
           end
-
-          Spectre.logger.debug("Leaving context #{context.__desc}")
         end
-
-        Spectre.logger.debug("Running #{subject.desc} [#{subject.name}] specs finished")
       end
 
       runs
@@ -181,33 +173,39 @@ module Spectre
     def run_context context, specs
       runs = []
 
-      setup_ctx = RunContext.new(@logger)
+      setup_ctx = RunContext.new
 
-      context.__setup_blocks.each do |block|
-        setup_ctx._evaluate &block
+      if context.__setup_blocks.count > 0
+        before_ctx = SpecContext.new context, 'setup'
+        Logger.log_context before_ctx do
+          context.__setup_blocks.each do |block|
+            setup_ctx._evaluate &block
+          end
+        end
       end
 
       begin
         specs.each do |spec|
           if spec.data.length > 0
             spec.data.each do |data|
-              Spectre.logger.debug("Running spec [#{spec.name}] (#{spec.desc})")
-
-              @logger.log_spec(spec, data) do
+              Logger.log_spec(spec, data) do
                 runs << run_spec(spec, data)
               end
-
-              Spectre.logger.debug("Running spec [#{spec.name}] (#{spec.desc}) finished")
             end
           else
-            @logger.log_spec(spec) do
+            Logger.log_spec(spec) do
               runs << run_spec(spec)
             end
           end
         end
       ensure
-        context.__teardown_blocks.each do |block|
-          setup_ctx._evaluate &block
+        if context.__teardown_blocks.count > 0
+          before_ctx = SpecContext.new context, 'teardown'
+          Logger.log_context before_ctx do
+            context.__teardown_blocks.each do |block|
+              setup_ctx._evaluate &block
+            end
+          end
         end
       end
 
@@ -215,8 +213,8 @@ module Spectre
     end
 
     def run_spec spec, data=nil
-      run_ctx = RunContext.new(@logger)
-      run_info = RunInfo.new(spec, data, @logger)
+      run_ctx = RunContext.new
+      run_info = RunInfo.new(spec, data)
       run_info.record(run_ctx)
       run_info
     end
@@ -269,49 +267,9 @@ module Spectre
 
 
   class RunContext < DslClass
-    def initialize logger
-      @__logger = logger
-    end
-
-    def expect desc
-      begin
-        @__logger.log_expect(desc)
-        yield
-        Spectre.logger.debug("Expect #{desc} => OK")
-        @__logger.log_status(Logger::Status::OK)
-
-      rescue ExpectationFailure => e
-        Spectre.logger.debug("Expect #{desc} => FAILED: #{e.message}")
-        @__logger.log_status(Logger::Status::FAILED)
-        raise ExpectationFailure.new(desc, e.message), cause: nil
-
-      rescue Exception => e
-        Spectre.logger.debug("Expect #{desc} => ERROR: #{e.message}")
-        @__logger.log_status(Logger::Status::ERROR)
-        raise ExpectationFailure.new(desc, e.message), cause: e
-
-      end
-    end
-
     def skip
       raise Interrupt
     end
-
-    def log message
-      Spectre.logger.info(message)
-      @__logger.log_info(message)
-    end
-
-    def debug message
-      Spectre.logger.debug(message)
-      @__logger.log_debug(message)
-    end
-
-    def fail_with message
-      raise ExpectationFailure.new(nil, message)
-    end
-
-    alias_method :info, :log
   end
 
 
@@ -343,7 +301,7 @@ module Spectre
     @@subjects = []
     @@modules = []
 
-    attr_reader :logger
+    attr_reader :file_log, :logger
 
 
     def specs spec_filter=[], tags=[]
@@ -376,9 +334,6 @@ module Spectre
 
 
     def configure config
-      @logger = ::Logger.new config['log_file'], progname: 'spectre'
-      @logger.level = config['log_level']
-
       @@modules.each do |block|
         block.call(config)
       end

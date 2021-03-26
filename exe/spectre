@@ -28,7 +28,7 @@ DEFAULT_CONFIG = {
   'reporter' => 'Spectre::Reporter::Console',
   'logger' => 'Spectre::Logger::Console',
   'log_file' => './logs/spectre_<date>.log',
-  'log_level' => 'INFO',
+  'debug' => false,
   'out_path' => './reports',
   'spec_patterns' => ['./specs/**/*.spec.rb'],
   'mixin_patterns' => ['../common/mixins/**/*.mixin.rb'],
@@ -37,10 +37,10 @@ DEFAULT_CONFIG = {
   'resource_paths' => ['../common/resources', './resources'],
   'modules' => [
     'spectre/helpers',
-    'spectre/helpers/console',
     'spectre/reporter/console',
     'spectre/reporter/junit',
     'spectre/logger/console',
+    'spectre/logger/file',
     'spectre/assertion',
     'spectre/diagnostic',
     'spectre/environment',
@@ -268,8 +268,11 @@ if action == 'run'
     end
   end
 
-  logger = Kernel.const_get(cfg['logger']).new(cfg)
-  Spectre.configure(cfg, logger)
+  Spectre.configure(cfg)
+
+  Spectre::Logger.debug! if cfg['debug']
+  Spectre::Logger.add(Spectre::Logger::File.new cfg['log_file'])
+  Spectre::Logger.add(Spectre::Logger::Console.new)
 
   specs = Spectre.specs(cfg['specs'], cfg['tags'])
 
@@ -278,7 +281,7 @@ if action == 'run'
     exit 1
   end
 
-  runner = Spectre::Runner.new(logger)
+  runner = Spectre::Runner.new
   run_infos = runner.run(specs)
 
   reporter = Kernel.const_get(cfg['reporter']).new(cfg)

@@ -1,50 +1,50 @@
 module Spectre
   module Logger
     class File
-      def configure log_file
+      def initialize log_file
         @file_log = ::Logger.new log_file, progname: 'spectre'
         @file_log.level = Logger.debug? ? 'DEBUG' : 'INFO'
       end
 
       def start_subject subject
-        @file_log.info "start running subject '#{subject.desc}'"
+        @file_log.debug "start running subject '#{subject.desc}'"
       end
 
       def end_subject subject
-        @file_log.info "running subject '#{subject.desc}' finished"
+        @file_log.debug "subject '#{subject.desc}' finished"
       end
 
       def start_context context
-        @file_log.info "start running context '#{context.__desc}'"
+        @file_log.debug "start running context '#{context.__desc}'"
       end
 
       def end_context context
-        @file_log.info "running context '#{context.__desc}' finished"
+        @file_log.debug "context '#{context.__desc}' finished"
       end
 
       def start_spec spec, data=nil
         log_msg = "start running spec [#{spec.name}] '#{spec.desc}'"
         log_msg += " with data #{data}" if data
-        @file_log.info log_msg
+        @file_log.debug log_msg
       end
 
       def end_spec spec, data=nil
         log_msg = "running spec [#{spec.name}] '#{spec.desc}'"
         log_msg += " with data #{data}" if data
         log_msg += " finished"
-        @file_log.info log_msg
+        @file_log.debug log_msg
       end
 
       def log_expect desc
-        @file_log.info "expect #{desc}"
+        @file_log.debug "expect #{desc}"
       end
 
       def log_info message
-        @file_log.info "[info] #{message}"
+        @file_log.info "#{Status::INFO} #{message}"
       end
 
       def log_debug message
-        @file_log.debug "[debug] #{message}"
+        @file_log.debug "#{Status::DEBUG} #{message}"
       end
 
       def log_error spec, exception
@@ -56,8 +56,10 @@ module Spectre
         @file_log.warn "spec '#{spec.desc}' canceled by user"
       end
 
-      def log_status desc, status, annotation: nil
-        @file_log.info "expected #{desc}... #{status}"
+      def log_status desc, status, annotation=nil
+        msg = "expected #{desc}... #{status}"
+        msg += " - #{annotation}" if annotation
+        @file_log.info msg
       end
     end
   end

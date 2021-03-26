@@ -1094,6 +1094,10 @@ end
 
 #### Major
  - The `http` module now uses `curl` to perform HTTP requests. This requires `curl` to be installed. Windows users can download `curl` [https://curl.se/windows/](https://curl.se/windows/). Either add the `bin` dir to you `PATH` environment variable, or set `curl_path` in your `spectre.yml` to the path where`curl.exe` is located.
+ - Logging optimized
+    - It is now possible to use `log` and `debug` functions in any block in your code
+    - Setup, teardown, before and after blocks are now logged like context, to distinguish from the actual spec logs.
+    - Logger are refactored. It is now possible to configure multiple loggers at once
 
 #### Minor
  - `secure` parameter added for `http` module. You can now use `https` by calling `http url, secure: true do`
