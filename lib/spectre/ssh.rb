@@ -56,9 +56,9 @@ module Spectre
       end
 
       def exec command
-        log_str = "#{@__session.options[:user]}@#{@__session.host} -p #{@__session.options[:port]} #{command}"
-
         connect!
+
+        log_str = "#{@__session.options[:user]}@#{@__session.host} -p #{@__session.options[:port]} #{command}"
 
         @channel = @__session.open_channel do |channel|
           channel.exec(command) do |ch, success|
