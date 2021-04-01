@@ -1179,6 +1179,7 @@ end
     - Setup, teardown, before and after blocks are now logged like context, to distinguish from the actual spec logs.
     - Logger are refactored. It is now possible to configure multiple loggers at once. The property in the `logger` (in `spectre.yml`) is replaced with `loggers` and is now a list of logging modules
     - `log_level` was removed from `spectre.yml` and is replaced with `debug` which can be `true` or `false` (default: `false`)
+ - Include and exclude of modules added. You can now add modules to the default list by adding the `include` property in your `spectre.yml`. You can also exclude modules (which are normally loaded on default) by adding a list of modules to the `exclude` property.
 
 #### Minor
  - `secure` parameter added for `http` module. You can now use `https` by calling `http url, secure: true do`

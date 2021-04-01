@@ -52,11 +52,18 @@ DEFAULT_CONFIG = {
     'spectre/http',
     'spectre/http/basic_auth',
     'spectre/http/keystone',
+    'spectre/resources',
     'spectre/ssh',
     'spectre/ftp',
-    'spectre/resources',
-    # 'spectre/database/postgres',
+    'spectre/mysql',
+    # 'spectre/postgres',
   ],
+  'include' => [
+
+  ],
+  'exclude' => [
+
+  ]
 }
 
 
@@ -263,12 +270,15 @@ if action == 'run'
   Dir.mkdir log_dir if !Dir.exists? log_dir
 
   # Load Modules
-  cfg['modules'].each do |mod|
-    if !File.exists? mod
-      require_relative File.join('../lib', mod)
-    else
-      require_relative mod
-    end
+  cfg['modules']
+    .concat(cfg['include'])
+    .select { |mod| !cfg['exclude'].include? mod }
+    .each do |mod|
+      if !File.exists? mod
+        require_relative File.join('../lib', mod)
+      else
+        require_relative mod
+      end
   end
 
   Spectre.configure(cfg)
