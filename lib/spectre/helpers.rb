@@ -25,6 +25,14 @@ class ::String
   end
 end
 
+
+class ::Hash
+  def symbolize_keys
+    self.inject({}) { |memo, (k,v)| memo[k.to_sym] = v; memo }
+  end
+end
+
+
 def uuid length = 5
   SecureRandom.uuid().gsub('-', '')[0..length]
 end
