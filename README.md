@@ -479,10 +479,12 @@ describe 'Hollow API' do
 end
 ```
 
+The status of an `expect` can be either `failed` or `error`. There are two more functions which end in only one of these, regardless of the `Exception` type. `check` will result always in `failed`, whereas `observe` will end always in an `error` status.
+
 Additional helper functions are available when using the `spectre/assertion` module, which is loaded automatically.
 
 
-### Assertion
+### Assertion `spectre/assertion`
 
 Make an assertion to any object by prepending one of the following functions
 
@@ -1252,12 +1254,15 @@ end
     - Logger are refactored. It is now possible to configure multiple loggers at once. The property in the `logger` (in `spectre.yml`) is replaced with `loggers` and is now a list of logging modules
     - `log_level` was removed from `spectre.yml` and is replaced with `debug` which can be `true` or `false` (default: `false`)
  - MySQL module added. See `spectre/mysql` for more details
- - Include and exclude of modules added. You can now add modules to the default list by adding the `include` property in your `spectre.yml`. You can also exclude modules (which are normally loaded on default) by adding a list of modules to the `exclude` property.
+ - Error handling in `setup` and `teardown` blocks optimized. Expectation failures in `setup` and `teardown` blocks are now reported. Additionally, if an expectation in a `setup` block fails, the test run will be aborted. This allows prechecks for each context to run.
+ - `check` function added. The `check` function behaves just like the `expect` function, except that it will always result in a *failure* regardless of the exception caused the failure. In other words, this block only produces `failures` and no `errors`.
+ - `observe` function added. The `observe` function is like the `check` function, but it always results in an `error` instead of an `failure`.
 
 #### Minor
  - `secure` parameter added for `http` module. You can now use `https` by calling `http url, secure: true do`
  - The `path` parameter for the `http` block is now optional
  - The `ssh` and `ftp` module have new a new function `can_connect?` to test connection
+ - Include and exclude of modules added. You can now add modules to the default list by adding the `include` property in your `spectre.yml`. You can also exclude modules (which are normally loaded on default) by adding a list of modules to the `exclude` property.
 
 
 ### v1.5.0
