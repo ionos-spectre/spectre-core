@@ -47,7 +47,7 @@ spectre --version
 
 The `spectre/http` module requires `curl` to be installed on your system.
 
-```
+```bash
 $ sudo apt install curl
 ```
 
@@ -55,13 +55,13 @@ Windows users can download `curl` from [https://curl.se/windows/](https://curl.s
 PowerShell has already a command named `curl`, which is an alias to `Invoke-WebRequest`
 In order to use `curl` in the PowerShell, you have to remove the `curl` alias by executing
 
-```
+```powershell
 PS C:\> rm alias:curl
 ```
 
 and add the `bin` directory of the `curl` installation to your `PATH` environment variable.
 
-```
+```powershell
 PS C:\> $env:Path += ";<path\to\curl\bin>"
 ```
 
@@ -104,6 +104,86 @@ If installation fails, try install postgres postgres client first
 sudo apt-get install postgresql-client libpq5 libpq-dev
 sudo gem install pg
 ```
+
+
+### MySQL module
+
+In order to use the `spectre/mysql` module, you have to install the Ruby package `mysql2`.
+
+On linux it is fairly easy. Just execute.
+
+```bash
+sudo apt-get install libmysqlclient-dev
+sudo apt-get install mysql2
+```
+
+Yes, there is a reason why I mentioned the easy linux part. On Windows it is quite tricky... ok, not tricky, rather a pain... a pain in the a**.
+A pain you should noone wish. A pain whereas even hell is a spa.
+
+Want to go through this?
+
+Ok, let's go. Try to install the package with `gem install mysql2` as it is intended.
+
+```powershell
+PS C:\> gem install mysql2
+ERROR:  Error installing mysql2:
+        The last version of mysql2 (>= 0) to support your Ruby & RubyGems was 0.5.3. Try installing it with `gem install mysql2 -v 0.5.3`
+        mysql2 requires Ruby version >= 2.2, < 2.7.dev. The current ruby version is 2.7.0.0.
+```
+
+> Really? Do I have to downgrade my Ruby version?
+
+No, fortunately not. Just get *Ruby 3.0*.
+
+> But Ruby 3.0 is even greater?
+
+Yes, I know. Don't ask too much. It works.
+
+Ok, now we can install the package
+
+```bash
+gem install mysql2`
+```
+
+Haha, got you! You didn't thought it is that easy, right?! Right!
+
+As windows does not have the MySQL client libraries installed, we have to add the argument `--without-mysql-dir`, when installing. For this, we need the libs first.
+Ok, easy. You might think you go to the MySQL website and get the latest 64bit MySQL libraries as a ZIP file, extract it and pass the path to the argument, right? Wrong! Good and logical idea, but it won't work. Don't even try it (or try it, if you like it. I don't care).
+
+Maybe you are smarter than me, know some C stuff and think "you are stupid, you need to use the 32bit version of the libs". Ok cool. Problem 1: There are no 32bit version of the latest MySQL libraries. Ok, let's get the next best version with 32bit libraries and try again.
+
+Wohooo! It has been installed! Yeah! Let's get going and try it. Let's start `irb` and `require` the package.
+
+```powershell
+PS C:\> irb
+irb(main):001:0> require 'mysql2'
+Traceback (most recent call last):
+       10: from C:/Tools/Ruby30-x64/bin/irb.cmd:31:in `<main>'
+        9: from C:/Tools/Ruby30-x64/bin/irb.cmd:31:in `load'
+        8: from C:/Tools/Ruby30-x64/lib/ruby/gems/3.0.0/gems/irb-1.3.0/exe/irb:11:in `<top (required)>'
+        7: from (irb):1:in `<main>'
+        6: from <internal:C:/Tools/Ruby30-x64/lib/ruby/3.0.0/rubygems/core_ext/kernel_require.rb>:149:in `require'
+        5: from <internal:C:/Tools/Ruby30-x64/lib/ruby/3.0.0/rubygems/core_ext/kernel_require.rb>:160:in `rescue in require'
+        4: from <internal:C:/Tools/Ruby30-x64/lib/ruby/3.0.0/rubygems/core_ext/kernel_require.rb>:160:in `require'
+        3: from C:/Tools/Ruby30-x64/lib/ruby/gems/3.0.0/gems/mysql2-0.5.3/lib/mysql2.rb:36:in `<top (required)>'
+        2: from <internal:C:/Tools/Ruby30-x64/lib/ruby/3.0.0/rubygems/core_ext/kernel_require.rb>:85:in `require'
+        1: from <internal:C:/Tools/Ruby30-x64/lib/ruby/3.0.0/rubygems/core_ext/kernel_require.rb>:85:in `require'
+RuntimeError (Incorrect MySQL client library version! This gem was compiled for 5.7.32 but the client library is 10.5.5.)
+```
+
+> You are kidding, right?
+
+*Wrong!*. Really? You thought it would be *that* easy?!
+
+"Ok, got it". Cool, but what's about this client library `10.5.5` version? Isn't MySQL only at `8.0.32` (it was at that point I wrote this)? Yes, it is, but who said we speak about MySQL? Ever heard from *MariaDB*, you dip sh**? Yes you got it, we need the MariaDB connector libs.
+
+Go to https://mariadb.com/downloads/#connectors and download the latest one. Yes, *64bit* is fine. Install it and finally install the `mysql2` gem.
+
+```bash
+gem install mysql2 --platform=ruby -- '--with-mysql-dir="C:\Program Files\MariaDB\MariaDB Connector C 64-bit"'
+```
+
+Congratulations! You made it!
 
 
 ## Quickstart
