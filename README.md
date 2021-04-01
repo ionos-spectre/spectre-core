@@ -946,6 +946,7 @@ within the `ssh` block there are the following functions available
 | -------| ---------- | ----------- |
 | `file_exists` | `file_path` | Checks if a file exists and return a boolean value |
 | `owner_of` | `file_path` | Returns the owner of a given file |
+| `can_connect?` | _none_ | Returns `true` if a connection could be established |
 
 
 ```ruby
@@ -987,6 +988,7 @@ within the `ftp` or `sftp` block there are the following functions available
 | -------| ---------- | ----------- |
 | `upload` | `local_file`, `to: remote_file` | Uploads a file to the given destination |
 | `download` | `remote_file`, `to: local_file` | Downloads a file from the server to disk |
+| `can_connect?` | _none_ | Returns `true` if a connection could be established |
 
 
 ```ruby
@@ -1014,6 +1016,20 @@ end
 
 Adds an easy way to execute SQL queries on a MySQL database.
 
+You can set the following properties in the `mysql` block:
+
+| Method | Arguments | Multiple | Description |
+| -------| ----------| -------- | ----------- |
+| `host` | `string` | no | The hostname of the database to connec to |
+| `database` | `string` | no | The database to use, when executing queries |
+| `username` | `string` | no | The username to authenticate at the database |
+| `password` | `string` | no | The passwort for authentication |
+| `query` | `string` | yes | The queries which will be executed. Note that only the last query generates a `result` |
+
+The result of the query can be accessed by the `result` function. It contains all rows returned by the database.
+
+When a name is provided to `mysql`, it uses either a preconfigured connection with this name or uses the name as the database hostname.
+
 Example:
 
 ```ruby
@@ -1026,11 +1042,7 @@ mysql 'localhost' do
   query "INSERT INTO todos VALUES('Scare some people', false)"
   query "SELECT * FROM todos"
 end
-```
 
-You can read the result of the last query by using the `result` function.
-
-```ruby
 expect 'two entries in database' do
   result.count.should_be 2
 end
@@ -1040,7 +1052,7 @@ expect 'the first todo not to be completed' do
 end
 ```
 
-You can also preconfigure a MySQL connection in you environment file.
+You can also preconfigure a MySQL connection in your environment file.
 
 ```yml
 mysql:
