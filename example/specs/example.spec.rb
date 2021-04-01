@@ -39,11 +39,7 @@ describe 'Spectre' do
 
 
   it 'connects to a MySQL database', tags: [:mysql] do
-    mysql 'localhost' do
-      database 'developer'
-      username 'root'
-      password 'dev'
-
+    mysql 'developer' do
       query "INSERT INTO todos VALUES('Spook arround', false)"
       query "INSERT INTO todos VALUES('Scare some people', false)"
       query "SELECT * FROM todos"

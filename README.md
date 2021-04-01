@@ -1010,6 +1010,66 @@ end
 ```
 
 
+### MySQL `spectre/mysql`
+
+Adds an easy way to execute SQL queries on a MySQL database.
+
+Example:
+
+```ruby
+mysql 'localhost' do
+  database 'developer'
+  username 'root'
+  password 'dev'
+
+  query "INSERT INTO todos VALUES('Spook arround', false)"
+  query "INSERT INTO todos VALUES('Scare some people', false)"
+  query "SELECT * FROM todos"
+end
+```
+
+You can read the result of the last query by using the `result` function.
+
+```ruby
+expect 'two entries in database' do
+  result.count.should_be 2
+end
+
+expect 'the first todo not to be completed' do
+  result.first.done.should_be false
+end
+```
+
+You can also preconfigure a MySQL connection in you environment file.
+
+```yml
+mysql:
+  developer:
+    host: localhost
+    database: developer
+    username:
+    password:
+```
+
+and use the connection by providing the section name to the `mysql` call.
+
+```ruby
+mysql 'developer' do
+  query "INSERT INTO todos VALUES('Spook arround', false)"
+  query "INSERT INTO todos VALUES('Scare some people', false)"
+  query "SELECT * FROM todos"
+end
+```
+
+If you want to execute additional queries with the same connection as on the previous `mysql` block, you can simply ommit the `name` parameter.
+
+```ruby
+mysql do
+  query "INSERT INTO todos VALUES('Rattle the chains', false)"
+end
+```
+
+
 ### Environment `spectre/environment`
 
 Add arbitrary properties to your `spectre.yml`
@@ -1179,6 +1239,7 @@ end
     - Setup, teardown, before and after blocks are now logged like context, to distinguish from the actual spec logs.
     - Logger are refactored. It is now possible to configure multiple loggers at once. The property in the `logger` (in `spectre.yml`) is replaced with `loggers` and is now a list of logging modules
     - `log_level` was removed from `spectre.yml` and is replaced with `debug` which can be `true` or `false` (default: `false`)
+ - MySQL module added. See `spectre/mysql` for more details
  - Include and exclude of modules added. You can now add modules to the default list by adding the `include` property in your `spectre.yml`. You can also exclude modules (which are normally loaded on default) by adding a list of modules to the `exclude` property.
 
 #### Minor
