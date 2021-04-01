@@ -67,7 +67,7 @@ module Spectre
         query['query'].each do |statement|
           @@logger.info 'Executing statement "' + statement + '"'
           res = client.query(statement, cast_booleans: true)
-        end
+        end if query['query']
 
         @@result = res.map { |row| OpenStruct.new row } if res
       end
