@@ -15,11 +15,19 @@ module Spectre
       end
 
       def start_context context
-        @file_log.debug "start running context '#{context.__desc}'"
+        if context
+          @file_log.debug "start running context '#{context.__desc}'"
+        else
+          @file_log.debug 'start running main context'
+        end
       end
 
       def end_context context
-        @file_log.debug "context '#{context.__desc}' finished"
+        if context
+          @file_log.debug "context '#{context.__desc}' finished"
+        else
+          @file_log.debug 'main context finished'
+        end
       end
 
       def start_spec spec, data=nil
