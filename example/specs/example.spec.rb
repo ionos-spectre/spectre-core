@@ -26,7 +26,6 @@ describe 'Spectre' do
     mysql 'localhost' do
       username 'root'
       password 'dev'
-      database 'developer'
 
       query 'DROP DATABASE IF EXISTS developer'
     end
