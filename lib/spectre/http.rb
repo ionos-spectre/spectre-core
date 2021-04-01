@@ -12,6 +12,10 @@ module Spectre::Http
       @__req['method'] = method_name.upcase
     end
 
+    def url base_url
+      @__req['base_url'] = base_url
+    end
+
     def path url_path
       @__req['path'] = url_path
     end
@@ -145,6 +149,7 @@ module Spectre::Http
 
 
   class << self
+    @@http_cfg = {}
     @@response = nil
     @@request = nil
     @@modules = []
@@ -158,26 +163,16 @@ module Spectre::Http
         'use_ssl' => secure,
       }
 
-      if req['cert'] or req['use_ssl']
-        scheme = 'https'
-      else
-        scheme = 'http'
-      end
-
       if @@http_cfg.has_key? name
         req.merge! @@http_cfg[name]
-        raise "No `base_url' set for http client '#{name}'. Check your http config in your environment." if !req['base_url']
+        raise "No `base_url' set for HTTP client '#{name}'. Check your HTTP config in your environment." if !req['base_url']
       else
-        if not name.match /http(?:s)?:\/\//
-          req['base_url'] = scheme + '://' + name
-        else
-          req['base_url'] = name
-        end
+        req['base_url'] = name
       end
 
       SpectreHttpRequest.new(req).instance_eval(&block) if block_given?
 
-      invoke req
+      invoke(req)
     end
 
     def request
@@ -218,7 +213,17 @@ module Spectre::Http
     def invoke req
       cmd = [@@curl_path]
 
+      if req['cert'] or req['use_ssl']
+        scheme = 'https'
+      else
+        scheme = 'http'
+      end
+
       uri = req['base_url']
+
+      if not uri.match /http(?:s)?:\/\//
+        uri = scheme + '://' + uri
+      end
 
       if req['path']
         uri += '/' if !uri.end_with? '/'
@@ -292,15 +297,17 @@ module Spectre::Http
       debug_log = stderr.gets(nil)
       stderr.close
 
+      debug_log.lines.each { |x| @@logger.debug x unless x.empty? }
+
+      raise "An error occured while requesting #{uri}" unless output
+
       header, body = output.split "\n\n"
 
       result = header.lines.first
 
-      debug_log.lines.each { |x| @@logger.debug x unless x.empty? }
-
       exit_code = wait_thr.value.exitstatus
 
-      raise Exception.new "An error occured while executing curl:\n#{debug_log}" unless exit_code == 0
+      raise Exception.new "An error occured while executing curl:\n#{debug_log.lines.map { |x| not x.empty? }}" unless exit_code == 0
 
       # Parse protocol, version, status code and status message from response
       match = /^(?<protocol>[A-Za-z0-9]+)\/(?<version>\d+\.?\d*) (?<code>\d+) (?<message>.*)/.match result
@@ -346,7 +353,7 @@ module Spectre::Http
   end
 
   Spectre.register do |config|
-    @@logger = ::Logger.new config['log_file'], progname: 'spectre/curl'
+    @@logger = ::Logger.new config['log_file'], progname: 'spectre/http'
 
     @@curl_path = config['curl_path'] || 'curl'
 
