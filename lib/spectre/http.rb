@@ -299,7 +299,7 @@ module Spectre::Http
 
       debug_log.lines.each { |x| @@logger.debug x unless x.empty? }
 
-      raise "An error occured while requesting #{uri}" unless output
+      raise "Unable to request #{uri}. Please check if this service is reachable." unless output
 
       header, body = output.split "\n\n"
 
