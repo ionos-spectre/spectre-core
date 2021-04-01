@@ -124,7 +124,7 @@ module Spectre
       end
 
       def check desc
-        desc = "#{desc} to be ok"
+        desc = "check #{desc}"
 
         begin
           Logger.log_process(desc)
