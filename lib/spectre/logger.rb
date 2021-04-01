@@ -67,8 +67,8 @@ module Spectre
         end_spec(spec, data)
       end
 
-      def log_expect desc
-        delegate(:log_expect, desc)
+      def log_process desc
+        delegate(:log_process, desc)
       end
 
       def log_info message

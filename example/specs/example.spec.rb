@@ -4,6 +4,10 @@ describe 'Spectre' do
     log 'do something to setup it all up'
     debug 'this is a debug log text'
 
+    check 'mysql developer database' do
+      mysql 'developer'
+    end
+
     mysql 'localhost' do
       username 'root'
       password 'dev'
@@ -22,6 +26,7 @@ describe 'Spectre' do
     mysql 'localhost' do
       username 'root'
       password 'dev'
+      database 'developer'
 
       query 'DROP DATABASE IF EXISTS developer'
     end
@@ -29,22 +34,31 @@ describe 'Spectre' do
 
 
   before do
-    info 'do some things before the spec'
+    observe 'insert some data into database' do
+      mysql 'developer' do
+        database 'developer'
+        query "INSERT INTO todos VALUES('Spook arround', false)"
+        query "INSERT INTO todos VALUES('Scare some people', false)"
+      end
+    end
   end
 
 
   after do
-    info 'do some things afterwards'
+    observe 'delete all database entries' do
+      mysql 'developer' do
+        database 'developer'
+        query "DELETE FROM todos"
+      end
+    end
   end
 
 
   it 'connects to a MySQL database', tags: [:mysql] do
     mysql 'developer' do
-      query "INSERT INTO todos VALUES('Spook arround', false)"
-      query "INSERT INTO todos VALUES('Scare some people', false)"
+      database 'developer'
       query "SELECT * FROM todos"
     end
-
     expect 'two entries in database' do
       result.count.should_be 2
     end

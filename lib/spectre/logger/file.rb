@@ -43,8 +43,8 @@ module Spectre
         @file_log.debug log_msg
       end
 
-      def log_expect desc
-        @file_log.debug "expect #{desc}"
+      def log_process desc
+        @file_log.debug desc
       end
 
       def log_info message

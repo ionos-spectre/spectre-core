@@ -106,7 +106,7 @@ module Spectre
     class << self
       def expect desc
         begin
-          Logger.log_expect(desc)
+          Logger.log_process("expect #{desc}")
           yield
           Logger.log_status(desc, Logger::Status::OK)
 
@@ -123,11 +123,39 @@ module Spectre
         end
       end
 
+      def check desc
+        desc = "#{desc} to be successful"
+
+        begin
+          Logger.log_process(desc)
+          yield
+          Logger.log_status(desc, Logger::Status::OK)
+
+        rescue Interrupt => e
+          raise e
+
+        rescue Exception => e
+          Logger.log_status(desc, Logger::Status::FAILED)
+          raise Spectre::ExpectationFailure.new(desc, ''), cause: nil
+        end
+      end
+
+      def observe desc
+        begin
+          Logger.log_process(desc)
+          yield
+          Logger.log_status(desc, Logger::Status::OK)
+
+        rescue Interrupt => e
+          raise e
+        end
+      end
+
       def fail_with message
         raise Spectre::ExpectationFailure.new(nil, message)
       end
     end
 
-    Spectre.delegate :expect, :fail_with, to: self
+    Spectre.delegate :expect, :check, :observe, :fail_with, to: self
   end
 end

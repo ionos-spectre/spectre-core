@@ -6,7 +6,7 @@ module Spectre
       @@level = 0
       @@width = 80
       @@indent = 2
-      @@expectation = nil
+      @@process = nil
 
       def initialize config
         # Do nothing for now. Maybe later. I dont't know.
@@ -39,9 +39,9 @@ module Spectre
         @@level -= 1
       end
 
-      def log_expect desc
-        print_line("expect #{desc}")
-        @@expectation = desc
+      def log_process desc
+        print_line(desc)
+        @@process = desc
         @@level += 1
       end
 
@@ -58,13 +58,13 @@ module Spectre
 
         @@level -= 1
 
-        if @@expectation
+        if @@process
           puts txt
         else
           print_line('', status)
         end
 
-        @@expectation = nil
+        @@process = nil
       end
 
       def log_info message
@@ -91,7 +91,7 @@ module Spectre
       end
 
       def print_line text='', status=nil
-        puts if @@expectation
+        puts if @@process
 
         ind = indent
         line = (' ' * indent) + text
@@ -102,7 +102,7 @@ module Spectre
 
         if status
           puts status
-          @@expectation = nil
+          @@process = nil
         end
       end
 

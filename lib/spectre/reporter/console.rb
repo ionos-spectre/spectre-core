@@ -36,11 +36,13 @@ module Spectre::Reporter
         if run_info.error.is_a? Spectre::ExpectationFailure
           report_str += "     expected #{run_info.error.expectation}"
           report_str += " with #{run_info.data}" if run_info.data
-          report_str += " #{spec.context.__desc}" if spec.context.__desc
+          report_str += " during #{spec.context.__desc}" if spec.context.__desc
           report_str += "\n"
 
           if !run_info.error.cause
-            report_str += "     but it failed with #{run_info.error.message}\n"
+            report_str += "     but it failed"
+            report_str += " with #{run_info.error.message}" if not run_info.error.message.empty?
+            report_str += "\n"
             failures += 1
           else
             report_str += "     but it failed with an unexpected error\n"

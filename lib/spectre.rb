@@ -16,7 +16,7 @@ module Spectre
   class ExpectationFailure < Exception
     attr_reader :expectation
 
-    def initialize expectation, message
+    def initialize expectation, message=nil
       super message
       @expectation = expectation
     end
@@ -86,9 +86,9 @@ module Spectre
 
 
   class RunInfo
-    attr_reader :spec, :data, :error, :started, :finished
+    attr_accessor :spec, :data, :started, :finished, :error, :skipped
 
-    def initialize spec, data
+    def initialize spec, data=nil
       @spec = spec
       @data = data
       @started = nil
@@ -107,46 +107,6 @@ module Spectre
 
     def failed?
       @error != nil
-    end
-
-    def record
-      @started = Time.now
-
-      begin
-        if @spec.context.__before_blocks.count > 0
-          before_ctx = SpecContext.new @spec.subject, 'before'
-          Logger.log_context before_ctx do
-            @spec.context.__before_blocks.each do |block|
-              block.call @data
-            end
-          end
-        end
-
-        @spec.block.call @data
-
-      rescue ExpectationFailure => e
-        @error = e
-
-      rescue Interrupt
-        @skipped = true
-        Logger.log_skipped @spec
-
-      rescue Exception => e
-        @error = e
-        Logger.log_error @spec, e
-
-      ensure
-        if @spec.context.__after_blocks.count > 0
-          before_ctx = SpecContext.new @spec.subject, 'after'
-          Logger.log_context before_ctx do
-            @spec.context.__after_blocks.each do |block|
-              block.call @data
-            end
-          end
-        end
-      end
-
-      @finished = Time.now
     end
   end
 
@@ -174,12 +134,9 @@ module Spectre
       runs = []
 
       if context.__setup_blocks.count > 0
-        before_ctx = SpecContext.new context, 'setup'
-        Logger.log_context before_ctx do
-          context.__setup_blocks.each do |block|
-            block.call
-          end
-        end
+        setup_run = run_blocks('setup', context, context.__setup_blocks)
+        runs << setup_run
+        return runs if setup_run.error
       end
 
       begin
@@ -198,21 +155,80 @@ module Spectre
         end
       ensure
         if context.__teardown_blocks.count > 0
-          before_ctx = SpecContext.new context, 'teardown'
-          Logger.log_context before_ctx do
-            context.__teardown_blocks.each do |block|
-              block.call
-            end
-          end
+          runs << run_blocks('teardown', context, context.__teardown_blocks)
         end
       end
 
       runs
     end
 
+    def run_blocks name, context, blocks
+      ctx = SpecContext.new context.__subject, name
+      spec = Spec.new name, context.__subject, name, [], nil, nil, ctx
+      run_info = RunInfo.new spec
+      run_info.started = Time.now
+
+      Logger.log_context ctx do
+        begin
+          blocks.each do |block|
+            block.call
+          end
+
+          run_info.finished = Time.now
+
+        rescue Exception => e
+          run_info.error = e
+
+        end
+      end
+
+      run_info.finished = Time.now
+
+      run_info
+    end
+
     def run_spec spec, data=nil
-      run_info = RunInfo.new(spec, data)
-      run_info.record
+      run_info = RunInfo.new spec, data
+      run_info.started = Time.now
+
+      begin
+        if spec.context.__before_blocks.count > 0
+          before_ctx = SpecContext.new spec.subject, 'before'
+
+          Logger.log_context before_ctx do
+            spec.context.__before_blocks.each do |block|
+              block.call data
+            end
+          end
+        end
+
+        spec.block.call data
+
+      rescue ExpectationFailure => e
+        run_info.error = e
+
+      rescue Interrupt
+        run_info.skipped = true
+        Logger.log_skipped spec
+
+      rescue Exception => e
+        run_info.error = e
+        Logger.log_error spec, e
+
+      ensure
+        if spec.context.__after_blocks.count > 0
+          before_ctx = SpecContext.new spec.subject, 'after'
+
+          Logger.log_context before_ctx do
+            spec.context.__after_blocks.each do |block|
+              block.call data
+            end
+          end
+        end
+      end
+
+      run_info.finished = Time.now
+
       run_info
     end
   end
@@ -263,11 +279,9 @@ module Spectre
   end
 
 
-  class RunContext < DslClass
-    def skip
-      raise Interrupt
-    end
-  end
+  ###########################################
+  # Core Modules
+  ###########################################
 
 
   module Delegator
