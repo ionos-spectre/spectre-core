@@ -95,7 +95,7 @@ module Spectre
       end
 
       def [] key
-        @headers[key.downcase]
+        @headers[key.downcase].first
       end
     end
 
