@@ -17,6 +17,8 @@ describe 'Spectre' do
       query 'USE developer'
       query 'CREATE TABLE todos(todo_desc VARCHAR(256), done BOOLEAN)'
     end
+
+    run 'check health', with: 'http://localhost:4567/health'
   end
 
 
