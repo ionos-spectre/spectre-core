@@ -247,7 +247,7 @@ module Spectre::Http
 
       # Add headers to curl command
       req['headers'].each do |header|
-        cmd.append '-H', '"' + header.join(':') + '"'
+        cmd.append '-H', '"' + header.map { |val| val.strip }.join(':') + '"'
       end if req['headers']
 
       # Add request body
