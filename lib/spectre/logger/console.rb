@@ -76,7 +76,7 @@ module Spectre
       end
 
       def log_error spec, exception
-        txt = Status::ERROR.red + ' - ' + exception.class.name.red
+        txt = (Status::ERROR + ' - ' + exception.class.name).red
         print_line('', txt)
       end
 
