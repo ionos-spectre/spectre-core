@@ -15,18 +15,18 @@ module Spectre
       end
 
       def start_context context
-        if context
+        if context and context.__desc
           @file_log.debug "start running context '#{context.__desc}'"
         else
-          @file_log.debug 'start running main context'
+          @file_log.debug "start running main context of #{context.__subject.desc}"
         end
       end
 
       def end_context context
-        if context
+        if context and context.__desc
           @file_log.debug "context '#{context.__desc}' finished"
         else
-          @file_log.debug 'main context finished'
+          @file_log.debug "main context finished of #{context.__subject.desc}"
         end
       end
 
