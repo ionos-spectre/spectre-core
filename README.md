@@ -262,6 +262,10 @@ modules:
   - spectre/ssh
   - spectre/resources
   - ...
+include:
+  - spectre/mysql
+exclude:
+  - spectre/postgres
 ```
 
 All properties can also be overriden with the command line argument `-p` or `--property`
