@@ -1,5 +1,3 @@
-require 'net/http'
-
 class HttpRequest
   def keystone url, username, password, project, domain, cert
     @__req['keystone'] = {} if not @__req.has_key? 'keystone'
@@ -11,7 +9,7 @@ class HttpRequest
     @__req['keystone']['domain'] = domain
     @__req['keystone']['cert'] = cert
 
-    @__req['auth'] = 'keystone'
+    @__req.config['auth'] = 'keystone'
   end
 end
 
@@ -19,7 +17,7 @@ end
 module Spectre::Http::Keystone
   @@cache = {}
 
-  def self.on_req req, cmd
+  def self.on_req http, net_req, req
     return unless req.has_key? 'keystone' and req['auth'] == 'keystone'
 
     keystone_cfg = req['keystone']
@@ -39,7 +37,7 @@ module Spectre::Http::Keystone
       @@cache[keystone_cfg] = token
     end
 
-    cmd.append '-H', "X-Auth-Token:#{token}"
+    net_req['X-Auth-Token'] = token
   end
 
   private
@@ -90,15 +88,11 @@ module Spectre::Http::Keystone
 
     raise "error while authenticating: #{res.code} #{res.message}\n#{res.body}" if res.code != '201'
 
-    token = res['X-Subject-Token']
-
-    raise "got no keystone token in header" if !token
-
     [
-      token.strip,
+      res['X-Subject-Token'],
       JSON.parse(res.body),
     ]
   end
 
-  Spectre::Http.register self
+  Spectre::Http.register(self)
 end

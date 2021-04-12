@@ -174,6 +174,26 @@ describe 'Spectre' do
   end
 
 
+  it 'post some data with an http client', tags: [:http] do
+    http 'localhost:4567' do
+      method 'POST'
+      basic_auth 'developer', 'dev'
+      path 'hello'
+      json({
+        "message": "Hello server!"
+      })
+    end
+
+    expect 'the response code to be 200' do
+      response.code.should_be 200
+    end
+
+    expect 'the json to be echoed' do
+      response.json.message.should_be 'Hello client!'
+    end
+  end
+
+
   it 'should test some logging', tags: [:log] do
     log 'this is a log message'
     info 'this is a info message'

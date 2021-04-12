@@ -26,3 +26,16 @@ get '/todos/:id' do |id|
   status 200
   todo.to_json
 end
+
+post '/hello' do
+  status 200
+  mime_type 'application/json'
+
+  return {
+    message: 'Hello client!'
+  }.to_json
+end
+
+post '/auth/tokens' do
+
+end
