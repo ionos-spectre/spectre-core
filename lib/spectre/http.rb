@@ -22,12 +22,12 @@ module Spectre::Http
 
     def header name, value
       @__req['headers'] = [] if not @__req['headers']
-      @__req['headers'].append [name, value]
+      @__req['headers'].append [name, value.strip]
     end
 
     def param name, value
       @__req['query'] = [] if not @__req['query']
-      @__req['query'].append [name, value]
+      @__req['query'].append [name, value.strip]
     end
 
     def content_type media_type
@@ -247,13 +247,13 @@ module Spectre::Http
 
       # Add headers to curl command
       req['headers'].each do |header|
-        cmd.append '-H', '"' + header.map { |val| val.strip }.join(':') + '"'
+        cmd.append '-H', '"' + header.join(':') + '"'
       end if req['headers']
 
       # Add request body
       if req['body'] != nil and not req['body'].empty?
         req_body = try_format_json(req['body']).gsub(/"/, '\"')
-        cmd.append '-d', '"' + req_body + '"'
+        cmd.append '-d', "'" + req_body + "'"
       elsif ['POST', 'PUT', 'PATCH'].include? req['method'].upcase
         cmd.append '-d', '"\n"'
       end
