@@ -90,8 +90,12 @@ module Spectre::Http::Keystone
 
     raise "error while authenticating: #{res.code} #{res.message}\n#{res.body}" if res.code != '201'
 
+    token = res['X-Subject-Token']
+
+    raise "got no keystone token in header" if !token
+
     [
-      res['X-Subject-Token'].strip,
+      token.strip,
       JSON.parse(res.body),
     ]
   end
