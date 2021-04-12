@@ -34,10 +34,10 @@ DEFAULT_CONFIG = {
   'debug' => false,
   'out_path' => './reports',
   'spec_patterns' => ['./specs/**/*.spec.rb'],
-  'mixin_patterns' => ['../common/mixins/**/*.mixin.rb'],
+  'mixin_patterns' => ['./mixins/**/*.mixin.rb', '../common/mixins/**/*.mixin.rb'],
   'env_patterns' => ['./environments/**/*.env.yml'],
   'env_partial_patterns' => ['./environments/**/*.env.secret.yml'],
-  'resource_paths' => ['../common/resources', './resources'],
+  'resource_paths' => ['./resources', '../common/resources'],
   'modules' => [
     'spectre/helpers',
     'spectre/reporter/console',
