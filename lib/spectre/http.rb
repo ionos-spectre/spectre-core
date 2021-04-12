@@ -22,12 +22,12 @@ module Spectre::Http
 
     def header name, value
       @__req['headers'] = [] if not @__req['headers']
-      @__req['headers'].append [name, value.strip]
+      @__req['headers'].append [name, value.to_s.strip]
     end
 
     def param name, value
       @__req['query'] = [] if not @__req['query']
-      @__req['query'].append [name, value.strip]
+      @__req['query'].append [name, value.to_s.strip]
     end
 
     def content_type media_type
@@ -252,8 +252,8 @@ module Spectre::Http
 
       # Add request body
       if req['body'] != nil and not req['body'].empty?
-        req_body = try_format_json(req['body']).gsub(/"/, '\"')
-        cmd.append '-d', "'" + req_body + "'"
+        req_body = try_format_json(req['body']).gsub(/"/, '\\"')
+        cmd.append '-d', '"' + req_body + '"'
       elsif ['POST', 'PUT', 'PATCH'].include? req['method'].upcase
         cmd.append '-d', '"\n"'
       end
