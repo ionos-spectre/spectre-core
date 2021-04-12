@@ -6,6 +6,10 @@ ENTRIES = [
   { id: 2, desc: 'Scare some people', done: false },
 ]
 
+get '/health' do
+  status 200
+end
+
 get '/todos' do
   status 200
   ENTRIES.to_json
