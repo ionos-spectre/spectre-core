@@ -40,11 +40,11 @@ module Spectre
       instance_exec(args, &block)
     end
 
-    def method_missing method, *args, &block
+    def method_missing method, *args, **kwargs, &block
       if @__bound_self__.respond_to? method
-        @__bound_self__.send method, *args, &block
+        @__bound_self__.send method, *args, **kwargs, &block
       else
-        Delegator.redirect method, *args, &block
+        Delegator.redirect method, *args, **kwargs, &block
       end
     end
   end
@@ -178,6 +178,7 @@ module Spectre
 
         rescue Exception => e
           run_info.error = e
+          Logger.log_error spec, e
 
         end
       end
@@ -300,10 +301,10 @@ module Spectre
       end
     end
 
-    def self.redirect method_name, *args, &block
+    def self.redirect method_name, *args, **kwargs, &block
       target = @@mappings[method_name]
       raise "no method or variable '#{method_name}' defined" if !target
-      target.send(method_name, *args, &block)
+      target.send(method_name, *args, **kwargs, &block)
     end
   end
 

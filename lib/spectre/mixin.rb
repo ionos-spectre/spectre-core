@@ -9,25 +9,15 @@ module Spectre
         @@mixins[desc] = block
       end
 
-      def _mixins
-        @@mixins
-      end
-    end
-
-    class Spectre::SpecContext
-      def run desc, tags: []
-        raise "no mixin with desc '#{desc}' defined" unless Mixin._mixins.has_key? desc
-        @subject.add_spec(desc, tags, [], Mixin._mixins[desc], self)
-      end
-
-      alias_method :also, :run
-      alias_method :step, :run
-    end
-
-    class Spectre::RunContext
       def run desc, with: []
-        raise "no mixin with desc '#{desc}' defined" unless Mixin._mixins.has_key? desc
-        self.instance_exec(*with, &Mixin._mixins[desc])
+        raise "no mixin with desc '#{desc}' defined" unless @@mixins.has_key? desc
+        Logger.log_debug "running mixin '#{desc}'"
+
+        if with.is_a? Array
+          @@mixins[desc].call *with
+        else
+          @@mixins[desc].call with
+        end
       end
 
       alias_method :also, :run
@@ -46,6 +36,6 @@ module Spectre
       end
     end
 
-    Spectre.delegate :mixin, to: Mixin
+    Spectre.delegate :mixin, :run, :also, :step, to: Mixin
   end
 end
