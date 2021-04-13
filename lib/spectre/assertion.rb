@@ -136,7 +136,7 @@ module Spectre
 
         rescue Exception => e
           Logger.log_status(full_desc, Logger::Status::FAILED)
-          raise Spectre::ExpectationFailure.new(desc + ' to succeed', ''), cause: nil
+          raise Spectre::ExpectationFailure.new("'#{desc}' to succeed", ''), cause: nil
         end
       end
 
