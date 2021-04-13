@@ -21,6 +21,7 @@ module Spectre
 
       def connect!
         return unless @__session == nil or @__session.closed?
+        @__logger.info "Connecting to '#{@__host}' with user '#{@__username}'"
         @__session = Net::FTP.new(@__host, @__opts)
         @__session.login @__username, @__password
       end
@@ -71,6 +72,7 @@ module Spectre
 
       def connect!
         return unless @__session == nil or @__session.closed?
+        @__logger.info "Connecting to '#{@__host}' with user '#{@__username}'"
         @__session = Net::SFTP.start(@__host, @__username, @__opts)
         @__session.connect!
       end
@@ -151,7 +153,7 @@ module Spectre
 
         cfg = @@cfg[name] || {}
 
-        host = cfg['host'] || name
+        host = config[:host] || cfg['host'] || name
         username = config[:username] || cfg['username']
         password = config[:password] || cfg['password']
 
