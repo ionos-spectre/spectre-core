@@ -129,7 +129,7 @@ module Spectre
         raise "FTP connection '#{name}' not configured" unless @@cfg.has_key?(name) or config.count > 0
         cfg = @@cfg[name] || {}
 
-        host = cfg['host'] || name
+        host = config[:host] || cfg['host'] || name
         username = config[:username] || cfg['username']
         password = config[:password] || cfg['password']
 
