@@ -124,19 +124,19 @@ module Spectre
       end
 
       def check desc
-        desc = "check #{desc}"
+        full_desc = "check #{desc}"
 
         begin
-          Logger.log_process(desc)
+          Logger.log_process(full_desc)
           yield
-          Logger.log_status(desc, Logger::Status::OK)
+          Logger.log_status(full_desc, Logger::Status::OK)
 
         rescue Interrupt => e
           raise e
 
         rescue Exception => e
-          Logger.log_status(desc, Logger::Status::FAILED)
-          raise Spectre::ExpectationFailure.new(desc, ''), cause: nil
+          Logger.log_status(full_desc, Logger::Status::FAILED)
+          raise Spectre::ExpectationFailure.new(desc + ' to succeed', ''), cause: nil
         end
       end
 
