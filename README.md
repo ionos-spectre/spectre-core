@@ -247,7 +247,6 @@ resource_paths:
   - ./resources
 modules:
   - spectre/helpers
-  - spectre/helpers/console
   - spectre/reporter/console
   - spectre/reporter/junit
   - spectre/logger/console
@@ -1110,6 +1109,21 @@ end
 ```
 
 
+### Helpers `spectre/helpers`
+
+There are some helper methods for various use cases
+
+| Method | Data Type | Description |
+| -------| ----------| -------- | ----------- |
+| `as_json` | `string` | Parses the string as a `Hash` |
+| `as_date` | `string` | Parses the string as a `DateTime` object |
+| `content` | `string` | Treats the string as a file path and tries to read its content. Use `with` parameter to substitute placeholders in form of `#{foo}`. Example: `'path/to/file.txt'.content with:{foo: 'bar'}` |
+| `exists?` | `string` | Treats the string as a file path and returns `true` if the file exists, `false` otherwise |
+| `to_json` | `OpenStruct` | Converts a `OpenStruct` object into a JSON string |
+| `uuid(length=5)` | `Kernel` | Generates a UUID and returns characters with given length. Default is 5. |
+
+
+
 ### Resources `spectre/resources`
 
 The `resources` module reads all files in the default `resources` directory.
@@ -1145,7 +1159,7 @@ The paths of these files are provided by the `resources` function. The files are
 describe 'Hollow API' do
   it 'sends out spooky ghosts' do
     expect 'the resource file to exist' do
-      File.exists(resources['json/spooky_request_body.json']).should_be true
+      resources['json/spooky_request_body.json'].exists?.should_be true
     end
   end
 end
