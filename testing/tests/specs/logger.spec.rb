@@ -1,4 +1,4 @@
-describe 'spectre' do
+describe 'spectre/logger' do
   it 'logs messages', tags: [:log, :core] do
     info 'this is a info message'
     log 'this is a log message'
