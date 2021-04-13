@@ -39,16 +39,16 @@ module Spectre
         end
       end
 
-      def download remotefile, localfile=File.basename(remotefile)
-        @__logger.info "Downloading #{File.join @__session.pwd, remotefile} to #{File.expand_path localfile}"
+      def download remotefile, to: File.basename(remotefile)
         connect!
-        @__session.getbinaryfile(remotefile, localfile)
+        @__logger.info "Downloading '#{@__username}@#{@__host}:#{File.join @__session.pwd, remotefile}' to '#{File.expand_path to}'"
+        @__session.getbinaryfile(remotefile, to)
       end
 
-      def upload localfile, remotefile=File.basename(localfile)
-        @__logger.info "Uploading #{File.expand_path localfile} to #{File.join @__session.pwd, remotefile}"
+      def upload localfile, to: File.basename(localfile)
         connect!
-        @__session.putbinaryfile(localfile, remotefile)
+        @__logger.info "Uploading '#{File.expand_path localfile}' to '#{@__username}@#{@__host}:#{File.join @__session.pwd, to}'"
+        @__session.putbinaryfile(localfile, to)
       end
 
       def list
@@ -77,7 +77,7 @@ module Spectre
 
       def close
         return unless @__session and not @__session.closed?
-        @__session.close
+        # @__session.close!
       end
 
       def can_connect?
@@ -90,13 +90,13 @@ module Spectre
       end
 
       def download remotefile, to: File.basename(remotefile)
-        @__logger.info "Downloading #{remotefile} to #{File.expand_path to}"
+        @__logger.info "Downloading '#{@__username}@#{@__host}:#{remotefile}' to '#{File.expand_path to}'"
         connect!
         @__session.download!(remotefile, to)
       end
 
       def upload localfile, to: File.basename(localfile)
-        @__logger.info "Uploading #{File.expand_path localfile} to #{to}"
+        @__logger.info "Uploading '#{File.expand_path localfile}' to '#{@__username}@#{@__host}:#{to}'"
         connect!
         @__session.upload!(localfile, to)
       end
@@ -132,8 +132,6 @@ module Spectre
         password = config[:password] || cfg['password']
 
         opts = {}
-        opts[:username] = username
-        opts[:password] = password if password
         opts[:ssl] = config[:ssl]
         opts[:port] = config[:port] || cfg['port'] || 21
 
