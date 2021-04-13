@@ -118,6 +118,10 @@ Specific options:}
     cmd_options['reporter'] = reporter
   end
 
+  opts.on('-d', '--debug', "Run in debug mode") do
+    cmd_options['debug'] = true
+  end
+
   opts.on('-p KEY=VAL', '--property KEY=VAL', "Override config option. Use `spectre show` to get list of available options") do |option|
     key, val = option.split '='
     val = val.split ',' if DEFAULT_CONFIG[key].is_a? Array
