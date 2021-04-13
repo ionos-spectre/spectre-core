@@ -23,6 +23,10 @@ class ::String
 
     file_content
   end
+
+  def exists?
+    File.exists? self
+  end
 end
 
 
