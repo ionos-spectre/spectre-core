@@ -1,6 +1,7 @@
 require 'securerandom'
 require 'json'
 require 'date'
+require 'ostruct'
 
 class ::String
   def as_json
@@ -17,7 +18,7 @@ class ::String
 
     if with
       with.each do |key, value|
-        file_content = file_content.gsub '#{' + key.to_s + '}', value
+        file_content = file_content.gsub '#{' + key.to_s + '}', value.to_s
       end
     end
 
@@ -26,6 +27,13 @@ class ::String
 
   def exists?
     File.exists? self
+  end
+end
+
+
+class ::OpenStruct
+  def to_json
+    self.to_h.inject({}) { |memo, (k,v)| memo[k] = v.is_a?(OpenStruct) ? v.to_h : v; memo }.to_json
   end
 end
 
