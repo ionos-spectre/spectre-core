@@ -84,6 +84,10 @@ module Spectre
         @__req['use_ssl'] = true
       end
 
+      def to_s
+        @__req.to_s
+      end
+
       alias_method :auth, :authenticate
       alias_method :cert, :certificate
       alias_method :media_type, :content_type
@@ -96,6 +100,10 @@ module Spectre
 
       def [] key
         @headers[key.downcase].first
+      end
+
+      def to_s
+        @headers.to_s
       end
     end
 
@@ -138,6 +146,10 @@ module Spectre
 
       def success?
         @res[:code] < 400
+      end
+
+      def to_s
+        @res.to_s
       end
 
       def pretty
