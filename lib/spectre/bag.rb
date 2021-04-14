@@ -11,7 +11,7 @@ module Spectre
     end
 
     Spectre.register do |config|
-      @@bag = OpenStruct.new config
+      @@bag = OpenStruct.new
     end
 
     Spectre.delegate :bag, to: Bag
