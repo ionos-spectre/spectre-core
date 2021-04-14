@@ -1,5 +1,6 @@
 log_path: ./logs
-log_level: DEBUG
+debug: true
 env_patterns: ['**/*.env.yml']
 spec_patterns: ['**/*.spec.rb']
+curl_path: C:\Tools\curl-7.75.0-win64-mingw\bin\curl.exe
 # reporter: Spectre::Reporter::JUnit

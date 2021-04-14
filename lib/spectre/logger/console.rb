@@ -1,90 +1,111 @@
-require_relative '../helpers/console'
+require 'ectoplasm'
 
-module Spectre::Logger
-  module Status
-    OK = '[ok]'.green
-    FAILED = '[failed]'.red
-    ERROR = '[error]'.red
-    INFO = '[info]'.blue
-    SKIPPED = '[skipped]'.grey
-    DEBUG = '[debug]'.grey
-  end
+module Spectre
+  module Logger
+    class Console
+      @@level = 0
+      @@width = 80
+      @@indent = 2
+      @@process = nil
 
-  class Console
-    @@level = 0
-    @@width = 80
-    @@indent = 2
-
-    def initialize config
-      @config = config
-    end
-
-    def log_subject subject
-      puts "#{subject.desc.blue}"
-    end
-
-    def log_context context
-      if context.__desc
-        puts "  #{context.__desc.magenta}"
-        @@level += 1
-        yield
-        @@level -= 1
-      else
-        yield
+      def initialize config
+        # Do nothing for now. Maybe later. I dont't know.
       end
+
+      def start_subject subject
+        puts subject.desc.blue
+      end
+
+      def start_context context
+        return unless context.__desc
+        puts (' ' * indent) + context.__desc.magenta
+        @@level += 1
+      end
+
+      def end_context context
+        return unless context.__desc
+        @@level -= 1
+      end
+
+      def start_spec spec, data=nil
+        text = spec.desc
+        text += " with #{data}" if data
+        puts (' ' * indent) + text.cyan
+
+        @@level += 1
+      end
+
+      def end_spec spec, data
+        @@level -= 1
+      end
+
+      def log_process desc
+        print_line(desc)
+        @@process = desc
+        @@level += 1
+      end
+
+      def log_status desc, status, annotation=nil
+        status = status.green if status == Status::OK
+        status = status.blue if status == Status::INFO
+        status = status.grey if status == Status::DEBUG
+        status = status.red if status == Status::FAILED
+        status = status.red if status == Status::ERROR
+        status = status.grey if status == Status::SKIPPED
+
+        txt = status
+        txt += ' ' + annotation if annotation
+
+        @@level -= 1
+
+        if @@process
+          puts txt
+        else
+          print_line('', status)
+        end
+
+        @@process = nil
+      end
+
+      def log_info message
+        print_line(message, Status::INFO.blue)
+      end
+
+      def log_debug message
+        print_line(message, Status::DEBUG.grey)
+      end
+
+      def log_error spec, exception
+        txt = (Status::ERROR + ' - ' + exception.class.name).red
+        print_line('', txt)
+      end
+
+      def log_skipped spec
+        print_line('', Status::SKIPPED.grey)
+      end
+
+      private
+
+      def indent
+        (@@level+1) * @@indent
+      end
+
+      def print_line text='', status=nil
+        puts if @@process
+
+        ind = indent
+        line = (' ' * indent) + text
+        remaining = @@width - text.length - ind
+        line += '.' * (@@width - text.length - ind) if remaining > 0
+
+        print line
+
+        if status
+          puts status
+          @@process = nil
+        end
+      end
+
     end
-
-    def log_spec spec, data=nil
-      text = spec.desc
-      text += " with #{data}" if data
-      print_line text.cyan
-
-      @@level += 1
-      yield
-      @@level -= 1
-    end
-
-    def log_expect desc
-      print_line("expect #{desc}", fill: true)
-    end
-
-    def log_info message
-      print_line(message, fill: true)
-      log_status(Spectre::Logger::Status::INFO)
-    end
-
-    def log_debug message
-      return if @config['log_level'] != 'DEBUG'
-      print_line(message, fill: true)
-      log_status(Spectre::Logger::Status::DEBUG)
-    end
-
-    def log_error exception
-      print_line('', fill: true)
-      log_status(Spectre::Logger::Status::ERROR, annotation: exception.class.name.red)
-    end
-
-    def log_skipped
-      print_line('', fill: true)
-      log_status(Spectre::Logger::Status::SKIPPED)
-    end
-
-    def log_status status, annotation: nil
-      txt = status
-      txt += ' ' + annotation if annotation
-      print txt + "\n"
-    end
-
-    private
-
-    def print_line text, fill: false
-      indent = (@@level+1) * @@indent
-      line = (' ' * indent) + text
-      remaining = @@width - text.length - indent
-      line += '.' * (@@width - text.length - indent) if fill and remaining > 0
-      line += "\n" unless fill
-      print line
-    end
-
   end
 end

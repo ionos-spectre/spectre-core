@@ -1,0 +1,4 @@
+*.code-workspace
+logs/
+reports/
+**/environments/*.env.secret.yml

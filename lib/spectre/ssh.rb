@@ -7,11 +7,14 @@ module Spectre
     @@cfg = {}
 
     class SSHConnection < DslClass
-      def initialize session, logger
-        @logger = logger
-        @session = session
-        @exit_code = nil
-        @output = ''
+      def initialize host, username, opts, logger
+        @__logger = logger
+        @__host = host
+        @__username = username
+        @__opts = opts
+        @__session = nil
+        @__exit_code = nil
+        @__output = ''
       end
 
       def file_exists path
@@ -24,23 +27,55 @@ module Spectre
         output.chomp
       end
 
-      def exec command
-        log_str = "#{@session.options[:user]}@#{@session.host} -p #{@session.options[:port]} #{command}"
+      def connect!
+        return unless @__session == nil or @__session.closed?
+        @__session = Net::SSH.start(@__host, @__username, @__opts)
+      end
 
-        @channel = @session.open_channel do |channel|
+      def close
+        return unless @__session and not @__session.closed?
+        @__session.close
+      end
+
+      def can_connect?
+        @__output = nil
+
+        begin
+          connect!
+          @__session.open_channel.close
+          @__output = "successfully connected to #{@__host} with user #{@__username}"
+          @__exit_code = 0
+          return true
+        rescue Exception => e
+          @__logger.error e.message
+          @__output = "unable to connect to #{@__host} with user #{@__username}"
+          @__exit_code = 1
+        end
+
+        return false
+      end
+
+      def exec command
+        connect!
+
+        log_str = "#{@__session.options[:user]}@#{@__session.host} -p #{@__session.options[:port]} #{command}"
+
+        @channel = @__session.open_channel do |channel|
           channel.exec(command) do |ch, success|
-            abort "could not execute #{command} on #{@session.host}" unless success
+            abort "could not execute #{command} on #{@__session.host}" unless success
+
+            @__output = ''
 
             channel.on_data do |ch, data|
-              @output += data
+              @__output += data
             end
 
             channel.on_extended_data do |ch,type,data|
-              @output += data
+              @__output += data
             end
 
             channel.on_request('exit-status') do |ch, data|
-              @exit_code = data.read_long
+              @__exit_code = data.read_long
             end
 
             # channel.on_request('exit-signal') do |ch, data|
@@ -51,18 +86,18 @@ module Spectre
         end
 
         @channel.wait
-        @session.loop
+        @__session.loop
 
-        log_str += "\n" + @output
-        @logger.info log_str
+        log_str += "\n" + @__output
+        @__logger.info log_str
       end
 
       def output
-        @output
+        @__output
       end
 
       def exit_code
-        @exit_code
+        @__exit_code
       end
     end
 
@@ -73,7 +108,7 @@ module Spectre
 
         cfg = @@cfg[name] || {}
 
-        host = config[:host] || cfg['host']
+        host = cfg['host'] || name
         username = config[:username] || cfg['username']
         password = config[:password] || cfg['password']
 
@@ -87,14 +122,12 @@ module Spectre
         opts[:auth_methods].push 'publickey' if opts[:keys]
         opts[:auth_methods].push 'password' if opts[:password]
 
-
-        session = Net::SSH.start(host, username, opts)
+        ssh_con = SSHConnection.new(host, username, opts, @@logger)
 
         begin
-          ssh_con = SSHConnection.new(session, @@logger)
           ssh_con.instance_eval &block
         ensure
-          session.close
+          ssh_con.close
         end
       end
     end

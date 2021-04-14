@@ -24,19 +24,26 @@ class ::String
 
     file_content
   end
-end
 
-class ::OpenStruct
-  def to_json
-    self.to_h.inject({}) { |memo, (k,v)| memo[k] = v.is_a?(OpenStruct) ? v.to_h : v; memo }.to_json
+  def exists?
+    File.exists? self
   end
 end
+
+
+class ::OpenStruct
+  def to_json *args, **kwargs
+    self.to_h.inject({}) { |memo, (k,v)| memo[k] = v.is_a?(OpenStruct) ? v.to_h : v; memo }.to_json(*args, **kwargs)
+  end
+end
+
 
 class ::Hash
   def symbolize_keys
     self.inject({}) { |memo, (k,v)| memo[k.to_sym] = v; memo }
   end
 end
+
 
 def uuid length = 5
   SecureRandom.uuid().gsub('-', '')[0..length]

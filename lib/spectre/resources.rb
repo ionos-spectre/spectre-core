@@ -2,8 +2,23 @@ require 'ostruct'
 
 module Spectre
   module Resources
+    class ResourceCollection
+      def initialize
+        @items = {}
+      end
+
+      def add name, path
+        @items[name] = path
+      end
+
+      def [] name
+        raise "Resource with name '#{name}' does not exist" if not @items.has_key? name
+        @items[name]
+      end
+    end
+
     class << self
-      @@resources = {}
+      @@resources = ResourceCollection.new
 
       def resources
         @@resources
@@ -19,7 +34,7 @@ module Spectre
         resource_files.each do |file|
           file.slice! resource_path
           file = file[1..-1]
-          @@resources[file] = File.expand_path File.join(resource_path, file)
+          @@resources.add file, File.expand_path(File.join resource_path, file)
         end
       end
 

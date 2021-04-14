@@ -1,4 +1,5 @@
 require 'ostruct'
+require_relative 'logger'
 
 class Object
   def should_be(val)
@@ -96,5 +97,65 @@ class String
 
   def should_not_match(regex)
     raise Spectre::ExpectationFailure.new(regex, self) if self.match(regex)
+  end
+end
+
+
+module Spectre
+  module Assertion
+    class << self
+      def expect desc
+        begin
+          Logger.log_process("expect #{desc}")
+          yield
+          Logger.log_status(desc, Logger::Status::OK)
+
+        rescue Interrupt => e
+          raise e
+
+        rescue Spectre::ExpectationFailure => e
+          Logger.log_status(desc, Logger::Status::FAILED)
+          raise Spectre::ExpectationFailure.new(desc, e.message), cause: nil
+
+        rescue Exception => e
+          Logger.log_status(desc, Logger::Status::ERROR)
+          raise Spectre::ExpectationFailure.new(desc, e.message), cause: e
+        end
+      end
+
+      def check desc
+        full_desc = "check #{desc}"
+
+        begin
+          Logger.log_process(full_desc)
+          yield
+          Logger.log_status(full_desc, Logger::Status::OK)
+
+        rescue Interrupt => e
+          raise e
+
+        rescue Exception => e
+          Logger.log_status(full_desc, Logger::Status::FAILED)
+          raise Spectre::ExpectationFailure.new("'#{desc}' to succeed", ''), cause: nil
+        end
+      end
+
+      def observe desc
+        begin
+          Logger.log_process(desc)
+          yield
+          Logger.log_status(desc, Logger::Status::OK)
+
+        rescue Interrupt => e
+          raise e
+        end
+      end
+
+      def fail_with message
+        raise Spectre::ExpectationFailure.new(nil, message)
+      end
+    end
+
+    Spectre.delegate :expect, :check, :observe, :fail_with, to: self
   end
 end
