@@ -242,8 +242,9 @@ if action == 'list'
   specs.group_by { |x| x.subject }.each do |subject, spec_group|
     spec_group.each do |spec|
       tags = spec.tags.map { |x| '#' + x.to_s }.join ' '
-      desc = "#{subject.desc} #{spec.desc}"
-      desc += ' ' + spec.context.__desc if spec.context.__desc
+      desc = subject.desc
+      desc += ' - ' + spec.context.__desc + ' -' if spec.context.__desc
+      desc += ' ' + spec.desc
       puts "[#{spec.name}]".send(colors[counter % colors.length]) + " #{desc} #{tags.cyan}"
     end
 
