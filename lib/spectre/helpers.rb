@@ -32,8 +32,8 @@ end
 
 
 class ::OpenStruct
-  def to_json
-    self.to_h.inject({}) { |memo, (k,v)| memo[k] = v.is_a?(OpenStruct) ? v.to_h : v; memo }.to_json
+  def to_json *args, **kwargs
+    self.to_h.inject({}) { |memo, (k,v)| memo[k] = v.is_a?(OpenStruct) ? v.to_h : v; memo }.to_json(*args, **kwargs)
   end
 end
 
