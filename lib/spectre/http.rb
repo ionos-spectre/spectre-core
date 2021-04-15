@@ -139,7 +139,7 @@ module Spectre
           begin
             @data = JSON.parse(@res[:body], object_class: OpenStruct)
           rescue
-            raise 'invalid json'
+            raise "invalid json\n#{@res[:body]}"
           end
         end
 
