@@ -175,7 +175,7 @@ RuntimeError (Incorrect MySQL client library version! This gem was compiled for 
 
 *Wrong!*. Really? You thought it would be *that* easy?!
 
-"Ok, got it". Cool, but what's about this client library `10.5.5` version? Isn't MySQL only at `8.0.32` (it was at that point I wrote this)? Yes, it is, but who said we speak about MySQL? Ever heard from *MariaDB*, you dip sh**? Yes you got it, we need the MariaDB connector libs.
+"Ok, got it". Cool, but what's about this client library `10.5.5` version? Isn't MySQL only at `8.0.32` (it was at that point I wrote this)? Yes, it is, but who said we speak about MySQL? Ever heard about *MariaDB*, you dip sh**? Yes you got it, we need the MariaDB connector libs.
 
 Go to https://mariadb.com/downloads/#connectors and download the latest one. Yes, *64bit* is fine. Install it and finally install the `mysql2` gem.
 
@@ -1262,6 +1262,13 @@ end
 ```
 
 ## Release Notes
+
+### vNext
+
+#### Major
+ - Added `spectre dump` to command line tool. Dumps the given environment in YAML format to console output
+ - Global config added. When the `~/.spectre` exists, it will always be read as a spectre config (like `spectre.yml`).
+
 
 ### v1.6.0
 
