@@ -1119,6 +1119,7 @@ There are some helper methods for various use cases
 | `as_date` | `string` | Parses the string as a `DateTime` object |
 | `content` | `string` | Treats the string as a file path and tries to read its content. Use `with` parameter to substitute placeholders in form of `#{foo}`. Example: `'path/to/file.txt'.content with:{foo: 'bar'}` |
 | `exists?` | `string` | Treats the string as a file path and returns `true` if the file exists, `false` otherwise |
+| `remove!` | `string` | Treats the string as a file path and deletes the file |
 | `to_json` | `OpenStruct` | Converts a `OpenStruct` object into a JSON string |
 | `uuid(length=5)` | `Kernel` | Generates a UUID and returns characters with given length. Default is 5. |
 
@@ -1265,7 +1266,7 @@ end
 ### v1.6.0
 
 #### Major
- - The `http` module now uses `curl` to perform HTTP requests. This requires `curl` to be installed. Windows users can download `curl` [https://curl.se/windows/](https://curl.se/windows/). Either add the `bin` dir to you `PATH` environment variable, or set `curl_path` in your `spectre.yml` to the path where`curl.exe` is located.
+ - `curl` module added to perform HTTP requests. This requires `curl` to be installed. Windows users can download `curl` [https://curl.se/windows/](https://curl.se/windows/). Either add the `bin` dir to you `PATH` environment variable, or set `curl_path` in your `spectre.yml` to the path where`curl.exe` is located.
  - Logging optimized
     - It is now possible to use `log` and `debug` functions in any block in your code
     - Setup, teardown, before and after blocks are now logged like context, to distinguish from the actual spec logs.
