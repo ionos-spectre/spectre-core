@@ -3,6 +3,7 @@ require 'openssl'
 require 'json'
 require 'securerandom'
 require 'logger'
+require 'ostruct'
 
 
 module Spectre
@@ -55,6 +56,7 @@ module Spectre
       end
 
       def json data
+        data = data.to_h if data.is_a? OpenStruct
         body JSON.pretty_generate(data)
         content_type 'application/json'
       end
