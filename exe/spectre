@@ -78,6 +78,7 @@ Commands:
   list        List specs
   run         Run specs (default)
   show        Print current environment settings
+  dump        Dumps the given environment in YAML format to console
   init        Initializes a new spectre project
 
 Specific options:}
@@ -340,6 +341,7 @@ if action == 'show'
   puts cfg.pretty
   exit 0
 end
+
 
 
 ###########################################
