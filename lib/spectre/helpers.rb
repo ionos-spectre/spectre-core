@@ -28,6 +28,12 @@ class ::String
   def exists?
     File.exists? self
   end
+
+  def remove!
+    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+
+    File.delete self
+  end
 end
 
 
