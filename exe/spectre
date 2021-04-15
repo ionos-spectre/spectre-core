@@ -160,17 +160,24 @@ action = ARGV[0] || 'run'
 
 
 cfg = {}
-cfg.merge! DEFAULT_CONFIG
+cfg.deep_merge! DEFAULT_CONFIG
 
-config_file = cmd_options['config_file'] || DEFAULT_CONFIG['config_file']
+global_config_file = File.join File.expand_path('~'), '.spectre'
+
+if File.exists? global_config_file
+  global_options = YAML.load_file(global_config_file)
+  cfg.deep_merge! global_options if global_options
+end
+
+config_file = cmd_options['config_file'] || cfg['config_file']
 
 if File.exists? config_file
   file_options = YAML.load_file(config_file)
-  cfg.merge! file_options
+  cfg.deep_merge! file_options
   Dir.chdir File.dirname(config_file)
 end
 
-cfg.merge! cmd_options
+cfg.deep_merge! cmd_options
 
 
 ###########################################
