@@ -6,6 +6,21 @@ ENTRIES = [
   { id: 2, desc: 'Scare some people', done: false },
 ]
 
+post '/api/v1/echo' do
+  status 200
+  request.body.read
+end
+
+put '/api/v1/echo' do
+  status 200
+  request.body.read
+end
+
+get '/api/v1/bad' do
+  status 200
+  request.body.read
+end
+
 get '/api/v1/health' do
   status 200
 end
@@ -15,11 +30,23 @@ get '/api/v1/todos' do
   ENTRIES.to_json
 end
 
-post '/api/v1/todos' do
+delete '/api/v1/todos' do
   status 200
   ENTRIES.to_json
 end
 
+post '/api/v1/todos' do
+  status 200
+  todo = JSON.parse(request.body.read, symbolize_names: true)
+  todo[:id] = ENTRIES.count
+  ENTRIES.append todo
+  todo.to_json
+end
+
+put '/api/v1/todos' do
+  status 200
+  request.body.read
+end
 
 get '/api/v1/todos/:id' do |id|
   todo = ENTRIES.first { |x| x[:id] == id }
@@ -31,6 +58,11 @@ get '/api/v1/todos/:id' do |id|
 
   status 200
   todo.to_json
+end
+
+put '/api/v1/todos/:id' do
+  status 200
+  request.body.read
 end
 
 post '/api/v1/hello' do
