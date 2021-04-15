@@ -142,6 +142,6 @@ module Spectre
       end
     end
 
-    Spectre.delegate :ssh, to: SSH
+    Spectre.delegate :ssh, to: self
   end
 end
