@@ -1268,6 +1268,9 @@ end
 #### Major
  - Added `spectre dump` to command line tool. Dumps the given environment in YAML format to console output
  - Global config added. When the `~/.spectre` exists, it will always be read as a spectre config (like `spectre.yml`).
+ - Log customization options added
+ - `check` function removed and `observe` reworked. `observe` does not throw an exception anymore, but saves the success status, which is available with `success?`
+ - `http` module recovered. `curl` is now a speparate function and responses can be accessed with `curl_response`
 
 
 ### v1.6.0
