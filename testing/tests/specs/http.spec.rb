@@ -29,7 +29,7 @@ describe 'spectre/http' do
     end
 
     expect 'the id to be 2' do
-      response.json.id.should_be 2
+      fail_with response.json.id if response.json.id <= 2
     end
   end
 
@@ -46,11 +46,12 @@ describe 'spectre/http' do
 
     info 'update the first todo'
 
+    todo.desc = 'Do some updated stuff'
     todo.done = true
 
     http 'web_api' do
       method 'PUT'
-      path 'echo'
+      path 'todos'
       json todo
     end
 
@@ -59,56 +60,7 @@ describe 'spectre/http' do
     end
 
     expect 'the id to be 1' do
-      response.json.done.should_be true
-    end
-  end
-
-  it 'directly uses a response to do another request', tags: [:http, :post] do
-    info 'get all todos'
-
-    http 'web_api' do
-      method 'GET'
-      path 'todos'
-      ensure_success!
-    end
-
-    info 'echo the first todo'
-
-    http 'web_api' do
-      method 'POST'
-      path 'echo'
-      json response.json.first
-    end
-
-    expect 'the data to be the first todo' do
       response.json.id.should_be 1
-    end
-  end
-
-  it 'adds new resources to a list', tags: [:http, :put] do
-    http 'localhost:4567/api/v1/' do
-      method 'GET'
-      path 'todos'
-    end
-
-    response.json.append({
-      "id": 5,
-      "desc": "A new todo item",
-      "done": false,
-    })
-
-    http 'localhost:4567/api/v1/' do
-      method 'PUT'
-      path 'echo'
-      json response.json
-    end
-
-    expect 'the response code to be 200' do
-      response.code.should_be 200
-    end
-
-    expect 'the item to be in the list' do
-      fail_with response.json if not response.json.any? { |x| x.id == 5 }
     end
   end
 end
