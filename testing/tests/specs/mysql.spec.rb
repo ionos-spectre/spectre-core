@@ -35,6 +35,8 @@ describe 'spectre/mysql' do
 
 
   before do
+    info 'insert dummy data'
+
     mysql 'developer' do
       database 'developer'
       query "INSERT INTO todos VALUES('Spook arround', false)"
@@ -44,6 +46,8 @@ describe 'spectre/mysql' do
 
 
   after do
+    info 'delete dummy data'
+
     mysql 'developer' do
       database 'developer'
       query "DELETE FROM todos"
