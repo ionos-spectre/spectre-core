@@ -300,10 +300,15 @@ if action == 'run'
     .concat(cfg['include'])
     .select { |mod| !cfg['exclude'].include? mod }
     .each do |mod|
-      if !File.exists? mod
-        require_relative File.join('../lib', mod)
-      else
-        require_relative mod
+      begin
+        if !File.exists? mod
+          require_relative File.join('../lib', mod)
+        else
+          require_relative mod
+        end
+      rescue
+        puts "Unable to load module #{mod}. Check if the module exists or remove it from your spectre config"
+        exit 1
       end
   end
 
