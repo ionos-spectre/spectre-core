@@ -154,11 +154,7 @@ module Spectre::Curl
     @@request = nil
     @@modules = []
 
-    def https name, &block
-      http(name, secure: true, &block)
-    end
-
-    def http name, secure: false, &block
+    def curl name, secure: false, &block
       req = {
         'use_ssl' => secure,
       }
