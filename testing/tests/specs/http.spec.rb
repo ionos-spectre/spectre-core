@@ -29,7 +29,7 @@ describe 'spectre/http' do
     end
 
     expect 'the id to be 2' do
-      fail_with response.json.id if response.json.id <= 2
+      fail_with response.json.id unless response.json.id == 2
     end
   end
 

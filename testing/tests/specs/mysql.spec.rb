@@ -5,7 +5,7 @@ describe 'spectre/mysql' do
     end
 
     expect 'mysql to be ok' do
-      success?.shoud_be true
+      success?.should_be true
     end
 
     info 'create todos database'
