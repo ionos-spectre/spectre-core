@@ -104,6 +104,8 @@ end
 module Spectre
   module Assertion
     class << self
+      @@success = nil
+
       def expect desc
         begin
           Logger.log_process("expect #{desc}")
@@ -123,32 +125,24 @@ module Spectre
         end
       end
 
-      def check desc
-        full_desc = "check #{desc}"
+      def observe desc
+        full_desc = "observing #{desc}"
 
         begin
-          Logger.log_process(full_desc)
+          Logger.log_info(full_desc) if desc
           yield
-          Logger.log_status(full_desc, Logger::Status::OK)
+          @@success = true
 
         rescue Interrupt => e
           raise e
 
         rescue Exception => e
-          Logger.log_status(full_desc, Logger::Status::FAILED)
-          raise Spectre::ExpectationFailure.new("'#{desc}' to succeed", ''), cause: nil
+          @@success = false
         end
       end
 
-      def observe desc
-        begin
-          Logger.log_process(desc)
-          yield
-          Logger.log_status(desc, Logger::Status::OK)
-
-        rescue Interrupt => e
-          raise e
-        end
+      def success?
+        @@success
       end
 
       def fail_with message
@@ -156,6 +150,6 @@ module Spectre
       end
     end
 
-    Spectre.delegate :expect, :check, :observe, :fail_with, to: self
+    Spectre.delegate :expect, :observe, :success?, :fail_with, to: self
   end
 end

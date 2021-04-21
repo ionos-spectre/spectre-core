@@ -1,7 +1,11 @@
 describe 'spectre/mysql' do
   setup do
-    check 'mysql developer database' do
+    observe 'mysql developer database' do
       mysql 'developer'
+    end
+
+    expect 'mysql to be ok' do
+      success?.shoud_be true
     end
 
     info 'create todos database'
@@ -31,22 +35,18 @@ describe 'spectre/mysql' do
 
 
   before do
-    observe 'insert some data into database' do
-      mysql 'developer' do
-        database 'developer'
-        query "INSERT INTO todos VALUES('Spook arround', false)"
-        query "INSERT INTO todos VALUES('Scare some people', false)"
-      end
+    mysql 'developer' do
+      database 'developer'
+      query "INSERT INTO todos VALUES('Spook arround', false)"
+      query "INSERT INTO todos VALUES('Scare some people', false)"
     end
   end
 
 
   after do
-    observe 'delete all database entries' do
-      mysql 'developer' do
-        database 'developer'
-        query "DELETE FROM todos"
-      end
+    mysql 'developer' do
+      database 'developer'
+      query "DELETE FROM todos"
     end
   end
 

@@ -84,4 +84,31 @@ describe 'spectre/http' do
       response.json.id.should_be 1
     end
   end
+
+  it 'adds new resources to a list', tags: [:http, :put] do
+    http 'localhost:4567/api/v1/' do
+      method 'GET'
+      path 'todos'
+    end
+
+    response.json.append({
+      "id": 5,
+      "desc": "A new todo item",
+      "done": false,
+    })
+
+    http 'localhost:4567/api/v1/' do
+      method 'PUT'
+      path 'echo'
+      json response.json
+    end
+
+    expect 'the response code to be 200' do
+      response.code.should_be 200
+    end
+
+    expect 'the item to be in the list' do
+      fail_with response.json if not response.json.any? { |x| x.id == 5 }
+    end
+  end
 end
