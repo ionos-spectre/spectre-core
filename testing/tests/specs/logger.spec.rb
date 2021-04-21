@@ -3,6 +3,16 @@ describe 'spectre/logger' do
     info 'this is a info message'
     log 'this is a log message'
     debug 'this is a debug message'
+
+    separate 'a separator'
+
+    info 'another info after separation'
+
+    group 'here comes a group messages' do
+      info 'here we go'
+      debug "let's do some debugging"
+      log 'and off we go'
+    end
   end
 
   context 'a context' do
@@ -24,6 +34,16 @@ describe 'spectre/logger' do
   context 'another context' do
     setup do
       log 'do some setup stuff'
+
+      separate 'a separator'
+
+      info 'another info after separation'
+
+      group 'here comes a group messages' do
+        info 'here we go'
+        debug "let's do some debugging"
+        log 'and off we go'
+      end
     end
 
     teardown do
@@ -42,6 +62,16 @@ describe 'spectre/logger' do
       info 'this is a info message'
       log 'this is a log message'
       debug 'this is a debug message'
+
+      separate 'a separator'
+
+      info 'another info after separation'
+
+      group 'here comes a group messages' do
+        info 'here we go'
+        debug "let's do some debugging"
+        log 'and off we go'
+      end
     end
   end
 end

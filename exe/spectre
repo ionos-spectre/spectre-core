@@ -31,6 +31,19 @@ DEFAULT_CONFIG = {
     'Spectre::Logger::File',
   ],
   'log_file' => './logs/spectre_<date>.log',
+  'log_format' => {
+    'console' => {
+      'indent' => 2,
+      'width' => 80,
+      'end_context' => nil,
+      'separator' => '<indent><desc>',
+    },
+    'file' => {
+      'separator' => '-- <desc>',
+      'start_group' => "-- Start '<desc>'",
+      'end_group' => "-- End '<desc>'",
+    }
+  },
   'debug' => false,
   'out_path' => './reports',
   'spec_patterns' => ['./specs/**/*.spec.rb'],

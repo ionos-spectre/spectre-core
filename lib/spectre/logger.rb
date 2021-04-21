@@ -67,6 +67,18 @@ module Spectre
         end_spec(spec, data)
       end
 
+      def log_separator desc
+        delegate(:log_separator, desc)
+      end
+
+      def start_group desc
+        delegate(:start_group, desc)
+      end
+
+      def end_group desc
+        delegate(:end_group, desc)
+      end
+
       def log_process desc
         delegate(:log_process, desc)
       end
@@ -100,6 +112,16 @@ module Spectre
         Logger.log_debug message
       end
 
+      def separate desc
+        Logger.log_separator desc
+      end
+
+      def group desc
+        Logger.start_group desc
+        yield
+        Logger.end_group desc
+      end
+
       alias_method :info, :log
 
       private
@@ -111,6 +133,6 @@ module Spectre
       end
     end
 
-    Spectre.delegate :log, :info, :debug, to: self
+    Spectre.delegate :log, :info, :debug, :group, :separate, to: self
   end
 end
