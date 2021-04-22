@@ -531,6 +531,24 @@ describe 'Hollow API' do
 end
 ```
 
+Values can be combined with `or` and `and` in the following way
+
+```ruby
+describe 'Hollow API' do
+  it 'sends out spooky ghosts' do
+    expect 'some assertions' do
+      'Casper and Boogy are spooky'.should_contain 'Casper'.or 'Boogy'
+      'Casper and Boogy are spooky'.should_contain 'Davy'.or ('Casper'.and 'Boogy')
+      'Casper and Boogy are spooky'.should_contain 'Casper' | 'Boogy'
+      'Casper and Boogy are spooky'.should_contain 'Davy' | ('Casper' & 'Boogy')
+      'Casper and Boogy are spooky'.should_not_contain 42.or 1337 # Note, that `|` and `&` do not work with integer values
+
+      # etc. I think you got the concept
+    end
+  end
+end
+```
+
 
 ## Environments
 
@@ -1271,6 +1289,7 @@ end
  - Log customization options added
  - `check` function removed and `observe` reworked. `observe` does not throw an exception anymore, but saves the success status, which is available with `success?`
  - `http` module recovered. `curl` is now a speparate function and responses can be accessed with `curl_response`
+ - Implemented OR and AND assertions. See `spectre/assertion` section above for more infos
 
 
 ### v1.6.0

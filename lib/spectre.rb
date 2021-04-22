@@ -14,11 +14,11 @@ module Spectre
 
 
   class ExpectationFailure < Exception
-    attr_reader :expectation
+    attr_reader :assertion
 
-    def initialize expectation, message=nil
+    def initialize message, assertion=nil
       super message
-      @expectation = expectation
+      @assertion = assertion
     end
   end
 
@@ -86,7 +86,7 @@ module Spectre
 
 
   class RunInfo
-    attr_accessor :spec, :data, :started, :finished, :error, :skipped
+    attr_accessor :spec, :data, :started, :finished, :error, :failure, :skipped
 
     def initialize spec, data=nil
       @spec = spec
@@ -94,6 +94,7 @@ module Spectre
       @started = nil
       @finished = nil
       @error = nil
+      @failure = nil
       @skipped = false
     end
 
@@ -136,7 +137,7 @@ module Spectre
       if context.__setup_blocks.count > 0
         setup_run = run_blocks('setup', context, context.__setup_blocks)
         runs << setup_run
-        return runs if setup_run.error
+        return runs if setup_run.error or setup_run.failure
       end
 
       begin
@@ -176,6 +177,9 @@ module Spectre
 
           run_info.finished = Time.now
 
+        rescue ExpectationFailure => e
+          run_info.failure = e
+
         rescue Exception => e
           run_info.error = e
           Logger.log_error spec, e
@@ -206,7 +210,7 @@ module Spectre
         spec.block.call data
 
       rescue ExpectationFailure => e
-        run_info.error = e
+        run_info.failure = e
 
       rescue Interrupt
         run_info.skipped = true

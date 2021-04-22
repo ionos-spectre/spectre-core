@@ -34,6 +34,14 @@ class ::String
 
     File.delete self
   end
+
+  def trim count=50
+    if (self.length + 3) > count
+      return self[0..count] + '...'
+    end
+
+    self
+  end
 end
 
 
