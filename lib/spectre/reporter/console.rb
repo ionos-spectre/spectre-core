@@ -34,20 +34,24 @@ module Spectre::Reporter
         report_str += "\n#{index+1}) #{format_title(run_info)}\n"
 
         if run_info.failure
-          report_str += "     Expected #{run_info.failure.message}"
+          report_str += "     Expected #{run_info.failure.expectation}"
           report_str += " with #{run_info.data}" if run_info.data
           report_str += " during #{spec.context.__desc}" if spec.context.__desc
 
-          if run_info.failure.assertion
-            report_str += " but it failed."
-            report_str += "\n     #{run_info.failure.assertion.message}" if not run_info.failure.assertion.message.empty?
-            report_str += "\n"
-            failures += 1
+          report_str += " but it failed"
+
+          if run_info.failure.message
+            report_str += " with:\n     #{run_info.failure.message}"
           else
-            report_str += " but it failed with an unexpected error\n"
-            report_str += format_exception(run_info.failure.cause)
-            errors += 1
+            report_str += '.'
           end
+
+          if run_info.failure.assertion and not run_info.failure.assertion.message.empty?
+            report_str += "\n     #{run_info.failure.assertion.message}"
+          end
+
+          report_str += "\n"
+          failures += 1
 
         else
           report_str += "     but an unexpected error occured during run\n"

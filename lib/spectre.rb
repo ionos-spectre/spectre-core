@@ -14,10 +14,11 @@ module Spectre
 
 
   class ExpectationFailure < Exception
-    attr_reader :assertion
+    attr_reader :assertion, :expectation
 
-    def initialize message, assertion=nil
+    def initialize expectation, assertion=nil, message=nil
       super message
+      @expectation = expectation
       @assertion = assertion
     end
   end
@@ -222,11 +223,23 @@ module Spectre
 
       ensure
         if spec.context.__after_blocks.count > 0
-          before_ctx = SpecContext.new spec.subject, 'after'
+          after_ctx = SpecContext.new spec.subject, 'after'
 
-          Logger.log_context before_ctx do
-            spec.context.__after_blocks.each do |block|
-              block.call data
+          Logger.log_context after_ctx do
+            begin
+              spec.context.__after_blocks.each do |block|
+                block.call
+              end
+
+              run_info.finished = Time.now
+
+            rescue ExpectationFailure => e
+              run_info.failure = e
+
+            rescue Exception => e
+              run_info.error = e
+              Logger.log_error spec, e
+
             end
           end
         end

@@ -50,15 +50,21 @@ module Spectre
       end
 
       def log_subject subject
-        start_subject(subject)
-        yield
-        end_subject(subject)
+        begin
+          start_subject(subject)
+          yield
+        ensure
+          end_subject(subject)
+        end
       end
 
       def log_context context
-        start_context(context)
-        yield
-        end_context(context)
+        begin
+          start_context(context)
+          yield
+        ensure
+          end_context(context)
+        end
       end
 
       def log_spec spec, data=nil

@@ -1,4 +1,5 @@
 describe 'spectre/assertion' do
+
   it 'expects code to pass', tags: [:assertion, :core] do
     expect 'two strings to be equal' do
       'foo'.should_be 'foo'
