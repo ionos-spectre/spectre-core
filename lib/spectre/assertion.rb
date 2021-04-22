@@ -210,7 +210,7 @@ module Spectre
 
 
     class AssertionFailure < Exception
-      def initialize message, expected, actual
+      def initialize message, expected=nil, actual=nil
         super message
         @expected = expected
         @actual = actual
@@ -242,10 +242,6 @@ module Spectre
           Logger.log_status(desc, Logger::Status::FAILED)
           raise ExpectationFailure.new(desc, e), cause: nil
 
-        rescue ExpectationFailure => e
-          Logger.log_status(desc, Logger::Status::FAILED)
-          raise ExpectationFailure.new(desc, nil, e.message), cause: e
-
         rescue Exception => e
           Logger.log_status(desc, Logger::Status::ERROR)
           raise ExpectationFailure.new(desc), cause: e
@@ -271,7 +267,7 @@ module Spectre
       end
 
       def fail_with message
-        raise ExpectationFailure.new(nil, nil, message)
+        raise AssertionFailure.new(message)
       end
     end
 

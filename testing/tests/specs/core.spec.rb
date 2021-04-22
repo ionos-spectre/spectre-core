@@ -22,4 +22,12 @@ describe 'spectre/core' do
       info 'do something'
     end
   end
+
+  context 'unexpected failures' do
+    it 'compares two equal strings and fails', tags: [:core, :before, :fatal] do
+      expect 'somthing' do
+        fail 'Opps!'
+      end
+    end
+  end
 end

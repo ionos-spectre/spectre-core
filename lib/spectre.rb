@@ -16,9 +16,9 @@ module Spectre
   class ExpectationFailure < Exception
     attr_reader :assertion, :expectation
 
-    def initialize expectation, assertion=nil, message=nil
+    def initialize message, assertion=nil
       super message
-      @expectation = expectation
+      @expectation = message
       @assertion = assertion
     end
   end

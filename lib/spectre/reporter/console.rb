@@ -40,14 +40,14 @@ module Spectre::Reporter
 
           report_str += " but it failed"
 
-          if run_info.failure.message and run_info.failure.message != Spectre::ExpectationFailure.name
-            report_str += " with:\n     #{run_info.failure.message}"
+          if run_info.failure.assertion and not run_info.failure.assertion.message.empty?
+            report_str += " with:\n     #{run_info.failure.assertion.message}"
+
+          elsif run_info.failure.cause
+            report_str += "\n     with an unexpected error:\n"
+            report_str += format_exception(run_info.failure.cause)
           else
             report_str += '.'
-          end
-
-          if run_info.failure.assertion and not run_info.failure.assertion.message.empty?
-            report_str += "\n     #{run_info.failure.assertion.message}"
           end
 
           report_str += "\n"
