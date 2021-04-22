@@ -40,7 +40,7 @@ module Spectre::Reporter
 
           report_str += " but it failed"
 
-          if run_info.failure.message
+          if run_info.failure.message and run_info.failure.message != Spectre::ExpectationFailure.name
             report_str += " with:\n     #{run_info.failure.message}"
           else
             report_str += '.'
