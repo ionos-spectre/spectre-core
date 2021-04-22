@@ -209,9 +209,11 @@ module Spectre
     end
 
 
-    class AssertionFailure < Exception
-      def initialize message, expected=nil, actual=nil
-        super message
+    class AssertionFailure < ExpectationFailure
+      attr_reader :expected, :actual
+
+      def initialize message, expected=nil, actual=nil, expectation=nil
+        super message, expectation
         @expected = expected
         @actual = actual
       end
@@ -240,11 +242,11 @@ module Spectre
 
         rescue AssertionFailure => e
           Logger.log_status(desc, Logger::Status::FAILED)
-          raise ExpectationFailure.new(desc, e), cause: nil
+          raise AssertionFailure.new(e.message, e.expected, e.actual, desc), cause: nil
 
         rescue Exception => e
           Logger.log_status(desc, Logger::Status::ERROR)
-          raise ExpectationFailure.new(desc), cause: e
+          raise AssertionFailure.new("An unexpected error occured during expectation: #{e.message}", nil, nil, desc), cause: e
         end
       end
 

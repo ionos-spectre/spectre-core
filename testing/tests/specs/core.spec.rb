@@ -1,8 +1,8 @@
 describe 'spectre/core' do
   context 'fails in before block' do
     before do
-      expect 'something' do
-        fail_with 'Opps!'
+      expect 'nothing' do
+        fail_with 'Oops!'
       end
     end
 
@@ -13,8 +13,8 @@ describe 'spectre/core' do
 
   context 'fails in after block' do
     after do
-      expect 'something' do
-        fail_with 'Opps!'
+      expect 'nothing' do
+        fail_with 'Oops!'
       end
     end
 
@@ -25,8 +25,8 @@ describe 'spectre/core' do
 
   context 'unexpected failures' do
     it 'compares two equal strings and fails', tags: [:core, :before, :fatal] do
-      expect 'somthing' do
-        fail 'Opps!'
+      expect 'nothing' do
+        fail 'Oops!'
       end
     end
   end
