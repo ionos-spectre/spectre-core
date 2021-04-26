@@ -26,29 +26,33 @@ module Spectre::Reporter
       skipped = run_infos.select { |x| x.skipped? }.count
 
       run_infos
-        .select { |x| x.error }
+        .select { |x| x.error != nil or x.failure != nil }
         .each_with_index do |run_info, index|
 
         spec = run_info.spec
 
-        report_str += "\n#{index+1}) #{format_title run_info}\n"
+        report_str += "\n#{index+1}) #{format_title(run_info)}\n"
 
-        if run_info.error.is_a? Spectre::ExpectationFailure
-          report_str += "     expected #{run_info.error.expectation}"
+        if run_info.failure
+          report_str += "     Expected #{run_info.failure.expectation}"
           report_str += " with #{run_info.data}" if run_info.data
           report_str += " during #{spec.context.__desc}" if spec.context.__desc
-          report_str += "\n"
 
-          if !run_info.error.cause
-            report_str += "     but it failed"
-            report_str += " with #{run_info.error.message}" if not run_info.error.message.empty?
-            report_str += "\n"
-            failures += 1
+          report_str += " but it failed"
+
+          if run_info.failure.cause
+            report_str += "\n     with an unexpected error:\n"
+            report_str += format_exception(run_info.failure.cause)
+
+          elsif run_info.failure.message and not run_info.failure.message.empty?
+            report_str += " with:\n     #{run_info.failure.message}"
+
           else
-            report_str += "     but it failed with an unexpected error\n"
-            report_str += format_exception(run_info.error.cause)
-            errors += 1
+            report_str += '.'
           end
+
+          report_str += "\n"
+          failures += 1
 
         else
           report_str += "     but an unexpected error occured during run\n"

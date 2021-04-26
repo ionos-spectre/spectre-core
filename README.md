@@ -175,7 +175,7 @@ RuntimeError (Incorrect MySQL client library version! This gem was compiled for 
 
 *Wrong!*. Really? You thought it would be *that* easy?!
 
-"Ok, got it". Cool, but what's about this client library `10.5.5` version? Isn't MySQL only at `8.0.32` (it was at that point I wrote this)? Yes, it is, but who said we speak about MySQL? Ever heard from *MariaDB*, you dip sh**? Yes you got it, we need the MariaDB connector libs.
+"Ok, got it". Cool, but what's about this client library `10.5.5` version? Isn't MySQL only at `8.0.32` (it was at that point I wrote this)? Yes, it is, but who said we speak about MySQL? Ever heard about *MariaDB*, you dip sh**? Yes you got it, we need the MariaDB connector libs.
 
 Go to https://mariadb.com/downloads/#connectors and download the latest one. Yes, *64bit* is fine. Install it and finally install the `mysql2` gem.
 
@@ -524,6 +524,24 @@ describe 'Hollow API' do
 
       'Casper'.should_match /^[a-z]+$/ # fails
       'Casper'.should_not_match /Boogy/ # does not fail
+
+      # etc. I think you got the concept
+    end
+  end
+end
+```
+
+Values can be combined with `or` and `and` in the following way
+
+```ruby
+describe 'Hollow API' do
+  it 'sends out spooky ghosts' do
+    expect 'some assertions' do
+      'Casper and Boogy are spooky'.should_contain 'Casper'.or 'Boogy'
+      'Casper and Boogy are spooky'.should_contain 'Davy'.or ('Casper'.and 'Boogy')
+      'Casper and Boogy are spooky'.should_contain 'Casper' | 'Boogy'
+      'Casper and Boogy are spooky'.should_contain 'Davy' | ('Casper' & 'Boogy')
+      'Casper and Boogy are spooky'.should_not_contain 42.or 1337 # Note, that `|` and `&` do not work with integer values
 
       # etc. I think you got the concept
     end
@@ -1119,6 +1137,7 @@ There are some helper methods for various use cases
 | `as_date` | `string` | Parses the string as a `DateTime` object |
 | `content` | `string` | Treats the string as a file path and tries to read its content. Use `with` parameter to substitute placeholders in form of `#{foo}`. Example: `'path/to/file.txt'.content with:{foo: 'bar'}` |
 | `exists?` | `string` | Treats the string as a file path and returns `true` if the file exists, `false` otherwise |
+| `remove!` | `string` | Treats the string as a file path and deletes the file |
 | `to_json` | `OpenStruct` | Converts a `OpenStruct` object into a JSON string |
 | `uuid(length=5)` | `Kernel` | Generates a UUID and returns characters with given length. Default is 5. |
 
@@ -1262,10 +1281,21 @@ end
 
 ## Release Notes
 
+### vNext
+
+#### Major
+ - Added `spectre dump` to command line tool. Dumps the given environment in YAML format to console output
+ - Global config added. When the `~/.spectre` exists, it will always be read as a spectre config (like `spectre.yml`).
+ - Log customization options added
+ - `check` function removed and `observe` reworked. `observe` does not throw an exception anymore, but saves the success status, which is available with `success?`
+ - `http` module recovered. `curl` is now a speparate function and responses can be accessed with `curl_response`
+ - Implemented OR and AND assertions. See `spectre/assertion` section above for more infos
+
+
 ### v1.6.0
 
 #### Major
- - The `http` module now uses `curl` to perform HTTP requests. This requires `curl` to be installed. Windows users can download `curl` [https://curl.se/windows/](https://curl.se/windows/). Either add the `bin` dir to you `PATH` environment variable, or set `curl_path` in your `spectre.yml` to the path where`curl.exe` is located.
+ - `curl` module added to perform HTTP requests. This requires `curl` to be installed. Windows users can download `curl` [https://curl.se/windows/](https://curl.se/windows/). Either add the `bin` dir to you `PATH` environment variable, or set `curl_path` in your `spectre.yml` to the path where`curl.exe` is located.
  - Logging optimized
     - It is now possible to use `log` and `debug` functions in any block in your code
     - Setup, teardown, before and after blocks are now logged like context, to distinguish from the actual spec logs.

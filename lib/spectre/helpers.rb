@@ -28,6 +28,20 @@ class ::String
   def exists?
     File.exists? self
   end
+
+  def remove!
+    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+
+    File.delete self
+  end
+
+  def trim count=50
+    if (self.length + 3) > count
+      return self[0..count] + '...'
+    end
+
+    self
+  end
 end
 
 

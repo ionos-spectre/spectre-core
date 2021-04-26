@@ -2,6 +2,13 @@ module Spectre
   module Logger
     class File
       def initialize config
+        raise 'No log format section in config for console logger' unless config.has_key? 'log_format' and config['log_format'].has_key? 'file'
+
+        @config = config['log_format']['file']
+        @fmt_start_group = @config['start_group']
+        @fmt_end_group = @config['end_group']
+        @fmt_sep = @config['separator']
+
         @file_log = ::Logger.new config['log_file'], progname: 'spectre'
         @file_log.level = config['debug'] ? 'DEBUG' : 'INFO'
       end
@@ -41,6 +48,21 @@ module Spectre
         log_msg += " with data #{data}" if data
         log_msg += " finished"
         @file_log.debug log_msg
+      end
+
+      def log_separator desc
+        desc = @fmt_sep.gsub('<desc>', desc) if @fmt_sep
+        @file_log.info desc
+      end
+
+      def start_group desc
+        desc = @fmt_start_group.gsub('<desc>', desc) if @fmt_start_group
+        @file_log.info desc
+      end
+
+      def end_group desc
+        desc = @fmt_end_group.gsub('<desc>', desc) if @fmt_end_group
+        @file_log.info desc
       end
 
       def log_process desc

@@ -50,21 +50,39 @@ module Spectre
       end
 
       def log_subject subject
-        start_subject(subject)
-        yield
-        end_subject(subject)
+        begin
+          start_subject(subject)
+          yield
+        ensure
+          end_subject(subject)
+        end
       end
 
       def log_context context
-        start_context(context)
-        yield
-        end_context(context)
+        begin
+          start_context(context)
+          yield
+        ensure
+          end_context(context)
+        end
       end
 
       def log_spec spec, data=nil
         start_spec(spec, data)
         yield
         end_spec(spec, data)
+      end
+
+      def log_separator desc
+        delegate(:log_separator, desc)
+      end
+
+      def start_group desc
+        delegate(:start_group, desc)
+      end
+
+      def end_group desc
+        delegate(:end_group, desc)
       end
 
       def log_process desc
@@ -100,6 +118,16 @@ module Spectre
         Logger.log_debug message
       end
 
+      def separate desc
+        Logger.log_separator desc
+      end
+
+      def group desc
+        Logger.start_group desc
+        yield
+        Logger.end_group desc
+      end
+
       alias_method :info, :log
 
       private
@@ -111,6 +139,6 @@ module Spectre
       end
     end
 
-    Spectre.delegate :log, :info, :debug, to: self
+    Spectre.delegate :log, :info, :debug, :group, :separate, to: self
   end
 end

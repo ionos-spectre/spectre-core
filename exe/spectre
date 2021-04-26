@@ -31,6 +31,19 @@ DEFAULT_CONFIG = {
     'Spectre::Logger::File',
   ],
   'log_file' => './logs/spectre_<date>.log',
+  'log_format' => {
+    'console' => {
+      'indent' => 2,
+      'width' => 80,
+      'end_context' => nil,
+      'separator' => '<indent><desc>',
+    },
+    'file' => {
+      'separator' => '-- <desc>',
+      'start_group' => "-- Start '<desc>'",
+      'end_group' => "-- End '<desc>'",
+    }
+  },
   'debug' => false,
   'out_path' => './reports',
   'spec_patterns' => ['./specs/**/*.spec.rb'],
@@ -78,6 +91,7 @@ Commands:
   list        List specs
   run         Run specs (default)
   show        Print current environment settings
+  dump        Dumps the given environment in YAML format to console
   init        Initializes a new spectre project
 
 Specific options:}
@@ -160,17 +174,24 @@ action = ARGV[0] || 'run'
 
 
 cfg = {}
-cfg.merge! DEFAULT_CONFIG
+cfg.deep_merge! DEFAULT_CONFIG
 
-config_file = cmd_options['config_file'] || DEFAULT_CONFIG['config_file']
+global_config_file = File.join File.expand_path('~'), '.spectre'
+
+if File.exists? global_config_file
+  global_options = YAML.load_file(global_config_file)
+  cfg.deep_merge! global_options if global_options
+end
+
+config_file = cmd_options['config_file'] || cfg['config_file']
 
 if File.exists? config_file
   file_options = YAML.load_file(config_file)
-  cfg.merge! file_options
+  cfg.deep_merge! file_options
   Dir.chdir File.dirname(config_file)
 end
 
-cfg.merge! cmd_options
+cfg.deep_merge! cmd_options
 
 
 ###########################################
@@ -279,10 +300,15 @@ if action == 'run'
     .concat(cfg['include'])
     .select { |mod| !cfg['exclude'].include? mod }
     .each do |mod|
-      if !File.exists? mod
-        require_relative File.join('../lib', mod)
-      else
-        require_relative mod
+      begin
+        if !File.exists? mod
+          require_relative File.join('../lib', mod)
+        else
+          require_relative mod
+        end
+      rescue
+        puts "Unable to load module #{mod}. Check if the module exists or remove it from your spectre config"
+        exit 1
       end
   end
 
@@ -332,6 +358,16 @@ end
 if action == 'show'
   puts cfg.pretty
   exit 0
+end
+
+
+###########################################
+# Dump
+###########################################
+
+
+if action == 'dump'
+  puts YAML.dump(cfg)
 end
 
 
