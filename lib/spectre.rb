@@ -319,7 +319,7 @@ module Spectre
 
     def self.redirect method_name, *args, **kwargs, &block
       target = @@mappings[method_name]
-      raise "no method or variable '#{method_name}' defined" if !target
+      raise "No method or variable '#{method_name}' defined" if !target
       target.send(method_name, *args, **kwargs, &block)
     end
   end
