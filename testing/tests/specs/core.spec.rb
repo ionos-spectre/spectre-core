@@ -30,4 +30,8 @@ describe 'spectre/core' do
       end
     end
   end
+
+  it 'should fail with not defined variable', tags: [:core, :undefined, :fatal] do
+    webspace
+  end
 end

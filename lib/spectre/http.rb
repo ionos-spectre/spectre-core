@@ -62,6 +62,7 @@ module Spectre
       end
 
       def body body_content
+        raise 'Body value must be a string' if not body_content.is_a? String
         @__req['body'] = body_content
       end
 
@@ -139,7 +140,7 @@ module Spectre
           begin
             @data = JSON.parse(@res[:body], object_class: OpenStruct)
           rescue
-            raise "invalid json\n#{@res[:body]}"
+            raise "Body content is not a valid JSON:\n#{@res[:body]}"
           end
         end
 
@@ -312,7 +313,7 @@ module Spectre
 
         if req['ensure_success']
           code = Integer(net_res.code)
-          fail "response code of #{req_id} did not indicate success: #{net_res.code} #{net_res.message}" if code >= 400
+          fail "Response code of #{req_id} did not indicate success: #{net_res.code} #{net_res.message}" if code >= 400
         end
 
         @@request = OpenStruct.new(req)
