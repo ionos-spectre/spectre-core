@@ -90,10 +90,21 @@ module Spectre::Reporter
     end
 
     def format_exception error
-      matches = error.backtrace[0].match(/(.*\.rb):(\d+)/)
+      non_spectre_files = error.backtrace.select { |x| !x.include? 'lib/spectre' }
+
+      if non_spectre_files.count > 0
+        causing_file = non_spectre_files.first
+      else
+        causing_file = error.backtrace[0]
+      end
+
+      matches = causing_file.match(/(.*\.rb):(\d+)/)
+
       return '' unless matches
+
       file, line = matches.captures
       file.slice!(Dir.pwd + '/')
+
       str = ''
       str += "       file.....: #{file}\n"
       str += "       line.....: #{line}\n"
