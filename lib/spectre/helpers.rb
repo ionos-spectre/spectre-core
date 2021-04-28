@@ -5,7 +5,7 @@ require 'ostruct'
 
 class ::String
   def as_json
-    JSON.parse(self)
+    JSON.parse(self, object_class: OpenStruct)
   end
 
   def as_date
