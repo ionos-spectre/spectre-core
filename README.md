@@ -1283,6 +1283,19 @@ end
 
 ### vNext
 
+#### Minor
+ - Error report now includes the causing spec file, instead of the most recent file.
+ - Some error message optimizations
+
+
+### v1.7.1
+
+#### Minor
+ - `as_json` returns now a `OpenStruct` instead of a `Hash`
+
+
+### v1.7.0
+
 #### Major
  - Added `spectre dump` to command line tool. Dumps the given environment in YAML format to console output
  - Global config added. When the `~/.spectre` exists, it will always be read as a spectre config (like `spectre.yml`).
