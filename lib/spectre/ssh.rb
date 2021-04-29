@@ -8,6 +8,8 @@ module Spectre
 
     class SSHConnection < DslClass
       def initialize host, username, opts, logger
+        opts[:non_interactive] = true
+
         @__logger = logger
         @__host = host
         @__username = username
