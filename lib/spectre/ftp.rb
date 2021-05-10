@@ -63,6 +63,8 @@ module Spectre
 
     class SFTPConnection < DslClass
       def initialize host, username, opts, logger
+        opts[:non_interactive] = true
+
         @__logger = logger
         @__session = nil
         @__host = host
