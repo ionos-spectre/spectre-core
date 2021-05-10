@@ -14,7 +14,7 @@ module Spectre
 
 
   class ExpectationFailure < Exception
-    attr_reader :assertion, :expectation
+    attr_reader :expectation
 
     def initialize message, expectation
       super message
@@ -59,17 +59,17 @@ module Spectre
       @name = desc.downcase.gsub(/[^a-z0-9]+/, '_')
     end
 
-    def add_spec desc, tags, data, block, context
+    def add_spec desc, tags, data, block, context, file
       name = @name + '-' + (@specs.length+1).to_s
-      @specs << Spec.new(name, self, desc, tags, data, block, context)
+      @specs << Spec.new(name, self, desc, tags, data, block, context, file)
     end
   end
 
 
   class Spec
-    attr_reader :name, :subject, :context, :desc, :tags, :data, :block
+    attr_reader :name, :subject, :context, :desc, :tags, :data, :block, :file
 
-    def initialize name, subject, desc, tags, data, block, context
+    def initialize name, subject, desc, tags, data, block, context, file
       @name = name
       @context = context
       @data = data
@@ -77,6 +77,7 @@ module Spectre
       @desc = desc
       @tags = tags
       @block = block
+      @file = file
     end
 
     def full_desc
@@ -86,7 +87,7 @@ module Spectre
 
 
   class RunInfo
-    attr_accessor :spec, :data, :started, :finished, :error, :failure, :skipped
+    attr_accessor :spec, :data, :started, :finished, :error, :failure, :skipped, :log, :properties
 
     def initialize spec, data=nil
       @spec = spec
@@ -96,6 +97,8 @@ module Spectre
       @error = nil
       @failure = nil
       @skipped = false
+      @log = []
+      @properties = {}
     end
 
     def duration
@@ -113,6 +116,12 @@ module Spectre
 
 
   class Runner
+    @@current
+
+    def self.current
+      @@current
+    end
+
     def run specs
       runs = []
 
@@ -165,8 +174,12 @@ module Spectre
 
     def run_blocks name, context, blocks
       ctx = SpecContext.new context.__subject, name
-      spec = Spec.new name, context.__subject, name, [], nil, nil, ctx
+      spec = Spec.new name, context.__subject, name, [], nil, nil, ctx, nil
+
       run_info = RunInfo.new spec
+
+      @@current = run_info
+
       run_info.started = Time.now
 
       Logger.log_context ctx do
@@ -189,11 +202,16 @@ module Spectre
 
       run_info.finished = Time.now
 
+      @@current = nil
+
       run_info
     end
 
     def run_spec spec, data=nil
       run_info = RunInfo.new spec, data
+
+      @@current = run_info
+
       run_info.started = Time.now
 
       begin
@@ -246,6 +264,8 @@ module Spectre
 
       run_info.finished = Time.now
 
+      @@current = nil
+
       run_info
     end
   end
@@ -270,7 +290,23 @@ module Spectre
     end
 
     def it desc, tags: [], with: [], &block
-      @__subject.add_spec(desc, tags, with, block, self)
+
+      # Get the file, where the spec is defined.
+      # Nasty, but it works
+      # Maybe there is another way, but this works for now
+      spec_file = nil
+      begin
+        raise
+      rescue => e
+        spec_file = e.backtrace
+          .select { |file| !file.include? 'lib/spectre' }
+          .first
+          .match(/(.*\.rb):\d+/)
+          .captures
+          .first
+      end
+
+      @__subject.add_spec(desc, tags, with, block, self, spec_file)
     end
 
     def before &block
@@ -385,9 +421,13 @@ module Spectre
       ctx._evaluate &block
     end
 
+    def property key, val
+      Spectre::Runner.current.properties[key] = val
+    end
+
   end
 
-  delegate :describe, to: Spectre
+  delegate :describe, :property, to: Spectre
 end
 
 

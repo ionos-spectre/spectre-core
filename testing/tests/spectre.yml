@@ -11,3 +11,6 @@ mixin_patterns:
 resource_paths:
   - '../common/resources'
   - './resources'
+reporters:
+  - Spectre::Reporter::Console
+  - Spectre::Reporter::JUnit

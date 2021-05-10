@@ -2,7 +2,6 @@ require 'ostruct'
 require_relative 'logger'
 
 
-
 module Spectre
   module Assertion
     class ::Object
