@@ -1,5 +1,5 @@
 describe 'spectre/http' do
-  it 'gets an echo', tags: [:curl, :get] do
+  it 'gets an echo', tags: [:curl, :get, :deps] do
     curl 'localhost:4567/api/v1/' do
       method 'POST'
       path 'echo'

@@ -1,5 +1,5 @@
 describe 'spectre/ssh' do
-  it 'can connect with SSH', tags: [:ssh] do
+  it 'can connect with SSH', tags: [:ssh, :deps] do
     ssh 'localhost', port: 2222, username: 'developer', password: 'dev' do
       info 'trying to connect'
 
@@ -9,7 +9,7 @@ describe 'spectre/ssh' do
     end
   end
 
-  it 'can not connect with SSH', tags: [:ssh, :fail] do
+  it 'can not connect with SSH', tags: [:ssh, :fail, :deps] do
     ssh 'localhost', port: 2222, username: 'developer', password: 'someworongpassword' do
       info 'trying to connect'
 
@@ -19,7 +19,7 @@ describe 'spectre/ssh' do
     end
   end
 
-  it 'can connect with SSH', tags: [:ssh] do
+  it 'can connect with SSH', tags: [:ssh, :deps] do
     ssh 'localhost', port: 2222, username: 'developer', password: 'dev' do
       log 'try to list files from user root'
 
