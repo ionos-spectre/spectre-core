@@ -299,7 +299,7 @@ module Spectre::Curl
 
       @@logger.debug "[<] #{req_id} stdout:\n#{output}"
 
-      header, body = output.split "\n\n"
+      header, body = output.split /\r?\n\r?\n/
 
       result = header.lines.first
 
