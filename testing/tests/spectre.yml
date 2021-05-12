@@ -11,3 +11,5 @@ mixin_patterns:
 resource_paths:
   - '../common/resources'
   - './resources'
+include:
+  - spectre/curl
