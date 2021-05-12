@@ -8,7 +8,6 @@
 			"\tmethod '${2:GET}'",
 			"\tpath '$3'",
 			"end",
-			"",
 			"$0"
 		]
 	},
@@ -22,7 +21,6 @@
 			"\tpath '$3'",
 			"\tensure_success!",
 			"end",
-			"",
 			"$0"
 		]
 	},
@@ -91,7 +89,6 @@
 			"\t# \t\"message\": \"Hello Spectre!\"",
 			"\t# })",
 			"end",
-			"",
 			"$0"
 		]
 	},
@@ -103,7 +100,6 @@
 			"expect '$1' do",
 			"\t$2.should_be $3",
 			"end",
-			"",
 			"$0"
 		]
 	},
@@ -115,7 +111,6 @@
 			"expect '$1' do",
 			"\t$2.should_be $3",
 			"end",
-			"",
 			"$0"
 		]
 	},
@@ -127,7 +122,6 @@
 			"expect '$1' do",
 			"\t$2.should_not_be $3",
 			"end",
-			"",
 			"$0"
 		]
 	},
@@ -139,7 +133,6 @@
 			"expect '$1' do",
 			"\t$2.should_contain $3",
 			"end",
-			"",
 			"$0"
 		]
 	},
@@ -151,7 +144,6 @@
 			"expect '$1' do",
 			"\t$2.should_not_contain $3",
 			"end",
-			"",
 			"$0"
 		]
 	},
@@ -163,7 +155,6 @@
 			"expect '$1' do",
 			"\t$2.should_match $3",
 			"end",
-			"",
 			"$0"
 		]
 	},
@@ -175,7 +166,6 @@
 			"expect '$1' do",
 			"\t$2.should_not_match $3",
 			"end",
-			"",
 			"$0"
 		]
 	},
@@ -187,7 +177,6 @@
 			"expect 'the response code to be $1' do",
 			"\tresponse.code.should_be $1",
 			"end",
-			"",
 			"$0"
 		]
 	},
@@ -199,7 +188,6 @@
 			"expect '$1' do",
 			"\tresponse.json.$2.should_be $3",
 			"end",
-			"",
 			"$0"
 		]
 	},

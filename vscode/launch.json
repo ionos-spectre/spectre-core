@@ -19,13 +19,14 @@
       {
         "type": "promptString",
         "id": "project",
-        "description": "Enter spectre project to run"
+        "description": "Type spectre project to run"
       },
       {
-        "type": "promptString",
+        "type": "pickString",
         "id": "environment",
         "default": "default",
-        "description": "Enter test environment name"
+        "description": "Select environment",
+        "options": ["default", "development", "production"]
       }
     ]
 }
