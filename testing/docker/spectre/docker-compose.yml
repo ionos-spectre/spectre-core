@@ -37,7 +37,7 @@ services:
     ports:
       - 2222:2222
 
-  ftp-server:
+  ftp_server:
     image: delfer/alpine-ftp-server
     hostname: spectre-ftp
     ports:

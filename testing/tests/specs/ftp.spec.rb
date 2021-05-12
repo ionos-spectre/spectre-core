@@ -2,7 +2,7 @@ describe 'spectre/ftp' do
   context 'sftp' do
     setup do
       observe 'sftp connection' do
-        sftp 'sftp-server' do
+        sftp 'sftp_server' do
           connect!
         end
       end
@@ -16,7 +16,7 @@ describe 'spectre/ftp' do
       info 'uploading dummy file via sftp'
 
       observe 'file upload' do
-        sftp 'sftp-server' do
+        sftp 'sftp_server' do
           upload resources['dummy.txt'], to: './dummy.txt'
         end
       end
@@ -30,7 +30,7 @@ describe 'spectre/ftp' do
       info 'downloading dummy file via sftp'
 
       observe 'file download' do
-        sftp 'sftp-server' do
+        sftp 'sftp_server' do
           download './dummy.txt', to: './dummy.txt'
         end
       end
@@ -43,12 +43,24 @@ describe 'spectre/ftp' do
         './dummy.txt'.exists?.should_be true
       end
     end
+
+    it 'does not prompt for password', tags: [:ftp, :sftp, :noninteractive] do
+      observe 'trying to connect' do
+        sftp env.ftp.sftp_server, username: 'developer', password: 'somewrongpassword' do
+          connect!
+        end
+      end
+
+      expect 'the connection to fail' do
+        success?.should_be false
+      end
+    end
   end
 
   context 'ftp' do
     setup do
       observe 'ftp connection' do
-        ftp 'ftp-server' do
+        ftp 'ftp_server' do
           connect!
         end
       end
@@ -62,7 +74,7 @@ describe 'spectre/ftp' do
       info 'uploading dummy file via sftp'
 
       observe 'file upload' do
-        ftp 'ftp-server' do
+        ftp 'ftp_server' do
           upload resources['dummy.txt'], to: './dummy.txt'
         end
       end
@@ -78,7 +90,7 @@ describe 'spectre/ftp' do
       local_filepath = './dummy-ftp.txt'
 
       observe 'file download' do
-        ftp 'ftp-server' do
+        ftp 'ftp_server' do
           download './dummy.txt', to: local_filepath
         end
       end

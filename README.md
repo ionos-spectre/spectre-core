@@ -1288,6 +1288,24 @@ end
  - Some error message optimizations
 
 
+### v1.7.4
+
+#### Minor
+ - `curl` output parsing fixed. Linux uses `\r\n\r\n`, whereas Windows has `\n\n` line endings on `stdout`.
+
+
+### v1.7.3
+
+#### Minor
+ - `sftp` made non-interactive
+
+
+### v1.7.2
+
+#### Minor
+ - `ssh` made non-interactive
+
+
 ### v1.7.1
 
 #### Minor
