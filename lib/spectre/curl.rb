@@ -293,9 +293,11 @@ module Spectre::Curl
       debug_log = stderr.gets(nil)
       stderr.close
 
-      debug_log.lines.each { |x| @@logger.debug x unless x.empty? }
+      # debug_log.lines.each { |x| @@logger.debug x unless x.empty? }
 
       raise "Unable to request #{uri}. Please check if this service is reachable." unless output
+
+      @@logger.debug "[<] #{req_id} stdout:\n#{output}"
 
       header, body = output.split "\n\n"
 
@@ -349,7 +351,7 @@ module Spectre::Curl
   end
 
   Spectre.register do |config|
-    @@logger = ::Logger.new config['log_file'], progname: 'spectre/http'
+    @@logger = ::Logger.new config['log_file'], progname: 'spectre/curl'
 
     @@curl_path = config['curl_path'] || 'curl'
 
