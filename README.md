@@ -1284,8 +1284,7 @@ end
 ### vNext
 
 #### Minor
- - Error report now includes the causing spec file, instead of the most recent file.
- - Some error message optimizations
+ -
 
 
 ### v1.7.4
@@ -1310,6 +1309,8 @@ end
 
 #### Minor
  - `as_json` returns now a `OpenStruct` instead of a `Hash`
+ - Error report now includes the causing spec file, instead of the most recent file.
+ - Some error message optimizations
 
 
 ### v1.7.0
