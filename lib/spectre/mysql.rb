@@ -70,6 +70,8 @@ module Spectre
         end if query['query']
 
         @@result = res.map { |row| OpenStruct.new row } if res
+
+        client.close
       end
 
       def result
