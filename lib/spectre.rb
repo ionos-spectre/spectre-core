@@ -1,8 +1,8 @@
 module Spectre
   module Version
     MAJOR = 1
-    MINOR = 7
-    TINY  = 5
+    MINOR = 8
+    TINY  = 0
   end
 
   VERSION = [Version::MAJOR, Version::MINOR, Version::TINY].compact * '.'
