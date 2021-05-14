@@ -26,7 +26,7 @@ module Spectre::Reporter
         suite_id += 1
 
         run_infos.each do |run_info|
-          xml_str += '<testcase class="' + run_info.spec.file.to_s + '" name="' + run_info.spec.desc + '" timestamp="' + run_info.started.to_s + '"  time="' + ('%.3f' % run_info.duration) + '">'
+          xml_str += '<testcase classname="' + run_info.spec.file.to_s + '" name="' + run_info.spec.desc + '" timestamp="' + run_info.started.to_s + '"  time="' + ('%.3f' % run_info.duration) + '">'
 
           if run_info.failure and !run_info.failure.cause
             failure_message = "Expected #{run_info.failure.expectation}"
