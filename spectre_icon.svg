@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="512"
+   height="512"
+   viewBox="0 0 135.46667 135.46667"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="spectre_icon.svg"
+   inkscape:export-filename="/home/cneubauer/Development/spectre/spectre_icon.png"
+   inkscape:export-xdpi="299"
+   inkscape:export-ydpi="299">
+  <defs
+     id="defs2">
+    <linearGradient
+       id="linearGradient943">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop941" />
+    </linearGradient>
+    <linearGradient
+       id="Spectre_Dark"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#00606d;stop-opacity:1;"
+         offset="0"
+         id="stop935" />
+    </linearGradient>
+    <linearGradient
+       id="Spectre"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#6ffff2;stop-opacity:1;"
+         offset="0"
+         id="stop929" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient897">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop895" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#Spectre"
+       id="linearGradient933"
+       x1="0.73051079"
+       y1="16.78995"
+       x2="11.937621"
+       y2="16.78995"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#Spectre_Dark"
+       id="linearGradient939"
+       x1="-1.100235"
+       y1="17.102583"
+       x2="14.402032"
+       y2="17.102583"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#Spectre"
+       id="linearGradient947"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#Spectre"
+       id="linearGradient957"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#Spectre"
+       id="linearGradient959"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.93014925"
+     inkscape:cx="5.5019934"
+     inkscape:cy="185.2634"
+     inkscape:document-units="mm"
+     inkscape:current-layer="g834"
+     showgrid="false"
+     inkscape:snap-global="false"
+     inkscape:snap-bbox="true"
+     inkscape:snap-bbox-edge-midpoints="true"
+     inkscape:snap-others="false"
+     inkscape:snap-nodes="false"
+     inkscape:bbox-paths="true"
+     inkscape:bbox-nodes="true"
+     inkscape:snap-bbox-midpoints="true"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     units="px"
+     inkscape:snap-grids="true"
+     inkscape:window-width="1869"
+     inkscape:window-height="1025"
+     inkscape:window-x="1417"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-161.53334)">
+    <g
+       id="g834"
+       transform="matrix(6.1704613,0,0,6.1704613,26.694354,123.73571)">
+      <circle
+         style="fill:url(#linearGradient939);fill-opacity:1.0;stroke:none;stroke-width:0.20394877;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill"
+         id="path893"
+         cx="6.6508985"
+         cy="17.102583"
+         r="7.7511334" />
+      <g
+         id="g904"
+         transform="translate(0.22734266,0.08221173)">
+        <path
+           style="fill:none;stroke:url(#linearGradient933);stroke-width:0.84272468;stroke-linecap:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+           inkscape:connector-curvature="0"
+           class="st0"
+           d="m 9.7872231,15.600847 c -1.0332646,-0.5901 -0.8562344,-4.035216 -3.4364199,-4.035216 -2.5801855,0 -2.1602953,2.858941 -3.2526528,3.238891 -1.0923576,0.37995 -1.9716659,1.541118 -1.9716659,2.728463 2.4834399,-0.316936 1.4401243,1.68511 2.0728615,2.316539 0.7255047,0.724004 1.3714576,0.162411 2.0742075,1.33738 0.642198,1.073728 2.0879695,1.164271 2.0879695,1.164271 0,0 -0.5522359,-1.789243 0.9289723,-2.179852 2.0897277,-0.61742 0.6937834,-2.105248 3.0839927,-1.62586 -0.113816,-0.743727 0.02331,-2.024812 -1.5872649,-2.944616 z"
+           id="path817"
+           sodipodi:nodetypes="szscsscccs" />
+        <g
+           id="g908"
+           transform="translate(-0.01727383,0.10260408)"
+           style="fill:url(#linearGradient947);fill-opacity:1">
+          <path
+             d="m 6.0775549,14.513272 c 0,0 -0.187296,0.734059 -0.7085408,0.734059 -0.521245,0 -0.8604948,-0.734059 -0.8604948,-0.734059 z"
+             id="ellipse819"
+             inkscape:connector-curvature="0"
+             sodipodi:nodetypes="czcc"
+             style="fill:url(#linearGradient957);fill-opacity:1;stroke-width:0.56036991" />
+          <path
+             d="m 8.1941603,14.513272 c 0,0 -0.187296,0.734059 -0.7085408,0.734059 -0.5212448,0 -0.8604949,-0.734059 -0.8604949,-0.734059 z"
+             id="ellipse819-7"
+             inkscape:connector-curvature="0"
+             sodipodi:nodetypes="czcc"
+             style="fill:url(#linearGradient959);fill-opacity:1;stroke-width:0.56036991" />
+        </g>
+      </g>
+    </g>
+  </g>
+  <style
+     id="style815"
+     type="text/css">
+	.st0{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;}
+</style>
+</svg>
