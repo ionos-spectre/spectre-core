@@ -1,5 +1,9 @@
 
-### vNext
+### v1.8.0
+
+### Major
+ - Reporting is reworked. You can now configure multiple reporters at once.
+ - `property(key, value)` function added. Use this function to add run properties, which will be contained in the report.
 
 #### Minor
  - Error report now includes the causing spec file, instead of the most recent file.

@@ -55,7 +55,7 @@ describe 'spectre/mysql' do
   end
 
 
-  it 'connects to a MySQL database', tags: [:mysql] do
+  it 'connects to a MySQL database', tags: [:mysql, :deps] do
     mysql 'developer' do
       database 'developer'
       query "SELECT * FROM todos"

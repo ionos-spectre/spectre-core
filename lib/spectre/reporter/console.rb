@@ -4,19 +4,6 @@ module Spectre::Reporter
       @config = config
     end
 
-    def format_exception error
-      return '' if !error.backtrace
-
-      file, line = error.backtrace[0].match(/(.*\.rb):(\d+)/).captures
-      file.slice!(Dir.pwd + '/')
-      str = ''
-      str += "       file.....: #{file}\n"
-      str += "       line.....: #{line}\n"
-      str += "       type.....: #{error.class}\n"
-      str += "       message..: #{error.message}\n"
-      str
-    end
-
     def report run_infos
 
       report_str = ''
