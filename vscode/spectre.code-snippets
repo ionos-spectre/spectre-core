@@ -274,6 +274,16 @@
 			"end"
 		]
 	},
+	"Execute SSH command with credentials": {
+		"scope": "ruby",
+		"prefix": "ssh",
+		"description": "Execute a SSH command with configured client",
+		"body": [
+			"ssh '$1', username: $3, password: $4 do",
+			"\t$0",
+			"end"
+		]
+	},
 	"Log message": {
 		"scope": "ruby",
 		"prefix": "log",
@@ -301,6 +311,40 @@
 		"body": [
 			"debug '$1'",
 			"",
+			"$0"
+		]
+	},
+	"Observe operation": {
+		"scope": "ruby",
+		"prefix": "debug",
+		"description": "Observe a operation",
+		"body": [
+			"observe '$1' do",
+			"\t$0",
+			"end"
+		]
+	},
+	"Execute MySQL query": {
+		"scope": "ruby",
+		"prefix": "debug",
+		"description": "Execute sql",
+		"body": [
+			"mysql '$1'",
+			"\tquery '$2'",
+			"$0"
+		]
+	},
+	"Execute MySQL query (full)": {
+		"scope": "ruby",
+		"prefix": "debug",
+		"description": "Execute sql",
+		"body": [
+			"mysql '$1'",
+			"\tdatabase '$2'",
+			"\tusername '$3'",
+			"\tpassword '$4'",
+			"\t",
+			"\tquery '$5'",
 			"$0"
 		]
 	}
