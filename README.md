@@ -7,7 +7,7 @@ Spectre is a DSL and tool set for test automation.
 It is written in [Ruby](https://www.ruby-lang.org/de/) and inspired by the Unit-Test framework [rspec](https://rspec.info/).
 
 
-### Source
+## Source
 
 https://bitbucket.org/cneubaur/spectre-ruby
 
@@ -245,8 +245,8 @@ colored: true
 verbose: false
 reporter: Spectre::Reporter::Console
 loggers:
-- Spectre::Logger::Console
-- Spectre::Logger::File
+  - Spectre::Logger::Console
+  - Spectre::Logger::File
 log_file: "./logs/spectre_<date>.log"
 log_format:
   console:
@@ -261,36 +261,36 @@ log_format:
 debug: true
 out_path: "./reports"
 spec_patterns:
-- "**/*.spec.rb"
+  - "**/*.spec.rb"
 mixin_patterns:
-- "../common/mixins/**/*.mixin.rb"
-- "./mixins/**/*.mixin.rb"
+  - "../common/mixins/**/*.mixin.rb"
+  - "./mixins/**/*.mixin.rb"
 env_patterns:
-- "**/*.env.yml"
+  - "**/*.env.yml"
 env_partial_patterns:
-- "./environments/**/*.env.secret.yml"
+  - "./environments/**/*.env.secret.yml"
 resource_paths:
-- "../common/resources"
-- "./resources"
+  - "../common/resources"
+  - "./resources"
 modules:
-- spectre/helpers
-- spectre/reporter/console
-- spectre/reporter/junit
-- spectre/logger/console
-- spectre/logger/file
-- spectre/assertion
-- spectre/diagnostic
-- spectre/environment
-- spectre/mixin
-- spectre/bag
-- spectre/http
-- spectre/http/basic_auth
-- spectre/http/keystone
-- spectre/resources
-- spectre/ssh
-- spectre/ftp
-- spectre/mysql
-- spectre/curl
+  - spectre/helpers
+  - spectre/reporter/console
+  - spectre/reporter/junit
+  - spectre/logger/console
+  - spectre/logger/file
+  - spectre/assertion
+  - spectre/diagnostic
+  - spectre/environment
+  - spectre/mixin
+  - spectre/bag
+  - spectre/http
+  - spectre/http/basic_auth
+  - spectre/http/keystone
+  - spectre/resources
+  - spectre/ssh
+  - spectre/ftp
+  - spectre/mysql
+  - spectre/curl
 include: []
 exclude: []
 log_path: "./logs"
