@@ -7,6 +7,15 @@ Spectre is a DSL and tool set for test automation.
 It is written in the scripting language [Ruby](https://www.ruby-lang.org/de/) and inspired by the Unit-Test framework [rspec](https://rspec.info/).
 
 
+## Docker
+
+`spectre` is available as a docker image. Just run you specs in a Docker container with
+
+```bash
+docker run -t --rm -v "$(pwd)/path/to/specs:/specs" cneubaur/spectre
+```
+
+
 ## Installation
 
 To use the command line tool, Ruby has to be installed on your system. To install Ruby on Debian or Ubuntu run:
