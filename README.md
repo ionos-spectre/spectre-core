@@ -2,6 +2,8 @@
 
 > _You cross the line in this life, you choose the wrong side and you pay the price. All fees collected by -_ [The Spectre](https://dc.fandom.com/wiki/The_Phantom_Stranger_Vol_4_5)
 
+[![Gem Version](https://badge.fury.io/rb/spectre-core.svg)](https://badge.fury.io/rb/spectre-core)
+
 Spectre is a DSL and tool set for test automation.
 
 It is written in [Ruby](https://www.ruby-lang.org/de/) and inspired by the Unit-Test framework [rspec](https://rspec.info/).
@@ -37,18 +39,11 @@ To install Ruby on windows, download an installer from [rubyinstaller.org](https
 choco install ruby
 ```
 
-The *spectre* gem is not yet available from an official gem repository. To install the tool, just clone this repository and execute `rake install`.
-Note that `spectre` depends on the `ectoplasm` package. This package also is not yet available from an official gem repository. `rake install:full` will temporary clone the `ectoplasm` repository and install the gem automatically.
+Spectre is available as a Ruby *gem* from https://rubygems.org/
 
 ```bash
-git clone https://cneubaur@bitbucket.org/cneubaur/spectre-ruby.git
-cd spectre-ruby
-sudo rake install # to install the spectre command line tool
-sudo rake install:full # to install the spectre command line tool and the ectoplasm library
-
+gem install spectre-core
 ```
-
-If in doubt use `sudo rake install:full`.
 
 To test, if the tool is working, try one of the following commands.
 

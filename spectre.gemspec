@@ -1,7 +1,7 @@
 require_relative 'lib/spectre'
 
 Gem::Specification.new do |spec|
-  spec.name          = "spectre"
+  spec.name          = "spectre-core"
   spec.version       = Spectre::VERSION
   spec.authors       = ["Christian Neubauer"]
   spec.email         = ["me@christianneubauer.de"]
