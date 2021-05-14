@@ -4,12 +4,17 @@
 
 Spectre is a DSL and tool set for test automation.
 
-It is written in the scripting language [Ruby](https://www.ruby-lang.org/de/) and inspired by the Unit-Test framework [rspec](https://rspec.info/).
+It is written in [Ruby](https://www.ruby-lang.org/de/) and inspired by the Unit-Test framework [rspec](https://rspec.info/).
+
+
+### Source
+
+https://bitbucket.org/cneubaur/spectre-ruby
 
 
 ## Docker
 
-`spectre` is available as a docker image. Just run you specs in a Docker container with
+`spectre` is available as a docker image. Just run your *specs* in a Docker container with
 
 ```bash
 docker run -t --rm -v "$(pwd)/path/to/specs:/specs" cneubaur/spectre
@@ -151,7 +156,7 @@ Yes, I know. Don't ask too much. It works.
 Ok, now we can install the package
 
 ```bash
-gem install mysql2`
+gem install mysql2
 ```
 
 Haha, got you! You didn't thought it is that easy, right?! Right!
@@ -232,61 +237,79 @@ This will create mutliple empty directories and a `spectre.yaml` config file.
 The following properties can be set in your `spectre.yml`
 
 ```yml
-config_file: ./spectre.yml
+config_file: "./spectre.yml"
 environment: default
-specs: empty
-tags: empty
-colored: yes
-verbose: no
+specs: []
+tags: []
+colored: true
+verbose: false
 reporter: Spectre::Reporter::Console
-logger: Spectre::Logger::Console
-log_file: ./logs/spectre_<date>.log
-out_path: ./reports
+loggers:
+- Spectre::Logger::Console
+- Spectre::Logger::File
+log_file: "./logs/spectre_<date>.log"
+log_format:
+  console:
+    indent: 2
+    width: 80
+    end_context:
+    separator: "<indent><desc>"
+  file:
+    separator: "-- <desc>"
+    start_group: "-- Start '<desc>'"
+    end_group: "-- End '<desc>'"
+debug: true
+out_path: "./reports"
 spec_patterns:
-  - '**/*.spec.rb'
+- "**/*.spec.rb"
 mixin_patterns:
-  - '**/*.mixin.rb'
-  - ../common/**/*.mixin.rb
+- "../common/mixins/**/*.mixin.rb"
+- "./mixins/**/*.mixin.rb"
 env_patterns:
-  - '**/*.env.yml'
+- "**/*.env.yml"
 env_partial_patterns:
-  - '**/*.env.secret.yml'
+- "./environments/**/*.env.secret.yml"
 resource_paths:
-  - ../common/resources
-  - ./resources
+- "../common/resources"
+- "./resources"
 modules:
-  - spectre/helpers
-  - spectre/reporter/console
-  - spectre/reporter/junit
-  - spectre/logger/console
-  - spectre/assertion
-  - spectre/diagnostic
-  - spectre/environment
-  - spectre/mixin
-  - spectre/bag
-  - spectre/http
-  - spectre/http/basic_auth
-  - spectre/http/keystone
-  - spectre/ssh
-  - spectre/resources
-  - ...
-include:
-  - spectre/mysql
-exclude:
-  - spectre/postgres
+- spectre/helpers
+- spectre/reporter/console
+- spectre/reporter/junit
+- spectre/logger/console
+- spectre/logger/file
+- spectre/assertion
+- spectre/diagnostic
+- spectre/environment
+- spectre/mixin
+- spectre/bag
+- spectre/http
+- spectre/http/basic_auth
+- spectre/http/keystone
+- spectre/resources
+- spectre/ssh
+- spectre/ftp
+- spectre/mysql
+- spectre/curl
+include: []
+exclude: []
+log_path: "./logs"
+curl_path: curl
 ```
 
-All properties can also be overriden with the command line argument `-p` or `--property`
+All options can also be overriden with the command line argument `-p` or `--property`
 
 ```bash
 spectre -p config_file=my_custom_spectre.yml -p environment=development
 ```
 
+You can also create a global spectre config file with the options above. Create a file `.spectre` in you users home directory (`~/.spectre`) and set the option you like.
+
 
 ## Writing specs
 
-To write automated tests, just open an editor of your choice and create a file named for example `spooky.spec.rb` in the `specs` folder.
-Specs are structured in three levels. The *subject* defined by the keyword `describe`, the actual *spec* defined by the `it` keyword and one or more *expectation* described by the `expect` keyword. A *subject* can contain one or more *specs*.
+To write automated tests, just open an editor of your choice and create a file named, for example, `spooky.spec.rb` in the `specs` folder.
+Specs are structured in three levels. The *subject* defined by the keyword `describe`, the actual *specification* defined by the `it` keyword and one or more *expectations* described by the `expect` keyword. A *subject* can contain one or more *specs*.
 
 Copy the following code into the file and save it
 
@@ -344,7 +367,7 @@ end
 
 ### Subject
 
-A *subject* is the the top level description block of a testsuite. A *subject* can be anything, that groups functionality, e.g. some REST API, or an abstract business domain/process like *Order Process*.
+A *subject* is the the top level description block of a testsuite. A *subject* can be anything that groups functionality, e.g. some REST API, or an abstract business domain/process like *Order Process*.
 
 A *subject* is described by the `describe` function, and can contain many `context`
 
@@ -354,7 +377,7 @@ describe 'Hollow API' do
 end
 ```
 
-> One *subject* can be split into multiple files. Note hat every `describe` call creates a new `context` and can contain its own `setup` and `teardown` blocks.
+> One *subject* can be split into multiple files. Note hat every `describe` call creates a new `context` and can contain its own `setup` and `teardown` blocks (more about `setup` and `teardown` see below).
 
 
 ### Context
@@ -427,7 +450,7 @@ end
 
 ### Specification
 
-*Specification* or *specs* define the actual tests and will be executed, when a test run is started. These blocks will be defined within a *context* block.
+*Specifications* or *specs* define the actual tests and will be executed, when a test run is started. These blocks will be defined within a *context* block.
 
 ```
 it <description> do
@@ -456,7 +479,7 @@ end
 
 *Expectations* are defined within a *spec*. These blocks are description blocks like `describe`, `context` and `it`, but will be evaluated at runtime.
 
-*Expectation* are fullfilled, when the code in this block runs without any errors. Unexpected runtime exceptions will generate an `error` status, will end the *spec* run and continue with the next *spec*.
+*Expectation* are fullfilled, when the code in this block runs without any errors. Unexpected runtime exceptions will generate an `error` status and will end the *spec* run and continue with the next *spec*.
 
 Raising an `ExpectationFailure` exception in this block, will end up in a `failed` status and also end the *spec* run.
 
@@ -491,7 +514,24 @@ describe 'Hollow API' do
 end
 ```
 
-The status of an `expect` can be either `failed` or `error`. There are two more functions which end in only one of these, regardless of the `Exception` type. `check` will result always in `failed`, whereas `observe` will end always in an `error` status.
+The status of an `expect` can be either `failed` or `error`.
+
+If you don't want the run to end, when an error or failure occurs, wrap the code with `observe`.
+The result is available with `success?`. The value is `true`, if no exception occured within the block.
+
+```ruby
+describe 'Hollow API' do
+  it 'sends out spooky ghosts' do
+    observe 'the neighborhood' do
+      expect 'some ghosts in the neighborhood' do
+        fail_with 'no ghosts'
+      end
+    end
+
+    log 'expectation was successful' if success?
+  end
+end
+```
 
 Additional helper functions are available when using the `spectre/assertion` module, which is loaded automatically.
 
@@ -561,7 +601,7 @@ end
 
 ## Environments
 
-Environment files provide a variable structure and module configuration, which can be accessed in any place of you spec definitions.
+Environment files provide a variable structure and module configuration, which can be accessed in any place of your *spec* definitions.
 In the environment folder, create a plain yaml file with some variables.
 
 `default.env.yml`
@@ -570,7 +610,7 @@ In the environment folder, create a plain yaml file with some variables.
 foo: bar
 ```
 
-and access these variables with `env` in you spec files.
+and access these variables with `env` in your *spec* files.
 
 ```ruby
 describe 'Hollow API' do
@@ -591,7 +631,7 @@ name: development
 foo: bar
 ```
 
-and use the environment by running spectre with the `-e NAME` parameter
+and use the environment by running `spectre` with the `-e NAME` parameter
 
 ```bash
 spectre -e development
@@ -599,7 +639,7 @@ spectre -e development
 
 When no `-e` is given, the `default` environment is used. Any env yaml file without a specified `name` property, will be used as the default environment.
 
-The environment file is merged with the `spectre.yml`, so you can override any property of you spectre config in each environment.
+The environment file is merged with the `spectre.yml`, so you can override any property of your spectre config in each environment.
 To show all variables of an environment, execute
 
 ```bash
@@ -627,7 +667,7 @@ env_patterns:
 #### Partial environment files
 
 Environment files can be split into sperarate files. By default environment files with name `*.env.secret.yml` will be merged
-with the corrensponding environment defined by the name property.
+with the corrensponding environment defined by the `name` property.
 
 `environments/development.env.yml`
 
@@ -655,9 +695,9 @@ spooky_house:
   secret: supersecret
 ```
 
-With this approach you can check in your common environment files into your Version Control and store secrets separately.
+With this approach you can check-in your common environment files into your Version Control and store secrets separately.
 
-You can change the partial environment pattern, by adding the `env_partial_patterns` in you `spectre.yml`
+You can change the partial environment pattern, by adding the `env_partial_patterns` in your `spectre.yml`
 
 ```yml
 env_partial_patterns:
@@ -682,8 +722,8 @@ The output looks like this
 [spooky-3] Spooky only scares some people #scary #dangerous
 ```
 
-The name in the brackets is an identifier for a spec. This can be used to run only specific specs.
-Note that this ID can change, when more specs are added.
+The name in the brackets is an identifier for a *spec*. This can be used to run only specific *specs*.
+Note that this ID can change, when more *specs* are added.
 
 ## Running specs
 
@@ -771,7 +811,7 @@ Spooky
 
 ## Advanced writing specs
 
-Your project could consist of hundreds and thousand of specs. In order to easier maintain your project, it is recommended to place *specs* of a *subject* in different `*.spec.rb` files and folders, grouped by a specific context. A *subject* can be described in multiple files.
+Your project could consist of hundreds and thousand of *specs*. In order to easier maintain your project, it is recommended to place *specs* of a *subject* in different `*.spec.rb` files and folders, grouped by a specific context. A *subject* can be described in multiple files.
 
 For example, when writing *specs* for a REST API, the *specs* could be grouped by the APIs *resources* in different folders, and their *operations* in different files.
 
@@ -804,7 +844,7 @@ hollow_webapi
 ## Modules
 
 With the core framework you can run any tests you like, by writing plain Ruby code.
-However, there are additional helper modules, you can use, to make you Specs more readable.
+However, there are additional helper modules, you can use, to make your *specs* more readable.
 
 All `spectre/*` modules are automatically loaded, if no modules are defined in the `spectre.yml` explicitly.
 
@@ -817,15 +857,20 @@ HTTP requests can be invoked like follows
 http 'dummy.restapiexample.com/api/v1/' do
   method 'GET'
   path 'employee/1'
+
   param 'foo', 'bar'
   param 'bla', 'blubb'
+
   header 'X-Authentication', '*****'
   header 'X-Correlation-Id', ''
+
+  content_type 'plain/text'
+  body 'Some plain text body content'
+
+  # Adds a JSON body with content type application/json
   json({
     "message": "Hello Spectre!"
   })
-  content_type 'plain/text'
-  body 'Some plain text body content'
 end
 ```
 
@@ -838,7 +883,7 @@ https 'dummy.restapiexample.com/api/v1/' do
 end
 ```
 
-The parameter can either be a valid URL or a name of the config section in your environment file under `http`.
+The parameter can either be a valid URL or a name of the config section in your environment file in `http`.
 
 Example:
 
@@ -868,9 +913,11 @@ You can set the following properties in the `http` block:
 | `json` | `Hash` | no | Adds the given hash as json and sets content type to `application/json` |
 | `header` | `string`,`string` | yes | Adds a header to the request |
 | `content_type` | `string` | no | Sets the `Content-Type` header to the given value |
+| `ensure_success!` | | no | Will raise an error, when the response code does not indicate success (codes >= 400). |
+| `auth` | `string` | no | The given authentication module will be used. Currently `basic_auth` and `keystone` are available. |
 
 
-Access the response with the `response` function. This is an object with the following properties:
+Access the response with the `response` function. This returns an object with the following properties:
 
 | Method | Description |
 | -------| ----------- |
@@ -878,7 +925,7 @@ Access the response with the `response` function. This is an object with the fol
 | `message` | The status message of the HTTP response, e.g. `Ok` or `Bad Request` |
 | `body` | The plain response body as a string |
 | `json` | The response body as JSON data of type `OpenStruct` |
-| `headers` | The response headers as a dictionary. Header values can be accessed with `res.headers['Server']`. The header key is case-insensitive. |
+| `headers` | The response headers as a dictionary. Header values can be accessed with `response.headers['Server']`. The header key is case-insensitive. |
 
 ```ruby
 response.code.should_be 200
@@ -897,7 +944,7 @@ http 'dummy_api' do
 end
 ```
 
-You can also add basic auth config parameters to your `spectre.yml` or environment files.
+You can also add basic auth config options to your `spectre.yml` or environment files.
 
 ```yaml
 http:
@@ -918,11 +965,11 @@ http 'dummy_api' do
 end
 ```
 
-#### Basic Auth `spectre/http/keystone`
+#### Keystone `spectre/http/keystone`
 
 Adds keystone authentication to the HTTP client.
 
-Add keystone authentication properties to the http client in you `spectre.yml`
+Add keystone authentication option to the http client in your `spectre.yml`
 
 ```yaml
 http:
@@ -937,7 +984,7 @@ http:
       cert: path/to/cert
 ```
 
-And tell the client to use keystone authentication.
+And tell the client to use *keystone* authentication.
 
 ```ruby
 http 'dummy_api' do
@@ -947,7 +994,7 @@ http 'dummy_api' do
 end
 ```
 
-You can also use the keystone method, to use keystone authentication directly from the `http` block
+You can also use the `keystone` function, to use keystone authentication directly from the `http` block
 
 ```ruby
 http 'dummy_api' do
@@ -979,21 +1026,23 @@ within the `ssh` block there are the following functions available
 | `file_exists` | `file_path` | Checks if a file exists and return a boolean value |
 | `owner_of` | `file_path` | Returns the owner of a given file |
 | `can_connect?` | _none_ | Returns `true` if a connection could be established |
+| `exec` | `command` | Executes a command via SSH |
+| `output` | _none_ | The output of the SSH command, which was last executed |
 
 
 ```ruby
 ssh 'some_ssh_conn' do # use connection name from config
   file_exists('../path/to/some/existing_file.txt').should_be true
   owner_of('/bin').should_be 'root'
+  exec 'ls -al'
 end
 ```
 
-You can also use the `ssh` function without configuring any connection in you environment file, by providing parameters to the function.
-This is helpful, when generating the connection parameters during the spec run.
-The name of the connection is then only used for logging purposes.
+You can also use the `ssh` function without configuring any connection in your environment file, by providing parameters to the function.
+This is helpful, when generating the connection parameters during the *spec* run.
 
 ```ruby
-ssh 'some_ssh_conn', host: 'some.server.com', username: 'u123456', password: '$up3rSecr37'  do
+ssh 'some.server.com', username: 'u123456', password: '$up3rSecr37'  do
   file_exists('../path/to/some/existing_file.txt').should_be true
   owner_of('/bin').should_be 'root'
 end
@@ -1002,7 +1051,7 @@ end
 
 ### FTP `spectre/ftp`
 
-With the FTP helper you can define FTP connection parameter in the environment file and use either `ftp` or `sftp` function in your specs.
+With the FTP helper you can define FTP connection parameter in the environment file and use either `ftp` or `sftp` function in your *specs*.
 
 Example:
 
@@ -1026,17 +1075,16 @@ within the `ftp` or `sftp` block there are the following functions available
 ```ruby
 sftp 'some_ftp_conn' do # use connection name from config
   upload 'dummy.txt' # uploads file to the root dir of the FTP connection
-  download 'dummy.txt' # downloads file to the current working directory\
+  download 'dummy.txt' # downloads file to the current working directory
   download 'dummy.txt', to: '/tmp/dummy.txt' # downloads file to the given destination
 end
 ```
 
 You can also use the `ftp` and `sftp` function without configuring any connection in you environment file, by providing parameters to the function.
-This is helpful, when generating the connection parameters during the spec run.
-The name of the connection is then only used for logging purposes.
+This is helpful, when generating the connection parameters during the *spec* run.
 
 ```ruby
-sftp 'some_ftp_conn', host: 'some.server.com', username: 'u123456', password: '$up3rSecr37' do # use connection name from config
+sftp 'some.server.com', username: 'u123456', password: '$up3rSecr37' do # use connection name from config
   upload 'dummy.txt' # uploads file to the root dir of the FTP connection
   download 'dummy.txt' # downloads file to the current working directory\
   download 'dummy.txt', to: '/tmp/dummy.txt' # downloads file to the given destination
@@ -1193,6 +1241,14 @@ describe 'Hollow API' do
 end
 ```
 
+You can define the resources path in the `spectre.yml`
+
+```yml
+resource_paths:
+- "../common/resources"
+- "./resources"
+```
+
 
 ### Mixins `spectre/mixin`
 
@@ -1213,10 +1269,6 @@ mixin 'check health' do |http_name| # the mixin can be parameterized
   expect 'the status to be ok' do
     response.json.status.should_be 'Ok'
   end
-
-  expect 'the alarm to be ok' do
-    response.json.status.should_be 'Ok'
-  end
 end
 ```
 
@@ -1230,7 +1282,7 @@ describe 'Hollow API' do
 end
 ```
 
-Like every ruby block or function, a mixin has also a return value (the last expression in the `do` block)
+Like every ruby block or function, a mixin has a return value (the last expression in the `do` block)
 
 ```ruby
 mixin 'do some spooky stuff' do
@@ -1290,27 +1342,22 @@ end
 
 ## Release Notes
 
-### vNext
-
-#### Minor
- -
-
 
 ### v1.7.4
 
-#### Minor
- - `curl` output parsing fixed. Linux uses `\r\n\r\n`, whereas Windows has `\n\n` line endings on `stdout`.
+#### Bugfixes
+ - `curl` output parsing fixed
 
 
 ### v1.7.3
 
-#### Minor
+#### Bugfixes
  - `sftp` made non-interactive
 
 
 ### v1.7.2
 
-#### Minor
+#### Bugfixes
  - `ssh` made non-interactive
 
 
