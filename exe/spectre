@@ -25,7 +25,6 @@ DEFAULT_CONFIG = {
   'tags' => [],
   'colored' => true,
   'verbose' => false,
-  'reporter' => 'Spectre::Reporter::Console',
   'reporters' => [
     'Spectre::Reporter::Console',
   ],
