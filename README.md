@@ -1336,3 +1336,21 @@ describe 'Hollow API' do
   end
 end
 ```
+
+
+### Reporter `spectre/reporter`
+
+The reporter module provides some functions to add additional information to the report.
+
+`property` lets you set a key-value pair which is included in the reports. Use this to add generated values to the report.
+
+
+```ruby
+describe 'Hollow API' do
+  it 'creates more ghosts' do
+    ghost_name = create_random_ghost()
+
+    property 'ghostname', ghost_name
+  end
+end
+```
