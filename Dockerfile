@@ -1,10 +1,8 @@
 FROM ruby:3.0.0
 
-RUN gem install mysql2
-
 COPY . /spectre/
 
-RUN cd spectre; rake install:full
+RUN cd spectre; rake install
 
 WORKDIR /specs
 ENTRYPOINT [ "spectre" ]
