@@ -12,7 +12,7 @@ describe 'spectre/ftp' do
       end
     end
 
-    it 'uploads a file to sftp server', tags: [:ftp, :sftp, :upload] do
+    it 'uploads a file to sftp server', tags: [:ftp, :sftp, :upload, :deps] do
       info 'uploading dummy file via sftp'
 
       observe 'file upload' do
@@ -26,7 +26,7 @@ describe 'spectre/ftp' do
       end
     end
 
-    it 'downloads a file from sftp server', tags: [:ftp, :sftp, :download] do
+    it 'downloads a file from sftp server', tags: [:ftp, :sftp, :download, :deps] do
       info 'downloading dummy file via sftp'
 
       observe 'file download' do
@@ -44,7 +44,7 @@ describe 'spectre/ftp' do
       end
     end
 
-    it 'does not prompt for password', tags: [:ftp, :sftp, :noninteractive] do
+    it 'does not prompt for password', tags: [:ftp, :sftp, :noninteractive, :deps] do
       observe 'trying to connect' do
         sftp env.ftp.sftp_server, username: 'developer', password: 'somewrongpassword' do
           connect!
@@ -70,7 +70,7 @@ describe 'spectre/ftp' do
       end
     end
 
-    it 'uploads a file to ftp server', tags: [:ftp, :upload] do
+    it 'uploads a file to ftp server', tags: [:ftp, :upload, :deps] do
       info 'uploading dummy file via sftp'
 
       observe 'file upload' do
@@ -84,7 +84,7 @@ describe 'spectre/ftp' do
       end
     end
 
-    it 'downloads a file from ftp server', tags: [:ftp, :download] do
+    it 'downloads a file from ftp server', tags: [:ftp, :download, :deps] do
       info 'downloading dummy file via ftp'
 
       local_filepath = './dummy-ftp.txt'

@@ -1,5 +1,5 @@
 describe 'spectre/http' do
-  it 'gets resources from rest api', tags: [:http, :get] do
+  it 'gets resources from rest api', tags: [:http, :get, :deps] do
     http 'localhost:4567/api/v1/' do
       method 'GET'
       path 'todos'
@@ -14,7 +14,7 @@ describe 'spectre/http' do
     end
   end
 
-  it 'post a new resource', tags: [:http, :post] do
+  it 'post a new resource', tags: [:http, :post, :deps] do
     http 'localhost:4567/api/v1/' do
       method 'POST'
       path 'echo'
@@ -33,7 +33,7 @@ describe 'spectre/http' do
     end
   end
 
-  it 'updates a resource with preconfigured http client', tags: [:http, :put] do
+  it 'updates a resource with preconfigured http client', tags: [:http, :put, :deps] do
     info 'get the first todo'
 
     http 'web_api' do

@@ -11,6 +11,12 @@ describe 'spectre/assertion' do
         'This text contains bla foo'.should_contain ('foo'.and 'bar').or ('bla'.and 'blubb')
       end
     end
+
+    it 'fails with a specific message', tags: [:assertion, :fail_with, :fatal] do
+      expect 'something' do
+        fail_with 'a specific message'
+      end
+    end
   end
 
   it 'expects code to pass', tags: [:assertion] do

@@ -1,3 +1,5 @@
+require 'date'
+
 module Spectre
   module Logger
     module Status
@@ -90,15 +92,18 @@ module Spectre
       end
 
       def log_info message
+        add_log(message)
         delegate(:log_info, message)
       end
 
       def log_debug message
         return unless @@debug
+        add_log(message)
         delegate(:log_debug, message)
       end
 
       def log_error spec, exception
+        add_log(exception)
         delegate(:log_error, spec, exception)
       end
 
@@ -110,25 +115,16 @@ module Spectre
         delegate(:log_status, desc, status, annotation)
       end
 
-      def log message
-        Logger.log_info message
-      end
-
-      def debug message
-        Logger.log_debug message
-      end
-
-      def separate desc
-        Logger.log_separator desc
-      end
-
       def group desc
         Logger.start_group desc
         yield
         Logger.end_group desc
       end
 
-      alias_method :info, :log
+      alias_method :info, :log_info
+      alias_method :log, :log_info
+      alias_method :debug, :log_debug
+      alias_method :separate, :log_separator
 
       private
 
@@ -136,6 +132,10 @@ module Spectre
         @@logger.each do |logger|
           logger.send(method, *args) if logger.respond_to? method
         end
+      end
+
+      def add_log message
+        Spectre::Runner.current.log.append([DateTime.now, message])
       end
     end
 

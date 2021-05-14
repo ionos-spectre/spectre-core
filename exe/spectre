@@ -25,7 +25,9 @@ DEFAULT_CONFIG = {
   'tags' => [],
   'colored' => true,
   'verbose' => false,
-  'reporter' => 'Spectre::Reporter::Console',
+  'reporters' => [
+    'Spectre::Reporter::Console',
+  ],
   'loggers' => [
     'Spectre::Logger::Console',
     'Spectre::Logger::File',
@@ -120,7 +122,7 @@ Specific options:}
     cmd_options['env_patterns'] = env_patterns
   end
 
-  opts.on('--no-color', 'Enable colored output') do |colored|
+  opts.on('--no-color', 'Disable colored output') do
     cmd_options['colored'] = false
   end
 
@@ -306,8 +308,8 @@ if action == 'run'
         else
           require_relative mod
         end
-      rescue
-        puts "Unable to load module #{mod}. Check if the module exists or remove it from your spectre config"
+      rescue => e
+        puts "Unable to load module #{mod}. Check if the module exists or remove it from your spectre config:\n#{e.message}"
         exit 1
       end
   end
@@ -324,15 +326,16 @@ if action == 'run'
   specs = Spectre.specs(cfg['specs'], cfg['tags'])
 
   if specs.length == 0
-    puts "no specs found in #{Dir.pwd}"
+    puts "No specs found in #{Dir.pwd}"
     exit 1
   end
 
-  runner = Spectre::Runner.new
-  run_infos = runner.run(specs)
+  run_infos = Spectre::Runner.new.run(specs)
 
-  reporter = Kernel.const_get(cfg['reporter']).new(cfg)
-  reporter.report(run_infos)
+  cfg['reporters'].each do |reporter|
+    reporter = Kernel.const_get(reporter).new(cfg)
+    reporter.report(run_infos)
+  end
 
   exit 0
 end
