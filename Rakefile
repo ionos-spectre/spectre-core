@@ -1,4 +1,5 @@
-require "bundler/gem_tasks"
-require "tmpdir"
+# frozen_string_literal: true
 
-task :default => :spec
+require "bundler/gem_tasks"
+
+task :default => :build
