@@ -4,7 +4,7 @@ module Spectre
   module Logger
     class Console
       def initialize config
-        raise 'No log format section in config for console logger' unless config.has_key? 'log_format' and config['log_format'].has_key? 'console'
+        raise 'No log format section in config for console logger' unless config.key? 'log_format' and config['log_format'].key? 'console'
 
         @config = config['log_format']['console']
         @indent = @config['indent'] || 2

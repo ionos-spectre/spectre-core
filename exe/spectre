@@ -147,7 +147,7 @@ Specific options:}
 
     curr_opt = cmd_options
     (key.split '.').each do |k|
-      curr_opt[k] = {} if not curr_opt.has_key? k
+      curr_opt[k] = {} if not curr_opt.key? k
     end
     curr_opt = val
 
@@ -208,7 +208,7 @@ cfg['env_patterns'].each do |pattern|
     spec_env = YAML.load_file(f)
     name = spec_env.delete('name') || 'default'
 
-    if envs.has_key? name
+    if envs.key? name
       existing_env_file = read_env_files[name]
       puts "Duplicate environment definition detected with name #{name} in '#{f}'. Previously defined in '#{existing_env_file}'"
       exit 1
@@ -224,7 +224,7 @@ cfg['env_partial_patterns'].each do |pattern|
   Dir.glob(pattern).each do|f|
     partial_env = YAML.load_file(f)
     name = partial_env.delete('name') || 'default'
-    next if not envs.has_key? name
+    next if not envs.key? name
 
     envs[name].deep_merge! partial_env
   end
