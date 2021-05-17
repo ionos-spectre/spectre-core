@@ -11,7 +11,7 @@ os: linux
 
 branches:
   only:
-   - develop
+   - master
 
 jobs:
   include:
@@ -20,14 +20,14 @@ jobs:
       script:
        - rake build
        - ls pkg
-      #  - gem push -k $RUBYGEMS_APIKEY pkg/*.gem
+       - gem push -k $RUBYGEMS_APIKEY pkg/*.gem
     - stage: publish versioned docker image
       if: tag =~ /^\d\.\d\.\d(?:-\S*)?$/
       script:
        - docker build -t spectre:$TRAVIS_TAG .
        - docker images
-      #  - docker push $DOCKER_USERNAME/spectre
+       - docker push $DOCKER_USERNAME/spectre:$TRAVIS_TAG
     - stage: publish latest docker image
       script:
        - docker build -t spectre .
-       - docker images
+       - docker push $DOCKER_USERNAME/spectre
