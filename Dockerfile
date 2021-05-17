@@ -6,5 +6,3 @@ RUN cd spectre; rake install
 
 WORKDIR /specs
 ENTRYPOINT [ "spectre" ]
-
-# docker run --rm --name spectre -v "$(pwd)\example:/specs" cneubaur/spectre list
