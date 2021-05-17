@@ -2,6 +2,8 @@
 
 > _You cross the line in this life, you choose the wrong side and you pay the price. All fees collected by -_ [The Spectre](https://dc.fandom.com/wiki/The_Phantom_Stranger_Vol_4_5)
 
+[![Build Status](https://www.travis-ci.com/cneubaur/spectre-core.svg?branch=master)](https://www.travis-ci.com/cneubaur/spectre-core)
+
 [![Gem Version](https://badge.fury.io/rb/spectre-core.svg)](https://badge.fury.io/rb/spectre-core)
 
 Spectre is a DSL and tool set for test automation.
