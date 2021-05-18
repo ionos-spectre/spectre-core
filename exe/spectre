@@ -102,7 +102,7 @@ Specific options:}
     cmd_options['specs'] = specs
   end
 
-  opts.on('-t TAG,TAG', '--tags TAG,TAG', Array, 'Run only specs with give tags') do |tags|
+  opts.on('-t TAG,TAG', '--tags TAG,TAG', Array, 'Run only specs with given tags') do |tags|
     cmd_options['tags'] = tags
   end
 
@@ -130,8 +130,8 @@ Specific options:}
     cmd_options['out_path'] = path
   end
 
-  opts.on('-r NAME', '--reporter NAME', "The name of the reporter to use") do |reporter|
-    cmd_options['reporter'] = reporter
+  opts.on('-r NAME', '--reporter NAME', Array, "A list of reporters to use") do |reporters|
+    cmd_options['reporters'] = reporters
   end
 
   opts.on('-d', '--debug', "Run in debug mode") do
