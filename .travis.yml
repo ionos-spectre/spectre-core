@@ -24,10 +24,12 @@ jobs:
     - stage: publish versioned docker image
       if: tag =~ /^\d\.\d\.\d(?:-\S*)?$/
       script:
+       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
        - docker build -t $DOCKER_USERNAME/spectre:$TRAVIS_TAG .
        - docker images
        - docker push $DOCKER_USERNAME/spectre:$TRAVIS_TAG
     - stage: publish latest docker image
       script:
+       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
        - docker build -t $DOCKER_USERNAME/spectre .
        - docker push $DOCKER_USERNAME/spectre
