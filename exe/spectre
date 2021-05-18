@@ -102,7 +102,7 @@ Specific options:}
     cmd_options['specs'] = specs
   end
 
-  opts.on('-t TAG,TAG', '--tags TAG,TAG', Array, 'Run only specs with give tags') do |tags|
+  opts.on('-t TAG,TAG', '--tags TAG,TAG', Array, 'Run only specs with given tags') do |tags|
     cmd_options['tags'] = tags
   end
 
@@ -130,8 +130,8 @@ Specific options:}
     cmd_options['out_path'] = path
   end
 
-  opts.on('-r NAME', '--reporter NAME', "The name of the reporter to use") do |reporter|
-    cmd_options['reporter'] = reporter
+  opts.on('-r NAME', '--reporter NAME', Array, "A list of reporters to use") do |reporters|
+    cmd_options['reporters'] = reporters
   end
 
   opts.on('-d', '--debug', "Run in debug mode") do
@@ -147,7 +147,7 @@ Specific options:}
 
     curr_opt = cmd_options
     (key.split '.').each do |k|
-      curr_opt[k] = {} if not curr_opt.has_key? k
+      curr_opt[k] = {} if not curr_opt.key? k
     end
     curr_opt = val
 
@@ -208,7 +208,7 @@ cfg['env_patterns'].each do |pattern|
     spec_env = YAML.load_file(f)
     name = spec_env.delete('name') || 'default'
 
-    if envs.has_key? name
+    if envs.key? name
       existing_env_file = read_env_files[name]
       puts "Duplicate environment definition detected with name #{name} in '#{f}'. Previously defined in '#{existing_env_file}'"
       exit 1
@@ -224,7 +224,7 @@ cfg['env_partial_patterns'].each do |pattern|
   Dir.glob(pattern).each do|f|
     partial_env = YAML.load_file(f)
     name = partial_env.delete('name') || 'default'
-    next if not envs.has_key? name
+    next if not envs.key? name
 
     envs[name].deep_merge! partial_env
   end

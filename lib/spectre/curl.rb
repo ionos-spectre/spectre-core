@@ -159,7 +159,7 @@ module Spectre::Curl
         'use_ssl' => secure,
       }
 
-      if @@http_cfg.has_key? name
+      if @@http_cfg.key? name
         req.merge! @@http_cfg[name]
         raise "No `base_url' set for HTTP client '#{name}'. Check your HTTP config in your environment." if !req['base_url']
       else
@@ -355,7 +355,7 @@ module Spectre::Curl
 
     @@curl_path = config['curl_path'] || 'curl'
 
-    if config.has_key? 'http'
+    if config.key? 'http'
       @@http_cfg = {}
 
       config['http'].each do |name, cfg|

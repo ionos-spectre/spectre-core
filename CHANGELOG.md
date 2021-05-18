@@ -1,3 +1,8 @@
+### v1.8.1
+
+#### Minor
+ - `-r` (`--reporter`) options fixed to match new reporter config. `-r` is now a list parameter and can take multiple reporters e.g. `-r Spectre::Reporter::JUnit,Spectre::Reporter::Console`
+
 
 ### v1.8.0
 

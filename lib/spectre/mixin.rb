@@ -10,7 +10,7 @@ module Spectre
       end
 
       def run desc, with: []
-        raise "no mixin with desc '#{desc}' defined" unless @@mixins.has_key? desc
+        raise "no mixin with desc '#{desc}' defined" unless @@mixins.key? desc
         Logger.log_debug "running mixin '#{desc}'"
 
         if with.is_a? Array
@@ -25,7 +25,7 @@ module Spectre
     end
 
     Spectre.register do |config|
-      if not config.has_key? 'mixin_patterns'
+      if not config.key? 'mixin_patterns'
         return
       end
 

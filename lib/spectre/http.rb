@@ -174,7 +174,7 @@ module Spectre
       def http name, secure: nil, &block
         req = {}
 
-        if @@http_cfg.has_key? name
+        if @@http_cfg.key? name
           req.merge! @@http_cfg[name]
           raise "No `base_url' set for HTTP client '#{name}'. Check your HTTP config in your environment." if !req['base_url']
         else
@@ -254,7 +254,7 @@ module Spectre
         if uri.scheme == 'https'
           net_http.use_ssl = true
 
-          if req.has_key? 'cert'
+          if req.key? 'cert'
             raise "Certificate '#{req['cert']}' does not exist" unless File.exists? req['cert']
             net_http.verify_mode = OpenSSL::SSL::VERIFY_PEER
             net_http.ca_file = req['cert']
@@ -329,7 +329,7 @@ module Spectre
     Spectre.register do |config|
       @@logger = ::Logger.new config['log_file'], progname: 'spectre/http'
 
-      if config.has_key? 'http'
+      if config.key? 'http'
         @@http_cfg = {}
 
         config['http'].each do |name, cfg|

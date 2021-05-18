@@ -2,7 +2,7 @@ module Spectre
   module Logger
     class File
       def initialize config
-        raise 'No log format section in config for console logger' unless config.has_key? 'log_format' and config['log_format'].has_key? 'file'
+        raise 'No log format section in config for console logger' unless config.key? 'log_format' and config['log_format'].key? 'file'
 
         @config = config['log_format']['file']
         @fmt_start_group = @config['start_group']

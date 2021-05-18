@@ -106,7 +106,7 @@ module Spectre
 
     class << self
       def ssh name, config = {}, &block
-        raise "SSH connection '#{name}' not configured" unless @@cfg.has_key?(name) or config.count > 0
+        raise "SSH connection '#{name}' not configured" unless @@cfg.key?(name) or config.count > 0
 
         cfg = @@cfg[name] || {}
 
@@ -117,8 +117,8 @@ module Spectre
         opts = {}
         opts[:password] = password
         opts[:port] = config[:port] || cfg['port'] || 22
-        opts[:keys] = [cfg['key']] if cfg.has_key? 'key'
-        opts[:passphrase] = cfg['passphrase'] if cfg.has_key? 'passphrase'
+        opts[:keys] = [cfg['key']] if cfg.key? 'key'
+        opts[:passphrase] = cfg['passphrase'] if cfg.key? 'passphrase'
 
         opts[:auth_methods] = []
         opts[:auth_methods].push 'publickey' if opts[:keys]
@@ -137,7 +137,7 @@ module Spectre
     Spectre.register do |config|
       @@logger = ::Logger.new config['log_file'], progname: 'spectre/ssh'
 
-      if config.has_key? 'ssh'
+      if config.key? 'ssh'
         config['ssh'].each do |name, cfg|
           @@cfg[name] = cfg
         end

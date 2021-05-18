@@ -1,6 +1,6 @@
 class HttpRequest
   def keystone url, username, password, project, domain, cert
-    @__req['keystone'] = {} if not @__req.has_key? 'keystone'
+    @__req['keystone'] = {} if not @__req.key? 'keystone'
 
     @__req['keystone']['url'] = url
     @__req['keystone']['username'] = username
@@ -18,11 +18,11 @@ module Spectre::Http::Keystone
   @@cache = {}
 
   def self.on_req http, net_req, req
-    return unless req.has_key? 'keystone' and req['auth'] == 'keystone'
+    return unless req.key? 'keystone' and req['auth'] == 'keystone'
 
     keystone_cfg = req['keystone']
 
-    if @@cache.has_key? keystone_cfg
+    if @@cache.key? keystone_cfg
       token = @@cache[keystone_cfg]
     else
       token, _ = authenticate(

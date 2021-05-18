@@ -25,7 +25,7 @@ module Spectre
       end
 
       def query statement
-        @__query['query'] = [] if not @__query.has_key? 'query'
+        @__query['query'] = [] if not @__query.key? 'query'
         @__query['query'].append(statement)
       end
     end
@@ -38,7 +38,7 @@ module Spectre
       def mysql name = nil, &block
         query = {}
 
-        if name != nil and @@mysql_cfg.has_key? name
+        if name != nil and @@mysql_cfg.key? name
           query.merge! @@mysql_cfg[name]
           raise "No `host' set for MySQL client '#{name}'. Check your MySQL config in your environment." if !query['host']
         elsif name != nil
@@ -83,7 +83,7 @@ module Spectre
     Spectre.register do |config|
       @@logger = ::Logger.new config['log_file'], progname: 'spectre/mysql'
 
-      if config.has_key? 'mysql'
+      if config.key? 'mysql'
         @@mysql_cfg = {}
 
         config['mysql'].each do |name, cfg|

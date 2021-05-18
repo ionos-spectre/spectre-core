@@ -31,7 +31,7 @@ module Spectre
 
       class << self
         def postgres name, &block
-          raise "postgres '#{name}' not configured" unless @@db_cfg.has_key? name
+          raise "postgres '#{name}' not configured" unless @@db_cfg.key? name
 
           statement = SQLStatement.new
           statement.instance_eval &block

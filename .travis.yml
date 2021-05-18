@@ -1,0 +1,33 @@
+language: ruby
+
+services:
+  - docker
+
+rvm:
+ - 2.5
+
+dist: xenial
+os: linux
+
+branches:
+  only:
+   - master
+
+jobs:
+  include:
+    - stage: publish gem
+      if: tag =~ /^\d\.\d\.\d(?:-\S*)?$/
+      script:
+       - rake build
+       - ls pkg
+       - gem push -k $RUBYGEMS_APIKEY pkg/*.gem
+    - stage: publish versioned docker image
+      if: tag =~ /^\d\.\d\.\d(?:-\S*)?$/
+      script:
+       - docker build -t spectre:$TRAVIS_TAG .
+       - docker images
+       - docker push $DOCKER_USERNAME/spectre:$TRAVIS_TAG
+    - stage: publish latest docker image
+      script:
+       - docker build -t spectre .
+       - docker push $DOCKER_USERNAME/spectre
