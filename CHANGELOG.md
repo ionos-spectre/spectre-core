@@ -1,3 +1,9 @@
+### v1.8.2
+
+#### Minor
+ - `spectre` does no longer crash, when a parent of a log path does not exist
+
+
 ### v1.8.1
 
 #### Minor
