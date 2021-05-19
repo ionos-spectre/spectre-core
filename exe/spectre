@@ -295,7 +295,7 @@ if action == 'run'
   })
 
   log_dir = File.dirname cfg['log_file']
-  Dir.mkdirs log_dir if !Dir.exists? log_dir
+  FileUtils.makedirs log_dir if !Dir.exists? log_dir
 
   # Load Modules
   cfg['modules']
