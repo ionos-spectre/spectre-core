@@ -1,3 +1,9 @@
+### v1.8.4
+
+#### Minor
+ - External installed module loading added
+
+
 ### v1.8.2
 
 #### Minor
