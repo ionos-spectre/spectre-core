@@ -12,6 +12,7 @@ os: linux
 branches:
   only:
    - master
+   - /^\d\.\d\.\d(?:-\S*)?$/
 
 jobs:
   include:
