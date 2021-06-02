@@ -16,18 +16,19 @@ branches:
 jobs:
   include:
     - stage: publish gem
-      if: tag =~ /^\d\.\d\.\d(?:-\S*)?$/
+      if: branch =~ /^\d\.\d\.\d(?:-\S*)?$/
       script:
-       - rake build
-       - ls pkg
-       - gem push -k $RUBYGEMS_APIKEY pkg/*.gem
+       - bundle exec rake build
+       - 'echo -e "---\n:rubygems_api_key: $RUBYGEMS_APIKEY" > ~/.gem/credentials'
+       - chmod 0600 ~/.gem/credentials
+       - gem push pkg/*.gem
     - stage: publish versioned docker image
-      if: tag =~ /^\d\.\d\.\d(?:-\S*)?$/
+      if: branch =~ /^\d\.\d\.\d(?:-\S*)?$/
       script:
        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-       - docker build -t $DOCKER_USERNAME/spectre:$TRAVIS_TAG .
+       - docker build -t $DOCKER_USERNAME/spectre:$TRAVIS_BRANCH .
        - docker images
-       - docker push $DOCKER_USERNAME/spectre:$TRAVIS_TAG
+       - docker push $DOCKER_USERNAME/spectre:$TRAVIS_BRANCH
     - stage: publish latest docker image
       script:
        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
