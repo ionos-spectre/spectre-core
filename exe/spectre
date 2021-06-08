@@ -472,6 +472,16 @@ reports/
 **/environments/*.env.secret.yml
 ]
 
+DEFAULT_GEMFILE = %[source 'https://rubygems.org'
+
+gem 'spectre-core', '>= 1.8.0'
+# gem 'spectre-mysql', '>= 1.0.0'
+# gem 'spectre-ssh', '>= 1.0.0'
+# gem 'spectre-ftp', '>= 1.0.0'
+# gem 'spectre-curl', '>= 1.0.0'
+# gem 'spectre-git', '>= 0.1.0'
+]
+
 if action == 'init'
   DEFAULT_FILES = [
     ['./environments/default.env.yml', DEFAULT_ENV_CFG],
@@ -479,6 +489,7 @@ if action == 'init'
     ['./specs/sample.spec.rb', SAMPLE_SPEC],
     ['./spectre.yml', DEFAULT_SPECTRE_CFG],
     ['./.gitignore', DEFAULT_GITIGNORE],
+    ['./Gemfile', DEFAULT_GEMFILE],
   ]
 
   %w(environments logs specs).each do |dir_name|
