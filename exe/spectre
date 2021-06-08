@@ -205,7 +205,8 @@ envs = {}
 read_env_files = {}
 cfg['env_patterns'].each do |pattern|
   Dir.glob(pattern).each do|f|
-    spec_env = YAML.load_file(f)
+    spec_env = YAML.load_file(f) || {}
+
     name = spec_env.delete('name') || 'default'
 
     if envs.key? name
