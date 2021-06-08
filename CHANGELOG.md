@@ -1,3 +1,10 @@
+### vNext
+
+#### Minor
+ - Added placeholder substitution function to `String` (`with(Hash)`)
+ - Bugfixes. `trim` and `uuid` generate now the correct amount of characters
+
+
 ### v1.8.4
 
 #### Minor
