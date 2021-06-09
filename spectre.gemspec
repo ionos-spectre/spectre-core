@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency 'ectoplasm', '~> 1.1.0'
+  spec.add_runtime_dependency 'ectoplasm', '>= 1.1.0'
   spec.add_runtime_dependency 'openssl', '~> 2.2.0'
   spec.add_runtime_dependency 'net-ssh', '~> 6.1.0'
   spec.add_runtime_dependency 'net-sftp', '~> 3.0.0'

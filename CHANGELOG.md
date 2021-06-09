@@ -3,6 +3,7 @@
 #### Minor
  - Added placeholder substitution function to `String` (`with(Hash)`)
  - Bugfixes. `trim` and `uuid` generate now the correct amount of characters
+ - `--ignore-failure` options added. When set, `spectre` always exits with exit code 0
 
 
 ### v1.8.4
