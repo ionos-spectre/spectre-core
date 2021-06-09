@@ -126,6 +126,10 @@ Specific options:}
     cmd_options['colored'] = false
   end
 
+  opts.on('--fail-on-error', 'Exits with non zero code when run is not successful') do
+    cmd_options['exit_on_error'] = true
+  end
+
   opts.on('-o PATH', '--out PATH', 'Output directory path') do |path|
     cmd_options['out_path'] = path
   end
@@ -344,6 +348,10 @@ if action == 'run'
     reporter = Kernel.const_get(reporter).new(cfg)
     reporter.report(run_infos)
   end
+
+  errors = run_infos.select { |x| x.error != nil or x.failure != nil }
+
+  exit 1 if cfg['exit_on_error'] and errors.count > 0
 
   exit 0
 end
