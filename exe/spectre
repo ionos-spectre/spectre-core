@@ -48,6 +48,7 @@ DEFAULT_CONFIG = {
   },
   'debug' => false,
   'out_path' => './reports',
+  'secure_keys' => ['password', 'secret', 'token', 'secure', 'authorization'],
   'spec_patterns' => ['./specs/**/*.spec.rb'],
   'mixin_patterns' => ['../common/mixins/**/*.mixin.rb', './mixins/**/*.mixin.rb'],
   'env_patterns' => ['./environments/**/*.env.yml'],

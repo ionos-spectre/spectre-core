@@ -166,6 +166,7 @@ module Spectre
       @@response = nil
       @@request = nil
       @@modules = []
+      @@secure_keys = []
 
       def https name, &block
         http(name, secure: true, &block)
@@ -209,18 +210,33 @@ module Spectre
         return str unless str or str.empty?
 
         begin
-          json = JSON.parse str
+          json = JSON.parse(str)
+          json.obfuscate!(@@secure_keys) if not @@debug
 
           if pretty
             str = JSON.pretty_generate(json)
           else
             str = JSON.dump(json)
           end
-        rescue
-          # do nothing
+        # rescue => e
+        #   # do nothing
+        #   @@logger.error(e)
         end
 
         str
+      end
+
+      def is_secure? key
+        @@secure_keys.any? { |x| key.to_s.downcase.include? x.downcase  }
+      end
+
+      def header_to_s headers
+        s = ''
+        headers.each_header.each do |header, value|
+          value = '*****' if is_secure?(header) and not @@debug
+          s += "#{header.to_s.ljust(30, '.')}: #{value.to_s}\n"
+        end
+        s
       end
 
       def invoke req
@@ -275,27 +291,27 @@ module Spectre
 
         req_id = SecureRandom.uuid()[0..5]
 
+        # Run HTTP modules
+
+        @@modules.each do |mod|
+          mod.on_req(net_http, net_req, req) if mod.respond_to? :on_req
+        end
+
         # Log request
 
-        req_log = "[>] #{req_id} #{req['method']} #{uri}"
-        req['headers'].each do |header|
-          req_log += "\n#{header[0].to_s.ljust(30, '.')}: #{header[1].to_s}"
-        end if req['headers']
-        req_log += "\n" + try_format_json(req['body'], pretty: true) if req['body'] != nil and not req['body'].empty?
+        req_log = "[>] #{req_id} #{req['method']} #{uri}\n"
+        req_log += header_to_s(net_req)
+        req_log += try_format_json(req['body'], pretty: true) if req['body'] != nil and not req['body'].empty?
 
         @@logger.info req_log
 
         # Request
 
         start_time = Time.now
-
-        @@modules.each do |mod|
-          mod.on_req(net_http, net_req, req) if mod.respond_to? :on_req
-        end
-
         net_res = net_http.request(net_req)
-
         end_time = Time.now
+
+        # Run HTTP modules
 
         @@modules.each do |mod|
           mod.on_res(net_http, net_res, req) if mod.respond_to? :on_res
@@ -304,9 +320,7 @@ module Spectre
         # Log response
 
         res_log = "[<] #{req_id} #{net_res.code} #{net_res.message} (#{end_time - start_time}s)\n"
-        net_res.each_header do |header, value|
-          res_log += "#{header.to_s.ljust(30, '.')}: #{value}\n"
-        end
+        res_log += header_to_s(net_res)
         res_log += try_format_json(net_res.body, pretty: true) if net_res.body != nil and !net_res.body.empty?
 
         @@logger.info(res_log)
@@ -328,6 +342,8 @@ module Spectre
 
     Spectre.register do |config|
       @@logger = ::Logger.new config['log_file'], progname: 'spectre/http'
+      @@secure_keys = config['secure_keys'] || []
+      @@debug = config['debug']
 
       if config.key? 'http'
         @@http_cfg = {}

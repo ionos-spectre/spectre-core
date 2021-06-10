@@ -4,6 +4,8 @@
  - Added placeholder substitution function to `String` (`with(Hash)`)
  - Bugfixes. `trim` and `uuid` generate now the correct amount of characters
  - `--ignore-failure` options added. When set, `spectre` always exits with exit code 0
+ - HTTP logging fixed. Now, all request headers are being logged.
+ - Secure keys added. You can now define define `secure_keys` in you `spectre.yml`. These keys are used to obfuscate sensitive values in log files, like HTTP headers values or JSON data. It will be checked if one of the given secure keys is *contained* in the header or JSON key, e.g. the secure key `token` will obfuscate a HTTP header with key `X-Auth-Token`. The check is case-insensitive.
 
 
 ### v1.8.4
