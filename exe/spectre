@@ -130,7 +130,7 @@ Specific options:}
   end
 
   opts.on('-o PATH', '--out PATH', 'Output directory path') do |path|
-    cmd_options['out_path'] = path
+    cmd_options['out_path'] = File.absolute_path(path)
   end
 
   opts.on('-r NAME', '--reporters NAME', Array, "A list of reporters to use") do |reporters|
