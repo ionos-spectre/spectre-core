@@ -71,8 +71,6 @@ DEFAULT_CONFIG = {
     'spectre/resources',
     'spectre/ssh',
     'spectre/ftp',
-    'spectre/mysql',
-    # 'spectre/postgres',
   ],
   'include' => [
 
@@ -483,7 +481,7 @@ reports/
 
 DEFAULT_GEMFILE = %[source 'https://rubygems.org'
 
-gem 'spectre-core', '>= 1.8.0'
+gem 'spectre-core', '>= #{Spectre::VERSION}'
 # gem 'spectre-mysql', '>= 1.0.0'
 # gem 'spectre-ssh', '>= 1.0.0'
 # gem 'spectre-ftp', '>= 1.0.0'
