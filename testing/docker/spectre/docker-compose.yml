@@ -7,14 +7,6 @@ services:
     ports:
       - 4567:4567
 
-  mysql:
-    image: mysql
-    hostname: spectre-mysql
-    ports:
-      - 3306:3306
-    environment:
-      MYSQL_ROOT_PASSWORD: dev
-
   postgres:
     image: postgres
     hostname: spectre-postgres
