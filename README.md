@@ -13,7 +13,7 @@ It is written in [Ruby](https://www.ruby-lang.org/de/) and inspired by the Unit-
 
 ## Source
 
-https://bitbucket.org/cneubaur/spectre-ruby
+https://bitbucket.org/cneubaur/spectre-core
 
 
 ## Docker
