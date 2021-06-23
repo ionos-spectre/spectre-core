@@ -102,6 +102,7 @@ module Spectre
       end
 
       def [] key
+        return nil if not @headers.has_key?(key.downcase)
         @headers[key.downcase].first
       end
 
