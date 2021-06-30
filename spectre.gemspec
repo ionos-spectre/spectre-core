@@ -29,5 +29,4 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'openssl', '~> 2.2.0'
   spec.add_runtime_dependency 'net-ssh', '~> 6.1.0'
   spec.add_runtime_dependency 'net-sftp', '~> 3.0.0'
-  spec.add_runtime_dependency 'mysql2', '~> 0.5.3'
 end
