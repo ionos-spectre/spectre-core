@@ -25,7 +25,7 @@ describe 'spectre/ssh' do
 
       expect 'a logs directory in root directory' do
         exec 'ls'
-        fail_with "no 'logs' directory" if not output.lines.include? 'logs'
+        fail_with "no 'logs' directory" if not output.lines.include? "logs\n"
       end
     end
   end
