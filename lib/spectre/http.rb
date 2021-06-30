@@ -62,8 +62,7 @@ module Spectre
       end
 
       def body body_content
-        raise 'Body value must be a string' if not body_content.is_a? String
-        @__req['body'] = body_content
+        @__req['body'] = body_content.to_s
       end
 
       def ensure_success!
