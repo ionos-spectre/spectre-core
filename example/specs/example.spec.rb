@@ -4,7 +4,7 @@ describe 'Spectre' do
     log 'do something to setup it all up'
     debug 'this is a debug log text'
 
-    check 'mysql developer database' do
+    observe 'mysql developer database' do
       mysql 'developer'
     end
 

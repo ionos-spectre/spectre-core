@@ -13,7 +13,7 @@ It is written in [Ruby](https://www.ruby-lang.org/de/) and inspired by the Unit-
 
 ## Source
 
-https://bitbucket.org/cneubaur/spectre-ruby
+https://bitbucket.org/cneubaur/spectre-core
 
 
 ## Docker
@@ -119,86 +119,6 @@ sudo gem install pg
 ```
 
 
-### MySQL module
-
-In order to use the `spectre/mysql` module, you have to install the Ruby package `mysql2`.
-
-On linux it is fairly easy. Just execute.
-
-```bash
-sudo apt-get install libmysqlclient-dev
-sudo gem install mysql2
-```
-
-Yes, there is a reason why I mentioned the easy linux part. On Windows it is quite tricky... ok, not tricky, rather a pain... a pain in the a**.
-A pain you should noone wish. A pain whereas even hell is a spa.
-
-Want to go through this?
-
-Ok, let's go. Try to install the package with `gem install mysql2` as it is intended.
-
-```powershell
-PS C:\> gem install mysql2
-ERROR:  Error installing mysql2:
-        The last version of mysql2 (>= 0) to support your Ruby & RubyGems was 0.5.3. Try installing it with `gem install mysql2 -v 0.5.3`
-        mysql2 requires Ruby version >= 2.2, < 2.7.dev. The current ruby version is 2.7.0.0.
-```
-
-> Really? Do I have to downgrade my Ruby version?
-
-No, fortunately not. Just get *Ruby 3.0*.
-
-> But Ruby 3.0 is even greater?
-
-Yes, I know. Don't ask too much. It works.
-
-Ok, now we can install the package
-
-```bash
-gem install mysql2
-```
-
-Haha, got you! You didn't thought it is that easy, right?! Right!
-
-As windows does not have the MySQL client libraries installed, we have to add the argument `--without-mysql-dir`, when installing. For this, we need the libs first.
-Ok, easy. You might think you go to the MySQL website and get the latest 64bit MySQL libraries as a ZIP file, extract it and pass the path to the argument, right? Wrong! Good and logical idea, but it won't work. Don't even try it (or try it, if you like it. I don't care).
-
-Maybe you are smarter than me, know some C stuff and think "you are stupid, you need to use the 32bit version of the libs". Ok cool. Problem 1: There are no 32bit version of the latest MySQL libraries. Ok, let's get the next best version with 32bit libraries and try again.
-
-Wohooo! It has been installed! Yeah! Let's get going and try it. Let's start `irb` and `require` the package.
-
-```powershell
-PS C:\> irb
-irb(main):001:0> require 'mysql2'
-Traceback (most recent call last):
-       10: from C:/Tools/Ruby30-x64/bin/irb.cmd:31:in `<main>'
-        9: from C:/Tools/Ruby30-x64/bin/irb.cmd:31:in `load'
-        8: from C:/Tools/Ruby30-x64/lib/ruby/gems/3.0.0/gems/irb-1.3.0/exe/irb:11:in `<top (required)>'
-        7: from (irb):1:in `<main>'
-        6: from <internal:C:/Tools/Ruby30-x64/lib/ruby/3.0.0/rubygems/core_ext/kernel_require.rb>:149:in `require'
-        5: from <internal:C:/Tools/Ruby30-x64/lib/ruby/3.0.0/rubygems/core_ext/kernel_require.rb>:160:in `rescue in require'
-        4: from <internal:C:/Tools/Ruby30-x64/lib/ruby/3.0.0/rubygems/core_ext/kernel_require.rb>:160:in `require'
-        3: from C:/Tools/Ruby30-x64/lib/ruby/gems/3.0.0/gems/mysql2-0.5.3/lib/mysql2.rb:36:in `<top (required)>'
-        2: from <internal:C:/Tools/Ruby30-x64/lib/ruby/3.0.0/rubygems/core_ext/kernel_require.rb>:85:in `require'
-        1: from <internal:C:/Tools/Ruby30-x64/lib/ruby/3.0.0/rubygems/core_ext/kernel_require.rb>:85:in `require'
-RuntimeError (Incorrect MySQL client library version! This gem was compiled for 5.7.32 but the client library is 10.5.5.)
-```
-
-> You are kidding, right?
-
-*Wrong!*. Really? You thought it would be *that* easy?!
-
-"Ok, got it". Cool, but what's about this client library `10.5.5` version? Isn't MySQL only at `8.0.32` (it was at that point I wrote this)? Yes, it is, but who said we speak about MySQL? Ever heard about *MariaDB*, you dip sh**? Yes you got it, we need the MariaDB connector libs.
-
-Go to https://mariadb.com/downloads/#connectors and download the latest one. Yes, *64bit* is fine. Install it and finally install the `mysql2` gem.
-
-```bash
-gem install mysql2 --platform=ruby -- '--with-mysql-dir="C:\Program Files\MariaDB\MariaDB Connector C 64-bit"'
-```
-
-Congratulations! You made it!
-
-
 ## Quickstart
 
 To create a minimal spectre project run the following command
@@ -288,8 +208,6 @@ modules:
   - spectre/resources
   - spectre/ssh
   - spectre/ftp
-  - spectre/mysql
-  - spectre/curl
 include: []
 exclude: []
 log_path: "./logs"
@@ -1004,185 +922,6 @@ end
 ```
 
 
-### SSH `spectre/ssh`
-
-With the SSH helper you can define SSH connection parameter in the environment file and use the `ssh` function in your specs.
-
-Example:
-
-```yaml
-ssh:
-  some_ssh_conn: # name of the connection
-    host: some.server.com
-    username: u123456
-    password: $up3rSecr37
-```
-
-within the `ssh` block there are the following functions available
-
-| Method | Parameters | Description |
-| -------| ---------- | ----------- |
-| `file_exists` | `file_path` | Checks if a file exists and return a boolean value |
-| `owner_of` | `file_path` | Returns the owner of a given file |
-| `can_connect?` | _none_ | Returns `true` if a connection could be established |
-| `exec` | `command` | Executes a command via SSH |
-| `output` | _none_ | The output of the SSH command, which was last executed |
-
-
-```ruby
-ssh 'some_ssh_conn' do # use connection name from config
-  file_exists('../path/to/some/existing_file.txt').should_be true
-  owner_of('/bin').should_be 'root'
-  exec 'ls -al'
-end
-```
-
-You can also use the `ssh` function without configuring any connection in your environment file, by providing parameters to the function.
-This is helpful, when generating the connection parameters during the *spec* run.
-
-```ruby
-ssh 'some.server.com', username: 'u123456', password: '$up3rSecr37'  do
-  file_exists('../path/to/some/existing_file.txt').should_be true
-  owner_of('/bin').should_be 'root'
-end
-```
-
-
-### FTP `spectre/ftp`
-
-With the FTP helper you can define FTP connection parameter in the environment file and use either `ftp` or `sftp` function in your *specs*.
-
-Example:
-
-```yaml
-ftp:
-  some_ftp_conn: # name of the connection
-    host: some.server.com
-    username: u123456
-    password: $up3rSecr37
-```
-
-within the `ftp` or `sftp` block there are the following functions available
-
-| Method | Parameters | Description |
-| -------| ---------- | ----------- |
-| `upload` | `local_file`, `to: remote_file` | Uploads a file to the given destination |
-| `download` | `remote_file`, `to: local_file` | Downloads a file from the server to disk |
-| `can_connect?` | _none_ | Returns `true` if a connection could be established |
-
-
-```ruby
-sftp 'some_ftp_conn' do # use connection name from config
-  upload 'dummy.txt' # uploads file to the root dir of the FTP connection
-  download 'dummy.txt' # downloads file to the current working directory
-  download 'dummy.txt', to: '/tmp/dummy.txt' # downloads file to the given destination
-end
-```
-
-You can also use the `ftp` and `sftp` function without configuring any connection in you environment file, by providing parameters to the function.
-This is helpful, when generating the connection parameters during the *spec* run.
-
-```ruby
-sftp 'some.server.com', username: 'u123456', password: '$up3rSecr37' do # use connection name from config
-  upload 'dummy.txt' # uploads file to the root dir of the FTP connection
-  download 'dummy.txt' # downloads file to the current working directory\
-  download 'dummy.txt', to: '/tmp/dummy.txt' # downloads file to the given destination
-end
-```
-
-
-### MySQL `spectre/mysql`
-
-Adds an easy way to execute SQL queries on a MySQL database.
-
-You can set the following properties in the `mysql` block:
-
-| Method | Arguments | Multiple | Description |
-| -------| ----------| -------- | ----------- |
-| `host` | `string` | no | The hostname of the database to connec to |
-| `database` | `string` | no | The database to use, when executing queries |
-| `username` | `string` | no | The username to authenticate at the database |
-| `password` | `string` | no | The passwort for authentication |
-| `query` | `string` | yes | The queries which will be executed. Note that only the last query generates a `result` |
-
-The result of the query can be accessed by the `result` function. It contains all rows returned by the database.
-
-When a name is provided to `mysql`, it uses either a preconfigured connection with this name or uses the name as the database hostname.
-
-Example:
-
-```ruby
-mysql 'localhost' do
-  database 'developer'
-  username 'root'
-  password 'dev'
-
-  query "INSERT INTO todos VALUES('Spook arround', false)"
-  query "INSERT INTO todos VALUES('Scare some people', false)"
-  query "SELECT * FROM todos"
-end
-
-expect 'two entries in database' do
-  result.count.should_be 2
-end
-
-expect 'the first todo not to be completed' do
-  result.first.done.should_be false
-end
-```
-
-You can also preconfigure a MySQL connection in your environment file.
-
-```yml
-mysql:
-  developer:
-    host: localhost
-    database: developer
-    username:
-    password:
-```
-
-and use the connection by providing the section name to the `mysql` call.
-
-```ruby
-mysql 'developer' do
-  query "INSERT INTO todos VALUES('Spook arround', false)"
-  query "INSERT INTO todos VALUES('Scare some people', false)"
-  query "SELECT * FROM todos"
-end
-```
-
-If you want to execute additional queries with the same connection as on the previous `mysql` block, you can simply ommit the `name` parameter.
-
-```ruby
-mysql do
-  query "INSERT INTO todos VALUES('Rattle the chains', false)"
-end
-```
-
-
-### Environment `spectre/environment`
-
-Add arbitrary properties to your `spectre.yml`
-
-```yml
-spooky_house:
-  ghost: casper
-```
-
-and get the property via `env` function.
-
-```ruby
-describe 'Hollow API' do
-  it 'sends out spooky ghosts' do
-    expect 'the environment variable to exist' do
-      env.spooky_house.ghost.should_be 'casper'
-    end
-  end
-end
-```
-
-
 ### Helpers `spectre/helpers`
 
 There are some helper methods for various use cases
@@ -1192,6 +931,7 @@ There are some helper methods for various use cases
 | `as_json` | `string` | Parses the string as a `Hash` |
 | `as_date` | `string` | Parses the string as a `DateTime` object |
 | `content` | `string` | Treats the string as a file path and tries to read its content. Use `with` parameter to substitute placeholders in form of `#{foo}`. Example: `'path/to/file.txt'.content with:{foo: 'bar'}` |
+| `with` | `string` | Substitute placeholders in form of `#{foo}` with the given `Hash`. Example: `'path/to/file.txt'.content with:{foo: 'bar'}` |
 | `exists?` | `string` | Treats the string as a file path and returns `true` if the file exists, `false` otherwise |
 | `remove!` | `string` | Treats the string as a file path and deletes the file |
 | `to_json` | `OpenStruct` | Converts a `OpenStruct` object into a JSON string |

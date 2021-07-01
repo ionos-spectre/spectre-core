@@ -48,6 +48,7 @@ DEFAULT_CONFIG = {
   },
   'debug' => false,
   'out_path' => './reports',
+  'secure_keys' => ['password', 'secret', 'token', 'secure', 'authorization'],
   'spec_patterns' => ['./specs/**/*.spec.rb'],
   'mixin_patterns' => ['../common/mixins/**/*.mixin.rb', './mixins/**/*.mixin.rb'],
   'env_patterns' => ['./environments/**/*.env.yml'],
@@ -68,10 +69,6 @@ DEFAULT_CONFIG = {
     'spectre/http/basic_auth',
     'spectre/http/keystone',
     'spectre/resources',
-    'spectre/ssh',
-    'spectre/ftp',
-    'spectre/mysql',
-    # 'spectre/postgres',
   ],
   'include' => [
 
@@ -126,11 +123,15 @@ Specific options:}
     cmd_options['colored'] = false
   end
 
-  opts.on('-o PATH', '--out PATH', 'Output directory path') do |path|
-    cmd_options['out_path'] = path
+  opts.on('--ignore-failure', 'Always exit with code 0') do
+    cmd_options['ignore_failure'] = true
   end
 
-  opts.on('-r NAME', '--reporter NAME', Array, "A list of reporters to use") do |reporters|
+  opts.on('-o PATH', '--out PATH', 'Output directory path') do |path|
+    cmd_options['out_path'] = File.absolute_path(path)
+  end
+
+  opts.on('-r NAME', '--reporters NAME', Array, "A list of reporters to use") do |reporters|
     cmd_options['reporters'] = reporters
   end
 
@@ -205,8 +206,9 @@ envs = {}
 read_env_files = {}
 cfg['env_patterns'].each do |pattern|
   Dir.glob(pattern).each do|f|
-    spec_env = YAML.load_file(f)
-    name = spec_env.delete('name') || 'default'
+    spec_env = YAML.load_file(f) || {}
+
+    name = spec_env['name'] || 'default'
 
     if envs.key? name
       existing_env_file = read_env_files[name]
@@ -344,7 +346,11 @@ if action == 'run'
     reporter.report(run_infos)
   end
 
-  exit 0
+  errors = run_infos.select { |x| x.error != nil or x.failure != nil }
+
+  exit 0 if cfg['ignore_failure'] or errors.count == 0
+
+  exit 1
 end
 
 
@@ -471,6 +477,16 @@ reports/
 **/environments/*.env.secret.yml
 ]
 
+DEFAULT_GEMFILE = %[source 'https://rubygems.org'
+
+gem 'spectre-core', '>= #{Spectre::VERSION}'
+# gem 'spectre-mysql', '>= 1.0.0'
+# gem 'spectre-ssh', '>= 1.0.0'
+# gem 'spectre-ftp', '>= 1.0.0'
+# gem 'spectre-curl', '>= 1.0.0'
+# gem 'spectre-git', '>= 0.1.0'
+]
+
 if action == 'init'
   DEFAULT_FILES = [
     ['./environments/default.env.yml', DEFAULT_ENV_CFG],
@@ -478,6 +494,7 @@ if action == 'init'
     ['./specs/sample.spec.rb', SAMPLE_SPEC],
     ['./spectre.yml', DEFAULT_SPECTRE_CFG],
     ['./.gitignore', DEFAULT_GITIGNORE],
+    ['./Gemfile', DEFAULT_GEMFILE],
   ]
 
   %w(environments logs specs).each do |dir_name|
