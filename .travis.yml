@@ -14,18 +14,18 @@ branches:
    - master
    - /^\d\.\d\.\d(?:-\S*)?$/
 
-before_install:
-  - bkp_pwd=$(pwd)
-  - cd ./testing/docker/spectre # --project-directory does not work!
-  - docker-compose up -d
-  - cd $bkp_pwd
+# before_install:
+#   - bkp_pwd=$(pwd)
+#   - cd ./testing/docker/spectre # --project-directory does not work!
+#   - docker-compose up -d
+#   - cd $bkp_pwd
 
 jobs:
   include:
     - stage: test
       script:
         - bundle exec rspec spec
-        - bundle exec spectre -c testing/spectre/spectre.yml
+        # - bundle exec spectre -c testing/spectre/spectre.yml
     - stage: build
       script:
         - bundle exec rake build
