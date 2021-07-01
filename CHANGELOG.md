@@ -1,4 +1,4 @@
-### vNext
+### v1.9.0
 
 #### Major
  - The docker image is now based on alpine linux, which is 10 times smaller, than the previous spectre image
