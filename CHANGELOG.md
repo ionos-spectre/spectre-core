@@ -3,9 +3,9 @@
 #### Major
  - The docker image is now based on alpine linux, which is 10 times smaller, than the previous spectre image
  - Some modules were removed from the core project and are available as separate gem packages
-   - `spectre/mysql` moved to https://bitbucket.org/cneubaur/spectre-mysql
-   - `spectre/ssh` moved to https://bitbucket.org/cneubaur/spectre-ssh
-   - `spectre/ftp` moved to https://bitbucket.org/cneubaur/spectre-ftp
+   - `spectre/mysql` moved to https://github.com/cneubauer/spectre-mysql
+   - `spectre/ssh` moved to https://github.com/cneubauer/spectre-ssh
+   - `spectre/ftp` moved to https://github.com/cneubauer/spectre-ftp
 
 #### Minor
  - Added placeholder substitution function to `String` (`with(Hash)`)
