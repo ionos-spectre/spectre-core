@@ -218,9 +218,8 @@ module Spectre
           else
             str = JSON.dump(json)
           end
-        # rescue => e
-        #   # do nothing
-        #   @@logger.error(e)
+        rescue
+          # do nothing
         end
 
         str
