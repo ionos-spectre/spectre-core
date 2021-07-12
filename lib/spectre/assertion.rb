@@ -224,14 +224,6 @@ module Spectre
     class << self
       @@success = nil
 
-      def eval_assertion predicate, val
-        if val.is_a? Proc
-          val.call(predicate)
-        else
-          predicate.call(val)
-        end
-      end
-
       def expect desc
         begin
           Logger.log_process("expect #{desc}")
