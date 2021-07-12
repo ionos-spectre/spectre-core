@@ -926,7 +926,7 @@ end
 
 There are some helper methods for various use cases
 
-| Method | Data Type | Description |
+| Method | Data Types | Description |
 | -------| ----------| -------- | ----------- |
 | `as_json` | `string` | Parses the string as a `Hash` |
 | `as_date` | `string` | Parses the string as a `DateTime` object |
@@ -936,6 +936,8 @@ There are some helper methods for various use cases
 | `remove!` | `string` | Treats the string as a file path and deletes the file |
 | `to_json` | `OpenStruct` | Converts a `OpenStruct` object into a JSON string |
 | `uuid(length=5)` | `Kernel` | Generates a UUID and returns characters with given length. Default is 5. |
+| `pick` | `String`, `Hash`, `OpenStruct` | Applies a JsonPath to the data and returns the value. For more information about JsonPath see https://goessner.net/articles/JsonPath/ |
+
 
 
 
