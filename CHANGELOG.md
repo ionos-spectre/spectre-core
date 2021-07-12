@@ -5,6 +5,7 @@
 
 #### Minor
  - HTTP logging of non JSON responses is fixed
+ - When `--debug` mode is set, the complete backtrace will be put in the console report
 
 
 ### v1.9.0
