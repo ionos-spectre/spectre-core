@@ -30,14 +30,14 @@ jobs:
       script:
         - bundle exec rake build
     - stage: publish gem
-      if: branch =~ /^\d\.\d\.\d(?:-\S*)?$/
+      if: branch =~ /^\d+\.\d+\.\d+(?:-\S*)?$/
       script:
        - bundle exec rake build
        - 'echo -e "---\n:rubygems_api_key: $RUBYGEMS_APIKEY" > ~/.gem/credentials'
        - chmod 0600 ~/.gem/credentials
        - gem push pkg/*.gem
     - stage: publish versioned docker image
-      if: branch =~ /^\d\.\d\.\d(?:-\S*)?$/
+      if: branch =~ /^\d+\.\d+\.\d+(?:-\S*)?$/
       script:
        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
        - docker build -t $DOCKER_USERNAME/spectre:$TRAVIS_BRANCH .
