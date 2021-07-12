@@ -6,7 +6,7 @@ module Spectre
   module Assertion
     class ::Object
       def should_be(val)
-          raise AssertionFailure.new("The value '#{self.to_s.trim}' should be '#{val.to_s.trim}'", val, self) unless self.to_s == val.to_s
+        raise AssertionFailure.new("The value '#{self.to_s.trim}' should be '#{val.to_s.trim}'", val, self) unless self.to_s == val.to_s
       end
 
       def should_be_empty
@@ -14,11 +14,11 @@ module Spectre
       end
 
       def should_not_be(val)
-          raise AssertionFailure.new("The value '#{self.to_s.trim}' should not be '#{val.to_s.trim}'", val, self) unless self.to_s != val.to_s
+        raise AssertionFailure.new("The value '#{self.to_s.trim}' should not be '#{val.to_s.trim}'", val, self) unless self.to_s != val.to_s
       end
 
       def should_not_exist
-          raise AssertionFailure.new("The value '#{self.to_s.trim}' should not exist, but it does", val, self) unless self.to_s != nil
+        raise AssertionFailure.new("The value '#{self.to_s.trim}' should not exist, but it does", val, self) unless self.to_s != nil
       end
 
       def should_not_be_empty
@@ -76,7 +76,7 @@ module Spectre
           val = OpenStruct.new(val)
         end
 
-        raise AssertionFailure.new("The list [#{list.join(', ').trim}] should contain '#{val.trim}'", val, list) unless list.include? val
+        raise AssertionFailure.new("The list [#{list.join(', ').trim}] should contain '#{val.to_s.trim}'", val, list) unless list.include? val
       end
 
       def should_not_contain(val)
@@ -87,7 +87,7 @@ module Spectre
           val = OpenStruct.new(val)
         end
 
-        raise AssertionFailure.new("The list [#{list.join(', ').trim}] should not contain '#{val.trim}'", val, list) if list.include? val
+        raise AssertionFailure.new("The list [#{list.join(', ').trim}] should not contain '#{val.to_s.trim}'", val, list) if list.include? val
       end
 
       def should_be_empty
@@ -110,7 +110,7 @@ module Spectre
       end
 
       def should_not_be(val)
-          raise AssertionFailure.new("The text '#{self.trim}' should not be '#{val.to_s.trim}'", val, self) unless self != val
+        raise AssertionFailure.new("The text '#{self.trim}' should not be '#{val.to_s.trim}'", val, self) unless self != val
       end
 
       def should_not_be_empty
