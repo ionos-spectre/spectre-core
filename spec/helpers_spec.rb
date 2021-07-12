@@ -96,4 +96,26 @@ RSpec.describe 'spectre/helpers' do
     expect(uuid(32).length).to eq(32)
     expect(uuid(50).length).to eq(32)
   end
+
+  it 'uses jsonpath with string' do
+    foo = '{"foo": "bar"}'.pick('$.foo')
+    expect(foo).to eq(['bar'])
+  end
+
+  it 'uses jsonpath with ostruct' do
+    foo = OpenStruct.new({foo: 'bar'}).pick('$.foo')
+    expect(foo).to eq(['bar'])
+  end
+
+  it 'raises an error when path is empty' do
+    expect do
+      OpenStruct.new({foo: 'bar'}).pick('')
+    end.to raise_error(ArgumentError)
+  end
+
+  it 'raises an error when path is nil' do
+    expect do
+      OpenStruct.new({foo: 'bar'}).pick(nil)
+    end.to raise_error(ArgumentError)
+  end
 end

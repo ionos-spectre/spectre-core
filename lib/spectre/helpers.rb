@@ -2,6 +2,7 @@ require 'securerandom'
 require 'json'
 require 'date'
 require 'ostruct'
+require 'jsonpath'
 
 class ::String
   def as_json
@@ -52,12 +53,29 @@ class ::String
 
     self
   end
+
+  def pick path
+    raise ArgumentError.new("`path' must not be nil or empty") if path.nil? or path.empty?
+
+    begin
+      JsonPath.on(self, path)
+
+    rescue MultiJson::ParseError
+      # do nothing and return nil
+    end
+  end
 end
 
 
 class ::OpenStruct
   def to_json *args, **kwargs
     self.to_h.inject({}) { |memo, (k,v)| memo[k] = v.is_a?(OpenStruct) ? v.to_h : v; memo }.to_json(*args, **kwargs)
+  end
+
+  def pick path
+    raise ArgumentError.new("`path' must not be nil or empty") if path.nil? or path.empty?
+
+    JsonPath.on(self, path)
   end
 end
 

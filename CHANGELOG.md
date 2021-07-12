@@ -1,3 +1,7 @@
+### v1.9.1
+
+#### Major
+ - JsonPath function added. You can now use `.pick(<string>)` on `String`, `Hash` and `OpenStruct` to use JsonPath selection.
 ### v1.9.0
 
 #### Major
