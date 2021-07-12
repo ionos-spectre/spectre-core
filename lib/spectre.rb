@@ -1,7 +1,7 @@
 module Spectre
   module Version
     MAJOR = 1
-    MINOR = 9
+    MINOR = 10
     TINY  = 0
   end
 
