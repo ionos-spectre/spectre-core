@@ -119,7 +119,7 @@ module Spectre
 
       def should_contain(value)
         predicate = proc { |x| self.include? x.to_s }
-        evaluation = SingleEvaluation.new value
+        evaluation = SingleEvaluation.new(value)
         success = evaluation.call(predicate)
 
         return if success
@@ -165,7 +165,7 @@ module Spectre
 
     class SingleEvaluation < Evaluation
       def initialize value
-        super value, nil
+        super(value, nil)
       end
 
       def call predicate
@@ -180,7 +180,7 @@ module Spectre
 
     class OrEvaluation < Evaluation
       def initialize value, other
-        super value, other
+        super(value, other)
       end
 
       def call predicate
@@ -195,7 +195,7 @@ module Spectre
 
     class AndEvaluation < Evaluation
       def initialize value, other
-        super value, other
+        super(value, other)
       end
 
       def call predicate
