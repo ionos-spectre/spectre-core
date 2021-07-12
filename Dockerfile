@@ -1,6 +1,4 @@
-FROM alpine
-
-RUN apk add --update ruby ruby-etc
+FROM ruby:3-alpine
 
 COPY . /spectre/
 
@@ -12,5 +10,4 @@ RUN bundle install
 RUN bundle exec rake install
 
 WORKDIR /specs
-
 ENTRYPOINT [ "spectre" ]
