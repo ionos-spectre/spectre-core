@@ -118,6 +118,8 @@ module Spectre
       end
 
       def should_contain(value)
+        raise AssertionFailure.new("`value' must not be nil") if value.nil?
+
         predicate = proc { |x| self.include? x.to_s }
         evaluation = SingleEvaluation.new(value)
         success = evaluation.call(predicate)
