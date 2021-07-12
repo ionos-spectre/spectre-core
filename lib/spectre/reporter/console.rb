@@ -97,6 +97,7 @@ module Spectre::Reporter
       str += "       line.....: #{line}\n"
       str += "       type.....: #{error.class}\n"
       str += "       message..: #{error.message}\n"
+      str += "       backtrace: \n         #{error.backtrace.join("\n         ")}\n" if @config['debug']
       str
     end
   end

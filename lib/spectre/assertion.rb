@@ -6,7 +6,7 @@ module Spectre
   module Assertion
     class ::Object
       def should_be(val)
-          raise AssertionFailure.new("The value '#{self.to_s.trim}' should be '#{val.to_s.trim}'", val, self) unless self.to_s == val.to_s
+        raise AssertionFailure.new("The value '#{self.to_s.trim}' should be '#{val.to_s.trim}'", val, self) unless self.to_s == val.to_s
       end
 
       def should_be_empty
@@ -14,11 +14,11 @@ module Spectre
       end
 
       def should_not_be(val)
-          raise AssertionFailure.new("The value '#{self.to_s.trim}' should not be '#{val.to_s.trim}'", val, self) unless self.to_s != val.to_s
+        raise AssertionFailure.new("The value '#{self.to_s.trim}' should not be '#{val.to_s.trim}'", val, self) unless self.to_s != val.to_s
       end
 
       def should_not_exist
-          raise AssertionFailure.new("The value '#{self.to_s.trim}' should not exist, but it does", val, self) unless self.to_s != nil
+        raise AssertionFailure.new("The value '#{self.to_s.trim}' should not exist, but it does", val, self) unless self.to_s != nil
       end
 
       def should_not_be_empty
@@ -76,7 +76,7 @@ module Spectre
           val = OpenStruct.new(val)
         end
 
-        raise AssertionFailure.new("The list [#{list.join(', ').trim}] should contain '#{val.trim}'", val, list) unless list.include? val
+        raise AssertionFailure.new("The list [#{list.join(', ').trim}] should contain '#{val.to_s.trim}'", val, list) unless list.include? val
       end
 
       def should_not_contain(val)
@@ -87,7 +87,7 @@ module Spectre
           val = OpenStruct.new(val)
         end
 
-        raise AssertionFailure.new("The list [#{list.join(', ').trim}] should not contain '#{val.trim}'", val, list) if list.include? val
+        raise AssertionFailure.new("The list [#{list.join(', ').trim}] should not contain '#{val.to_s.trim}'", val, list) if list.include? val
       end
 
       def should_be_empty
@@ -110,7 +110,7 @@ module Spectre
       end
 
       def should_not_be(val)
-          raise AssertionFailure.new("The text '#{self.trim}' should not be '#{val.to_s.trim}'", val, self) unless self != val
+        raise AssertionFailure.new("The text '#{self.trim}' should not be '#{val.to_s.trim}'", val, self) unless self != val
       end
 
       def should_not_be_empty
@@ -118,8 +118,10 @@ module Spectre
       end
 
       def should_contain(value)
+        raise AssertionFailure.new("`value' must not be nil") if value.nil?
+
         predicate = proc { |x| self.include? x.to_s }
-        evaluation = SingleEvaluation.new value
+        evaluation = SingleEvaluation.new(value)
         success = evaluation.call(predicate)
 
         return if success
@@ -165,7 +167,7 @@ module Spectre
 
     class SingleEvaluation < Evaluation
       def initialize value
-        super value, nil
+        super(value, nil)
       end
 
       def call predicate
@@ -180,7 +182,7 @@ module Spectre
 
     class OrEvaluation < Evaluation
       def initialize value, other
-        super value, other
+        super(value, other)
       end
 
       def call predicate
@@ -195,7 +197,7 @@ module Spectre
 
     class AndEvaluation < Evaluation
       def initialize value, other
-        super value, other
+        super(value, other)
       end
 
       def call predicate
@@ -221,14 +223,6 @@ module Spectre
 
     class << self
       @@success = nil
-
-      def eval_assertion predicate, val
-        if val.is_a? Proc
-          val.call(predicate)
-        else
-          predicate.call(val)
-        end
-      end
 
       def expect desc
         begin

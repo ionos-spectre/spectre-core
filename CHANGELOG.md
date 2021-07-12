@@ -1,3 +1,13 @@
+### v1.10.0
+
+#### Major
+ - JsonPath function added. You can now use `.pick(<string>)` on `String`, `Hash` and `OpenStruct` to use JsonPath selection.
+
+#### Minor
+ - HTTP logging of non JSON responses is fixed
+ - When `--debug` mode is set, the complete backtrace will be put in the console report
+
+
 ### v1.9.0
 
 #### Major
