@@ -927,7 +927,7 @@ end
 There are some helper methods for various use cases
 
 | Method | Data Types | Description |
-| -------| ----------| -------- | ----------- |
+| ------ | ---------- | ----------- |
 | `as_json` | `string` | Parses the string as a `Hash` |
 | `as_date` | `string` | Parses the string as a `DateTime` object |
 | `content` | `string` | Treats the string as a file path and tries to read its content. Use `with` parameter to substitute placeholders in form of `#{foo}`. Example: `'path/to/file.txt'.content with:{foo: 'bar'}` |
