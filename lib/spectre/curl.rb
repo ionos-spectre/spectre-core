@@ -192,7 +192,8 @@ module Spectre::Curl
       return str unless str or str.empty?
 
       begin
-        json = JSON.parse str
+        json = JSON.parse(str)
+        json.obfuscate!(@@secure_keys) if not @@debug
 
         if pretty
           str = JSON.pretty_generate(json)
@@ -204,6 +205,25 @@ module Spectre::Curl
       end
 
       str
+    end
+
+    def is_secure? key
+      @@secure_keys.any? { |x| key.to_s.downcase.include? x.downcase  }
+    end
+
+    def header_to_s headers
+      s = ''
+
+      return s unless headers
+
+      headers.each do |header|
+        key = header[0].to_s
+        value = header[1].to_s
+        value = '*****' if is_secure?(key) and not @@debug
+        s += "#{key.ljust(30, '.')}: #{value}\n"
+      end
+
+      s
     end
 
     def invoke req
@@ -230,11 +250,11 @@ module Spectre::Curl
         uri += '?'
         uri += req['query']
           .map { |x| x.join '='}
-          .join '&'
+          .join('&')
       end
 
-      cmd.append '"' + uri + '"'
-      cmd.append '-X', req['method'] unless req['method'] == 'GET' or (req['body'] and req['method'] == 'POST')
+      cmd.append('"' + uri + '"')
+      cmd.append('-X', req['method'] unless req['method'] == 'GET' or (req['body'] and req['method'] == 'POST'))
 
       # Call all registered modules
       @@modules.each do |mod|
@@ -243,43 +263,41 @@ module Spectre::Curl
 
       # Add headers to curl command
       req['headers'].each do |header|
-        cmd.append '-H', '"' + header.join(':') + '"'
+        cmd.append('-H', '"' + header.join(':') + '"')
       end if req['headers']
 
       # Add request body
       if req['body'] != nil and not req['body'].empty?
         req_body = try_format_json(req['body']).gsub(/"/, '\\"')
-        cmd.append '-d', '"' + req_body + '"'
+        cmd.append('-d', '"' + req_body + '"')
       elsif ['POST', 'PUT', 'PATCH'].include? req['method'].upcase
-        cmd.append '-d', '"\n"'
+        cmd.append('-d', '"\n"')
       end
 
       # Add certificate path if one if given
       if req['cert']
         raise "Certificate '#{req['cert']}' does not exist" unless File.exists? req['cert']
-        cmd.append '--cacert', req['cert']
+        cmd.append('--cacert', req['cert'])
       elsif req['use_ssl'] or uri.start_with? 'https'
-        cmd.append '-k'
+        cmd.append('-k')
       end
 
-      cmd.append '-i'
-      cmd.append '-v'
+      cmd.append('-i')
+      cmd.append('-v')
 
-      @@request = OpenStruct.new req
+      @@request = OpenStruct.new(req)
 
-      sys_cmd = cmd.join ' '
+      sys_cmd = cmd.join(' ')
 
-      @@logger.debug sys_cmd
+      @@logger.debug(sys_cmd)
 
       req_id = SecureRandom.uuid()[0..5]
 
       req_log = "[>] #{req_id} #{req['method']} #{uri}\n"
-      req['headers'].each do |header|
-        req_log += "#{header[0].to_s.ljust(30, '.')}: #{header[1].to_s}\n"
-      end if req['headers']
-      req_log += req['body'] if req['body'] != nil and not req['body'].empty?
+      req_log += header_to_s(req['headers'])
+      req_log += try_format_json(req['body'], pretty: true)
 
-      @@logger.info req_log
+      @@logger.info(req_log)
 
       start_time = Time.now
 
@@ -297,7 +315,7 @@ module Spectre::Curl
 
       raise "Unable to request #{uri}. Please check if this service is reachable." unless output
 
-      @@logger.debug "[<] #{req_id} stdout:\n#{output}"
+      @@logger.debug("[<] #{req_id} stdout:\n#{output}")
 
       header, body = output.split /\r?\n\r?\n/
 
@@ -342,7 +360,7 @@ module Spectre::Curl
 
       @@logger.info res_log
 
-      @@response = SpectreHttpResponse.new res
+      @@response = SpectreHttpResponse.new(res)
 
       raise "Response did not indicate success: #{@@response.code} #{@@response.message}" if req['ensure_success'] and not @@response.success?
 
@@ -351,7 +369,12 @@ module Spectre::Curl
   end
 
   Spectre.register do |config|
-    @@logger = ::Logger.new config['log_file'], progname: 'spectre/curl'
+    @@debug = config['debug']
+
+    @@logger = ::Logger.new(config['log_file'], progname: 'spectre/curl')
+    @@logger.level = @@debug ? Logger::DEBUG : Logger::INFO
+
+    @@secure_keys = config['secure_keys'] || []
 
     @@curl_path = config['curl_path'] || 'curl'
 
