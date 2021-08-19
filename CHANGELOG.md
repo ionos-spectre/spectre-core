@@ -1,3 +1,12 @@
+### vNext
+
+#### Major
+ - Helpers methods and functions added
+   - `string.as_timestamp` is now available. Parses a string a unix timestamp
+   - `now` returns the current time (like `Time.now`)
+   - `array.last` method added. Returns the last element of list.
+
+
 ### v1.10.0
 
 #### Major
