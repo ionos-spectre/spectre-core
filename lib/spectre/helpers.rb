@@ -13,6 +13,10 @@ class ::String
     DateTime.parse(self)
   end
 
+  def as_timestamp
+    DateTime.parse(self).to_time.to_i
+  end
+
   def content with: nil
     fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
     file_content = File.read(self)
@@ -30,7 +34,7 @@ class ::String
     new_string = self
 
     mapping.each do |key, value|
-      new_string = new_string.gsub '#{' + key.to_s + '}', value.to_s
+      new_string = new_string.gsub('#{' + key.to_s + '}', value.to_s)
     end
 
     new_string
@@ -87,6 +91,18 @@ class ::Hash
 end
 
 
+class ::Array
+  def last
+    self[self.length-1]
+  end
+end
+
+
 def uuid length = 5
   SecureRandom.uuid().gsub('-', '')[0..length-1]
+end
+
+
+def now
+  Time.now
 end

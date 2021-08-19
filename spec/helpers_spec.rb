@@ -118,4 +118,10 @@ RSpec.describe 'spectre/helpers' do
       OpenStruct.new({foo: 'bar'}).pick(nil)
     end.to raise_error(ArgumentError)
   end
+
+  it 'gets the last element of an array' do
+    list = [1, 2, 3]
+    last_element = list.last
+    expect(last_element).to eq(3)
+  end
 end
