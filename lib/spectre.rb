@@ -308,7 +308,7 @@ module Spectre
 
       raise "`with' has to be an Array" unless with.is_a? Array
 
-      data = with.map { |x| x.is_a? Hash ? OpenStruct.new(x) : x }
+      data = with.map { |x| x.is_a?(Hash) ? OpenStruct.new(x) : x }
 
       @__subject.add_spec(desc, tags, data, block, self, spec_file)
     end
