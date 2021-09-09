@@ -934,6 +934,8 @@ There are some helper methods for various use cases
 | `with` | `string` | Substitute placeholders in form of `#{foo}` with the given `Hash`. Example: `'path/to/file.txt'.content with:{foo: 'bar'}` |
 | `exists?` | `string` | Treats the string as a file path and returns `true` if the file exists, `false` otherwise |
 | `remove!` | `string` | Treats the string as a file path and deletes the file |
+| `size` | `string` | Treats the string as a file path and returns the file size |
+| `trim` | `string` | Trims a long string to the given size. Default ist 50 |
 | `default_to!`, `defaults_to!` | `Hash`, `OpenStruct` | Sets default values to the `Hash` or `OpenStruct` |
 | `to_json` | `OpenStruct` | Converts a `OpenStruct` object into a JSON string |
 | `uuid(length=5)` | `Kernel` | Generates a UUID and returns characters with given length. Default is 5. |

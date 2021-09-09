@@ -17,17 +17,6 @@ class ::String
     DateTime.parse(self).to_time.to_i
   end
 
-  def content with: nil
-    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
-    file_content = File.read(self)
-
-    if with
-      file_content.with(with)
-    else
-      file_content
-    end
-  end
-
   def with mapping
     return self unless mapping and mapping.is_a? Hash
 
@@ -40,19 +29,9 @@ class ::String
     new_string
   end
 
-  def exists?
-    File.exists? self
-  end
-
-  def remove!
-    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
-
-    File.delete self
-  end
-
-  def trim count = 50
-    if (self.length + 3) > count
-      return self[0..count-4] + '...'
+  def trim size = 50
+    if (self.length + 3) > size
+      return self[0..size-4] + '...'
     end
 
     self
@@ -67,6 +46,33 @@ class ::String
     rescue MultiJson::ParseError
       # do nothing and return nil
     end
+  end
+
+  # File helpers
+
+  def content with: nil
+    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+    file_content = File.read(self)
+
+    if with
+      file_content.with(with)
+    else
+      file_content
+    end
+  end
+
+  def file_size
+    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+    File.size(self)
+  end
+
+  def exists?
+    File.exists? self
+  end
+
+  def remove!
+    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+    File.delete self
   end
 end
 
@@ -113,7 +119,7 @@ end
 
 class ::Array
   def last
-    self[self.length-1]
+    self[-1]
   end
 end
 

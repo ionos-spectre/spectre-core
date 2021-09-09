@@ -55,6 +55,21 @@ RSpec.describe 'spectre/helpers' do
     end
   end
 
+  it 'gets the size of a file' do
+    file_path = 'dummy.txt'
+
+    File.delete(file_path) if File.exist? file_path
+    file_content = 'Hello World!'
+    File.write(file_path, file_content)
+
+    begin
+      expect(file_path.file_size).to eq(file_content.size)
+
+    ensure
+      File.delete(file_path)
+    end
+  end
+
   it 'reads string as json' do
     content = '{"foo": "bar"}'
 
@@ -74,11 +89,20 @@ RSpec.describe 'spectre/helpers' do
     expect(date.year).to eq(1986)
   end
 
+  it 'reads string as timestamp' do
+    content = '08.06.1986'
+
+    timestamp = content.as_timestamp
+
+    expect(timestamp).to eq(518572800)
+  end
+
   it 'trims a long string' do
     content = 'This is a long text'
 
     trimmed = content.trim 10
 
+    expect(trimmed.size).to eq(10)
     expect(trimmed).to eq('This is...')
   end
 
