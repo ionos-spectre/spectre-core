@@ -10,7 +10,7 @@ module Spectre
       end
 
       def should_be_empty
-        raise AssertionFailure.new("The value '#{self.to_s.trim}' should be empty", nil, self) unless self == nil
+        raise AssertionFailure.new("The value '#{self.to_s.trim}' should be empty", nil, self) unless self.nil?
       end
 
       def should_not_be(val)
@@ -91,11 +91,11 @@ module Spectre
       end
 
       def should_be_empty
-        raise AssertionFailure.new('empty list', self) unless self.length == 0
+        raise AssertionFailure.new('empty list', self) unless self.empty?
       end
 
       def should_not_be_empty
-        raise AssertionFailure.new('no empty list', self) unless self.length > 0
+        raise AssertionFailure.new('no empty list', self) if self.empty?
       end
     end
 
