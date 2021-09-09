@@ -124,4 +124,44 @@ RSpec.describe 'spectre/helpers' do
     last_element = list.last
     expect(last_element).to eq(3)
   end
+
+  it 'sets default values in a Hash' do
+    h = {foo: 'blubb', num: 123, nothing: nil}
+
+    h.default_to!(
+      bar: 'foo',
+      foo: 'bar',
+      nothing: 'hill',
+    )
+
+    h.defaults_to!(
+      bar: 'foo',
+      foo: 'bar',
+    )
+
+    expect(h[:foo]).to eq('blubb')
+    expect(h[:bar]).to eq('foo')
+    expect(h[:num]).to eq(123)
+    expect(h[:nothing]).to eq('hill')
+  end
+
+  it 'sets default values in an OpenStruct' do
+    o = OpenStruct.new({foo: 'blubb', num: 123})
+
+    o.default_to!(
+      bar: 'foo',
+      foo: 'bar',
+      nothing: 'hill',
+    )
+
+    o.defaults_to!(
+      bar: 'foo',
+      foo: 'bar',
+    )
+
+    expect(o.foo).to eq('blubb')
+    expect(o.bar).to eq('foo')
+    expect(o.num).to eq(123)
+    expect(o.nothing).to eq('hill')
+  end
 end

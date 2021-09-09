@@ -81,6 +81,16 @@ class ::OpenStruct
 
     JsonPath.on(self, path)
   end
+
+  def default_to! defaults
+    defaults.each_key do |key|
+      if not self[key] != nil
+        self[key] = defaults[key]
+      end
+    end
+  end
+
+  alias :defaults_to! :default_to!
 end
 
 
@@ -88,6 +98,16 @@ class ::Hash
   def symbolize_keys
     self.inject({}) { |memo, (k,v)| memo[k.to_sym] = v; memo }
   end
+
+  def default_to! defaults
+    defaults.each_key do |key|
+      if not self[key] != nil
+        self[key] = defaults[key]
+      end
+    end
+  end
+
+  alias :defaults_to! :default_to!
 end
 
 

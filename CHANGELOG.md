@@ -5,6 +5,7 @@
    - `string.as_timestamp` is now available. Parses a string a unix timestamp
    - `now` returns the current time (like `Time.now`)
    - `array.last` method added. Returns the last element of list.
+   - `Hash.default_to!` and `OpenStruct.default_to!` method added. Sets default values, when value in Hash is `nil`.
  - Mixins take always at least one parameter. If a mixin is called with `run '<minxin>' with: nil`, the mixin parameter is an empty `Hash`.
  - Passing a `Hash` to the `run` method of mixins, will pass the `Hash` parameter as an `OpenStruct` to the mixin
 
