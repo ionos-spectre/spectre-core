@@ -31,7 +31,7 @@ https://bitbucket.org/cneubaur/spectre-core
 `spectre` is available as a docker image. Just run your *specs* in a Docker container with
 
 ```bash
-docker run -t --rm -v "$(pwd)/path/to/specs:/specs" cneubaur/spectre
+docker run -t --rm -v "$(pwd)/path/to/specs" cneubaur/spectre
 ```
 
 
@@ -66,7 +66,7 @@ spectre --version
 
 ### CURL
 
-The `spectre/http` module requires `curl` to be installed on your system.
+The `spectre/curl` module requires `curl` to be installed on your system.
 
 ```bash
 $ sudo apt install curl
@@ -110,22 +110,6 @@ LoadError: cannot load such file -- bundler/gem_tasks
 /usr/lib/ruby/vendor_ruby/rake/application.rb:186:in `standard_exception_handling'
 /usr/lib/ruby/vendor_ruby/rake/application.rb:80:in `run'
 /usr/bin/rake:27:in `<main>'
-```
-
-
-### Postgres module
-
-When using `spectre/database/postgres` module, the gem `pg` has to be installed manually.
-
-```bash
-sudo gem install pg
-```
-
-If installation fails, try install postgres postgres client first
-
-```bash
-sudo apt-get install postgresql-client libpq5 libpq-dev
-sudo gem install pg
 ```
 
 
