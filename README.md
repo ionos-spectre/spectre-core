@@ -11,6 +11,16 @@ Spectre is a DSL and tool set for test automation.
 It is written in [Ruby](https://www.ruby-lang.org/de/) and inspired by the Unit-Test framework [rspec](https://rspec.info/).
 
 
+## External Modules
+
+| Module | Documentation |
+| ------ | ------------- |
+| `spectre/ftp` | https://github.com/cneubauer/spectre-ftp |
+| `spectre/git` | https://github.com/cneubauer/spectre-git |
+| `spectre/mysql` | https://github.com/cneubauer/spectre-mysql |
+| `spectre/ssh` | https://github.com/cneubauer/spectre-ssh |
+
+
 ## Source
 
 https://bitbucket.org/cneubaur/spectre-core
