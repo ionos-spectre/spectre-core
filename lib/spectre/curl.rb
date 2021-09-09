@@ -254,7 +254,7 @@ module Spectre::Curl
       end
 
       cmd.append('"' + uri + '"')
-      cmd.append('-X', req['method'] unless req['method'] == 'GET' or (req['body'] and req['method'] == 'POST'))
+      cmd.append('-X', req['method']) unless req['method'] == 'GET' or (req['body'] and req['method'] == 'POST')
 
       # Call all registered modules
       @@modules.each do |mod|
