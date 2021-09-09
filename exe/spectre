@@ -300,6 +300,7 @@ if action == 'run'
   FileUtils.makedirs log_dir if !Dir.exists? log_dir
 
   # Load Modules
+
   cfg['modules']
     .concat(cfg['include'])
     .select { |mod| !cfg['exclude'].include? mod }
@@ -321,6 +322,14 @@ if action == 'run'
         puts "Unable to load module #{mod}. Check if the module exists or remove it from your spectre config:\n#{e.message}"
         exit 1
       end
+  end
+
+  # Load mixins
+
+  cfg['mixin_patterns'].each do |pattern|
+    Dir.glob(pattern).each do|f|
+      require_relative File.join(Dir.pwd, f)
+    end
   end
 
   Spectre.configure(cfg)

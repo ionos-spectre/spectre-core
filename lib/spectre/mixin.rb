@@ -24,18 +24,6 @@ module Spectre
       alias_method :step, :run
     end
 
-    Spectre.register do |config|
-      if not config.key? 'mixin_patterns'
-        return
-      end
-
-      config['mixin_patterns'].each do |pattern|
-        Dir.glob(pattern).each do|f|
-          require_relative File.join(Dir.pwd, f)
-        end
-      end
-    end
-
     Spectre.delegate :mixin, :run, :also, :step, to: Mixin
   end
 end
