@@ -1,4 +1,5 @@
 require 'ostruct'
+require 'spectre/logger'
 
 module Spectre
   module Mixin
@@ -11,12 +12,16 @@ module Spectre
 
       def run desc, with: []
         raise "no mixin with desc '#{desc}' defined" unless @@mixins.key? desc
-        Logger.log_debug "running mixin '#{desc}'"
+        Spectre::Logger.log_debug "running mixin '#{desc}'"
 
-        if with.is_a? Array
-          @@mixins[desc].call *with
+        params = with || {}
+
+        if params.is_a? Array
+          @@mixins[desc].call *params
+        elsif params.is_a? Hash
+          @@mixins[desc].call OpenStruct.new(params)
         else
-          @@mixins[desc].call with
+          @@mixins[desc].call params
         end
       end
 
