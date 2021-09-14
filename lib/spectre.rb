@@ -1,7 +1,7 @@
 module Spectre
   module Version
     MAJOR = 1
-    MINOR = 10
+    MINOR = 11
     TINY  = 0
   end
 
@@ -31,20 +31,20 @@ module Spectre
   # https://www.dan-manges.com/blog/ruby-dsls-instance-eval-with-delegation
   class DslClass
     def _evaluate &block
-      @__bound_self__ = eval 'self', block.binding
+      @__bound_self__ = eval('self', block.binding)
       instance_eval(&block)
     end
 
     def _execute args, &block
-      @__bound_self__ = eval 'self', block.binding
+      @__bound_self__ = eval('self', block.binding)
       instance_exec(args, &block)
     end
 
     def method_missing method, *args, **kwargs, &block
       if @__bound_self__.respond_to? method
-        @__bound_self__.send method, *args, **kwargs, &block
+        @__bound_self__.send(method, *args, **kwargs, &block)
       else
-        Delegator.redirect method, *args, **kwargs, &block
+        Delegator.redirect(method, *args, **kwargs, &block)
       end
     end
   end
@@ -151,7 +151,7 @@ module Spectre
 
       begin
         specs.each do |spec|
-          if spec.data.length > 0
+          if spec.data.any?
             spec.data.each do |data|
               Logger.log_spec(spec, data) do
                 runs << run_spec(spec, data)
@@ -208,7 +208,7 @@ module Spectre
     end
 
     def run_spec spec, data=nil
-      run_info = RunInfo.new spec, data
+      run_info = RunInfo.new(spec, data)
 
       @@current = run_info
 
@@ -216,16 +216,16 @@ module Spectre
 
       begin
         if spec.context.__before_blocks.count > 0
-          before_ctx = SpecContext.new spec.subject, 'before'
+          before_ctx = SpecContext.new(spec.subject, 'before')
 
           Logger.log_context before_ctx do
             spec.context.__before_blocks.each do |block|
-              block.call data
+              block.call(data)
             end
           end
         end
 
-        spec.block.call data
+        spec.block.call(data)
 
       rescue ExpectationFailure => e
         run_info.failure = e
@@ -240,7 +240,7 @@ module Spectre
 
       ensure
         if spec.context.__after_blocks.count > 0
-          after_ctx = SpecContext.new spec.subject, 'after'
+          after_ctx = SpecContext.new(spec.subject, 'after')
 
           Logger.log_context after_ctx do
             begin
@@ -306,7 +306,11 @@ module Spectre
           .first
       end
 
-      @__subject.add_spec(desc, tags, with, block, self, spec_file)
+      raise "`with' has to be an Array" unless with.is_a? Array
+
+      data = with.map { |x| x.is_a?(Hash) ? OpenStruct.new(x) : x }
+
+      @__subject.add_spec(desc, tags, data, block, self, spec_file)
     end
 
     def before &block

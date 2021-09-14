@@ -11,6 +11,16 @@ Spectre is a DSL and tool set for test automation.
 It is written in [Ruby](https://www.ruby-lang.org/de/) and inspired by the Unit-Test framework [rspec](https://rspec.info/).
 
 
+## External Modules
+
+| Module | Documentation |
+| ------ | ------------- |
+| `spectre/ftp` | https://github.com/cneubauer/spectre-ftp |
+| `spectre/git` | https://github.com/cneubauer/spectre-git |
+| `spectre/mysql` | https://github.com/cneubauer/spectre-mysql |
+| `spectre/ssh` | https://github.com/cneubauer/spectre-ssh |
+
+
 ## Source
 
 https://bitbucket.org/cneubaur/spectre-core
@@ -21,7 +31,7 @@ https://bitbucket.org/cneubaur/spectre-core
 `spectre` is available as a docker image. Just run your *specs* in a Docker container with
 
 ```bash
-docker run -t --rm -v "$(pwd)/path/to/specs:/specs" cneubaur/spectre
+docker run -t --rm -v "$(pwd)/path/to/specs" cneubaur/spectre
 ```
 
 
@@ -56,7 +66,7 @@ spectre --version
 
 ### CURL
 
-The `spectre/http` module requires `curl` to be installed on your system.
+The `spectre/curl` module requires `curl` to be installed on your system.
 
 ```bash
 $ sudo apt install curl
@@ -100,22 +110,6 @@ LoadError: cannot load such file -- bundler/gem_tasks
 /usr/lib/ruby/vendor_ruby/rake/application.rb:186:in `standard_exception_handling'
 /usr/lib/ruby/vendor_ruby/rake/application.rb:80:in `run'
 /usr/bin/rake:27:in `<main>'
-```
-
-
-### Postgres module
-
-When using `spectre/database/postgres` module, the gem `pg` has to be installed manually.
-
-```bash
-sudo gem install pg
-```
-
-If installation fails, try install postgres postgres client first
-
-```bash
-sudo apt-get install postgresql-client libpq5 libpq-dev
-sudo gem install pg
 ```
 
 
@@ -934,6 +928,9 @@ There are some helper methods for various use cases
 | `with` | `string` | Substitute placeholders in form of `#{foo}` with the given `Hash`. Example: `'path/to/file.txt'.content with:{foo: 'bar'}` |
 | `exists?` | `string` | Treats the string as a file path and returns `true` if the file exists, `false` otherwise |
 | `remove!` | `string` | Treats the string as a file path and deletes the file |
+| `size` | `string` | Treats the string as a file path and returns the file size |
+| `trim` | `string` | Trims a long string to the given size. Default ist 50 |
+| `default_to!`, `defaults_to!` | `Hash`, `OpenStruct` | Sets default values to the `Hash` or `OpenStruct` |
 | `to_json` | `OpenStruct` | Converts a `OpenStruct` object into a JSON string |
 | `uuid(length=5)` | `Kernel` | Generates a UUID and returns characters with given length. Default is 5. |
 | `pick` | `String`, `Hash`, `OpenStruct` | Applies a JsonPath to the data and returns the value. For more information about JsonPath see https://goessner.net/articles/JsonPath/ |

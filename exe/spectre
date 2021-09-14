@@ -238,6 +238,10 @@ cfg.merge! env if env
 
 String.colored! if cfg['colored']
 
+# Load environment exlicitly before loading specs to make it available in spec definition
+require_relative '../lib/spectre/environment' unless cfg['exclude'].include? 'spectre/environment'
+Spectre.configure(cfg)
+
 
 ###########################################
 # Load Specs
@@ -260,7 +264,7 @@ if action == 'list'
   colors = [:blue, :magenta, :yellow, :green]
   specs = Spectre.specs(cfg['specs'], cfg['tags'])
 
-  exit 1 if specs.length == 0
+  exit 1 unless specs.any?
 
   counter = 0
 
@@ -300,6 +304,7 @@ if action == 'run'
   FileUtils.makedirs log_dir if !Dir.exists? log_dir
 
   # Load Modules
+
   cfg['modules']
     .concat(cfg['include'])
     .select { |mod| !cfg['exclude'].include? mod }
@@ -323,6 +328,14 @@ if action == 'run'
       end
   end
 
+  # Load mixins
+
+  cfg['mixin_patterns'].each do |pattern|
+    Dir.glob(pattern).each do|f|
+      require_relative File.join(Dir.pwd, f)
+    end
+  end
+
   Spectre.configure(cfg)
 
   Spectre::Logger.debug! if cfg['debug']
@@ -334,7 +347,7 @@ if action == 'run'
 
   specs = Spectre.specs(cfg['specs'], cfg['tags'])
 
-  if specs.length == 0
+  if not specs.any?
     puts "No specs found in #{Dir.pwd}"
     exit 1
   end
@@ -348,7 +361,7 @@ if action == 'run'
 
   errors = run_infos.select { |x| x.error != nil or x.failure != nil }
 
-  exit 0 if cfg['ignore_failure'] or errors.count == 0
+  exit 0 if cfg['ignore_failure'] or not errors.any?
 
   exit 1
 end
@@ -360,7 +373,7 @@ end
 
 
 if action == 'envs'
-  exit 1 if envs.length == 0
+  exit 1 unless envs.any?
   puts envs.pretty
   exit 0
 end

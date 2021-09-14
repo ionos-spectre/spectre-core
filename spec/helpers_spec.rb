@@ -55,6 +55,21 @@ RSpec.describe 'spectre/helpers' do
     end
   end
 
+  it 'gets the size of a file' do
+    file_path = 'dummy.txt'
+
+    File.delete(file_path) if File.exist? file_path
+    file_content = 'Hello World!'
+    File.write(file_path, file_content)
+
+    begin
+      expect(file_path.file_size).to eq(file_content.size)
+
+    ensure
+      File.delete(file_path)
+    end
+  end
+
   it 'reads string as json' do
     content = '{"foo": "bar"}'
 
@@ -74,11 +89,20 @@ RSpec.describe 'spectre/helpers' do
     expect(date.year).to eq(1986)
   end
 
+  it 'reads string as timestamp' do
+    content = '08.06.1986'
+
+    timestamp = content.as_timestamp
+
+    expect(timestamp).to eq(518572800)
+  end
+
   it 'trims a long string' do
     content = 'This is a long text'
 
     trimmed = content.trim 10
 
+    expect(trimmed.size).to eq(10)
     expect(trimmed).to eq('This is...')
   end
 
@@ -117,5 +141,51 @@ RSpec.describe 'spectre/helpers' do
     expect do
       OpenStruct.new({foo: 'bar'}).pick(nil)
     end.to raise_error(ArgumentError)
+  end
+
+  it 'gets the last element of an array' do
+    list = [1, 2, 3]
+    last_element = list.last
+    expect(last_element).to eq(3)
+  end
+
+  it 'sets default values in a Hash' do
+    h = {foo: 'blubb', num: 123, nothing: nil}
+
+    h.default_to!(
+      bar: 'foo',
+      foo: 'bar',
+      nothing: 'hill',
+    )
+
+    h.defaults_to!(
+      bar: 'foo',
+      foo: 'bar',
+    )
+
+    expect(h[:foo]).to eq('blubb')
+    expect(h[:bar]).to eq('foo')
+    expect(h[:num]).to eq(123)
+    expect(h[:nothing]).to eq('hill')
+  end
+
+  it 'sets default values in an OpenStruct' do
+    o = OpenStruct.new({foo: 'blubb', num: 123})
+
+    o.default_to!(
+      bar: 'foo',
+      foo: 'bar',
+      nothing: 'hill',
+    )
+
+    o.defaults_to!(
+      bar: 'foo',
+      foo: 'bar',
+    )
+
+    expect(o.foo).to eq('blubb')
+    expect(o.bar).to eq('foo')
+    expect(o.num).to eq(123)
+    expect(o.nothing).to eq('hill')
   end
 end

@@ -57,6 +57,7 @@ module Spectre::Reporter
 
           if run_info.log.count > 0 or run_info.properties.count > 0 or run_info.data
             xml_str += '<system-out>'
+            xml_str += '<![CDATA['
 
             if  run_info.properties.count > 0
               run_info.properties.each do |key, val|
@@ -75,6 +76,7 @@ module Spectre::Reporter
               xml_str += messages.join("\n")
             end
 
+            xml_str += ']]>'
             xml_str += '</system-out>'
           end
 

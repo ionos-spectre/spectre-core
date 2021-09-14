@@ -13,15 +13,8 @@ class ::String
     DateTime.parse(self)
   end
 
-  def content with: nil
-    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
-    file_content = File.read(self)
-
-    if with
-      file_content.with(with)
-    else
-      file_content
-    end
+  def as_timestamp
+    DateTime.parse(self).to_time.to_i
   end
 
   def with mapping
@@ -30,25 +23,15 @@ class ::String
     new_string = self
 
     mapping.each do |key, value|
-      new_string = new_string.gsub '#{' + key.to_s + '}', value.to_s
+      new_string = new_string.gsub('#{' + key.to_s + '}', value.to_s)
     end
 
     new_string
   end
 
-  def exists?
-    File.exists? self
-  end
-
-  def remove!
-    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
-
-    File.delete self
-  end
-
-  def trim count = 50
-    if (self.length + 3) > count
-      return self[0..count-4] + '...'
+  def trim size = 50
+    if (self.length + 3) > size
+      return self[0..size-4] + '...'
     end
 
     self
@@ -64,6 +47,33 @@ class ::String
       # do nothing and return nil
     end
   end
+
+  # File helpers
+
+  def content with: nil
+    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+    file_content = File.read(self)
+
+    if with
+      file_content.with(with)
+    else
+      file_content
+    end
+  end
+
+  def file_size
+    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+    File.size(self)
+  end
+
+  def exists?
+    File.exists? self
+  end
+
+  def remove!
+    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+    File.delete self
+  end
 end
 
 
@@ -77,6 +87,16 @@ class ::OpenStruct
 
     JsonPath.on(self, path)
   end
+
+  def default_to! defaults
+    defaults.each_key do |key|
+      if not self[key] != nil
+        self[key] = defaults[key]
+      end
+    end
+  end
+
+  alias :defaults_to! :default_to!
 end
 
 
@@ -84,9 +104,31 @@ class ::Hash
   def symbolize_keys
     self.inject({}) { |memo, (k,v)| memo[k.to_sym] = v; memo }
   end
+
+  def default_to! defaults
+    defaults.each_key do |key|
+      if not self[key] != nil
+        self[key] = defaults[key]
+      end
+    end
+  end
+
+  alias :defaults_to! :default_to!
+end
+
+
+class ::Array
+  def last
+    self[-1]
+  end
 end
 
 
 def uuid length = 5
   SecureRandom.uuid().gsub('-', '')[0..length-1]
+end
+
+
+def now
+  Time.now
 end

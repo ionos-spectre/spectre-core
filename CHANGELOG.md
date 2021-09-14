@@ -1,3 +1,16 @@
+### v1.11.0
+
+#### Major
+ - Helpers methods and functions added
+   - `string.as_timestamp` is now available. Parses a string a unix timestamp
+   - `string.file_size` is now available. Interprets string as file path and gives back the file size if the file exists.
+   - `now` returns the current time (like `Time.now`)
+   - `array.last` method added. Returns the last element of a list.
+   - `Hash.default_to!` and `OpenStruct.default_to!` method added. Sets default values, when value in Hash is `nil` or key does not exist.
+ - Mixins take always at least one parameter. If a mixin is called with `run '<minxin>' with: nil`, the mixin parameter is an empty `Hash`.
+ - Passing a `Hash` to the `run` method of mixins, will pass the `Hash` parameter as an `OpenStruct` to the mixin
+
+
 ### v1.10.0
 
 #### Major
