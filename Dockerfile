@@ -4,7 +4,7 @@ COPY . /spectre/
 
 WORKDIR /spectre
 
-RUN gem install bundler
+RUN apk add ruby-bundler
 RUN bundle update --bundler
 RUN bundle install
 RUN bundle exec rake install
