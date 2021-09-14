@@ -46,6 +46,7 @@ RSpec.describe 'spectre/mixin' do
     some_value = nil
 
     Spectre::Mixin.mixin mixin_name do |params|
+      expect(params).to be_a(OpenStruct)
       expect(params.foo).to eq(1)
       expect(params.bar).to eq(2)
     end
