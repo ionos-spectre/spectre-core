@@ -1,7 +1,7 @@
 module Spectre
   module Version
     MAJOR = 1
-    MINOR = 10
+    MINOR = 11
     TINY  = 0
   end
 
@@ -31,20 +31,20 @@ module Spectre
   # https://www.dan-manges.com/blog/ruby-dsls-instance-eval-with-delegation
   class DslClass
     def _evaluate &block
-      @__bound_self__ = eval 'self', block.binding
+      @__bound_self__ = eval('self', block.binding)
       instance_eval(&block)
     end
 
     def _execute args, &block
-      @__bound_self__ = eval 'self', block.binding
+      @__bound_self__ = eval('self', block.binding)
       instance_exec(args, &block)
     end
 
     def method_missing method, *args, **kwargs, &block
       if @__bound_self__.respond_to? method
-        @__bound_self__.send method, *args, **kwargs, &block
+        @__bound_self__.send(method, *args, **kwargs, &block)
       else
-        Delegator.redirect method, *args, **kwargs, &block
+        Delegator.redirect(method, *args, **kwargs, &block)
       end
     end
   end
