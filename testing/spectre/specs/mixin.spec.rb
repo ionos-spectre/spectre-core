@@ -9,7 +9,11 @@ describe 'spectre/mixin' do
     end
   end
 
-  it 'should run a mixin with parameters', tags: [:mixin] do
+  it 'should run a mixin with list parameters', tags: [:mixin] do
     run 'check some value', with: ['foo', 'foo']
+  end
+
+  it 'should run a mixin with hash parameters', tags: [:mixin] do
+    run 'something with params', with: {bar: 'foo'}
   end
 end
