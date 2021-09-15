@@ -1,10 +1,10 @@
-FROM ruby:3-alpine
+FROM ruby:3.0.2-alpine3.14
 
 COPY . /spectre/
 
 WORKDIR /spectre
 
-RUN apk --update-cache add ruby-bundler
+RUN bundle update --bundler
 RUN bundle install
 RUN bundle exec rake install
 
