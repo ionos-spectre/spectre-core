@@ -18,7 +18,6 @@ RSpec.describe 'spectre/helpers' do
     begin
       content = file_path.content with: {name: 'World'}
       expect(content).to eq('Hello World!')
-
     ensure
       File.delete(file_path)
     end
@@ -32,7 +31,6 @@ RSpec.describe 'spectre/helpers' do
 
     begin
       expect(file_path.exists?).to eq(true)
-
     ensure
       File.delete(file_path)
     end
@@ -49,7 +47,6 @@ RSpec.describe 'spectre/helpers' do
     begin
       file_path.remove!
       expect(File.exist? file_path).to eq(false)
-
     ensure
       File.delete(file_path)if File.exist? file_path
     end
@@ -64,7 +61,6 @@ RSpec.describe 'spectre/helpers' do
 
     begin
       expect(file_path.file_size).to eq(file_content.size)
-
     ensure
       File.delete(file_path)
     end

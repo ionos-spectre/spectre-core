@@ -13,6 +13,7 @@ module Spectre
 
       def [] name
         raise "Resource with name '#{name}' does not exist" if not @items.key? name
+
         @items[name]
       end
     end

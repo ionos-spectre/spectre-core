@@ -151,7 +151,6 @@ Specific options:}
       curr_opt[k] = {} if not curr_opt.key? k
     end
     curr_opt = val
-
   end
 
   opts.separator "\nCommon options:"
@@ -293,12 +292,13 @@ if action == 'run'
   # Initialize logger
   now = Time.now
 
-  cfg['log_file'] = cfg['log_file'].frmt({
-    shortdate: now.strftime('%Y-%m-%d'),
-    date: now.strftime('%Y-%m-%d_%H%M%S'),
-    timestamp: now.strftime('%s'),
-    subject: 'spectre',
-  })
+  cfg['log_file'] = cfg['log_file'].frmt(
+{
+  shortdate: now.strftime('%Y-%m-%d'),
+  date: now.strftime('%Y-%m-%d_%H%M%S'),
+  timestamp: now.strftime('%s'),
+  subject: 'spectre',
+})
 
   log_dir = File.dirname cfg['log_file']
   FileUtils.makedirs log_dir if !Dir.exists? log_dir
@@ -309,23 +309,22 @@ if action == 'run'
     .concat(cfg['include'])
     .select { |mod| !cfg['exclude'].include? mod }
     .each do |mod|
-      begin
-        spectre_lib_mod = File.join('../lib', mod)
+    begin
+      spectre_lib_mod = File.join('../lib', mod)
 
-        if File.exists? mod
-          require_relative mod
+      if File.exists? mod
+        require_relative mod
 
-        elsif File.exists? spectre_lib_mod
-          require_relative spectre_lib_mod
+      elsif File.exists? spectre_lib_mod
+        require_relative spectre_lib_mod
 
-        else
-          require mod
-        end
-
-      rescue LoadError => e
-        puts "Unable to load module #{mod}. Check if the module exists or remove it from your spectre config:\n#{e.message}"
-        exit 1
+      else
+        require mod
       end
+    rescue LoadError => e
+      puts "Unable to load module #{mod}. Check if the module exists or remove it from your spectre config:\n#{e.message}"
+      exit 1
+    end
   end
 
   # Load mixins

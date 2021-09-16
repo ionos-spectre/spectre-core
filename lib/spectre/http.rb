@@ -102,6 +102,7 @@ module Spectre
 
       def [] key
         return nil if not @headers.has_key?(key.downcase)
+
         @headers[key.downcase].first
       end
 
@@ -191,16 +192,19 @@ module Spectre
 
       def request
         raise 'No request has been invoked yet' unless @@request
+
         @@request
       end
 
       def response
         raise 'There is no response. No request has been invoked yet.' unless @@response
+
         @@response
       end
 
       def register mod
         raise 'Module must not be nil' unless mod
+
         @@modules << mod
       end
 
@@ -226,7 +230,7 @@ module Spectre
       end
 
       def is_secure? key
-        @@secure_keys.any? { |x| key.to_s.downcase.include? x.downcase  }
+        @@secure_keys.any? { |x| key.to_s.downcase.include? x.downcase }
       end
 
       def header_to_s headers
@@ -271,6 +275,7 @@ module Spectre
 
           if req.key? 'cert'
             raise "Certificate '#{req['cert']}' does not exist" unless File.exists? req['cert']
+
             net_http.verify_mode = OpenSSL::SSL::VERIFY_PEER
             net_http.ca_file = req['cert']
           else

@@ -24,12 +24,14 @@ module Spectre
 
       def start_context context
         return unless context.__desc
+
         puts (' ' * indent) + context.__desc.magenta
         @level += 1
       end
 
       def end_context context
         return unless context.__desc
+
         @level -= 1
         puts (' ' * indent) + @fmt_end_context.gsub('<desc>', context.__desc).magenta if @fmt_end_context
       end
@@ -136,7 +138,6 @@ module Spectre
           @process = nil
         end
       end
-
     end
   end
 end

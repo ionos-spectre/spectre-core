@@ -173,16 +173,19 @@ module Spectre::Curl
 
     def curl_request
       raise 'No request has been invoked yet' unless @@request
+
       @@request
     end
 
     def curl_response
       raise 'There is no response. No request has been invoked yet.' unless @@response
+
       @@response
     end
 
     def register mod
       raise 'Module must not be nil' unless mod
+
       @@modules << mod
     end
 
@@ -208,7 +211,7 @@ module Spectre::Curl
     end
 
     def is_secure? key
-      @@secure_keys.any? { |x| key.to_s.downcase.include? x.downcase  }
+      @@secure_keys.any? { |x| key.to_s.downcase.include? x.downcase }
     end
 
     def header_to_s headers
@@ -277,6 +280,7 @@ module Spectre::Curl
       # Add certificate path if one if given
       if req['cert']
         raise "Certificate '#{req['cert']}' does not exist" unless File.exists? req['cert']
+
         cmd.append('--cacert', req['cert'])
       elsif req['use_ssl'] or uri.start_with? 'https'
         cmd.append('-k')

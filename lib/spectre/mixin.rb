@@ -12,6 +12,7 @@ module Spectre
 
       def run desc, with: []
         raise "no mixin with desc '#{desc}' defined" unless @@mixins.key? desc
+
         Spectre::Logger.log_debug "running mixin '#{desc}'"
 
         params = with || {}

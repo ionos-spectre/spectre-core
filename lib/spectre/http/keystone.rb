@@ -13,7 +13,6 @@ class HttpRequest
   end
 end
 
-
 module Spectre::Http::Keystone
   @@cache = {}
 

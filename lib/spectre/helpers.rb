@@ -42,7 +42,6 @@ class ::String
 
     begin
       JsonPath.on(self, path)
-
     rescue MultiJson::ParseError
       # do nothing and return nil
     end
@@ -52,6 +51,7 @@ class ::String
 
   def content with: nil
     fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+
     file_content = File.read(self)
 
     if with
@@ -63,6 +63,7 @@ class ::String
 
   def file_size
     fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+
     File.size(self)
   end
 
@@ -72,10 +73,10 @@ class ::String
 
   def remove!
     fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+
     File.delete self
   end
 end
-
 
 class ::OpenStruct
   def to_json *args, **kwargs
@@ -99,7 +100,6 @@ class ::OpenStruct
   alias :defaults_to! :default_to!
 end
 
-
 class ::Hash
   def symbolize_keys
     self.inject({}) { |memo, (k,v)| memo[k.to_sym] = v; memo }
@@ -116,18 +116,15 @@ class ::Hash
   alias :defaults_to! :default_to!
 end
 
-
 class ::Array
   def last
     self[-1]
   end
 end
 
-
 def uuid length = 5
   SecureRandom.uuid().gsub('-', '')[0..length-1]
 end
-
 
 def now
   Time.now

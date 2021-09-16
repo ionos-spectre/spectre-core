@@ -59,7 +59,7 @@ module Spectre::Reporter
             xml_str += '<system-out>'
             xml_str += '<![CDATA['
 
-            if  run_info.properties.count > 0
+            if run_info.properties.count > 0
               run_info.properties.each do |key, val|
                 xml_str += "#{key}: #{val}\n"
               end

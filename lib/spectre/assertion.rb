@@ -34,7 +34,6 @@ module Spectre
       end
     end
 
-
     class ::NilClass
       def should_be(val)
         raise AssertionFailure.new("There is nothing, but the value should be '#{val.to_s.trim}'", val, nil) unless val == nil
@@ -55,7 +54,6 @@ module Spectre
       end
     end
 
-
     class ::Hash
       def should_contain(other)
         raise AssertionFailure.new(other, self) unless self.merge(other) == self
@@ -65,7 +63,6 @@ module Spectre
         raise AssertionFailure.new(other, self) unless self.merge(other) != self
       end
     end
-
 
     class ::Array
       def should_contain(val)
@@ -98,7 +95,6 @@ module Spectre
         raise AssertionFailure.new('no empty list', self) if self.empty?
       end
     end
-
 
     class ::String
       def should_be(val)
@@ -145,7 +141,6 @@ module Spectre
       alias :& :and
     end
 
-
     class Evaluation
       def initialize value, other
         @value = value
@@ -164,7 +159,6 @@ module Spectre
       alias :& :and
     end
 
-
     class SingleEvaluation < Evaluation
       def initialize value
         super(value, nil)
@@ -178,7 +172,6 @@ module Spectre
         @value.to_s
       end
     end
-
 
     class OrEvaluation < Evaluation
       def initialize value, other
@@ -194,7 +187,6 @@ module Spectre
       end
     end
 
-
     class AndEvaluation < Evaluation
       def initialize value, other
         super(value, other)
@@ -208,7 +200,6 @@ module Spectre
         "(#{@value.to_s} and #{@other.to_s})"
       end
     end
-
 
     class AssertionFailure < ExpectationFailure
       attr_reader :expected, :actual
@@ -229,14 +220,11 @@ module Spectre
           Logger.log_process("expect #{desc}")
           yield
           Logger.log_status(desc, Logger::Status::OK)
-
         rescue Interrupt => e
           raise e
-
         rescue AssertionFailure => e
           Logger.log_status(desc, Logger::Status::FAILED)
           raise AssertionFailure.new(e.message, e.expected, e.actual, desc), cause: nil
-
         rescue Exception => e
           Logger.log_status(desc, Logger::Status::ERROR)
           raise AssertionFailure.new("An unexpected error occured during expectation: #{e.message}", nil, nil, desc), cause: e
@@ -248,10 +236,8 @@ module Spectre
           Logger.log_info("observing #{desc}") if desc
           yield
           @@success = true
-
         rescue Interrupt => e
           raise e
-
         rescue Exception => e
           @@success = false
         end

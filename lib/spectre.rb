@@ -49,7 +49,6 @@ module Spectre
     end
   end
 
-
   class Subject
     attr_reader :name, :desc, :specs
 
@@ -64,7 +63,6 @@ module Spectre
       @specs << Spec.new(name, self, desc, tags, data, block, context, file)
     end
   end
-
 
   class Spec
     attr_reader :name, :subject, :context, :desc, :tags, :data, :block, :file
@@ -84,7 +82,6 @@ module Spectre
       @subject.desc + ' ' + desc
     end
   end
-
 
   class RunInfo
     attr_accessor :spec, :data, :started, :finished, :error, :failure, :skipped, :log, :properties
@@ -113,7 +110,6 @@ module Spectre
       @error != nil
     end
   end
-
 
   class Runner
     @@current
@@ -189,14 +185,11 @@ module Spectre
           end
 
           run_info.finished = Time.now
-
         rescue ExpectationFailure => e
           run_info.failure = e
-
         rescue Exception => e
           run_info.error = e
           Logger.log_error spec, e
-
         end
       end
 
@@ -226,18 +219,14 @@ module Spectre
         end
 
         spec.block.call(data)
-
       rescue ExpectationFailure => e
         run_info.failure = e
-
       rescue Interrupt
         run_info.skipped = true
         Logger.log_skipped spec
-
       rescue Exception => e
         run_info.error = e
         Logger.log_error spec, e
-
       ensure
         if spec.context.__after_blocks.count > 0
           after_ctx = SpecContext.new(spec.subject, 'after')
@@ -249,14 +238,11 @@ module Spectre
               end
 
               run_info.finished = Time.now
-
             rescue ExpectationFailure => e
               run_info.failure = e
-
             rescue Exception => e
               run_info.error = e
               Logger.log_error spec, e
-
             end
           end
         end
@@ -290,7 +276,6 @@ module Spectre
     end
 
     def it desc, tags: [], with: [], &block
-
       # Get the file, where the spec is defined.
       # Nasty, but it works
       # Maybe there is another way, but this works for now
@@ -348,6 +333,7 @@ module Spectre
       methods.each do |method_name|
         define_method(method_name) do |*args, &block|
           return super(*args, &block) if respond_to? method_name
+
           target.send(method_name, *args, &block)
         end
 
@@ -360,6 +346,7 @@ module Spectre
     def self.redirect method_name, *args, **kwargs, &block
       target = @@mappings[method_name] || Kernel
       raise "no variable or method '#{method_name}' found" unless target.respond_to? method_name
+
       target.send(method_name, *args, **kwargs, &block)
     end
   end
@@ -381,7 +368,6 @@ module Spectre
         end
     end
 
-
     def has_tag tags, tag_exp
       tags = tags.map { |x| x.to_s }
       all_tags = tag_exp.split '+'
@@ -390,16 +376,13 @@ module Spectre
       included_tags & tags == included_tags and excluded_tags & tags == []
     end
 
-
     def delegate *method_names, to: nil
       Spectre::Delegator.delegate *method_names, to
     end
 
-
     def register &block
       @@modules << block
     end
-
 
     def configure config
       @@modules.each do |block|
@@ -428,7 +411,6 @@ module Spectre
     def property key, val
       Spectre::Runner.current.properties[key] = val
     end
-
   end
 
   delegate :describe, :property, to: Spectre
