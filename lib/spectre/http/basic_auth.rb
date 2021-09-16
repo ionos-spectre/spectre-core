@@ -11,7 +11,7 @@ module Spectre::Http
   end
 
   module BasicAuth
-    def self.on_req http, net_req, req
+    def self.on_req _http, net_req, req
       return unless req.key? 'basic_auth' and req['auth'] == 'basic_auth'
 
       basic_auth_cfg = req['basic_auth']

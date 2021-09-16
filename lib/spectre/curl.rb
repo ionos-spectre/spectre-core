@@ -210,7 +210,7 @@ module Spectre::Curl
       str
     end
 
-    def is_secure? key
+    def secure? key
       @@secure_keys.any? { |x| key.to_s.downcase.include? x.downcase }
     end
 
@@ -222,7 +222,7 @@ module Spectre::Curl
       headers.each do |header|
         key = header[0].to_s
         value = header[1].to_s
-        value = '*****' if is_secure?(key) and not @@debug
+        value = '*****' if secure?(key) and not @@debug
         s += "#{key.ljust(30, '.')}: #{value}\n"
       end
 
@@ -345,7 +345,7 @@ module Spectre::Curl
         code: match[:code].to_i,
         message: match[:message],
         headers: Hash[res_headers],
-        body: body
+        body: body,
       }
 
       # Call all registered modules

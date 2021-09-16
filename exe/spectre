@@ -44,7 +44,7 @@ DEFAULT_CONFIG = {
       'separator' => '-- <desc>',
       'start_group' => "-- Start '<desc>'",
       'end_group' => "-- End '<desc>'",
-    }
+    },
   },
   'debug' => false,
   'out_path' => './reports',
@@ -75,7 +75,7 @@ DEFAULT_CONFIG = {
   ],
   'exclude' => [
 
-  ]
+  ],
 }
 
 
@@ -259,7 +259,7 @@ end
 ###########################################
 
 
-if action == 'list'
+if 'list' == action
   colors = [:blue, :magenta, :yellow, :green]
   specs = Spectre.specs(cfg['specs'], cfg['tags'])
 
@@ -288,7 +288,7 @@ end
 ###########################################
 
 
-if action == 'run'
+if 'run' == action
   # Initialize logger
   now = Time.now
 
@@ -358,7 +358,7 @@ if action == 'run'
     reporter.report(run_infos)
   end
 
-  errors = run_infos.select { |x| x.error != nil or x.failure != nil }
+  errors = run_infos.select { |x| nil != x.error or nil != x.failure }
 
   exit 0 if cfg['ignore_failure'] or not errors.any?
 
@@ -371,7 +371,7 @@ end
 ###########################################
 
 
-if action == 'envs'
+if 'envs' == action
   exit 1 unless envs.any?
   puts envs.pretty
   exit 0
@@ -383,7 +383,7 @@ end
 ###########################################
 
 
-if action == 'show'
+if 'show' == action
   puts cfg.pretty
   exit 0
 end
@@ -394,7 +394,7 @@ end
 ###########################################
 
 
-if action == 'dump'
+if 'dump' == action
   puts YAML.dump(cfg)
 end
 
@@ -499,7 +499,7 @@ gem 'spectre-core', '>= #{Spectre::VERSION}'
 # gem 'spectre-git', '>= 0.1.0'
 ]
 
-if action == 'init'
+if 'init' == action
   DEFAULT_FILES = [
     ['./environments/default.env.yml', DEFAULT_ENV_CFG],
     ['./environments/default.env.secret.yml', DEFAULT_ENV_SECRET_CFG],

@@ -4,7 +4,7 @@ end
 
 mixin 'something with params' do |params|
   params.default_to!({
-    foo: 'bar'
+    foo: 'bar',
   })
 
   expect 'default parameter' do

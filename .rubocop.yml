@@ -481,7 +481,7 @@ Layout/FirstHashElementIndentation:
   Enabled: true
   VersionAdded: '0.68'
   VersionChanged: '0.77'
-  EnforcedStyle: special_inside_parentheses
+  EnforcedStyle: consistent
   SupportedStyles:
   - special_inside_parentheses
   - consistent
@@ -498,7 +498,7 @@ Layout/FirstHashElementLineBreak:
 Layout/FirstMethodArgumentLineBreak:
   Description: Checks for a line break before the first argument in a multi-line method
     call.
-  Enabled: true
+  Enabled: false
   VersionAdded: '0.49'
 
 # Supports --auto-correct
@@ -1450,7 +1450,6 @@ Lint/MultipleComparison:
   Enabled: false
   VersionAdded: '0.47'
   VersionChanged: '1.1'
-  AllowMethodComparison: true
 
 Lint/NestedMethodDefinition:
   Description: Do not use nested method definitions.
@@ -1852,7 +1851,7 @@ Lint/UnusedBlockArgument:
 Lint/UnusedMethodArgument:
   Description: Checks for unused method arguments.
   StyleGuide: "#underscore-unused-vars"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.21'
   VersionChanged: '0.81'
   AllowUnusedKeywordArguments: false
@@ -1948,8 +1947,7 @@ Metrics/BlockLength:
   CountAsOne: []
   IgnoredMethods:
   - refine
-  Exclude:
-  - C:/Users/cneubauer/Development/Sandbox/RubySandbox/sandbox/**/*.gemspec
+  Exclude: []
 
 Metrics/BlockNesting:
   Description: Avoid excessive block nesting.
@@ -2034,7 +2032,7 @@ Naming/AccessorMethodName:
 Naming/AsciiIdentifiers:
   Description: Use only ascii symbols in identifiers and constants.
   StyleGuide: "#english-identifiers"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.50'
   VersionChanged: '0.87'
   AsciiConstants: true
@@ -2043,14 +2041,14 @@ Naming/AsciiIdentifiers:
 Naming/BinaryOperatorParameterName:
   Description: When defining binary operators, name the argument other.
   StyleGuide: "#other-arg"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.50'
   VersionChanged: '1.2'
 
 Naming/BlockParameterName:
   Description: Checks for block parameter names that contain capital letters, end in
     numbers, or do not meet a minimal length.
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.53'
   VersionChanged: '0.77'
   MinNameLength: 1
@@ -2061,7 +2059,7 @@ Naming/BlockParameterName:
 Naming/ClassAndModuleCamelCase:
   Description: Use CamelCase for classes and modules.
   StyleGuide: "#camelcase-classes"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.50'
   VersionChanged: '0.85'
   AllowedNames:
@@ -2070,13 +2068,13 @@ Naming/ClassAndModuleCamelCase:
 Naming/ConstantName:
   Description: Constants should use SCREAMING_SNAKE_CASE.
   StyleGuide: "#screaming-snake-case"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.50'
 
 Naming/FileName:
   Description: Use snake_case for source file names.
   StyleGuide: "#snake-case-files"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.50'
   Exclude: []
   ExpectMatchingDefinition: false
@@ -2160,7 +2158,7 @@ Naming/MemoizedInstanceVariableName:
 Naming/MethodName:
   Description: Use the configured style when naming methods.
   StyleGuide: "#snake-case-symbols-methods-vars"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.50'
   EnforcedStyle: snake_case
   SupportedStyles:
@@ -2171,7 +2169,7 @@ Naming/MethodName:
 Naming/MethodParameterName:
   Description: Checks for method parameter names that contain capital letters, end in
     numbers, or do not meet a minimal length.
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.53'
   VersionChanged: '0.77'
   MinNameLength: 3
@@ -2194,7 +2192,7 @@ Naming/MethodParameterName:
 Naming/PredicateName:
   Description: Check the names of predicate methods.
   StyleGuide: "#bool-methods-qmark"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.50'
   VersionChanged: '0.77'
   NamePrefix:
@@ -2210,8 +2208,7 @@ Naming/PredicateName:
   MethodDefinitionMacros:
   - define_method
   - define_singleton_method
-  Exclude:
-  - C:/Users/cneubauer/Development/Sandbox/RubySandbox/sandbox/spec/**/*
+  Exclude: []
 
 # Supports --auto-correct
 Naming/RescuedExceptionsVariableName:
@@ -2224,7 +2221,7 @@ Naming/RescuedExceptionsVariableName:
 Naming/VariableName:
   Description: Use the configured style when naming variables.
   StyleGuide: "#snake-case-symbols-methods-vars"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.50'
   VersionChanged: '1.8'
   EnforcedStyle: snake_case
@@ -2705,17 +2702,13 @@ Style/Documentation:
   Enabled: false
   VersionAdded: '0.9'
   AllowedConstants: []
-  Exclude:
-  - C:/Users/cneubauer/Development/Sandbox/RubySandbox/sandbox/spec/**/*
-  - C:/Users/cneubauer/Development/Sandbox/RubySandbox/sandbox/test/**/*
+  Exclude: []
 
 Style/DocumentationMethod:
   Description: Checks for missing documentation comment for public methods.
   Enabled: false
   VersionAdded: '0.43'
-  Exclude:
-  - C:/Users/cneubauer/Development/Sandbox/RubySandbox/sandbox/spec/**/*
-  - C:/Users/cneubauer/Development/Sandbox/RubySandbox/sandbox/test/**/*
+  Exclude: []
   RequireForNonPublicMethods: false
 
 # Supports --auto-correct
@@ -2785,7 +2778,7 @@ Style/EmptyLambdaParameter:
 Style/EmptyLiteral:
   Description: Prefer literals to Array.new/Hash.new/String.new.
   StyleGuide: "#literal-array-hash"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.9'
   VersionChanged: '0.12'
 
@@ -2804,7 +2797,7 @@ Style/EmptyMethod:
 Style/Encoding:
   Description: Use UTF-8 as the source file encoding.
   StyleGuide: "#utf-8"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.9'
   VersionChanged: '0.50'
 
@@ -3130,11 +3123,7 @@ Style/IpAddresses:
   VersionChanged: '0.91'
   AllowedAddresses:
   - "::"
-  Exclude:
-  - C:/Users/cneubauer/Development/Sandbox/RubySandbox/sandbox/**/*.gemfile
-  - C:/Users/cneubauer/Development/Sandbox/RubySandbox/sandbox/**/Gemfile
-  - C:/Users/cneubauer/Development/Sandbox/RubySandbox/sandbox/**/gems.rb
-  - C:/Users/cneubauer/Development/Sandbox/RubySandbox/sandbox/**/*.gemspec
+  Exclude: []
 
 # Supports --auto-correct
 Style/KeywordParametersOrder:
@@ -3522,8 +3511,7 @@ Style/NumericPredicate:
   - predicate
   - comparison
   IgnoredMethods: []
-  Exclude:
-  - C:/Users/cneubauer/Development/Sandbox/RubySandbox/sandbox/spec/**/*
+  Exclude: []
 
 # Supports --auto-correct
 Style/OneLineConditional:
@@ -3639,7 +3627,7 @@ Style/PreferredHashMethods:
 Style/Proc:
   Description: Use proc instead of Proc.new.
   StyleGuide: "#proc"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.9'
   VersionChanged: '0.18'
 
@@ -4166,9 +4154,9 @@ Style/TrailingCommaInArguments:
 Style/TrailingCommaInArrayLiteral:
   Description: Checks for trailing comma in array literals.
   StyleGuide: "#no-trailing-array-commas"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.53'
-  EnforcedStyleForMultiline: no_comma
+  EnforcedStyleForMultiline: consistent_comma
   SupportedStylesForMultiline:
   - comma
   - consistent_comma
@@ -4177,15 +4165,15 @@ Style/TrailingCommaInArrayLiteral:
 # Supports --auto-correct
 Style/TrailingCommaInBlockArgs:
   Description: Checks for useless trailing commas in block arguments.
-  Enabled: false
+  Enabled: true
   Safe: false
   VersionAdded: '0.81'
 
 # Supports --auto-correct
 Style/TrailingCommaInHashLiteral:
   Description: Checks for trailing comma in hash literals.
-  Enabled: false
-  EnforcedStyleForMultiline: no_comma
+  Enabled: true
+  EnforcedStyleForMultiline: consistent_comma
   SupportedStylesForMultiline:
   - comma
   - consistent_comma
@@ -4308,8 +4296,8 @@ Style/WordArray:
 Style/YodaCondition:
   Description: Forbid or enforce yoda conditions.
   Reference: https://en.wikipedia.org/wiki/Yoda_conditions
-  Enabled: false
-  EnforcedStyle: forbid_for_all_comparison_operators
+  Enabled: false # TODO
+  EnforcedStyle: require_for_equality_operators_only
   SupportedStyles:
   - forbid_for_all_comparison_operators
   - forbid_for_equality_operators_only
@@ -4327,3 +4315,21 @@ Style/ZeroLengthPredicate:
   VersionAdded: '0.37'
   VersionChanged: '0.39'
 
+Layout/LineEndStringConcatenationIndentation: # new in 1.18
+  Enabled: false
+Lint/AmbiguousOperatorPrecedence: # new in 1.21
+  Enabled: false
+Lint/AmbiguousRange: # new in 1.19
+  Enabled: false
+Lint/EmptyInPattern: # new in 1.16
+  Enabled: false
+Lint/IncompatibleIoSelectWithFiberScheduler: # new in 1.21
+  Enabled: false
+Style/InPatternThen: # new in 1.16
+  Enabled: false
+Style/MultilineInPatternThen: # new in 1.16
+  Enabled: false
+Style/QuotedSymbols: # new in 1.16
+  Enabled: false
+Style/RedundantSelfAssignmentBranch: # new in 1.19
+  Enabled: false

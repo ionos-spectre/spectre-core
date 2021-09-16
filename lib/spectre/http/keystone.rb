@@ -16,7 +16,7 @@ end
 module Spectre::Http::Keystone
   @@cache = {}
 
-  def self.on_req http, net_req, req
+  def self.on_req _http, net_req, req
     return unless req.key? 'keystone' and req['auth'] == 'keystone'
 
     keystone_cfg = req['keystone']

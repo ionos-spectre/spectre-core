@@ -364,11 +364,11 @@ module Spectre
         .map { |x| x.specs }
         .flatten
         .select do |spec|
-          (spec_filter.empty? or spec_filter.any? { |x| spec.name.match('^' + x.gsub('*', '.*') + '$') }) and (tags.empty? or tags.any? { |x| has_tag(spec.tags, x) })
+          (spec_filter.empty? or spec_filter.any? { |x| spec.name.match('^' + x.gsub('*', '.*') + '$') }) and (tags.empty? or tags.any? { |x| tag?(spec.tags, x) })
         end
     end
 
-    def has_tag tags, tag_exp
+    def tag? tags, tag_exp
       tags = tags.map { |x| x.to_s }
       all_tags = tag_exp.split '+'
       included_tags = all_tags.select { |x| !x.start_with? '!' }

@@ -20,7 +20,7 @@ describe 'spectre/http' do
       path 'echo'
       json({
         "id": 2,
-        "desc": "Do some more stuff"
+        "desc": "Do some more stuff",
       })
     end
 

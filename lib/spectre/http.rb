@@ -229,14 +229,14 @@ module Spectre
         str
       end
 
-      def is_secure? key
+      def secure? key
         @@secure_keys.any? { |x| key.to_s.downcase.include? x.downcase }
       end
 
       def header_to_s headers
         s = ''
         headers.each_header.each do |header, value|
-          value = '*****' if is_secure?(header) and not @@debug
+          value = '*****' if secure?(header) and not @@debug
           s += "#{header.to_s.ljust(30, '.')}: #{value.to_s}\n"
         end
         s
@@ -339,7 +339,7 @@ module Spectre
           code: net_res.code.to_i,
           message: net_res.message,
           headers: net_res.to_hash,
-          body: net_res.body
+          body: net_res.body,
         })
       end
     end
