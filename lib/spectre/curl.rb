@@ -313,7 +313,7 @@ module Spectre::Curl
 
       # debug_log.lines.each { |x| @@logger.debug x unless x.empty? }
 
-      raise "Unable to request #{uri}. Please check if this service is reachable." unless output
+      raise "Unable to request #{uri}. Please check if this URL is correctly configured and reachable." unless output
 
       @@logger.debug("[<] #{req_id} stdout:\n#{output}")
 
