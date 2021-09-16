@@ -6,9 +6,17 @@
 
 [![Gem Version](https://badge.fury.io/rb/spectre-core.svg)](https://badge.fury.io/rb/spectre-core)
 
-Spectre is a DSL and tool set for test automation.
+Spectre is a DSL and commandline tool for test automation.
 
 It is written in [Ruby](https://www.ruby-lang.org/de/) and inspired by the Unit-Test framework [rspec](https://rspec.info/).
+
+
+## Philosophy
+
+> Code is documentation
+
+The framework is designed for non-developers and to provide easy to read tests. When writing and reading tests, you should immediatlely understand what is going on.
+This helps to debug test subjects and to better understand what and how it is tested.
 
 
 ## External Modules
@@ -31,7 +39,7 @@ https://bitbucket.org/cneubaur/spectre-core
 `spectre` is available as a docker image. Just run your *specs* in a Docker container with
 
 ```bash
-docker run -t --rm -v "$(pwd)/path/to/specs" cneubaur/spectre
+docker run -t --rm -v "$(pwd)/path/to/specs" cneubauer/spectre
 ```
 
 
