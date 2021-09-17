@@ -42,6 +42,6 @@ module Spectre
       @@resources.freeze
     end
 
-    Spectre.delegate :resources, to: Resources
+    Spectre.delegate :resources, to: self
   end
 end

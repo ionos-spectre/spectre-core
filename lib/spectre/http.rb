@@ -185,7 +185,7 @@ module Spectre
 
         req['user_ssl'] = secure if secure != nil
 
-        SpectreHttpRequest.new(req).instance_eval(&block) if block_given?
+        SpectreHttpRequest.new(req)._evaluate(&block) if block_given?
 
         invoke(req)
       end

@@ -23,6 +23,6 @@ module Spectre
       @@environment.freeze
     end
 
-    Spectre.delegate :env, to: Environment
+    Spectre.delegate :env, to: self
   end
 end

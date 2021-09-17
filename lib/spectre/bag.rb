@@ -14,6 +14,6 @@ module Spectre
       @@bag = OpenStruct.new
     end
 
-    Spectre.delegate :bag, to: Bag
+    Spectre.delegate :bag, to: self
   end
 end

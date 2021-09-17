@@ -166,7 +166,7 @@ module Spectre::Curl
         req['base_url'] = name
       end
 
-      SpectreHttpRequest.new(req).instance_eval(&block) if block_given?
+      SpectreHttpRequest.new(req)._evaluate(&block) if block_given?
 
       invoke(req)
     end
