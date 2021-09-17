@@ -65,4 +65,30 @@ RSpec.describe 'spectre/mixin' do
 
     expect(value).to eq('foo')
   end
+
+  it 'requires parameters' do
+    mixin_name = 'do something'
+
+    Spectre::Mixin.mixin mixin_name do |params|
+      required params, :foo
+      optional params, :bar, :bla
+    end
+
+    expect {
+      Spectre::Mixin.run(mixin_name, with: {foo: 1, bar: 2})
+    }.not_to raise_error
+  end
+
+  it 'requires parameters with missing' do
+    mixin_name = 'do something'
+
+    Spectre::Mixin.mixin mixin_name do |params|
+      required params, :foo
+      optional params, :bar
+    end
+
+    expect {
+      Spectre::Mixin.run(mixin_name, with: {bar: 2})
+    }.to raise_error(ArgumentError)
+  end
 end

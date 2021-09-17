@@ -35,9 +35,9 @@ module Spectre
       instance_eval(&block)
     end
 
-    def _execute args, &block
+    def _execute *args, &block
       @__bound_self__ = eval('self', block.binding)
-      instance_exec(args, &block)
+      instance_exec(*args, &block)
     end
 
     def method_missing method, *args, **kwargs, &block

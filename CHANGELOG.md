@@ -1,3 +1,9 @@
+### vNext
+
+#### Minor
+ - New mixin methods for defining required and optional parameters added
+
+
 ### v1.11.0
 
 #### Major

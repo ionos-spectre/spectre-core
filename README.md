@@ -1052,6 +1052,20 @@ describe 'Hollow API' do
 end
 ```
 
+You can pass one or more parameters to a mixin run. When passing one `Hash` to the mixin, it will be converted to an `OpenStruct` for easier access.
+
+```ruby
+mixin 'spook around' do |params|
+  required params, :boo, :rawrrr
+  optional params, :light
+
+  [...]
+end
+```
+
+When required keys are missing, an `ArgumentError` will be raised. `optional` will only log the optional keys to the spectre log for debugging purposes.
+
+
 ### Diagnostic `spectre/diagnostic`
 
 This module adds function to track execution time.

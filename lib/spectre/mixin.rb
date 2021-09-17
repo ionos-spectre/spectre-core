@@ -3,6 +3,23 @@ require 'spectre/logger'
 
 module Spectre
   module Mixin
+    class MixinContext < Spectre::DslClass
+      def initialize desc
+        @__desc = desc
+      end
+
+      def required params, *keys
+        missing_keys = keys.select { |x| !params.to_h.key? x }
+        Spectre::Logger.log_debug("required parameters for '#{@__desc}': #{keys.join ', '}")
+        raise ArgumentError, "mixin '#{@__desc}' requires #{keys.join ', '}, but only has #{missing_keys.join ', '} given" unless missing_keys.empty?
+      end
+
+      def optional params, *keys
+        Spectre::Logger.log_debug("optional parameters for '#{@__desc}': #{keys.join ', '}")
+        params
+      end
+    end
+
     class << self
       @@mixins = {}
 
@@ -17,12 +34,14 @@ module Spectre
 
         params = with || {}
 
+        ctx = MixinContext.new(desc)
+
         if params.is_a? Array
-          @@mixins[desc].call *params
+          ctx._execute(*params, &@@mixins[desc])
         elsif params.is_a? Hash
-          @@mixins[desc].call OpenStruct.new(params)
+          ctx._execute(OpenStruct.new(params), &@@mixins[desc])
         else
-          @@mixins[desc].call params
+          ctx._execute(params, &@@mixins[desc])
         end
       end
 
@@ -30,6 +49,6 @@ module Spectre
       alias_method :step, :run
     end
 
-    Spectre.delegate :mixin, :run, :also, :step, to: Mixin
+    Spectre.delegate :mixin, :run, :also, :step, to: self
   end
 end
