@@ -2,6 +2,8 @@
 
 #### Minor
  - New mixin methods for defining required and optional parameters added
+ - Result logging for `observe` added
+ - HTTP `read_timeout` made configurable via `timeout` method and property in yml file and default value set to 180s
 
 
 ### v1.11.0
