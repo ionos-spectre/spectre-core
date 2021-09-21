@@ -269,6 +269,7 @@ module Spectre
         uri.query = URI.encode_www_form(req['query']) unless not req['query'] or req['query'].empty?
 
         net_http = Net::HTTP.new(uri.host, uri.port)
+        net_http.read_timeout = req['timeout'] || 180
 
         if uri.scheme == 'https'
           net_http.use_ssl = true
