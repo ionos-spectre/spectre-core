@@ -232,13 +232,21 @@ module Spectre
       end
 
       def observe desc = nil
+        prefix = "observing"
+        prefix += " '#{desc}'" if desc
+
         begin
-          Logger.log_info("observing #{desc}") if desc
+          Logger.log_info(prefix) if desc
           yield
           @@success = true
+          @@logger.info("#{prefix} finished with success")
         rescue Interrupt => e
           raise e
         rescue Exception => e
+          error_message = "#{prefix} finished with failure: #{e.message}"
+          error_message += "\n" + e.backtrace.join("\n") if @@debug
+
+          @@logger.info(error_message)
           @@success = false
         end
       end
@@ -250,6 +258,11 @@ module Spectre
       def fail_with message
         raise AssertionFailure.new(message)
       end
+    end
+
+    Spectre.register do |config|
+      @@logger = ::Logger.new(config['log_file'], progname: 'spectre/assertion')
+      @@debug = config['debug']
     end
 
     Spectre.delegate :expect, :observe, :success?, :fail_with, to: self
