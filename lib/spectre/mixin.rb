@@ -1,5 +1,5 @@
 require 'ostruct'
-require 'spectre/logger'
+require_relative 'logger'
 
 module Spectre
   module Mixin

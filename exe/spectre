@@ -310,10 +310,11 @@ if 'run' == action
     .select { |mod| !cfg['exclude'].include? mod }
     .each do |mod|
     begin
-      spectre_lib_mod = File.join('../lib', mod)
+      mod_file = mod + '.rb'
+      spectre_lib_mod = File.join(File.dirname(__dir__), 'lib', mod_file)
 
-      if File.exists? mod
-        require_relative mod
+      if File.exists? mod_file
+        require_relative mod_file
 
       elsif File.exists? spectre_lib_mod
         require_relative spectre_lib_mod
