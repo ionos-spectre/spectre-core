@@ -40,19 +40,22 @@ module Spectre
         @__req['path'] = url_path
       end
 
+      def timeout seconds
+        @__req['timeout'] = seconds
+      end
+
       def header name, value
-        @__req['headers'] = [] unless @__req['headers']
+        @__req['headers'] ||= []
         @__req['headers'].append [name, value.to_s.strip]
       end
 
       def param name, value
-        @__req['query'] = [] unless @__req['query']
+        @__req['query'] ||= []
         @__req['query'].append [name, value.to_s.strip]
       end
 
       def content_type media_type
-        @__req['headers'] = [] unless @__req['headers']
-        @__req['headers'].append ['Content-Type', media_type]
+        header('Content-Type', media_type)
       end
 
       def json data
