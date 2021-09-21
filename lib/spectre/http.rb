@@ -41,17 +41,17 @@ module Spectre
       end
 
       def header name, value
-        @__req['headers'] = [] if not @__req['headers']
+        @__req['headers'] = [] unless @__req['headers']
         @__req['headers'].append [name, value.to_s.strip]
       end
 
       def param name, value
-        @__req['query'] = [] if not @__req['query']
+        @__req['query'] = [] unless @__req['query']
         @__req['query'].append [name, value.to_s.strip]
       end
 
       def content_type media_type
-        @__req['headers'] = [] if not @__req['headers']
+        @__req['headers'] = [] unless @__req['headers']
         @__req['headers'].append ['Content-Type', media_type]
       end
 
@@ -101,7 +101,7 @@ module Spectre
       end
 
       def [] key
-        return nil if not @headers.has_key?(key.downcase)
+        return nil unless @headers.key?(key.downcase)
 
         @headers[key.downcase].first
       end
@@ -135,7 +135,7 @@ module Spectre
       end
 
       def json
-        return nil if not @res[:body]
+        return nil unless @res[:body]
 
         if @data == nil
           begin
@@ -178,7 +178,7 @@ module Spectre
 
         if @@http_cfg.key? name
           req.merge! @@http_cfg[name]
-          raise "No `base_url' set for HTTP client '#{name}'. Check your HTTP config in your environment." if !req['base_url']
+          raise "No `base_url' set for HTTP client '#{name}'. Check your HTTP config in your environment." unless req['base_url']
         else
           req['base_url'] = name
         end
@@ -215,7 +215,7 @@ module Spectre
 
         begin
           json = JSON.parse(str)
-          json.obfuscate!(@@secure_keys) if not @@debug
+          json.obfuscate!(@@secure_keys) unless @@debug
 
           if pretty
             str = JSON.pretty_generate(json)
@@ -253,18 +253,18 @@ module Spectre
 
         base_url = req['base_url']
 
-        if not base_url.match /http(?:s)?:\/\//
+        unless base_url.match /http(?:s)?:\/\//
           base_url = scheme + '://' + base_url
         end
 
         if req['path']
-          base_url = base_url + '/' if not base_url.end_with? '/'
+          base_url = base_url + '/' unless base_url.end_with? '/'
           base_url += req['path']
         end
 
         uri = URI(base_url)
 
-        raise "'#{uri}' is not a valid uri" if not uri.host
+        raise "'#{uri}' is not a valid uri" unless uri.host
 
         uri.query = URI.encode_www_form(req['query']) unless not req['query'] or req['query'].empty?
 

@@ -399,7 +399,7 @@ module Spectre
     def describe desc, &block
       subject = @@subjects.find { |x| x.desc == desc }
 
-      if !subject
+      unless subject
         subject = Subject.new(desc)
         @@subjects << subject
       end

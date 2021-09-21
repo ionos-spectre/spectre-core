@@ -12,7 +12,7 @@ module Spectre
       end
 
       def [] name
-        raise "Resource with name '#{name}' does not exist" if not @items.key? name
+        raise "Resource with name '#{name}' does not exist" unless @items.key? name
 
         @items[name]
       end
@@ -27,7 +27,7 @@ module Spectre
     end
 
     Spectre.register do |config|
-      return if !config.key? 'resource_paths'
+      return unless config.key? 'resource_paths'
 
       config['resource_paths'].each do |resource_path|
         resource_files = Dir.glob File.join(resource_path, '**/*')

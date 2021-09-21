@@ -3351,7 +3351,7 @@ Style/MutableConstant:
 Style/NegatedIf:
   Description: Favor unless over if for negative conditions (or control flow or).
   StyleGuide: "#unless-for-negatives"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.20'
   VersionChanged: '0.48'
   EnforcedStyle: both
@@ -3614,7 +3614,7 @@ Style/PerlBackrefs:
 Style/PreferredHashMethods:
   Description: Checks use of `has_key?` and `has_value?` Hash methods.
   StyleGuide: "#hash-key"
-  Enabled: false
+  Enabled: true
   Safe: false
   VersionAdded: '0.41'
   VersionChanged: '0.70'

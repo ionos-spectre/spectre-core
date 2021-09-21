@@ -51,7 +51,7 @@ end
 get '/api/v1/todos/:id' do |id|
   todo = ENTRIES.first { |x| x[:id] == id }
 
-  if not todo
+  unless todo
     status 404
     return
   end

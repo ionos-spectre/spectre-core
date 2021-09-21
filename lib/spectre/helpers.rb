@@ -50,7 +50,7 @@ class ::String
   # File helpers
 
   def content with: nil
-    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+    fail "'#{self}' is not a file path, or the file does not exist." unless File.exists? self
 
     file_content = File.read(self)
 
@@ -62,7 +62,7 @@ class ::String
   end
 
   def file_size
-    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+    fail "'#{self}' is not a file path, or the file does not exist." unless File.exists? self
 
     File.size(self)
   end
@@ -72,7 +72,7 @@ class ::String
   end
 
   def remove!
-    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+    fail "'#{self}' is not a file path, or the file does not exist." unless File.exists? self
 
     File.delete self
   end
@@ -91,7 +91,7 @@ class ::OpenStruct
 
   def default_to! defaults
     defaults.each_key do |key|
-      if not self[key] != nil
+      unless self[key] != nil
         self[key] = defaults[key]
       end
     end
@@ -107,7 +107,7 @@ class ::Hash
 
   def default_to! defaults
     defaults.each_key do |key|
-      if not self[key] != nil
+      unless self[key] != nil
         self[key] = defaults[key]
       end
     end

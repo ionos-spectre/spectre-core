@@ -1,6 +1,6 @@
 class HttpRequest
   def keystone url, username, password, project, domain, cert
-    @__req['keystone'] = {} if not @__req.key? 'keystone'
+    @__req['keystone'] = {} unless @__req.key? 'keystone'
 
     @__req['keystone']['url'] = url
     @__req['keystone']['username'] = username
@@ -67,7 +67,7 @@ module Spectre::Http::Keystone
       },
     }
 
-    keystone_url = keystone_url + '/' if !keystone_url.end_with? '/'
+    keystone_url = keystone_url + '/' unless keystone_url.end_with? '/'
 
     base_uri = URI(keystone_url)
     uri = URI.join(base_uri, 'auth/tokens?nocatalog=true')

@@ -21,17 +21,17 @@ module Spectre::Curl
     end
 
     def header name, value
-      @__req['headers'] = [] if not @__req['headers']
+      @__req['headers'] = [] unless @__req['headers']
       @__req['headers'].append [name, value.to_s.strip]
     end
 
     def param name, value
-      @__req['query'] = [] if not @__req['query']
+      @__req['query'] = [] unless @__req['query']
       @__req['query'].append [name, value.to_s.strip]
     end
 
     def content_type media_type
-      @__req['headers'] = [] if not @__req['headers']
+      @__req['headers'] = [] unless @__req['headers']
       @__req['headers'].append ['Content-Type', media_type]
     end
 
@@ -111,7 +111,7 @@ module Spectre::Curl
     end
 
     def json
-      return nil if not @res[:body]
+      return nil unless @res[:body]
 
       if @data == nil
         begin
@@ -161,7 +161,7 @@ module Spectre::Curl
 
       if @@http_cfg.key? name
         req.merge! @@http_cfg[name]
-        raise "No `base_url' set for HTTP client '#{name}'. Check your HTTP config in your environment." if !req['base_url']
+        raise "No `base_url' set for HTTP client '#{name}'. Check your HTTP config in your environment." unless req['base_url']
       else
         req['base_url'] = name
       end
@@ -196,7 +196,7 @@ module Spectre::Curl
 
       begin
         json = JSON.parse(str)
-        json.obfuscate!(@@secure_keys) if not @@debug
+        json.obfuscate!(@@secure_keys) unless @@debug
 
         if pretty
           str = JSON.pretty_generate(json)
@@ -240,12 +240,12 @@ module Spectre::Curl
 
       uri = req['base_url']
 
-      if not uri.match /http(?:s)?:\/\//
+      unless uri.match /http(?:s)?:\/\//
         uri = scheme + '://' + uri
       end
 
       if req['path']
-        uri += '/' if !uri.end_with? '/'
+        uri += '/' unless uri.end_with? '/'
         uri += req['path']
       end
 

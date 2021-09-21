@@ -1,7 +1,7 @@
 module Spectre::Http
   class SpectreHttpRequest
     def basic_auth username, password
-      @__req['basic_auth'] = {} if not @__req.key? 'basic_auth'
+      @__req['basic_auth'] = {} unless @__req.key? 'basic_auth'
 
       @__req['basic_auth']['username'] = username
       @__req['basic_auth']['password'] = password

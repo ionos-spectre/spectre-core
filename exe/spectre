@@ -148,7 +148,7 @@ Specific options:}
 
     curr_opt = cmd_options
     (key.split '.').each do |k|
-      curr_opt[k] = {} if not curr_opt.key? k
+      curr_opt[k] = {} unless curr_opt.key? k
     end
     curr_opt = val
   end
@@ -225,7 +225,7 @@ cfg['env_partial_patterns'].each do |pattern|
   Dir.glob(pattern).each do|f|
     partial_env = YAML.load_file(f)
     name = partial_env.delete('name') || 'default'
-    next if not envs.key? name
+    next unless envs.key? name
 
     envs[name].deep_merge! partial_env
   end
@@ -301,7 +301,7 @@ if 'run' == action
 })
 
   log_dir = File.dirname cfg['log_file']
-  FileUtils.makedirs log_dir if !Dir.exists? log_dir
+  FileUtils.makedirs log_dir unless Dir.exists? log_dir
 
   # Load Modules
 
@@ -346,7 +346,7 @@ if 'run' == action
 
   specs = Spectre.specs(cfg['specs'], cfg['tags'])
 
-  if not specs.any?
+  unless specs.any?
     puts "No specs found in #{Dir.pwd}"
     exit 1
   end
@@ -514,7 +514,7 @@ if 'init' == action
   end
 
   DEFAULT_FILES.each do |file, content|
-    if not File.exists? file
+    unless File.exists? file
       File.write(file, content)
     end
   end
