@@ -308,7 +308,7 @@ module Spectre
         req_log += header_to_s(net_req)
         req_log += try_format_json(req['body'], pretty: true) if req['body'] != nil and not req['body'].empty?
 
-        @@logger.info req_log
+        @@logger.info(req_log)
 
         # Request
 
@@ -346,7 +346,7 @@ module Spectre
     end
 
     Spectre.register do |config|
-      @@logger = ::Logger.new config['log_file'], progname: 'spectre/http'
+      @@logger = ::Logger.new(config['log_file'], progname: 'spectre/http')
       @@secure_keys = config['secure_keys'] || []
       @@debug = config['debug']
 
