@@ -1,4 +1,3 @@
-require 'spectre'
 require 'spectre/mixin'
 
 RSpec.describe 'spectre/mixin' do
