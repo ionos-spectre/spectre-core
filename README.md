@@ -1074,7 +1074,7 @@ This module adds function to track execution time.
 ```ruby
 describe 'Hollow API' do
   it 'sends out spooky ghosts' do
-    start # start timer
+    start_watch # start timer
 
     http 'dummy_api' do
       auth 'basic' # add this to use basic auth
@@ -1082,7 +1082,7 @@ describe 'Hollow API' do
       path 'employee/1'
     end
 
-    stop # stop timer
+    stop_watch # stop timer
 
     # can also be used within the `measure` block
     measure do
@@ -1099,6 +1099,8 @@ describe 'Hollow API' do
   end
 end
 ```
+
+`started_at` and `finished_at` are also available and return the according start or finish time.
 
 
 ### Reporter `spectre/reporter`
