@@ -176,7 +176,7 @@ module Spectre
         http(name, secure: true, &block)
       end
 
-      def http name, secure: nil, &block
+      def http name, secure: false, &block
         req = {}
 
         if @@http_cfg.key? name
@@ -186,7 +186,7 @@ module Spectre
           req['base_url'] = name
         end
 
-        req['user_ssl'] = secure if secure != nil
+        req['use_ssl'] = secure if not secure.nil?
 
         SpectreHttpRequest.new(req)._evaluate(&block) if block_given?
 
