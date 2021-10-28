@@ -62,6 +62,16 @@ module Spectre
       def should_not_contain(other)
         raise AssertionFailure.new(other, self) unless self.merge(other) != self
       end
+
+      def should_be_empty
+        raise AssertionFailure.new("The object should be empty", nil, self) unless self.empty?
+      end
+    end
+
+    class ::OpenStruct
+      def should_be_empty
+        raise AssertionFailure.new("The object should be empty", nil, self) unless self.to_h.empty?
+      end
     end
 
     class ::Array
