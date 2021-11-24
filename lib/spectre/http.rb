@@ -125,8 +125,16 @@ module Spectre
     class SpectreHttpResponse
       def initialize res
         @res = res
-        @data = nil
+        @json_data = nil
         @headers = SpectreHttpHeader.new @res[:headers]
+
+        if @res[:body]
+          begin
+            @json_data = JSON.parse(@res[:body], object_class: OpenStruct)
+          rescue JSON::ParserError
+            raise "Body content is not a valid JSON:\n#{@res[:body]}"
+          end
+        end
       end
 
       def code
@@ -146,17 +154,7 @@ module Spectre
       end
 
       def json
-        return nil unless @res[:body]
-
-        if @data == nil
-          begin
-            @data = JSON.parse(@res[:body], object_class: OpenStruct)
-          rescue
-            raise "Body content is not a valid JSON:\n#{@res[:body]}"
-          end
-        end
-
-        @data
+        @json_data
       end
 
       def success?

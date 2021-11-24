@@ -2,7 +2,7 @@ require 'spectre'
 require 'spectre/http/basic_auth'
 require 'spectre/http/keystone'
 
-def create_response code='200', message='Ok', body=''
+def create_response code='200', message='Ok', body='{"message": "Hello World!"}'
   net_res = double(::Net::HTTPOK)
   allow(net_res).to receive(:code).and_return(code)
   allow(net_res).to receive(:message).and_return(message)
@@ -38,6 +38,9 @@ RSpec.describe 'spectre/http' do
           "message": "Hello Spectre!",
         })
       end
+
+      expect(Spectre::Http.response.code).to eq(200)
+      expect(Spectre::Http.response.json.message).to eq("Hello World!")
     end
 
     it 'does some HTTPS request' do
