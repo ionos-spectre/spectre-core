@@ -7,7 +7,6 @@ require 'securerandom'
 require 'logger'
 require 'ostruct'
 
-
 module Spectre
   module Http
     DEFAULT_HTTP_CONFIG = {
@@ -26,6 +25,11 @@ module Spectre
     @@modules = []
 
     class SpectreHttpRequest < Spectre::DslClass
+      class Headers
+        CONTENT_TYPE = 'Content-Type'
+        UNIQUE_HEADERS = [CONTENT_TYPE].freeze
+      end
+
       def initialize request
         @__req = request
       end
@@ -57,13 +61,15 @@ module Spectre
       end
 
       def content_type media_type
-        header('Content-Type', media_type)
+        header(Headers::CONTENT_TYPE, media_type)
       end
 
       def json data
         data = data.to_h if data.is_a? OpenStruct
         body JSON.pretty_generate(data)
-        content_type 'application/json'
+
+        # TODO: Only set content type, if not explicitly set
+        content_type('application/json')
       end
 
       def body body_content
