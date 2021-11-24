@@ -1,3 +1,4 @@
+require_relative '../spectre'
 require 'date'
 
 module Spectre

@@ -1,3 +1,5 @@
+require_relative '../spectre'
+
 require 'ostruct'
 
 def to_recursive_ostruct(hash)

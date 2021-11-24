@@ -1,3 +1,5 @@
+require_relative '../http'
+
 module Spectre::Http
   class SpectreHttpRequest
     def basic_auth username, password

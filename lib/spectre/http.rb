@@ -1,3 +1,5 @@
+require_relative '../spectre'
+
 require 'net/http'
 require 'openssl'
 require 'json'

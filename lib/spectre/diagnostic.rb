@@ -1,3 +1,5 @@
+require_relative '../spectre'
+
 module Spectre
   module Diagnostic
     module Stopwatch

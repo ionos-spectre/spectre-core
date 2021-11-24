@@ -1,5 +1,5 @@
-class HttpRequest
-  def keystone url, username, password, project, domain, cert
+require_relative '../http'
+
     @__req['keystone'] = {} unless @__req.key? 'keystone'
 
     @__req['keystone']['url'] = url

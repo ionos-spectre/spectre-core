@@ -1,3 +1,5 @@
+require_relative '../spectre'
+
 require 'ostruct'
 
 module Spectre

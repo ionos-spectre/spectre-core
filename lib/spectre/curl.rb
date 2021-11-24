@@ -1,3 +1,5 @@
+require_relative '../spectre'
+
 require 'open3'
 require 'ostruct'
 

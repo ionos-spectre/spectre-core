@@ -1,3 +1,5 @@
+require_relative '../spectre'
+
 require 'securerandom'
 require 'json'
 require 'date'
