@@ -1015,6 +1015,8 @@ mixin 'check health' do |http_name| # the mixin can be parameterized
   expect 'the status to be ok' do
     response.json.status.should_be 'Ok'
   end
+
+  response
 end
 ```
 
@@ -1029,12 +1031,13 @@ end
 ```
 
 Like every ruby block or function, a mixin has a return value (the last expression in the `do` block)
+If the return value is a `Hash`, it will be converted to an `OpenStruct` for better value access.
 
 ```ruby
 mixin 'do some spooky stuff' do
   # spook around
 
-  'Boo!'
+  { say: 'Boo!' }
 end
 ```
 
@@ -1046,7 +1049,7 @@ describe 'Hollow API' do
     result = run 'do some spooky stuff'
 
     expect 'some spooky things' do
-      result.should_be 'Boo!'
+      result.say.should_be 'Boo!'
     end
   end
 end
