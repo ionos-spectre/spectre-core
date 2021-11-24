@@ -21,7 +21,7 @@ module Spectre
       'headers' => nil,
       'query' => nil,
       'content_type' => '',
-    }
+    }.freeze
 
     @@modules = []
 
@@ -341,12 +341,15 @@ module Spectre
         end
 
         @@request = OpenStruct.new(req)
+        @@request.freeze
+
         @@response = SpectreHttpResponse.new({
           code: net_res.code.to_i,
           message: net_res.message,
           headers: net_res.to_hash,
           body: net_res.body,
         })
+        @@response.freeze
       end
     end
 
