@@ -35,7 +35,7 @@ RSpec.describe 'spectre/http' do
         header 'foo', 'bar'
         param 'bla', 'blubb'
         json({
-          "message": "Hello Spectre!"
+          "message": "Hello Spectre!",
         })
       end
     end
@@ -78,9 +78,9 @@ RSpec.describe 'spectre/http' do
       Spectre.configure({
         'http' => {
           'some_client' => {
-            'base_url' => 'some-url.de'
-          }
-        }
+            'base_url' => 'some-url.de',
+          },
+        },
       })
 
       Spectre::Http.http 'some_client' do
@@ -106,9 +106,9 @@ RSpec.describe 'spectre/http' do
             'basic_auth' => {
               'username' => 'dummy',
               'password' => 'somepass',
-            }
-          }
-        }
+            },
+          },
+        },
       })
 
       Spectre::Http.http 'some_client' do
@@ -125,9 +125,9 @@ RSpec.describe 'spectre/http' do
             'basic_auth' => {
               'username' => 'dummy',
               'password' => 'somepass',
-            }
-          }
-        }
+            },
+          },
+        },
       }
 
       Spectre.configure(http_cfg)
@@ -173,8 +173,8 @@ RSpec.describe 'spectre/http' do
     it 'raise error with missing base URL' do
       Spectre.configure({
         'http' => {
-          'some_client' => {}
-        }
+          'some_client' => {},
+        },
       })
 
       expect {
