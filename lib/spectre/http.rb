@@ -194,7 +194,7 @@ module Spectre
           req['base_url'] = name
         end
 
-        req['use_ssl'] = secure if not secure.nil?
+        req['use_ssl'] = secure unless secure.nil?
 
         SpectreHttpRequest.new(req)._evaluate(&block) if block_given?
 
@@ -327,7 +327,6 @@ module Spectre
 
         begin
         net_res = net_http.request(net_req)
-
         rescue SocketError => e
           raise "The request '#{req['method']} #{uri}' failed. Please check if the given URL '#{uri}' is valid and available or a corresponding HTTP config in the environment file exists. See log for more details. Original.\nOriginal error was: #{e.message}"
         end
@@ -344,7 +343,7 @@ module Spectre
 
         res_log = "[<] #{req_id} #{net_res.code} #{net_res.message} (#{end_time - start_time}s)\n"
         res_log += header_to_s(net_res)
-        res_log += try_format_json(net_res.body, pretty: true) if net_res.body != nil and !net_res.body.empty?
+        res_log += try_format_json(net_res.body, pretty: true) unless net_res.body.nil? or net_res.body.empty?
 
         @@logger.info(res_log)
 

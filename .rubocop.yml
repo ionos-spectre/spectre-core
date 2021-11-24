@@ -425,7 +425,7 @@ Layout/EndAlignment:
 Layout/EndOfLine:
   Description: Use Unix-style line endings.
   StyleGuide: "#crlf"
-  Enabled: true
+  Enabled: false
   VersionAdded: '0.49'
   EnforcedStyle: lf
   SupportedStyles:
