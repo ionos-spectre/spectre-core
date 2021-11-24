@@ -347,6 +347,9 @@ module Spectre
           fail "Response code of #{req_id} did not indicate success: #{net_res.code} #{net_res.message}" if code >= 400
         end
 
+        req['started_at'] = start_time
+        req['finished_at'] = end_time
+
         @@request = OpenStruct.new(req)
         @@request.freeze
 
