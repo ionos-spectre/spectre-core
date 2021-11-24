@@ -318,7 +318,14 @@ module Spectre
         # Request
 
         start_time = Time.now
+
+        begin
         net_res = net_http.request(net_req)
+
+        rescue SocketError => e
+          raise "The request '#{req['method']} #{uri}' failed. Please check if the given URL '#{uri}' is valid and available or a corresponding HTTP config in the environment file exists. See log for more details. Original.\nOriginal error was: #{e.message}"
+        end
+
         end_time = Time.now
 
         # Run HTTP modules
