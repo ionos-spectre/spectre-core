@@ -1,11 +1,21 @@
 ### vNext
 
+
+### Major
+ - Returning a `Hash` from a mixin, converts `Hash` to `OpenStruct`
+
 #### Minor
- - New mixin methods for defining required and optional parameters added
+ - New mixin methods for defining `required` and `optional` parameters added. `optional` parameters are just logged and are used for documentation only.
  - Result logging for `observe` added
  - HTTP `read_timeout` made configurable via `timeout` method and property in yml file and default value set to 180s
  - Added new functions `started_at` and `finished_at` to `spectre/diagnostic`
+ - Added `started_at` and `finished_at` property to `request` object
+ - `request` and `response` are now immutable
+ - Some code cleanup
+ - Bugfix: `https` is now working correctly
  - Added `should_be_empty` and `should_not_be_empty` to `Hash` and `OpenStruct`
+ - Bugfix: Keystone function is now working
+ - Request with invalid or not available server is now generating a more useful error message
 
 
 ### v1.11.0
@@ -17,7 +27,7 @@
    - `now` returns the current time (like `Time.now`)
    - `array.last` method added. Returns the last element of a list.
    - `Hash.default_to!` and `OpenStruct.default_to!` method added. Sets default values, when value in Hash is `nil` or key does not exist.
- - Mixins take always at least one parameter. If a mixin is called with `run '<minxin>' with: nil`, the mixin parameter is an empty `Hash`.
+ - Mixins take always at least one parameter. If a mixin is called with `run '<mixin>' with: nil`, the mixin parameter is an empty `Hash`.
  - Passing a `Hash` to the `run` method of mixins, will pass the `Hash` parameter as an `OpenStruct` to the mixin
 
 
