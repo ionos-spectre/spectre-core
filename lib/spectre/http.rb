@@ -123,50 +123,30 @@ module Spectre
     end
 
     class SpectreHttpResponse
-      def initialize res
-        @res = res
+      attr_reader :code, :message, :headers, :body
+
+      def initialize net_res
+        @code = net_res.code.to_i
+        @message = net_res.message
+        @body = net_res.body
+        @headers = SpectreHttpHeader.new(net_res.to_hash)
         @json_data = nil
-        @headers = SpectreHttpHeader.new @res[:headers]
-
-        if @res[:body]
-          begin
-            @json_data = JSON.parse(@res[:body], object_class: OpenStruct)
-          rescue JSON::ParserError
-            raise "Body content is not a valid JSON:\n#{@res[:body]}"
-          end
-        end
-      end
-
-      def code
-        @res[:code]
-      end
-
-      def message
-        @res[:message]
-      end
-
-      def headers
-        @headers
-      end
-
-      def body
-        @res[:body]
       end
 
       def json
+        if !@body.nil? and @json_data.nil?
+          begin
+            @json_data = JSON.parse(@body, object_class: OpenStruct)
+          rescue JSON::ParserError
+            raise "Body content is not a valid JSON:\n#{@body}"
+          end
+        end
+
         @json_data
       end
 
       def success?
-        @res[:code] < 400
-      end
-
-      def to_s
-        @res.to_s
-      end
-
-      def pretty
-        @res.pretty
+        @code < 400
       end
     end
 
@@ -345,10 +325,7 @@ module Spectre
 
         @@logger.info(res_log)
 
-        if req['ensure_success']
-          code = Integer(net_res.code)
-          fail "Response code of #{req_id} did not indicate success: #{net_res.code} #{net_res.message}" if code >= 400
-        end
+        fail "Response code of #{req_id} did not indicate success: #{net_res.code} #{net_res.message}" if req['ensure_success'] and net_res.code.to_i >= 400
 
         req['started_at'] = start_time
         req['finished_at'] = end_time
@@ -356,13 +333,7 @@ module Spectre
         @@request = OpenStruct.new(req)
         @@request.freeze
 
-        @@response = SpectreHttpResponse.new({
-          code: net_res.code.to_i,
-          message: net_res.message,
-          headers: net_res.to_hash,
-          body: net_res.body,
-        })
-        @@response.freeze
+        @@response = SpectreHttpResponse.new(net_res)
       end
     end
 
