@@ -1,5 +1,7 @@
-require 'ostruct'
+require_relative '../spectre'
 require_relative 'logger'
+
+require 'ostruct'
 
 module Spectre
   module Mixin
@@ -37,12 +39,14 @@ module Spectre
         ctx = MixinContext.new(desc)
 
         if params.is_a? Array
-          ctx._execute(*params, &@@mixins[desc])
+          return_val = ctx._execute(*params, &@@mixins[desc])
         elsif params.is_a? Hash
-          ctx._execute(OpenStruct.new(params), &@@mixins[desc])
+          return_val = ctx._execute(OpenStruct.new(params), &@@mixins[desc])
         else
-          ctx._execute(params, &@@mixins[desc])
+          return_val = ctx._execute(params, &@@mixins[desc])
         end
+
+        return_val.is_a?(Hash) ? OpenStruct.new(return_val) : return_val
       end
 
       alias_method :also, :run
