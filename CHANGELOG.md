@@ -3,6 +3,7 @@
 
 ### Major
  - Returning a `Hash` from a mixin, converts `Hash` to `OpenStruct`
+ - `Array.last` was renamed to `Array.last_element` as it conflicts with existing method in other modules
 
 #### Minor
  - New mixin methods for defining `required` and `optional` parameters added. `optional` parameters are just logged and are used for documentation only.

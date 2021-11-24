@@ -119,7 +119,7 @@ class ::Hash
 end
 
 class ::Array
-  def last
+  def last_element
     self[-1]
   end
 end
