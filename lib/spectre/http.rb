@@ -188,7 +188,7 @@ module Spectre
         req = {}
 
         if @@http_cfg.key? name
-          req.merge! @@http_cfg[name]
+          req.deep_merge! @@http_cfg[name].deep_clone
           raise "No `base_url' set for HTTP client '#{name}'. Check your HTTP config in your environment." unless req['base_url']
         else
           req['base_url'] = name
@@ -326,7 +326,7 @@ module Spectre
         start_time = Time.now
 
         begin
-        net_res = net_http.request(net_req)
+          net_res = net_http.request(net_req)
         rescue SocketError => e
           raise "The request '#{req['method']} #{uri}' failed. Please check if the given URL '#{uri}' is valid and available or a corresponding HTTP config in the environment file exists. See log for more details. Original.\nOriginal error was: #{e.message}"
         end

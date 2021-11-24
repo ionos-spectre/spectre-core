@@ -137,7 +137,7 @@ RSpec.describe 'spectre/http' do
         basic_auth 'bla', 'blubb'
       end
 
-      expect(http_cfg['http']['some_client']['basic_auth']['username']).to be('dummy')
+      expect(http_cfg['http']['some_client']['basic_auth']['username']).to eq('dummy')
     end
   end
 
