@@ -1107,7 +1107,6 @@ Lint/BinaryOperatorWithIdenticalOperands:
 Lint/BooleanSymbol:
   Description: Check for `:true` and `:false` symbols.
   Enabled: false
-  Safe: false
   VersionAdded: '0.50'
   VersionChanged: '0.83'
 
@@ -4333,3 +4332,21 @@ Style/QuotedSymbols: # new in 1.16
   Enabled: false
 Style/RedundantSelfAssignmentBranch: # new in 1.19
   Enabled: false
+
+Gemspec/RequireMFA: # new in 1.23
+  Enabled: false
+
+Lint/RequireRelativeSelfPath: # new in 1.22
+  Enabled: true
+Lint/UselessRuby2Keywords: # new in 1.23
+  Enabled: true
+Security/IoMethods: # new in 1.22
+  Enabled: true
+Style/NumberedParameters: # new in 1.22
+  Enabled: true
+Style/NumberedParametersLimit: # new in 1.22
+  Enabled: true
+Style/OpenStructUse: # new in 1.23
+  Enabled: false
+Style/SelectByRegexp: # new in 1.22
+  Enabled: true
