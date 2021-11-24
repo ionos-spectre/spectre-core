@@ -116,6 +116,29 @@ RSpec.describe 'spectre/http' do
         path '/some-resource'
       end
     end
+
+    it 'does not override HTTP config' do
+      http_cfg = {
+        'http' => {
+          'some_client' => {
+            'base_url' => 'some-url.de',
+            'basic_auth' => {
+              'username' => 'dummy',
+              'password' => 'somepass',
+            }
+          }
+        }
+      }
+
+      Spectre.configure(http_cfg)
+
+      Spectre::Http.http 'some_client' do
+        path '/some-resource'
+        basic_auth 'bla', 'blubb'
+      end
+
+      expect(http_cfg['http']['some_client']['basic_auth']['username']).to be('dummy')
+    end
   end
 
   context 'keystone' do
