@@ -32,6 +32,9 @@ describe 'spectre/core' do
   end
 
   it 'should fail with not defined variable', tags: [:core, :undefined, :fatal] do
-    webspace
+    some_undefined_variable
+  end
+
+  it 'executes with multiple data', with: [1, env.foo], tags: [:core, :undefined, :data] do |data|
   end
 end
