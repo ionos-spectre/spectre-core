@@ -1,4 +1,4 @@
-require 'spectre'
+require 'spectre/http'
 require 'spectre/http/basic_auth'
 require 'spectre/http/keystone'
 
