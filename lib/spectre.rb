@@ -19,7 +19,7 @@ module Spectre
     end
   end
 
-  class Object
+  class ::Object
     def to_h
       self.instance_variables.each_with_object({}) do |var, hash|
         hash[var.to_s.delete("@")] = self.instance_variable_get(var)
