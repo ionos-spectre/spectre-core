@@ -255,7 +255,11 @@ module Spectre
 
         raise "'#{uri}' is not a valid uri" unless uri.host
 
+        # Build query parameters
+
         uri.query = URI.encode_www_form(req['query']) unless not req['query'] or req['query'].empty?
+
+        # Create HTTP client
 
         net_http = Net::HTTP.new(uri.host, uri.port)
         net_http.read_timeout = req['timeout'] || 180
@@ -272,6 +276,8 @@ module Spectre
             net_http.verify_mode = OpenSSL::SSL::VERIFY_NONE
           end
         end
+
+        # Create HTTP Request
 
         net_req = Net::HTTPGenericRequest.new(req['method'], true, true, uri)
         net_req.body = req['body']
@@ -311,6 +317,9 @@ module Spectre
 
         end_time = Time.now
 
+        req['started_at'] = start_time
+        req['finished_at'] = end_time
+
         # Run HTTP modules
 
         @@modules.each do |mod|
@@ -327,8 +336,7 @@ module Spectre
 
         fail "Response code of #{req_id} did not indicate success: #{net_res.code} #{net_res.message}" if req['ensure_success'] and net_res.code.to_i >= 400
 
-        req['started_at'] = start_time
-        req['finished_at'] = end_time
+        # Set global request and response variables
 
         @@request = OpenStruct.new(req)
         @@request.freeze
