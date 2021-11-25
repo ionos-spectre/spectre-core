@@ -61,7 +61,7 @@ module Spectre
       end
 
       def content_type media_type
-        header(Headers::CONTENT_TYPE, media_type)
+        @__req['content_type'] = media_type
       end
 
       def json data
@@ -238,12 +238,9 @@ module Spectre
       def invoke req
         @@request = nil
 
-        if req['cert'] or req['use_ssl']
-          scheme = 'https'
-        else
-          scheme = 'http'
-        end
+        # Build URI
 
+        scheme = req['use_ssl'] ? 'https' : 'http'
         base_url = req['base_url']
 
         unless base_url.match /http(?:s)?:\/\//
