@@ -1,5 +1,4 @@
-### vNext
-
+### v1.12.0
 
 ### Major
  - Returning a `Hash` from a mixin, converts `Hash` to `OpenStruct`
