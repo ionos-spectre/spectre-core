@@ -59,7 +59,7 @@ module Spectre::Reporter
             xml_str += '<system-out>'
             xml_str += '<![CDATA['
 
-            if  run_info.properties.count > 0
+            if run_info.properties.count > 0
               run_info.properties.each do |key, val|
                 xml_str += "#{key}: #{val}\n"
               end
@@ -88,7 +88,7 @@ module Spectre::Reporter
 
       xml_str += '</testsuites>'
 
-      Dir.mkdir @config['out_path'] if not Dir.exist? @config['out_path']
+      Dir.mkdir @config['out_path'] unless Dir.exist? @config['out_path']
 
       file_path = File.join(@config['out_path'], "spectre-junit_#{timestamp}.xml")
 

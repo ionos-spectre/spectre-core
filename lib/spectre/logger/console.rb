@@ -24,12 +24,14 @@ module Spectre
 
       def start_context context
         return unless context.__desc
+
         puts (' ' * indent) + context.__desc.magenta
         @level += 1
       end
 
       def end_context context
         return unless context.__desc
+
         @level -= 1
         puts (' ' * indent) + @fmt_end_context.gsub('<desc>', context.__desc).magenta if @fmt_end_context
       end
@@ -42,7 +44,7 @@ module Spectre
         @level += 1
       end
 
-      def end_spec spec, data
+      def end_spec _spec, _data
         @level -= 1
       end
 
@@ -76,7 +78,7 @@ module Spectre
         @level += 1
       end
 
-      def log_status desc, status, annotation=nil
+      def log_status _desc, status, annotation=nil
         status = status.green if status == Status::OK
         status = status.blue if status == Status::INFO
         status = status.grey if status == Status::DEBUG
@@ -106,12 +108,12 @@ module Spectre
         print_line(message, Status::DEBUG.grey)
       end
 
-      def log_error spec, exception
+      def log_error _spec, exception
         txt = (Status::ERROR + ' - ' + exception.class.name).red
         print_line('', txt)
       end
 
-      def log_skipped spec
+      def log_skipped _spec
         print_line('', Status::SKIPPED.grey)
       end
 
@@ -136,7 +138,6 @@ module Spectre
           @process = nil
         end
       end
-
     end
   end
 end

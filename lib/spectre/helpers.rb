@@ -1,3 +1,5 @@
+require_relative '../spectre'
+
 require 'securerandom'
 require 'json'
 require 'date'
@@ -42,7 +44,6 @@ class ::String
 
     begin
       JsonPath.on(self, path)
-
     rescue MultiJson::ParseError
       # do nothing and return nil
     end
@@ -51,7 +52,8 @@ class ::String
   # File helpers
 
   def content with: nil
-    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+    fail "'#{self}' is not a file path, or the file does not exist." unless File.exists? self
+
     file_content = File.read(self)
 
     if with
@@ -62,7 +64,8 @@ class ::String
   end
 
   def file_size
-    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+    fail "'#{self}' is not a file path, or the file does not exist." unless File.exists? self
+
     File.size(self)
   end
 
@@ -71,11 +74,11 @@ class ::String
   end
 
   def remove!
-    fail "'#{self}' is not a file path, or the file does not exist." if !File.exists? self
+    fail "'#{self}' is not a file path, or the file does not exist." unless File.exists? self
+
     File.delete self
   end
 end
-
 
 class ::OpenStruct
   def to_json *args, **kwargs
@@ -90,7 +93,7 @@ class ::OpenStruct
 
   def default_to! defaults
     defaults.each_key do |key|
-      if not self[key] != nil
+      unless self[key] != nil
         self[key] = defaults[key]
       end
     end
@@ -98,7 +101,6 @@ class ::OpenStruct
 
   alias :defaults_to! :default_to!
 end
-
 
 class ::Hash
   def symbolize_keys
@@ -107,7 +109,7 @@ class ::Hash
 
   def default_to! defaults
     defaults.each_key do |key|
-      if not self[key] != nil
+      unless self[key] != nil
         self[key] = defaults[key]
       end
     end
@@ -116,18 +118,15 @@ class ::Hash
   alias :defaults_to! :default_to!
 end
 
-
 class ::Array
-  def last
+  def last_element
     self[-1]
   end
 end
 
-
 def uuid length = 5
   SecureRandom.uuid().gsub('-', '')[0..length-1]
 end
-
 
 def now
   Time.now

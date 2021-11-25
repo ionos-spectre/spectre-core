@@ -5,7 +5,6 @@ module Spectre::Reporter
     end
 
     def report run_infos
-
       report_str = ''
 
       errors = 0
@@ -15,7 +14,6 @@ module Spectre::Reporter
       run_infos
         .select { |x| x.error != nil or x.failure != nil }
         .each_with_index do |run_info, index|
-
         spec = run_info.spec
 
         report_str += "\n#{index+1}) #{format_title(run_info)}\n"

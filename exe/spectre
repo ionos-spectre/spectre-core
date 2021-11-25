@@ -10,14 +10,6 @@ require 'ectoplasm'
 require_relative '../lib/spectre'
 
 
-class ::Hash
-  def deep_merge!(second)
-    merger = proc { |key, v1, v2| Hash === v1 && Hash === v2 ? v1.merge!(v2, &merger) : v2 }
-    self.merge!(second, &merger)
-  end
-end
-
-
 DEFAULT_CONFIG = {
   'config_file' => './spectre.yml',
   'environment' => 'default',
@@ -44,7 +36,7 @@ DEFAULT_CONFIG = {
       'separator' => '-- <desc>',
       'start_group' => "-- Start '<desc>'",
       'end_group' => "-- End '<desc>'",
-    }
+    },
   },
   'debug' => false,
   'out_path' => './reports',
@@ -75,7 +67,7 @@ DEFAULT_CONFIG = {
   ],
   'exclude' => [
 
-  ]
+  ],
 }
 
 
@@ -148,10 +140,9 @@ Specific options:}
 
     curr_opt = cmd_options
     (key.split '.').each do |k|
-      curr_opt[k] = {} if not curr_opt.key? k
+      curr_opt[k] = {} unless curr_opt.key? k
     end
     curr_opt = val
-
   end
 
   opts.separator "\nCommon options:"
@@ -226,7 +217,7 @@ cfg['env_partial_patterns'].each do |pattern|
   Dir.glob(pattern).each do|f|
     partial_env = YAML.load_file(f)
     name = partial_env.delete('name') || 'default'
-    next if not envs.key? name
+    next unless envs.key? name
 
     envs[name].deep_merge! partial_env
   end
@@ -260,7 +251,7 @@ end
 ###########################################
 
 
-if action == 'list'
+if 'list' == action
   colors = [:blue, :magenta, :yellow, :green]
   specs = Spectre.specs(cfg['specs'], cfg['tags'])
 
@@ -289,19 +280,20 @@ end
 ###########################################
 
 
-if action == 'run'
+if 'run' == action
   # Initialize logger
   now = Time.now
 
-  cfg['log_file'] = cfg['log_file'].frmt({
-    shortdate: now.strftime('%Y-%m-%d'),
-    date: now.strftime('%Y-%m-%d_%H%M%S'),
-    timestamp: now.strftime('%s'),
-    subject: 'spectre',
-  })
+  cfg['log_file'] = cfg['log_file'].frmt(
+{
+  shortdate: now.strftime('%Y-%m-%d'),
+  date: now.strftime('%Y-%m-%d_%H%M%S'),
+  timestamp: now.strftime('%s'),
+  subject: 'spectre',
+})
 
   log_dir = File.dirname cfg['log_file']
-  FileUtils.makedirs log_dir if !Dir.exists? log_dir
+  FileUtils.makedirs log_dir unless Dir.exists? log_dir
 
   # Load Modules
 
@@ -309,23 +301,23 @@ if action == 'run'
     .concat(cfg['include'])
     .select { |mod| !cfg['exclude'].include? mod }
     .each do |mod|
-      begin
-        spectre_lib_mod = File.join('../lib', mod)
+    begin
+      mod_file = mod + '.rb'
+      spectre_lib_mod = File.join(File.dirname(__dir__), 'lib', mod_file)
 
-        if File.exists? mod
-          require_relative mod
+      if File.exists? mod_file
+        require_relative mod_file
 
-        elsif File.exists? spectre_lib_mod
-          require_relative spectre_lib_mod
+      elsif File.exists? spectre_lib_mod
+        require_relative spectre_lib_mod
 
-        else
-          require mod
-        end
-
-      rescue LoadError => e
-        puts "Unable to load module #{mod}. Check if the module exists or remove it from your spectre config:\n#{e.message}"
-        exit 1
+      else
+        require mod
       end
+    rescue LoadError => e
+      puts "Unable to load module #{mod}. Check if the module exists or remove it from your spectre config:\n#{e.message}"
+      exit 1
+    end
   end
 
   # Load mixins
@@ -347,7 +339,7 @@ if action == 'run'
 
   specs = Spectre.specs(cfg['specs'], cfg['tags'])
 
-  if not specs.any?
+  unless specs.any?
     puts "No specs found in #{Dir.pwd}"
     exit 1
   end
@@ -359,7 +351,7 @@ if action == 'run'
     reporter.report(run_infos)
   end
 
-  errors = run_infos.select { |x| x.error != nil or x.failure != nil }
+  errors = run_infos.select { |x| nil != x.error or nil != x.failure }
 
   exit 0 if cfg['ignore_failure'] or not errors.any?
 
@@ -372,7 +364,7 @@ end
 ###########################################
 
 
-if action == 'envs'
+if 'envs' == action
   exit 1 unless envs.any?
   puts envs.pretty
   exit 0
@@ -384,7 +376,7 @@ end
 ###########################################
 
 
-if action == 'show'
+if 'show' == action
   puts cfg.pretty
   exit 0
 end
@@ -395,7 +387,7 @@ end
 ###########################################
 
 
-if action == 'dump'
+if 'dump' == action
   puts YAML.dump(cfg)
 end
 
@@ -500,7 +492,7 @@ gem 'spectre-core', '>= #{Spectre::VERSION}'
 # gem 'spectre-git', '>= 0.1.0'
 ]
 
-if action == 'init'
+if 'init' == action
   DEFAULT_FILES = [
     ['./environments/default.env.yml', DEFAULT_ENV_CFG],
     ['./environments/default.env.secret.yml', DEFAULT_ENV_SECRET_CFG],
@@ -515,7 +507,7 @@ if action == 'init'
   end
 
   DEFAULT_FILES.each do |file, content|
-    if not File.exists? file
+    unless File.exists? file
       File.write(file, content)
     end
   end

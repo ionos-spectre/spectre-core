@@ -1,3 +1,5 @@
+require_relative '../spectre'
+
 module Spectre
   module Diagnostic
     module Stopwatch
@@ -21,9 +23,17 @@ module Spectre
         def duration
           @@end_time - @@start_time
         end
+
+        def started_at
+          @@start_time
+        end
+
+        def finished_at
+          @@end_time
+        end
       end
 
-      Spectre.delegate :start_watch, :stop_watch, :duration, :measure, to: Stopwatch
+      Spectre.delegate :start_watch, :stop_watch, :duration, :measure, to: self
     end
   end
 end

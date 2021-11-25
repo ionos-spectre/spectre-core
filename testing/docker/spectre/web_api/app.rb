@@ -51,7 +51,7 @@ end
 get '/api/v1/todos/:id' do |id|
   todo = ENTRIES.first { |x| x[:id] == id }
 
-  if not todo
+  unless todo
     status 404
     return
   end
@@ -70,7 +70,7 @@ post '/api/v1/hello' do
   mime_type 'application/json'
 
   return {
-    message: 'Hello client!'
+    message: 'Hello client!',
   }.to_json
 end
 
@@ -80,45 +80,45 @@ post 'keystone/main/v3/auth/tokens' do
   {
     "token": {
       "methods": [
-        "password"
+        "password",
       ],
       "user": {
         "domain": {
           "id": "de4da3bba13648e9a29dd21af6ab0f09",
-          "name": "waas_qa"
+          "name": "waas_qa",
         },
         "id": "b7461d3f63be464bb6fdb89bf0f7fe24",
         "name": "WhicQA_Admin",
-        "password_expires_at": null
+        "password_expires_at": null,
       },
       "audit_ids": [
-        "vLdvkBwOSUCpR8daCRfDxg"
+        "vLdvkBwOSUCpR8daCRfDxg",
       ],
       "expires_at": "2021-04-12T16:42:36.000000Z",
       "issued_at": "2021-04-12T08:42:36.000000Z",
       "project": {
         "domain": {
           "id": "de4da3bba13648e9a29dd21af6ab0f09",
-          "name": "waas_qa"
+          "name": "waas_qa",
         },
         "id": "d3f3c9f9243f4f58924370d0a50f9242",
-        "name": "WhicQA"
+        "name": "WhicQA",
       },
       "is_domain": false,
       "roles": [
         {
           "id": "9e1b7677810d44b9b5f85aa9a7af7257",
-          "name": "member"
+          "name": "member",
         },
         {
           "id": "65033c3605454826bd659b2cde3d2d67",
-          "name": "admin"
+          "name": "admin",
         },
         {
           "id": "92723567682a4786bd7266f21b933296",
-          "name": "reader"
-        }
-      ]
-    }
+          "name": "reader",
+        },
+      ],
+    },
   }.to_json
 end

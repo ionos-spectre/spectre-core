@@ -6,9 +6,17 @@
 
 [![Gem Version](https://badge.fury.io/rb/spectre-core.svg)](https://badge.fury.io/rb/spectre-core)
 
-Spectre is a DSL and tool set for test automation.
+Spectre is a DSL and commandline tool for test automation.
 
 It is written in [Ruby](https://www.ruby-lang.org/de/) and inspired by the Unit-Test framework [rspec](https://rspec.info/).
+
+
+## Philosophy
+
+> Code is documentation
+
+The framework is designed for non-developers and to provide easy to read tests. When writing and reading tests, you should immediatlely understand what is going on.
+This helps to debug test subjects and to better understand what and how it is tested.
 
 
 ## External Modules
@@ -31,7 +39,7 @@ https://bitbucket.org/cneubaur/spectre-core
 `spectre` is available as a docker image. Just run your *specs* in a Docker container with
 
 ```bash
-docker run -t --rm -v "$(pwd)/path/to/specs" cneubaur/spectre
+docker run -t --rm -v "$(pwd)/path/to/specs" cneubauer/spectre
 ```
 
 
@@ -1007,6 +1015,8 @@ mixin 'check health' do |http_name| # the mixin can be parameterized
   expect 'the status to be ok' do
     response.json.status.should_be 'Ok'
   end
+
+  response
 end
 ```
 
@@ -1021,12 +1031,13 @@ end
 ```
 
 Like every ruby block or function, a mixin has a return value (the last expression in the `do` block)
+If the return value is a `Hash`, it will be converted to an `OpenStruct` for better value access.
 
 ```ruby
 mixin 'do some spooky stuff' do
   # spook around
 
-  'Boo!'
+  { say: 'Boo!' }
 end
 ```
 
@@ -1038,11 +1049,25 @@ describe 'Hollow API' do
     result = run 'do some spooky stuff'
 
     expect 'some spooky things' do
-      result.should_be 'Boo!'
+      result.say.should_be 'Boo!'
     end
   end
 end
 ```
+
+You can pass one or more parameters to a mixin run. When passing one `Hash` to the mixin, it will be converted to an `OpenStruct` for easier access.
+
+```ruby
+mixin 'spook around' do |params|
+  required params, :boo, :rawrrr
+  optional params, :light
+
+  [...]
+end
+```
+
+When required keys are missing, an `ArgumentError` will be raised. `optional` will only log the optional keys to the spectre log for debugging purposes.
+
 
 ### Diagnostic `spectre/diagnostic`
 
@@ -1052,7 +1077,7 @@ This module adds function to track execution time.
 ```ruby
 describe 'Hollow API' do
   it 'sends out spooky ghosts' do
-    start # start timer
+    start_watch # start timer
 
     http 'dummy_api' do
       auth 'basic' # add this to use basic auth
@@ -1060,7 +1085,7 @@ describe 'Hollow API' do
       path 'employee/1'
     end
 
-    stop # stop timer
+    stop_watch # stop timer
 
     # can also be used within the `measure` block
     measure do
@@ -1077,6 +1102,8 @@ describe 'Hollow API' do
   end
 end
 ```
+
+`started_at` and `finished_at` are also available and return the according start or finish time.
 
 
 ### Reporter `spectre/reporter`

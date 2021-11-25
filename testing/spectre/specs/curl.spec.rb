@@ -22,7 +22,7 @@ describe 'spectre/http' do
       path 'echo'
       json({
         "username": "dummy",
-        "password": "this should never be logged"
+        "password": "this should never be logged",
       })
       header 'authorization', 'blablubb'
     end

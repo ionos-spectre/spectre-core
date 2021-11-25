@@ -1,3 +1,5 @@
+require_relative '../spectre'
+
 require 'ostruct'
 require_relative 'logger'
 
@@ -34,7 +36,6 @@ module Spectre
       end
     end
 
-
     class ::NilClass
       def should_be(val)
         raise AssertionFailure.new("There is nothing, but the value should be '#{val.to_s.trim}'", val, nil) unless val == nil
@@ -55,7 +56,6 @@ module Spectre
       end
     end
 
-
     class ::Hash
       def should_contain(other)
         raise AssertionFailure.new(other, self) unless self.merge(other) == self
@@ -64,8 +64,25 @@ module Spectre
       def should_not_contain(other)
         raise AssertionFailure.new(other, self) unless self.merge(other) != self
       end
+
+      def should_be_empty
+        raise AssertionFailure.new("The object should be empty", nil, self) unless self.empty?
+      end
+
+      def should_not_be_empty
+        raise AssertionFailure.new("The object should not be empty", nil, self) if self.empty?
+      end
     end
 
+    class ::OpenStruct
+      def should_be_empty
+        raise AssertionFailure.new("The object should be empty", nil, self) unless self.to_h.empty?
+      end
+
+      def should_not_be_empty
+        raise AssertionFailure.new("The object should not be empty", nil, self) if self.to_h.empty?
+      end
+    end
 
     class ::Array
       def should_contain(val)
@@ -98,7 +115,6 @@ module Spectre
         raise AssertionFailure.new('no empty list', self) if self.empty?
       end
     end
-
 
     class ::String
       def should_be(val)
@@ -145,7 +161,6 @@ module Spectre
       alias :& :and
     end
 
-
     class Evaluation
       def initialize value, other
         @value = value
@@ -164,7 +179,6 @@ module Spectre
       alias :& :and
     end
 
-
     class SingleEvaluation < Evaluation
       def initialize value
         super(value, nil)
@@ -178,7 +192,6 @@ module Spectre
         @value.to_s
       end
     end
-
 
     class OrEvaluation < Evaluation
       def initialize value, other
@@ -194,7 +207,6 @@ module Spectre
       end
     end
 
-
     class AndEvaluation < Evaluation
       def initialize value, other
         super(value, other)
@@ -208,7 +220,6 @@ module Spectre
         "(#{@value.to_s} and #{@other.to_s})"
       end
     end
-
 
     class AssertionFailure < ExpectationFailure
       attr_reader :expected, :actual
@@ -229,14 +240,11 @@ module Spectre
           Logger.log_process("expect #{desc}")
           yield
           Logger.log_status(desc, Logger::Status::OK)
-
         rescue Interrupt => e
           raise e
-
         rescue AssertionFailure => e
           Logger.log_status(desc, Logger::Status::FAILED)
           raise AssertionFailure.new(e.message, e.expected, e.actual, desc), cause: nil
-
         rescue Exception => e
           Logger.log_status(desc, Logger::Status::ERROR)
           raise AssertionFailure.new("An unexpected error occured during expectation: #{e.message}", nil, nil, desc), cause: e
@@ -244,15 +252,21 @@ module Spectre
       end
 
       def observe desc = nil
+        prefix = "observing"
+        prefix += " '#{desc}'" if desc
+
         begin
-          Logger.log_info("observing #{desc}") if desc
+          Logger.log_info(prefix) if desc
           yield
           @@success = true
-
+          @@logger.info("#{prefix} finished with success")
         rescue Interrupt => e
           raise e
-
         rescue Exception => e
+          error_message = "#{prefix} finished with failure: #{e.message}"
+          error_message += "\n" + e.backtrace.join("\n") if @@debug
+
+          @@logger.info(error_message)
           @@success = false
         end
       end
@@ -264,6 +278,11 @@ module Spectre
       def fail_with message
         raise AssertionFailure.new(message)
       end
+    end
+
+    Spectre.register do |config|
+      @@logger = ::Logger.new(config['log_file'], progname: 'spectre/assertion')
+      @@debug = config['debug']
     end
 
     Spectre.delegate :expect, :observe, :success?, :fail_with, to: self

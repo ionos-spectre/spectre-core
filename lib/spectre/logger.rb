@@ -1,3 +1,4 @@
+require_relative '../spectre'
 require 'date'
 
 module Spectre
@@ -98,6 +99,7 @@ module Spectre
 
       def log_debug message
         return unless @@debug
+
         add_log(message)
         delegate(:log_debug, message)
       end

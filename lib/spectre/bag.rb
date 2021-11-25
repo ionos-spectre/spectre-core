@@ -1,3 +1,5 @@
+require_relative '../spectre'
+
 require 'ostruct'
 
 module Spectre
@@ -14,6 +16,6 @@ module Spectre
       @@bag = OpenStruct.new
     end
 
-    Spectre.delegate :bag, to: Bag
+    Spectre.delegate :bag, to: self
   end
 end
