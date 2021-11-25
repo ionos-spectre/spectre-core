@@ -18,6 +18,7 @@
  - Bugfix: Keystone function is now working
  - Request with invalid or not available server is now generating a more useful error message
  - Bugfix: HTTP config is not modified anymore, when requesting and changing parameters within one run
+ - `no_auth!` method added to `http` module, to reset authentication method
 
 
 ### v1.11.0

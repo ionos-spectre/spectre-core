@@ -88,6 +88,10 @@ module Spectre
         @__req['auth'] = method
       end
 
+      def no_auth!
+        @__req['auth'] = 'none'
+      end
+
       def certificate path
         @__req['cert'] = path
         use_ssl!
