@@ -35,6 +35,6 @@ describe 'spectre/core' do
     some_undefined_variable
   end
 
-  it 'executes with multiple data', with: [1, env.foo], tags: [:core, :undefined, :data] do |data|
+  it 'executes with multiple data', with: env.some_list, tags: [:core, :undefined, :data] do |data|
   end
 end

@@ -167,11 +167,15 @@ module Spectre
 
       begin
         specs.each do |spec|
+          raise "Multi data definition (`with' parameter) of '#{spec.subject.desc} #{spec.desc}' has to be an `Array'" unless !spec.data.nil? and spec.data.is_a? Array
+
           if spec.data.any?
-            spec.data.each do |data|
-              Logger.log_spec(spec, data) do
-                runs << run_spec(spec, data)
-              end
+            spec.data
+              .map { |x| x.is_a?(Hash) ? OpenStruct.new(x) : x }
+              .each do |data|
+                Logger.log_spec(spec, data) do
+                  runs << run_spec(spec, data)
+                end
             end
           else
             Logger.log_spec(spec) do
@@ -311,11 +315,7 @@ module Spectre
           .first
       end
 
-      raise "`with' has to be an Array" unless with.is_a? Array
-
-      data = with.map { |x| x.is_a?(Hash) ? OpenStruct.new(x) : x }
-
-      @__subject.add_spec(desc, tags, data, block, self, spec_file)
+      @__subject.add_spec(desc, tags, with, block, self, spec_file)
     end
 
     def before &block
