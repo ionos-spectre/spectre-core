@@ -4,7 +4,7 @@ services:
   - docker
 
 rvm:
- - 2.5
+ - 3.0
 
 dist: xenial
 os: linux
