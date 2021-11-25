@@ -94,7 +94,6 @@ module Spectre
 
       def certificate path
         @__req['cert'] = path
-        use_ssl!
       end
 
       def use_ssl!
