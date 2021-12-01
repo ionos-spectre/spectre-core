@@ -1,16 +1,12 @@
 <div align="center">
-  <img src="https://github.com/ionos-spectre/spectre-core/raw/master/spectre_icon.png" alt="IONOS Spectre" style="width:200px">
+  <img src="https://github.com/cneubauer/spectre-core/blob/develop/spectre_icon.png?raw=true" alt="IONOS Spectre" style="width:200px">
   <h2>IONOS Spectre</h2>
   <p>Write Tests. Analyse Results. Understand What Happened.</p>
-  <a href="https://www.travis-ci.com/ionos-spectre/spectre-core"><img src="https://www.travis-ci.com/ionos-spectre/spectre-core.svg?branch=master" /></a>
-  <a href="https://badge.fury.io/rb/spectre-core"><img src="https://rubygems.org/gems/spectre-core" /></a>
+  <a href="https://www.travis-ci.com/ionos-spectre/spectre-core"><img src="https://www.travis-ci.com/ionos-spectre/spectre-core.svg?branch=master" alt="Build Status" /></a>
+  <a href="https://rubygems.org/gems/spectre-core"><img src="https://badge.fury.io/rb/spectre-core.svg" alt="Gem Version" /></a>
 </div>
 
 # Spectre
-
-[![Build Status](https://www.travis-ci.com/ionos-spectre/spectre-core.svg?branch=master)](https://www.travis-ci.com/ionos-spectre/spectre-core)
-
-[![Gem Version](https://badge.fury.io/rb/spectre-core.svg)](https://rubygems.org/gems/spectre-core)
 
 Spectre is a DSL and commandline tool for test automation.
 
