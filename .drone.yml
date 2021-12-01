@@ -25,6 +25,9 @@ steps:
     path: /usr/local/bundle
   commands:
   - bundle exec rake build
+  when:
+    branch:
+    - main
 
 - name: deploy
   image: ruby
