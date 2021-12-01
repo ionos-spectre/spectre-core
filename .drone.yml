@@ -1,8 +1,8 @@
 kind: pipeline
 name: default
 
-workspace:
-  path: /drone/src
+# workspace:
+#   path: /drone/src
 
 steps:
 - name: install
@@ -39,6 +39,6 @@ steps:
   #   ref:
   #   - refs/tags/*
 
-# trigger:
-#   event:
-#   - push
+trigger:
+  event:
+  - push
