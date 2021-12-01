@@ -1,27 +1,31 @@
 kind: pipeline
 name: default
 
-# workspace:
-#   path: /drone/src
-
 steps:
 - name: install
   image: ruby:3.0
+  volumes:
+  - name: bundle
+    path: /usr/local/bundle
   commands:
   - bundle install
 
 - name: test
   image: ruby:3.0
+  volumes:
+  - name: bundle
+    path: /usr/local/bundle
   commands:
   - bundle exec rspec spec
 
 - name: build
   image: ruby:3.0
+  volumes:
+  - name: bundle
+    path: /usr/local/bundle
   commands:
   - bundle exec rake build
   # when:
-  #   branch:
-  #   - main
   #   ref:
   #   - refs/tags/*
 
@@ -30,6 +34,9 @@ steps:
   environment:
     RUBYGEMS_APIKEY:
       from_secret: rubygems_apikey
+  volumes:
+  - name: bundle
+    path: /usr/local/bundle
   commands:
   - mkdir ~/.gem
   - 'echo -e "---\n:rubygems_api_key: $RUBYGEMS_APIKEY" > ~/.gem/credentials'
@@ -39,6 +46,19 @@ steps:
   #   ref:
   #   - refs/tags/*
 
-trigger:
-  event:
-  - push
+volumes:
+- name: bundle
+  temp: {}
+
+---
+kind: pipeline
+type: exec
+name: docker
+
+steps:
+- name: build
+  commands:
+  - docker build . -t example
+- name: run
+  commands:
+  - docker run example
