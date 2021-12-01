@@ -39,6 +39,6 @@ steps:
   #   ref:
   #   - refs/tags/*
 
-trigger:
-  event:
-  - push
+# trigger:
+#   event:
+#   - push
