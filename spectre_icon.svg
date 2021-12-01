@@ -34,7 +34,7 @@
        inkscape:swatch="solid"
        gradientTransform="matrix(13.015031,0,0,13.015031,-105.5374,-78.93562)">
       <stop
-         style="stop-color:#0b2a63;stop-opacity:1;"
+         style="stop-color:#001b41;stop-opacity:1;"
          offset="0"
          id="stop935" />
     </linearGradient>
@@ -79,8 +79,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.93014925"
-     inkscape:cx="231.1457"
-     inkscape:cy="302.6396"
+     inkscape:cx="259.0982"
+     inkscape:cy="292.96374"
      inkscape:document-units="mm"
      inkscape:current-layer="g4221-2"
      showgrid="false"
@@ -145,13 +145,13 @@
       <g
          id="g908"
          transform="matrix(6.1704613,0,0,6.1704613,27.831094,124.69223)"
-         style="fill:#11c7e6;fill-opacity:1">
+         style="fill:url(#Spectre);fill-opacity:1">
         <path
            d="m 5.9963355,15.094538 c 0,0 -0.1905226,0.399828 -0.6815162,0.320321 -0.4909939,-0.0795 -0.6341843,-0.591042 -0.6341843,-0.591042 0,0 0.378481,0.114842 0.6619948,0.167782 0.2835137,0.05294 0.6537059,0.102935 0.6537059,0.102935 z"
            id="ellipse819"
            inkscape:connector-curvature="0"
            sodipodi:nodetypes="czczcc"
-           style="fill:#11c7e6;fill-opacity:1;stroke-width:0.522545"
+           style="fill:url(#Spectre);fill-opacity:1;stroke-width:0.522545"
            inkscape:export-filename="C:\Users\cneubauer\Development\Automation\Tools\spectre-core\spectre_icon.png"
            inkscape:export-xdpi="299"
            inkscape:export-ydpi="299" />
@@ -160,7 +160,7 @@
            id="ellipse819-7"
            inkscape:connector-curvature="0"
            sodipodi:nodetypes="czczcc"
-           style="fill:#11c7e6;fill-opacity:1;stroke-width:0.522545"
+           style="fill:url(#Spectre);fill-opacity:1;stroke-width:0.522545"
            inkscape:export-filename="C:\Users\cneubauer\Development\Automation\Tools\spectre-core\spectre_icon.png"
            inkscape:export-xdpi="299"
            inkscape:export-ydpi="299" />
@@ -197,12 +197,12 @@
        style="display:inline"
        transform="matrix(0.6616979,0,0,0.6616979,38.058106,-60.980614)">
       <path
-         style="fill:none;stroke:#0b9dcc;stroke-width:2.75181;stroke-linecap:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:none;stroke:url(#Spectre);stroke-width:2.75181;stroke-linecap:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
          inkscape:connector-curvature="0"
          class="st0"
-         d="m 87.314438,220.45502 c -5.945358,-3.39541 -4.926735,-23.21845 -19.773004,-23.21845 -14.84627,0 -12.430241,16.45022 -18.715617,18.63643 -6.285375,2.18621 -11.344875,8.86753 -11.344875,15.69946 14.2896,-1.82364 8.286409,9.69604 11.92715,13.32925 4.174521,4.16589 7.891305,0.93451 11.934895,7.69523 3.695179,6.17818 12.014082,6.69916 12.014082,6.69916 0,0 -3.17754,-10.29522 5.345264,-12.54277 12.0242,-3.55261 3.991998,-12.1135 17.745155,-9.35513 -0.654889,-4.27936 0.134146,-11.65067 -9.13305,-16.94318 z"
+         d="m 87.314438,220.45502 c -2.965446,-1.69357 -4.198358,-7.47409 -6.531567,-12.84322 -2.344591,-5.39532 -5.80024,-10.37523 -13.241437,-10.37523 -14.84627,0 -12.430241,16.45022 -18.715617,18.63643 -6.285375,2.18621 -11.344875,8.86753 -11.344875,15.69946 14.2896,-1.82364 8.286409,9.69604 11.92715,13.32925 4.174521,4.16589 7.891305,0.93451 11.934895,7.69523 3.695179,6.17818 12.014082,6.69916 12.014082,6.69916 0,0 -3.17754,-10.29522 5.345264,-12.54277 12.0242,-3.55261 3.991998,-12.1135 17.745155,-9.35513 -0.654889,-4.27936 0.134141,-11.65066 -9.13305,-16.94318 z"
          id="path817-7"
-         sodipodi:nodetypes="szscsscccs"
+         sodipodi:nodetypes="sssscsscccs"
          inkscape:export-filename="C:\Users\cneubauer\Development\Automation\Tools\spectre-core\spectre_icon.png"
          inkscape:export-xdpi="299"
          inkscape:export-ydpi="299" />
@@ -215,7 +215,7 @@
            id="ellipse819-5"
            inkscape:connector-curvature="0"
            sodipodi:nodetypes="czczcc"
-           style="fill:#0b9dcc;fill-opacity:1;stroke-width:0.522545"
+           style="fill:url(#Spectre);fill-opacity:1;stroke-width:0.522545"
            inkscape:export-filename="C:\Users\cneubauer\Development\Automation\Tools\spectre-core\spectre_icon.png"
            inkscape:export-xdpi="299"
            inkscape:export-ydpi="299" />
@@ -224,7 +224,7 @@
            id="ellipse819-7-6"
            inkscape:connector-curvature="0"
            sodipodi:nodetypes="czczcc"
-           style="fill:#0b9dcc;fill-opacity:1;stroke-width:0.522545"
+           style="fill:url(#Spectre);fill-opacity:1;stroke-width:0.522545"
            inkscape:export-filename="C:\Users\cneubauer\Development\Automation\Tools\spectre-core\spectre_icon.png"
            inkscape:export-xdpi="299"
            inkscape:export-ydpi="299" />
