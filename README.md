@@ -1,10 +1,16 @@
+<div align="center">
+  <img src="https://github.com/ionos-spectre/spectre-core/raw/master/spectre_icon.png" alt="IONOS Spectre" style="width:200px">
+  <h2>IONOS Spectre</h2>
+  <p>Write Tests. Analyse Results. Understand What Happened.</p>
+  <a href="https://www.travis-ci.com/ionos-spectre/spectre-core"><img src="https://www.travis-ci.com/ionos-spectre/spectre-core.svg?branch=master" /></a>
+  <a href="https://badge.fury.io/rb/spectre-core"><img src="https://rubygems.org/gems/spectre-core" /></a>
+</div>
+
 # Spectre
 
-> _You cross the line in this life, you choose the wrong side and you pay the price. All fees collected by -_ [The Spectre](https://dc.fandom.com/wiki/The_Phantom_Stranger_Vol_4_5)
+[![Build Status](https://www.travis-ci.com/ionos-spectre/spectre-core.svg?branch=master)](https://www.travis-ci.com/ionos-spectre/spectre-core)
 
-[![Build Status](https://www.travis-ci.com/cneubaur/spectre-core.svg?branch=master)](https://www.travis-ci.com/cneubaur/spectre-core)
-
-[![Gem Version](https://badge.fury.io/rb/spectre-core.svg)](https://badge.fury.io/rb/spectre-core)
+[![Gem Version](https://badge.fury.io/rb/spectre-core.svg)](https://rubygems.org/gems/spectre-core)
 
 Spectre is a DSL and commandline tool for test automation.
 
@@ -23,15 +29,10 @@ This helps to debug test subjects and to better understand what and how it is te
 
 | Module | Documentation |
 | ------ | ------------- |
-| `spectre/ftp` | https://github.com/cneubauer/spectre-ftp |
-| `spectre/git` | https://github.com/cneubauer/spectre-git |
-| `spectre/mysql` | https://github.com/cneubauer/spectre-mysql |
-| `spectre/ssh` | https://github.com/cneubauer/spectre-ssh |
-
-
-## Source
-
-https://bitbucket.org/cneubaur/spectre-core
+| `spectre/ftp` | https://github.com/ionos-spectre/spectre-ftp |
+| `spectre/git` | https://github.com/ionos-spectre/spectre-git |
+| `spectre/mysql` | https://github.com/ionos-spectre/spectre-mysql |
+| `spectre/ssh` | https://github.com/ionos-spectre/spectre-ssh |
 
 
 ## Docker
@@ -39,7 +40,7 @@ https://bitbucket.org/cneubaur/spectre-core
 `spectre` is available as a docker image. Just run your *specs* in a Docker container with
 
 ```bash
-docker run -t --rm -v "$(pwd)/path/to/specs" cneubauer/spectre
+docker run -t --rm -v "$(pwd)/path/to/specs" ionos-spectre/spectre
 ```
 
 
@@ -155,7 +156,7 @@ This will create mutliple empty directories and a `spectre.yaml` config file.
 
 ### Spectre Config
 
-The following properties can be set in your `spectre.yml`
+The following properties can be set in your `spectre.yml`. Shown values are set by default.
 
 ```yml
 config_file: "./spectre.yml"
@@ -187,7 +188,7 @@ mixin_patterns:
   - "../common/mixins/**/*.mixin.rb"
   - "./mixins/**/*.mixin.rb"
 env_patterns:
-  - "**/*.env.yml"
+  - "./environments/**/*.env.yml"
 env_partial_patterns:
   - "./environments/**/*.env.secret.yml"
 resource_paths:
@@ -208,10 +209,8 @@ modules:
   - spectre/http/basic_auth
   - spectre/http/keystone
   - spectre/resources
-  - spectre/ssh
-  - spectre/ftp
-include: []
-exclude: []
+include: [] # Explicitly include modules
+exclude: [] # Explicitly exclude modules
 log_path: "./logs"
 curl_path: curl
 ```
@@ -219,10 +218,10 @@ curl_path: curl
 All options can also be overriden with the command line argument `-p` or `--property`
 
 ```bash
-spectre -p config_file=my_custom_spectre.yml -p environment=development
+spectre -p config_file=my_custom_spectre.yml -p "reporter=Spectre::Reporter::JUnit"
 ```
 
-You can also create a global spectre config file with the options above. Create a file `.spectre` in you users home directory (`~/.spectre`) and set the option you like.
+You can also create a global spectre config file with the options above. Create a file `.spectre` in your users home directory (`~/.spectre`) and set the options you like.
 
 
 ## Writing specs
@@ -234,7 +233,7 @@ Copy the following code into the file and save it
 
 ```ruby
 def scare_people
-  'Boo!'
+  'Ahhhhhh!'
 end
 
 describe 'Spooky' do
@@ -267,7 +266,7 @@ describe 'Spooky' do
     raise 'town was destroyed instead'
 
     expect 'the cry to be scary' do
-      cry.should_be 'Boo!'
+      cry.should_be 'Ahhhhhh!'
     end
   end
 
@@ -276,7 +275,7 @@ describe 'Spooky' do
       cry = scare_people()
 
       expect 'the cry to be scary' do
-        cry.should_be 'Boo!'
+        cry.should_be 'Ahhhhhh!'
       end
     end
   end
