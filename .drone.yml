@@ -1,0 +1,20 @@
+kind: pipeline
+name: default
+
+steps:
+- name: test
+  image: ruby
+  commands:
+  - bundle exec rspec spec
+
+- name: build
+  image: ruby
+  volumes:
+  - name: bundle
+    path: /usr/local/bundle
+  commands:
+  - bundle exec rake build
+
+volumes:
+- name: bundle
+  temp: {}
