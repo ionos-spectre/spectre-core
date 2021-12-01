@@ -31,7 +31,8 @@
     </linearGradient>
     <linearGradient
        id="Spectre_Dark"
-       inkscape:swatch="solid">
+       inkscape:swatch="solid"
+       gradientTransform="matrix(13.015031,0,0,13.015031,-105.5374,-78.93562)">
       <stop
          style="stop-color:#0b2a63;stop-opacity:1;"
          offset="0"
@@ -39,7 +40,8 @@
     </linearGradient>
     <linearGradient
        id="Spectre"
-       inkscape:swatch="solid">
+       inkscape:swatch="solid"
+       gradientTransform="translate(3.6978833,7.3957665)">
       <stop
          style="stop-color:#11c7e6;stop-opacity:1;"
          offset="0"
@@ -60,12 +62,14 @@
        y1="16.78995"
        x2="11.937621"
        y2="16.78995"
-       gradientUnits="userSpaceOnUse" />
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(5.7539544,0,0,5.7539544,30.999201,130.68846)" />
     <linearGradient
        inkscape:collect="always"
        xlink:href="#Spectre_Dark"
        id="linearGradient974"
-       gradientUnits="userSpaceOnUse" />
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(6.1704613,0,0,6.1704613,26.694354,123.73571)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -75,12 +79,12 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.93014925"
-     inkscape:cx="183.84146"
-     inkscape:cy="347.79365"
+     inkscape:cx="231.1457"
+     inkscape:cy="302.6396"
      inkscape:document-units="mm"
-     inkscape:current-layer="g904"
+     inkscape:current-layer="g4221-2"
      showgrid="false"
-     inkscape:snap-global="false"
+     inkscape:snap-global="true"
      inkscape:snap-bbox="true"
      inkscape:snap-bbox-edge-midpoints="true"
      inkscape:snap-others="false"
@@ -97,7 +101,8 @@
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:pagecheckerboard="0" />
+     inkscape:pagecheckerboard="0"
+     inkscape:snap-page="true" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -111,46 +116,118 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Layer 1"
+     inkscape:label="Spectre"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-161.53334)">
+     transform="translate(0,-161.53334)"
+     style="display:inline">
+    <circle
+       style="fill:url(#linearGradient974);fill-opacity:1;stroke:none;stroke-width:1.25846;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill"
+       id="path893"
+       cx="67.733467"
+       cy="229.26654"
+       r="47.828068"
+       inkscape:export-filename="C:\Users\cneubauer\Development\Automation\Tools\spectre-core\spectre_icon.png"
+       inkscape:export-xdpi="299"
+       inkscape:export-ydpi="299" />
     <g
-       id="g834"
-       transform="matrix(6.1704613,0,0,6.1704613,26.694354,123.73571)">
-      <circle
-         style="fill:url(#linearGradient974);fill-opacity:1.0;stroke:none;stroke-width:0.20394877;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill"
-         id="path893"
-         cx="6.6508985"
-         cy="17.102583"
-         r="7.7511334" />
+       id="g4221">
+      <path
+         style="fill:none;stroke:url(#linearGradient933);stroke-width:1.872;stroke-linecap:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+         inkscape:connector-curvature="0"
+         class="st0"
+         d="m 87.314438,220.45502 c -5.945358,-3.39541 -4.926735,-23.21845 -19.773004,-23.21845 -14.84627,0 -12.430241,16.45022 -18.715617,18.63643 -6.285375,2.18621 -11.344875,8.86753 -11.344875,15.69946 14.2896,-1.82364 8.286409,9.69604 11.92715,13.32925 4.174521,4.16589 7.891305,0.93451 11.934895,7.69523 3.695179,6.17818 12.014082,6.69916 12.014082,6.69916 0,0 -3.17754,-10.29522 5.345264,-12.54277 12.0242,-3.55261 3.991998,-12.1135 17.745155,-9.35513 -0.654889,-4.27936 0.134146,-11.65067 -9.13305,-16.94318 z"
+         id="path817"
+         sodipodi:nodetypes="szscsscccs"
+         inkscape:export-filename="C:\Users\cneubauer\Development\Automation\Tools\spectre-core\spectre_icon.png"
+         inkscape:export-xdpi="299"
+         inkscape:export-ydpi="299" />
       <g
-         id="g904"
-         transform="translate(0.22734266,0.08221173)">
+         id="g908"
+         transform="matrix(6.1704613,0,0,6.1704613,27.831094,124.69223)"
+         style="fill:#11c7e6;fill-opacity:1">
         <path
-           style="fill:none;stroke:url(#linearGradient933);stroke-width:0.30791863;stroke-linecap:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+           d="m 5.9963355,15.094538 c 0,0 -0.1905226,0.399828 -0.6815162,0.320321 -0.4909939,-0.0795 -0.6341843,-0.591042 -0.6341843,-0.591042 0,0 0.378481,0.114842 0.6619948,0.167782 0.2835137,0.05294 0.6537059,0.102935 0.6537059,0.102935 z"
+           id="ellipse819"
            inkscape:connector-curvature="0"
-           class="st0"
-           d="m 9.7872231,15.600847 c -1.0332646,-0.5901 -0.8562344,-4.035216 -3.4364199,-4.035216 -2.5801855,0 -2.1602953,2.858941 -3.2526528,3.238891 -1.0923576,0.37995 -1.9716659,1.541118 -1.9716659,2.728463 2.4834399,-0.316936 1.4401243,1.68511 2.0728615,2.316539 0.7255047,0.724004 1.3714576,0.162411 2.0742075,1.33738 0.642198,1.073728 2.0879695,1.164271 2.0879695,1.164271 0,0 -0.5522359,-1.789243 0.9289723,-2.179852 2.0897277,-0.61742 0.6937834,-2.105248 3.0839927,-1.62586 -0.113816,-0.743727 0.02331,-2.024812 -1.5872649,-2.944616 z"
-           id="path817"
-           sodipodi:nodetypes="szscsscccs" />
-        <g
-           id="g908"
-           transform="translate(-0.01727383,0.10260408)"
-           style="fill:#11c7e6;fill-opacity:1">
-          <path
-             d="m 6.0775549,14.513272 c 0,0 -0.187296,0.734059 -0.7085408,0.734059 -0.521245,0 -0.8604948,-0.734059 -0.8604948,-0.734059 z"
-             id="ellipse819"
-             inkscape:connector-curvature="0"
-             sodipodi:nodetypes="czcc"
-             style="fill:#11c7e6;fill-opacity:1;stroke-width:0.56036991" />
-          <path
-             d="m 8.1941603,14.513272 c 0,0 -0.187296,0.734059 -0.7085408,0.734059 -0.5212448,0 -0.8604949,-0.734059 -0.8604949,-0.734059 z"
-             id="ellipse819-7"
-             inkscape:connector-curvature="0"
-             sodipodi:nodetypes="czcc"
-             style="fill:#11c7e6;fill-opacity:1;stroke-width:0.56036991" />
-        </g>
+           sodipodi:nodetypes="czczcc"
+           style="fill:#11c7e6;fill-opacity:1;stroke-width:0.522545"
+           inkscape:export-filename="C:\Users\cneubauer\Development\Automation\Tools\spectre-core\spectre_icon.png"
+           inkscape:export-xdpi="299"
+           inkscape:export-ydpi="299" />
+        <path
+           d="m 8.1954993,14.931702 c 0,0 -0.2622402,0.669385 -0.748107,0.683114 -0.4858668,0.01373 -0.7413854,-0.519393 -0.7413854,-0.519393 0,0 0.391654,0.0016 0.7384379,-0.03607 0.3467838,-0.03767 0.7510545,-0.127651 0.7510545,-0.127651 z"
+           id="ellipse819-7"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="czczcc"
+           style="fill:#11c7e6;fill-opacity:1;stroke-width:0.522545"
+           inkscape:export-filename="C:\Users\cneubauer\Development\Automation\Tools\spectre-core\spectre_icon.png"
+           inkscape:export-xdpi="299"
+           inkscape:export-ydpi="299" />
+      </g>
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="IONOS Spectre"
+     style="display:none">
+    <rect
+       style="fill:url(#Spectre_Dark);fill-opacity:1;stroke:none;stroke-width:2.49915;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5108"
+       width="135.46666"
+       height="135.46666"
+       x="0"
+       y="0" />
+    <path
+       fill="#164194"
+       d="m 95.086432,30.053563 c -0.390468,-0.416512 -0.572663,-0.937115 -0.520626,-1.483761 0.05218,-0.546675 0.312344,-1.067278 0.728868,-1.37965 0.442503,-0.338384 1.015207,-0.468538 1.561856,-0.338384 0.546681,0.10411 1.015215,0.442505 1.275516,0.911083 0.234279,0.442495 0.754898,0.754896 1.275517,0.754896 0.260317,0 0.494597,-0.07811 0.702837,-0.182189 0.33839,-0.208221 0.5987,-0.520622 0.70284,-0.911073 0.10412,-0.390478 0.0522,-0.780929 -0.1562,-1.119333 -0.676805,-1.197432 -1.848194,-2.030426 -3.22784,-2.316765 -1.093306,-0.234273 -2.290733,-0.05224 -3.279914,0.494589 l -0.23427,0.182249 c -0.780929,0.364427 -1.405685,1.249477 -1.457736,1.327575 l -0.208225,0.364427 c -0.36443,0.624744 -0.572662,1.327584 -0.624731,2.030416 -0.10412,1.041236 0.156197,2.056449 0.72886,2.941498 l 0.234271,0.338386 c 0.104112,0.130163 4.893822,5.076035 4.893822,5.076035 0.390476,0.390479 0.624739,0.98919 0.572662,1.587891 -0.05218,0.598701 -0.338383,1.119333 -0.832988,1.483771 -0.442496,0.338384 -1.067267,0.494589 -1.639947,0.364426 -0.364438,-0.07811 -0.702846,-0.234264 -0.963163,-0.468537 l -0.208217,-0.208232 -0.156209,-0.208232 c -0.02609,-0.02607 -0.02609,-0.05224 -0.05218,-0.07801 -0.260318,-0.468537 -0.754898,-0.754896 -1.275525,-0.754896 -0.260309,0 -0.520626,0.07801 -0.728852,0.208231 -0.676816,0.41651 -0.911095,1.249487 -0.546681,1.97835 l 0.02609,0.02607 c 0.728868,1.223454 1.926295,2.108505 3.331967,2.36882 0.31241,0.07811 0.650785,0.104111 0.963155,0.104111 1.067267,0 2.160565,-0.364426 3.0196,-1.015213 1.119331,-0.832984 1.848201,-2.160569 1.978351,-3.592265 0.10411,-1.431705 -0.41653,-2.837388 -1.405681,-3.85259 z m -8.512127,8.251828 v -9.579402 c 0,-2.681192 -2.186603,-4.841762 -4.841766,-4.841762 -2.681183,0 -4.841757,2.186602 -4.841757,4.841762 v 9.605424 c 0,2.681192 2.186604,4.841762 4.841757,4.841762 2.681193,-0.02608 4.841766,-2.186592 4.841766,-4.867784 z m -6.768059,0 v -9.579402 c 0,-1.067269 0.859026,-1.926296 1.926293,-1.926296 1.041239,0 1.926295,0.88506 1.926295,1.926296 v 9.605424 c 0,1.067269 -0.859026,1.926296 -1.926295,1.926296 -1.067267,-0.02607 -1.926293,-0.859027 -1.926293,-1.952318 z M 62.755952,24.665156 c -0.260317,-0.49459 -0.780928,-0.806962 -1.327576,-0.806962 -0.104113,0 -0.208225,0 -0.286365,0.02607 -0.676798,0.130163 -1.145357,0.728864 -1.145357,1.431705 v 0.338385 l 8.043568,16.685854 c 0.260309,0.49459 0.780945,0.806962 1.301556,0.806962 0.130158,0 0.23427,-0.02607 0.338391,-0.05224 0.676808,-0.130153 1.145358,-0.728875 1.145358,-1.431705 v -0.312402 c 0,0 -7.835319,-16.243329 -8.043569,-16.685854 z m 8.043578,0.676799 c 0,-0.832985 -0.650778,-1.457728 -1.457736,-1.457728 -0.83298,0 -1.457744,0.650766 -1.457744,1.457728 v 7.939456 l 2.91548,6.065215 z M 59.97064,41.689414 c 0,0.832994 0.650778,1.457728 1.457736,1.457728 0.832988,0 1.457736,-0.650767 1.457736,-1.457728 V 33.749968 L 59.97064,27.684753 Z m -7.548981,0.05224 c 0.911087,-0.911082 1.431706,-2.134536 1.431706,-3.436089 v -9.579538 c 0,-1.301553 -0.49458,-2.498974 -1.431706,-3.43609 -0.911078,-0.911082 -2.134542,-1.431704 -3.43609,-1.431704 -1.301547,0 -2.498964,0.494589 -3.43609,1.431704 -0.911087,0.911084 -1.431697,2.134537 -1.431697,3.43609 v 9.605425 c 0,1.301553 0.494596,2.498974 1.431697,3.436098 0.911095,0.911073 2.134543,1.431696 3.43609,1.431696 1.301548,-0.05224 2.525012,-0.546674 3.43609,-1.457728 z m -5.336353,-3.436089 v -9.579538 c 0,-0.520633 0.208232,-0.98918 0.572653,-1.353608 0.364447,-0.364436 0.832997,-0.572659 1.353616,-0.572659 0.494589,0 0.989177,0.208223 1.353615,0.572659 0.36443,0.364428 0.572663,0.859017 0.572663,1.353608 v 9.605425 c 0,0.520633 -0.208233,0.98918 -0.572663,1.353608 -0.36443,0.364436 -0.832988,0.572658 -1.353615,0.572658 -0.520628,0 -1.015207,-0.208222 -1.353616,-0.546676 -0.390468,-0.390464 -0.572653,-0.885045 -0.572653,-1.405657 z M 38.000507,25.159923 c 0,-0.05224 -0.02609,-0.07811 -0.02609,-0.10411 -0.182251,-0.702831 -0.806966,-1.171389 -1.535834,-1.171389 -0.885057,0 -1.587895,0.702831 -1.587895,1.561858 v 16.087143 c 0,0.911083 0.702838,1.613913 1.587895,1.613913 0.911087,0 1.613925,-0.70283 1.613925,-1.613913 v -16.06111 c 0,-0.07811 0,-0.156206 -0.02609,-0.260317 z"
+       id="path860"
+       style="fill:#ffffff;fill-opacity:1;stroke-width:0.260309" />
+    <path
+       d="M 97.351933,50.777271 H 38.455136 a 3.6810495,3.6810495 0 0 0 -3.681057,3.68105 v 42.332063 a 3.6810495,3.6810495 0 0 0 3.681057,3.681046 h 19.325507 v 5.52158 a 1.8405247,1.8405247 0 0 1 -1.840517,1.84052 h -6.441835 a 0.92026797,0.92026797 0 0 0 0,1.84053 H 65.14274 a 0.92026797,0.92026797 0 0 0 0,-1.84053 h -6.018512 a 3.6810495,3.6810495 0 0 0 0.496955,-1.84052 v -5.52158 h 3.681041 a 0.92026237,0.92026237 0 0 0 0,-1.840514 H 38.455144 A 1.8405247,1.8405247 0 0 1 36.61462,96.790384 V 54.458321 a 1.8405247,1.8405247 0 0 1 1.840524,-1.840529 H 97.35195 a 1.8405247,1.8405247 0 0 1 1.840524,1.840529 v 23.006554 a 0.92026237,0.92026237 0 0 0 1.840516,0 V 54.458321 a 3.6810495,3.6810495 0 0 0 -3.681057,-3.68105 z"
+       style="fill:#ffffff;fill-opacity:1;stroke-width:0.460133"
+       id="path3800" />
+    <g
+       id="g4221-1"
+       style="display:inline"
+       transform="translate(158.51086,-161.46142)" />
+    <g
+       id="g4221-2"
+       style="display:inline"
+       transform="matrix(0.6616979,0,0,0.6616979,38.058106,-60.980614)">
+      <path
+         style="fill:none;stroke:#0b9dcc;stroke-width:2.75181;stroke-linecap:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+         inkscape:connector-curvature="0"
+         class="st0"
+         d="m 87.314438,220.45502 c -5.945358,-3.39541 -4.926735,-23.21845 -19.773004,-23.21845 -14.84627,0 -12.430241,16.45022 -18.715617,18.63643 -6.285375,2.18621 -11.344875,8.86753 -11.344875,15.69946 14.2896,-1.82364 8.286409,9.69604 11.92715,13.32925 4.174521,4.16589 7.891305,0.93451 11.934895,7.69523 3.695179,6.17818 12.014082,6.69916 12.014082,6.69916 0,0 -3.17754,-10.29522 5.345264,-12.54277 12.0242,-3.55261 3.991998,-12.1135 17.745155,-9.35513 -0.654889,-4.27936 0.134146,-11.65067 -9.13305,-16.94318 z"
+         id="path817-7"
+         sodipodi:nodetypes="szscsscccs"
+         inkscape:export-filename="C:\Users\cneubauer\Development\Automation\Tools\spectre-core\spectre_icon.png"
+         inkscape:export-xdpi="299"
+         inkscape:export-ydpi="299" />
+      <g
+         id="g908-6"
+         transform="matrix(6.7937703,0,0,6.7937703,24.913612,115.45241)"
+         style="fill:#0b9dcc;fill-opacity:1">
+        <path
+           d="m 5.9963355,15.094538 c 0,0 -0.1905226,0.399828 -0.6815162,0.320321 -0.4909939,-0.0795 -0.6341843,-0.591042 -0.6341843,-0.591042 0,0 0.378481,0.114842 0.6619948,0.167782 0.2835137,0.05294 0.6537059,0.102935 0.6537059,0.102935 z"
+           id="ellipse819-5"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="czczcc"
+           style="fill:#0b9dcc;fill-opacity:1;stroke-width:0.522545"
+           inkscape:export-filename="C:\Users\cneubauer\Development\Automation\Tools\spectre-core\spectre_icon.png"
+           inkscape:export-xdpi="299"
+           inkscape:export-ydpi="299" />
+        <path
+           d="m 8.0112257,14.954736 c 0,0 -0.2622402,0.669385 -0.748107,0.683114 -0.4858668,0.01373 -0.7413854,-0.519393 -0.7413854,-0.519393 0,0 0.391654,0.0016 0.7384379,-0.03607 0.3467838,-0.03767 0.7510545,-0.127651 0.7510545,-0.127651 z"
+           id="ellipse819-7-6"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="czczcc"
+           style="fill:#0b9dcc;fill-opacity:1;stroke-width:0.522545"
+           inkscape:export-filename="C:\Users\cneubauer\Development\Automation\Tools\spectre-core\spectre_icon.png"
+           inkscape:export-xdpi="299"
+           inkscape:export-ydpi="299" />
       </g>
     </g>
   </g>

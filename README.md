@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/cneubauer/spectre-core/blob/develop/spectre_icon.png?raw=true" alt="IONOS Spectre" style="width:200px">
+  <img src="https://github.com/ionos-spectre/spectre-core/blob/develop/spectre_icon.png?raw=true" alt="IONOS Spectre" style="width:200px">
   <h2>IONOS Spectre</h2>
   <p>Write Tests. Analyse Results. Understand What Happened.</p>
   <a href="https://www.travis-ci.com/ionos-spectre/spectre-core"><img src="https://www.travis-ci.com/ionos-spectre/spectre-core.svg?branch=master" alt="Build Status" /></a>
