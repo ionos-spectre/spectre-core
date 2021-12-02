@@ -45,7 +45,7 @@ docker run -t --rm -v "$(pwd)/path/to/specs" ionos-spectre/spectre
 To use the command line tool, Ruby has to be installed on your system. To install Ruby on Debian or Ubuntu run:
 
 ```bash
-sudo apt-get install ruby-full
+sudo apt install ruby-full
 ```
 
 For other linux distributions see [ruby-lang.org](https://www.ruby-lang.org/en/documentation/installation/).
