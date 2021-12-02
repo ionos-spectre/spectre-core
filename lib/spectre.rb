@@ -176,7 +176,7 @@ module Spectre
                 Logger.log_spec(spec, data) do
                   runs << run_spec(spec, data)
                 end
-            end
+              end
           else
             Logger.log_spec(spec) do
               runs << run_spec(spec)
