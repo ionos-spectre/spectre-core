@@ -46,7 +46,7 @@ module Spectre
       def end_spec spec, data=nil
         log_msg = "running spec [#{spec.name}] '#{spec.desc}'"
         log_msg += " with data #{data}" if data
-        log_msg += " finished"
+        log_msg += ' finished'
         @file_log.debug log_msg
       end
 

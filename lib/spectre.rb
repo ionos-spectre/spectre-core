@@ -22,7 +22,7 @@ module Spectre
   class ::Object
     def to_h
       self.instance_variables.each_with_object({}) do |var, hash|
-        hash[var.to_s.delete("@")] = self.instance_variable_get(var)
+        hash[var.to_s.delete('@')] = self.instance_variable_get(var)
       end
     end
   end

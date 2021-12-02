@@ -23,7 +23,7 @@ module Spectre::Reporter
           report_str += " with #{run_info.data}" if run_info.data
           report_str += " during #{spec.context.__desc}" if spec.context.__desc
 
-          report_str += " but it failed"
+          report_str += ' but it failed'
 
           if run_info.failure.cause
             report_str += "\n     with an unexpected error:\n"

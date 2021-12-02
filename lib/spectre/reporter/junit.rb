@@ -35,7 +35,7 @@ module Spectre::Reporter
             if run_info.failure.message
               failure_message += " but it failed with #{run_info.failure.message}"
             else
-              failure_message += " but it failed"
+              failure_message += ' but it failed'
             end
 
             xml_str += '<failure message="' + failure_message.gsub('"', '`') + '"></failure>'

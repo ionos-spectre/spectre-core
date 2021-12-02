@@ -66,21 +66,21 @@ module Spectre
       end
 
       def should_be_empty
-        raise AssertionFailure.new("The object should be empty", nil, self) unless self.empty?
+        raise AssertionFailure.new('The object should be empty', nil, self) unless self.empty?
       end
 
       def should_not_be_empty
-        raise AssertionFailure.new("The object should not be empty", nil, self) if self.empty?
+        raise AssertionFailure.new('The object should not be empty', nil, self) if self.empty?
       end
     end
 
     class ::OpenStruct
       def should_be_empty
-        raise AssertionFailure.new("The object should be empty", nil, self) unless self.to_h.empty?
+        raise AssertionFailure.new('The object should be empty', nil, self) unless self.to_h.empty?
       end
 
       def should_not_be_empty
-        raise AssertionFailure.new("The object should not be empty", nil, self) if self.to_h.empty?
+        raise AssertionFailure.new('The object should not be empty', nil, self) if self.to_h.empty?
       end
     end
 
@@ -252,7 +252,7 @@ module Spectre
       end
 
       def observe desc = nil
-        prefix = "observing"
+        prefix = 'observing'
         prefix += " '#{desc}'" if desc
 
         begin
