@@ -85,10 +85,10 @@ post 'keystone/main/v3/auth/tokens' do
       "user": {
         "domain": {
           "id": "de4da3bba13648e9a29dd21af6ab0f09",
-          "name": "waas_qa",
+          "name": "sample_domain",
         },
         "id": "b7461d3f63be464bb6fdb89bf0f7fe24",
-        "name": "WhicQA_Admin",
+        "name": "SampleUser",
         "password_expires_at": null,
       },
       "audit_ids": [
@@ -99,10 +99,10 @@ post 'keystone/main/v3/auth/tokens' do
       "project": {
         "domain": {
           "id": "de4da3bba13648e9a29dd21af6ab0f09",
-          "name": "waas_qa",
+          "name": "sample_domain",
         },
         "id": "d3f3c9f9243f4f58924370d0a50f9242",
-        "name": "WhicQA",
+        "name": "sample_project",
       },
       "is_domain": false,
       "roles": [
