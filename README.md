@@ -59,7 +59,7 @@ choco install ruby
 Spectre is available as a Ruby *gem* from https://rubygems.org/
 
 ```bash
-$ gem install spectre-core
+$ sudo gem install spectre-core
 ```
 
 To test, if the tool is working, try one of the following commands.
