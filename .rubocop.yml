@@ -1,3 +1,4 @@
+# Department 'Bundler' (6):
 Bundler/DuplicatedGem:
   Description: Checks for duplicate gem entries in Gemfile.
   Enabled: false
@@ -18,6 +19,20 @@ Bundler/GemComment:
   - "**/gems.rb"
   IgnoredGems: []
   OnlyFor: []
+
+Bundler/GemFilename:
+  Description: Enforces the filename for managing gems.
+  Enabled: true
+  VersionAdded: '1.20'
+  EnforcedStyle: Gemfile
+  SupportedStyles:
+  - Gemfile
+  - gems.rb
+  Include:
+  - "**/Gemfile"
+  - "**/gems.rb"
+  - "**/Gemfile.lock"
+  - "**/gems.locked"
 
 Bundler/GemVersion:
   Description: Requires or forbids specifying gem versions.
@@ -40,6 +55,7 @@ Bundler/InsecureProtocolSource:
     if possible, or 'http://rubygems.org' if not.
   Enabled: false
   VersionAdded: '0.50'
+  AllowHttpProtocol: true
   Include:
   - "**/*.gemfile"
   - "**/Gemfile"
@@ -58,7 +74,7 @@ Bundler/OrderedGems:
   - "**/Gemfile"
   - "**/gems.rb"
 
-# Department 'Gemspec' (5):
+# Department 'Gemspec' (6):
 # Supports --auto-correct
 Gemspec/DateAssignment:
   Description: Checks that `date =` is not used in gemspec file, it is set automatically
@@ -86,6 +102,16 @@ Gemspec/OrderedDependencies:
   Include:
   - "**/*.gemspec"
 
+# Supports --auto-correct
+Gemspec/RequireMFA:
+  Description: Checks that the gemspec has metadata to require MFA from RubyGems.
+  Enabled: false
+  VersionAdded: '1.23'
+  Reference:
+  - https://guides.rubygems.org/mfa-requirement-opt-in/
+  Include:
+  - "**/*.gemspec"
+
 Gemspec/RequiredRubyVersion:
   Description: Checks that `required_ruby_version` of gemspec is specified and equal
     to `TargetRubyVersion` of .rubocop.yml.
@@ -103,7 +129,7 @@ Gemspec/RubyVersionGlobalsUsage:
   Include:
   - "**/*.gemspec"
 
-# Department 'Layout' (95):
+# Department 'Layout' (96):
 # Supports --auto-correct
 Layout/AccessModifierIndentation:
   Description: Check indentation of private/protected visibility modifiers.
@@ -114,7 +140,6 @@ Layout/AccessModifierIndentation:
   SupportedStyles:
   - outdent
   - indent
-  IndentationWidth:
 
 # Supports --auto-correct
 Layout/ArgumentAlignment:
@@ -127,7 +152,6 @@ Layout/ArgumentAlignment:
   SupportedStyles:
   - with_first_argument
   - with_fixed_indentation
-  IndentationWidth:
 
 # Supports --auto-correct
 Layout/ArrayAlignment:
@@ -140,7 +164,6 @@ Layout/ArrayAlignment:
   SupportedStyles:
   - with_first_element
   - with_fixed_indentation
-  IndentationWidth:
 
 # Supports --auto-correct
 Layout/AssignmentIndentation:
@@ -149,7 +172,6 @@ Layout/AssignmentIndentation:
   Enabled: false
   VersionAdded: '0.49'
   VersionChanged: '0.77'
-  IndentationWidth:
 
 # Supports --auto-correct
 Layout/BeginEndAlignment:
@@ -185,18 +207,18 @@ Layout/CaseIndentation:
   StyleGuide: "#indent-when-to-case"
   Enabled: true
   VersionAdded: '0.49'
+  VersionChanged: '1.16'
   EnforcedStyle: case
   SupportedStyles:
   - case
   - end
   IndentOneStep: false
-  IndentationWidth:
 
 # Supports --auto-correct
 Layout/ClassStructure:
   Description: Enforces a configured order of definitions within a class body.
   StyleGuide: "#consistent-classes"
-  Enabled: false # TODO
+  Enabled: false
   VersionAdded: '0.52'
   Categories:
     module_inclusion:
@@ -454,7 +476,6 @@ Layout/FirstArgumentIndentation:
   - consistent_relative_to_receiver
   - special_for_inner_method_call
   - special_for_inner_method_call_in_parentheses
-  IndentationWidth:
 
 # Supports --auto-correct
 Layout/FirstArrayElementIndentation:
@@ -467,7 +488,6 @@ Layout/FirstArrayElementIndentation:
   - special_inside_parentheses
   - consistent
   - align_brackets
-  IndentationWidth:
 
 # Supports --auto-correct
 Layout/FirstArrayElementLineBreak:
@@ -486,7 +506,6 @@ Layout/FirstHashElementIndentation:
   - special_inside_parentheses
   - consistent
   - align_braces
-  IndentationWidth:
 
 # Supports --auto-correct
 Layout/FirstHashElementLineBreak:
@@ -518,7 +537,6 @@ Layout/FirstParameterIndentation:
   SupportedStyles:
   - consistent
   - align_parentheses
-  IndentationWidth:
 
 # Supports --auto-correct
 Layout/HashAlignment:
@@ -580,7 +598,6 @@ Layout/IndentationStyle:
   Enabled: true
   VersionAdded: '0.49'
   VersionChanged: '0.82'
-  IndentationWidth:
   EnforcedStyle: spaces
   SupportedStyles:
   - spaces
@@ -619,13 +636,24 @@ Layout/LeadingEmptyLines:
   VersionChanged: '0.77'
 
 # Supports --auto-correct
+Layout/LineEndStringConcatenationIndentation:
+  Description: Checks the indentation of the next line after a line that ends with a
+    string literal and a backslash.
+  Enabled: false
+  VersionAdded: '1.18'
+  EnforcedStyle: aligned
+  SupportedStyles:
+  - aligned
+  - indented
+  IndentationWidth:
+
+# Supports --auto-correct
 Layout/LineLength:
   Description: Checks that line length does not exceed the configured limit.
   StyleGuide: "#max-line-length"
   Enabled: false
   VersionAdded: '0.25'
   VersionChanged: '1.4'
-  AutoCorrect: true
   Max: 120
   AllowHeredoc: true
   AllowURI: true
@@ -634,6 +662,7 @@ Layout/LineLength:
   - https
   IgnoreCopDirectives: true
   IgnoredPatterns: []
+  AutoCorrect: true
 
 # Supports --auto-correct
 Layout/MultilineArrayBraceLayout:
@@ -727,7 +756,6 @@ Layout/MultilineMethodCallIndentation:
   - aligned
   - indented
   - indented_relative_to_receiver
-  IndentationWidth:
 
 # Supports --auto-correct
 Layout/MultilineMethodDefinitionBraceLayout:
@@ -750,7 +778,6 @@ Layout/MultilineOperationIndentation:
   SupportedStyles:
   - aligned
   - indented
-  IndentationWidth:
 
 # Supports --auto-correct
 Layout/ParameterAlignment:
@@ -764,7 +791,6 @@ Layout/ParameterAlignment:
   SupportedStyles:
   - with_first_parameter
   - with_fixed_indentation
-  IndentationWidth:
 
 # Supports --auto-correct
 Layout/RedundantLineBreak:
@@ -1051,7 +1077,7 @@ Layout/TrailingWhitespace:
   VersionChanged: '1.0'
   AllowInHeredoc: false
 
-# Department 'Lint' (120):
+# Department 'Lint' (126):
 Lint/AmbiguousAssignment:
   Description: Checks for mistyped shorthand assignments.
   Enabled: false
@@ -1074,6 +1100,21 @@ Lint/AmbiguousOperator:
   Enabled: false
   VersionAdded: '0.17'
   VersionChanged: '0.83'
+
+# Supports --auto-correct
+Lint/AmbiguousOperatorPrecedence:
+  Description: Checks for expressions containing multiple binary operations with ambiguous
+    precedence.
+  Enabled: false
+  VersionAdded: '1.21'
+
+# Supports --auto-correct
+Lint/AmbiguousRange:
+  Description: Checks for ranges with ambiguous boundaries.
+  Enabled: false
+  VersionAdded: '1.19'
+  SafeAutoCorrect: false
+  RequireParenthesesForMethodChains: false
 
 # Supports --auto-correct
 Lint/AmbiguousRegexpLiteral:
@@ -1107,6 +1148,7 @@ Lint/BinaryOperatorWithIdenticalOperands:
 Lint/BooleanSymbol:
   Description: Check for `:true` and `:false` symbols.
   Enabled: false
+  SafeAutoCorrect: false
   VersionAdded: '0.50'
   VersionChanged: '0.83'
 
@@ -1148,6 +1190,11 @@ Lint/Debugger:
     Capybara:
     - save_and_open_page
     - save_and_open_screenshot
+    debug.rb:
+    - binding.b
+    - binding.break
+    - Kernel.binding.b
+    - Kernel.binding.break
     Pry:
     - binding.pry
     - binding.remote_pry
@@ -1156,6 +1203,8 @@ Lint/Debugger:
     Rails:
     - debugger
     - Kernel.debugger
+    RubyJard:
+    - jard
     WebConsole:
     - binding.console
 
@@ -1170,6 +1219,7 @@ Lint/DeprecatedConstants:
   Description: Checks for deprecated constants.
   Enabled: false
   VersionAdded: '1.8'
+  VersionChanged: '1.22'
   DeprecatedConstants:
     NIL:
       Alternative: nil
@@ -1180,6 +1230,9 @@ Lint/DeprecatedConstants:
     'FALSE':
       Alternative: 'false'
       DeprecatedVersion: '2.4'
+    Net::HTTPServerException:
+      Alternative: Net::HTTPClientException
+      DeprecatedVersion: '2.6'
     Random::DEFAULT:
       Alternative: Random.new
       DeprecatedVersion: '3.0'
@@ -1295,6 +1348,12 @@ Lint/EmptyFile:
   AllowComments: true
   VersionAdded: '0.90'
 
+Lint/EmptyInPattern:
+  Description: Checks for the presence of `in` pattern branches without a body.
+  Enabled: false
+  AllowComments: true
+  VersionAdded: '1.16'
+
 # Supports --auto-correct
 Lint/EmptyInterpolation:
   Description: Checks for empty string interpolation.
@@ -1372,6 +1431,12 @@ Lint/ImplicitStringConcatenation:
     be represented as a single string literal.
   Enabled: false
   VersionAdded: '0.36'
+
+# Supports --auto-correct
+Lint/IncompatibleIoSelectWithFiberScheduler:
+  Description: Checks for `IO.select` that is incompatible with Fiber Scheduler.
+  Enabled: false
+  VersionAdded: '1.21'
 
 Lint/IneffectiveAccessModifier:
   Description: Checks for attempts to use `private` or `protected` to set the visibility
@@ -1641,6 +1706,12 @@ Lint/RequireParentheses:
   Enabled: false
   VersionAdded: '0.18'
 
+# Supports --auto-correct
+Lint/RequireRelativeSelfPath:
+  Description: Checks for uses a file requiring itself with `require_relative`.
+  Enabled: true
+  VersionAdded: '1.22'
+
 Lint/RescueException:
   Description: Avoid rescuing the Exception class.
   StyleGuide: "#no-blind-rescues"
@@ -1748,6 +1819,7 @@ Lint/SymbolConversion:
   Description: Checks for unnecessary symbol conversions.
   Enabled: false
   VersionAdded: '1.9'
+  VersionChanged: '1.16'
   EnforcedStyle: strict
   SupportedStyles:
   - strict
@@ -1755,7 +1827,7 @@ Lint/SymbolConversion:
 
 Lint/Syntax:
   Description: Checks for syntax errors.
-  Enabled: true # has to be enabled
+  Enabled: true
   VersionAdded: '0.9'
 
 Lint/ToEnumArguments:
@@ -1900,6 +1972,11 @@ Lint/UselessMethodDefinition:
   Safe: false
   AllowComments: true
 
+Lint/UselessRuby2Keywords:
+  Description: Finds unnecessary uses of `ruby2_keywords`.
+  Enabled: true
+  VersionAdded: '1.23'
+
 # Supports --auto-correct
 Lint/UselessSetterCall:
   Description: Checks for useless setter call to a local variable.
@@ -2021,7 +2098,7 @@ Migration/DepartmentName:
   Enabled: false
   VersionAdded: '0.75'
 
-# Department 'Naming' (16):
+# Department 'Naming' (17):
 Naming/AccessorMethodName:
   Description: Check the naming of accessor methods for get_/set_.
   StyleGuide: "#accessor_mutator_method_names"
@@ -2075,10 +2152,15 @@ Naming/FileName:
   StyleGuide: "#snake-case-files"
   Enabled: true
   VersionAdded: '0.50'
+  VersionChanged: '1.23'
   Exclude: []
   ExpectMatchingDefinition: false
   CheckDefinitionPathHierarchy: true
-  Regex:
+  CheckDefinitionPathHierarchyRoots:
+  - lib
+  - spec
+  - test
+  - src
   IgnoreExecutableScripts: true
   AllowedAcronyms:
   - CLI
@@ -2141,6 +2223,36 @@ Naming/HeredocDelimiterNaming:
   VersionAdded: '0.50'
   ForbiddenDelimiters:
   - !ruby/regexp /(^|\s)(EO[A-Z]{1}|END)(\s|$)/
+
+Naming/InclusiveLanguage:
+  Description: Recommend the use of inclusive language instead of problematic terms.
+  Enabled: false
+  VersionAdded: '1.18'
+  VersionChanged: '1.21'
+  CheckIdentifiers: true
+  CheckConstants: true
+  CheckVariables: true
+  CheckStrings: false
+  CheckSymbols: true
+  CheckComments: true
+  CheckFilepaths: true
+  FlaggedTerms:
+    whitelist:
+      Regex: !ruby/regexp /white[-_\s]?list/
+      Suggestions:
+      - allowlist
+      - permit
+    blacklist:
+      Regex: !ruby/regexp /black[-_\s]?list/
+      Suggestions:
+      - denylist
+      - block
+    slave:
+      WholeWord: true
+      Suggestions:
+      - replica
+      - secondary
+      - follower
 
 Naming/MemoizedInstanceVariableName:
   Description: Memoized method name should match memo instance variable name.
@@ -2250,11 +2362,19 @@ Naming/VariableNumber:
   - rfc2822
   - rfc3339
 
-# Department 'Security' (5):
+# Department 'Security' (6):
 Security/Eval:
   Description: The use of eval represents a serious security risk.
   Enabled: false
   VersionAdded: '0.47'
+
+# Supports --auto-correct
+Security/IoMethods:
+  Description: Checks for the first argument to `IO.read`, `IO.binread`, `IO.write`,
+    `IO.binwrite`, `IO.foreach`, and `IO.readlines`.
+  Enabled: true
+  Safe: false
+  VersionAdded: '1.22'
 
 # Supports --auto-correct
 Security/JSONLoad:
@@ -2264,8 +2384,8 @@ Security/JSONLoad:
   Enabled: false
   VersionAdded: '0.43'
   VersionChanged: '0.44'
-  AutoCorrect: false
   SafeAutoCorrect: false
+  AutoCorrect: false
 
 Security/MarshalLoad:
   Description: Avoid using of `Marshal.load` or `Marshal.restore` due to potential security
@@ -2291,7 +2411,7 @@ Security/YAMLLoad:
   VersionAdded: '0.47'
   SafeAutoCorrect: false
 
-# Department 'Style' (212):
+# Department 'Style' (220):
 Style/AccessModifierDeclarations:
   Description: Checks style of how access modifiers are used.
   Enabled: false
@@ -2330,6 +2450,7 @@ Style/AndOr:
   Description: Use &&/|| instead of and/or.
   StyleGuide: "#no-and-or-or"
   Enabled: false
+  SafeAutoCorrect: false
   VersionAdded: '0.9'
   VersionChanged: '0.25'
   EnforcedStyle: conditionals
@@ -2369,7 +2490,7 @@ Style/AsciiComments:
   VersionAdded: '0.9'
   VersionChanged: '0.52'
   AllowedChars:
-  - "-�"
+  - "-∩┐╜"
 
 # Supports --auto-correct
 Style/Attr:
@@ -2617,11 +2738,13 @@ Style/CommentAnnotation:
   - HACK
   - REVIEW
   - NOTE
+  RequireColon: true
 
 # Supports --auto-correct
 Style/CommentedKeyword:
   Description: Do not place comments on the same line as certain keywords.
   Enabled: false
+  SafeAutoCorrect: false
   VersionAdded: '0.51'
   VersionChanged: '1.7'
 
@@ -2980,8 +3103,10 @@ Style/HashEachMethods:
   Description: Use Hash#each_key and Hash#each_value.
   StyleGuide: "#hash-each"
   Enabled: false
-  VersionAdded: '0.80'
   Safe: false
+  VersionAdded: '0.80'
+  VersionChanged: '1.16'
+  AllowedReceivers: []
 
 # Supports --auto-correct
 Style/HashExcept:
@@ -3030,11 +3155,14 @@ Style/HashTransformValues:
   VersionChanged: '0.90'
   Safe: false
 
+# Supports --auto-correct
 Style/IdenticalConditionalBranches:
   Description: Checks that conditional statements do not have an identical line at the
     end of each branch, which can validly be moved out of the conditional.
   Enabled: false
+  SafeAutoCorrect: false
   VersionAdded: '0.36'
+  VersionChanged: '1.19'
 
 # Supports --auto-correct
 Style/IfInsideElse:
@@ -3081,6 +3209,13 @@ Style/ImplicitRuntimeError:
     than just a message.
   Enabled: false
   VersionAdded: '0.41'
+
+# Supports --auto-correct
+Style/InPatternThen:
+  Description: Checks for `in;` uses in `case` expressions.
+  StyleGuide: "#no-in-pattern-semicolons"
+  Enabled: false
+  VersionAdded: '1.16'
 
 # Supports --auto-correct
 Style/InfiniteLoop:
@@ -3294,6 +3429,13 @@ Style/MultilineIfThen:
   VersionChanged: '0.26'
 
 # Supports --auto-correct
+Style/MultilineInPatternThen:
+  Description: Do not use `then` for multi-line `in` statement.
+  StyleGuide: "#no-then"
+  Enabled: false
+  VersionAdded: '1.16'
+
+# Supports --auto-correct
 Style/MultilineMemoization:
   Description: Wrap multiline memoizations in a `begin` and `end` block.
   Enabled: false
@@ -3333,6 +3475,7 @@ Style/MultipleComparison:
   Enabled: false
   VersionAdded: '0.49'
   VersionChanged: '1.1'
+  AllowMethodComparison: true
 
 # Supports --auto-correct
 Style/MutableConstant:
@@ -3475,6 +3618,21 @@ Style/Not:
   VersionAdded: '0.9'
   VersionChanged: '0.20'
 
+Style/NumberedParameters:
+  Description: Restrict the usage of numbered parameters.
+  Enabled: true
+  VersionAdded: '1.22'
+  EnforcedStyle: allow_single_line
+  SupportedStyles:
+  - allow_single_line
+  - disallow
+
+Style/NumberedParametersLimit:
+  Description: Avoid excessive numbered params in a single block.
+  Enabled: true
+  VersionAdded: '1.22'
+  Max: 1
+
 # Supports --auto-correct
 Style/NumericLiteralPrefix:
   Description: Use smallcase prefixes for numeric literals.
@@ -3522,6 +3680,14 @@ Style/OneLineConditional:
   VersionAdded: '0.9'
   VersionChanged: '0.90'
 
+Style/OpenStructUse:
+  Description: Avoid using OpenStruct. As of Ruby 3.0, use is officially discouraged
+    due to performance, version compatibility, and potential security issues.
+  Reference:
+  - https://docs.ruby-lang.org/en/3.0.0/OpenStruct.html#class-OpenStruct-label-Caveats
+  Enabled: false
+  VersionAdded: '1.23'
+
 Style/OptionHash:
   Description: Don't use option hashes when you can use keyword arguments.
   Enabled: false
@@ -3533,6 +3699,7 @@ Style/OptionHash:
   - args
   - params
   - parameters
+  Allowlist: []
 
 Style/OptionalArguments:
   Description: Checks for optional arguments that do not appear at the end of the argument
@@ -3629,6 +3796,17 @@ Style/Proc:
   Enabled: true
   VersionAdded: '0.9'
   VersionChanged: '0.18'
+
+# Supports --auto-correct
+Style/QuotedSymbols:
+  Description: Use a consistent style for quoted symbols.
+  Enabled: false
+  VersionAdded: '1.16'
+  EnforcedStyle: same_as_string_literals
+  SupportedStyles:
+  - same_as_string_literals
+  - single_quotes
+  - double_quotes
 
 # Supports --auto-correct
 Style/RaiseArgs:
@@ -3787,11 +3965,19 @@ Style/RedundantSelfAssignment:
   VersionAdded: '0.90'
 
 # Supports --auto-correct
+Style/RedundantSelfAssignmentBranch:
+  Description: Checks for places where conditional branch makes redundant self-assignment.
+  Enabled: false
+  VersionAdded: '1.19'
+
+# Supports --auto-correct
 Style/RedundantSort:
   Description: Use `min` instead of `sort.first`, `max_by` instead of `sort_by...last`,
     etc.
   Enabled: false
   VersionAdded: '0.76'
+  VersionChanged: '1.22'
+  Safe: false
 
 # Supports --auto-correct
 Style/RedundantSortBy:
@@ -3864,6 +4050,13 @@ Style/Sample:
   Reference: https://github.com/JuanitoFatas/fast-ruby#arrayshufflefirst-vs-arraysample-code
   Enabled: false
   VersionAdded: '0.30'
+
+# Supports --auto-correct
+Style/SelectByRegexp:
+  Description: Prefer grep/grep_v to select/reject with a regexp match.
+  Enabled: true
+  SafeAutoCorrect: false
+  VersionAdded: '1.22'
 
 # Supports --auto-correct
 Style/SelfAssignment:
@@ -3956,6 +4149,7 @@ Style/SpecialGlobalVars:
   VersionAdded: '0.13'
   VersionChanged: '0.36'
   SafeAutoCorrect: false
+  RequireEnglish: true
   EnforcedStyle: use_english_names
   SupportedStyles:
   - use_perl_names
@@ -4004,6 +4198,7 @@ Style/StringConcatenation:
   Safe: false
   VersionAdded: '0.89'
   VersionChanged: '1.6'
+  Mode: aggressive
 
 # Supports --auto-correct
 Style/StringHashKeys:
@@ -4058,6 +4253,7 @@ Style/StructInheritance:
   Description: Checks for inheritance from Struct.new.
   StyleGuide: "#no-extend-struct-new"
   Enabled: false
+  SafeAutoCorrect: false
   VersionAdded: '0.29'
   VersionChanged: '0.86'
 
@@ -4295,7 +4491,7 @@ Style/WordArray:
 Style/YodaCondition:
   Description: Forbid or enforce yoda conditions.
   Reference: https://en.wikipedia.org/wiki/Yoda_conditions
-  Enabled: false # TODO
+  Enabled: false
   EnforcedStyle: require_for_equality_operators_only
   SupportedStyles:
   - forbid_for_all_comparison_operators
@@ -4314,39 +4510,3 @@ Style/ZeroLengthPredicate:
   VersionAdded: '0.37'
   VersionChanged: '0.39'
 
-Layout/LineEndStringConcatenationIndentation: # new in 1.18
-  Enabled: false
-Lint/AmbiguousOperatorPrecedence: # new in 1.21
-  Enabled: false
-Lint/AmbiguousRange: # new in 1.19
-  Enabled: false
-Lint/EmptyInPattern: # new in 1.16
-  Enabled: false
-Lint/IncompatibleIoSelectWithFiberScheduler: # new in 1.21
-  Enabled: false
-Style/InPatternThen: # new in 1.16
-  Enabled: false
-Style/MultilineInPatternThen: # new in 1.16
-  Enabled: false
-Style/QuotedSymbols: # new in 1.16
-  Enabled: false
-Style/RedundantSelfAssignmentBranch: # new in 1.19
-  Enabled: false
-
-Gemspec/RequireMFA: # new in 1.23
-  Enabled: false
-
-Lint/RequireRelativeSelfPath: # new in 1.22
-  Enabled: true
-Lint/UselessRuby2Keywords: # new in 1.23
-  Enabled: true
-Security/IoMethods: # new in 1.22
-  Enabled: true
-Style/NumberedParameters: # new in 1.22
-  Enabled: true
-Style/NumberedParametersLimit: # new in 1.22
-  Enabled: true
-Style/OpenStructUse: # new in 1.23
-  Enabled: false
-Style/SelectByRegexp: # new in 1.22
-  Enabled: true
