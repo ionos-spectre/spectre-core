@@ -36,7 +36,7 @@ This helps to debug test subjects and to better understand what and how it is te
 `spectre` is available as a docker image. Just run your *specs* in a Docker container with
 
 ```bash
-docker run -t --rm -v "$(pwd)/path/to/specs" ionos-spectre/spectre
+$ docker run -t --rm -v "$(pwd)/path/to/specs" ionos-spectre/spectre
 ```
 
 
@@ -45,7 +45,7 @@ docker run -t --rm -v "$(pwd)/path/to/specs" ionos-spectre/spectre
 To use the command line tool, Ruby has to be installed on your system. To install Ruby on Debian or Ubuntu run:
 
 ```bash
-sudo apt install ruby-full
+$ sudo apt install ruby-full
 ```
 
 For other linux distributions see [ruby-lang.org](https://www.ruby-lang.org/en/documentation/installation/).
@@ -59,14 +59,14 @@ choco install ruby
 Spectre is available as a Ruby *gem* from https://rubygems.org/
 
 ```bash
-gem install spectre-core
+$ sudo gem install spectre-core
 ```
 
 To test, if the tool is working, try one of the following commands.
 
 ```bash
-spectre -h
-spectre --version
+$ spectre -h
+$ spectre --version
 ```
 
 ### CURL
@@ -123,7 +123,7 @@ LoadError: cannot load such file -- bundler/gem_tasks
 To create a minimal spectre project run the following command
 
 ```bash
-spectre init
+$ spectre init
 ```
 
 This will create a basic folder structure and generate some sample files.
@@ -133,7 +133,7 @@ This will create a basic folder structure and generate some sample files.
 
 Create a new project structure by executing
 ```bash
-spectre init
+$ spectre init
 ```
 
 This will create multiple empty directories and a `spectre.yaml` config file.
@@ -214,7 +214,7 @@ curl_path: curl
 All options can also be overridden with the command line argument `-p` or `--property`
 
 ```bash
-spectre -p config_file=my_custom_spectre.yml -p "reporter=Spectre::Reporter::JUnit"
+$ spectre -p config_file=my_custom_spectre.yml -p "reporter=Spectre::Reporter::JUnit"
 ```
 
 You can also create a global spectre config file with the options above. Create a file `.spectre` in your users home directory (`~/.spectre`) and set the options you like.
@@ -548,7 +548,7 @@ foo: bar
 and use the environment by running `spectre` with the `-e NAME` parameter
 
 ```bash
-spectre -e development
+$ spectre -e development
 ```
 
 When no `-e` is given, the `default` environment is used. Any env yaml file without a specified `name` property, will be used as the default environment.
@@ -557,14 +557,14 @@ The environment file is merged with the `spectre.yml`, so you can override any p
 To show all variables of an environment, execute
 
 ```bash
-spectre show
-spectre show -e development
+$ spectre show
+$ spectre show -e development
 ```
 
 You can also override any of those variables with the command line parameter `-p` or `--property`
 
 ```bash
-spectre -p foo=bla
+$ spectre -p foo=bla
 ```
 
 By default all files in `environments/**/*.env.yml` will be read.
@@ -625,7 +625,7 @@ env_partial_patterns:
 To list specs execute
 
 ```bash
-spectre list
+$ spectre list
 ```
 
 The output looks like this
@@ -644,7 +644,7 @@ Note that this ID can change, when more *specs* are added.
 In order to run our test, simply execute
 
 ```bash
-spectre
+$ spectre
 ```
 
 The output should look like this
@@ -675,7 +675,7 @@ Spooky
 You can also run one or more specific specs
 
 ```bash
-spectre -s spooky-1,spooky-3
+$ spectre -s spooky-1,spooky-3
 ```
 
 ```
@@ -698,7 +698,7 @@ Spooky
 or run only specs with specific tags
 
 ```bash
-spectre --tags scary+!dangerous,spooky
+$ spectre --tags scary+!dangerous,spooky
 ```
 
 This will run all specs with the tags _scary_, but not _dangerous_, or with the tag _spooky_.
