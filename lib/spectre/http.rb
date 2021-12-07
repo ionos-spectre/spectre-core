@@ -24,6 +24,12 @@ module Spectre
 
     @@modules = []
 
+    class HttpError < Exception
+      def initialize message
+        super message
+      end
+    end
+
     class SpectreHttpRequest < Spectre::DslClass
       class Headers
         CONTENT_TYPE = 'Content-Type'
@@ -141,7 +147,7 @@ module Spectre
           begin
             @json_data = JSON.parse(@body, object_class: OpenStruct)
           rescue JSON::ParserError
-            raise "Body content is not a valid JSON:\n#{@body}"
+            raise HttpError.new("Body content is not a valid JSON:\n#{@body}")
           end
         end
 
@@ -170,7 +176,7 @@ module Spectre
 
         if @@http_cfg.key? name
           req.deep_merge! @@http_cfg[name].deep_clone
-          raise "No `base_url' set for HTTP client '#{name}'. Check your HTTP config in your environment." unless req['base_url']
+          raise HttpError.new("No `base_url' set for HTTP client '#{name}'. Check your HTTP config in your environment.") unless req['base_url']
         else
           req['base_url'] = name
         end
@@ -253,7 +259,7 @@ module Spectre
 
         uri = URI(base_url)
 
-        raise "'#{uri}' is not a valid uri" unless uri.host
+        raise HttpError.new("'#{uri}' is not a valid uri") unless uri.host
 
         # Build query parameters
 
@@ -268,7 +274,7 @@ module Spectre
           net_http.use_ssl = true
 
           if req.key? 'cert'
-            raise "Certificate '#{req['cert']}' does not exist" unless File.exists? req['cert']
+            raise HttpError.new("Certificate '#{req['cert']}' does not exist") unless File.exists? req['cert']
 
             net_http.verify_mode = OpenSSL::SSL::VERIFY_PEER
             net_http.ca_file = req['cert']
@@ -312,7 +318,9 @@ module Spectre
         begin
           net_res = net_http.request(net_req)
         rescue SocketError => e
-          raise "The request '#{req['method']} #{uri}' failed. Please check if the given URL '#{uri}' is valid and available or a corresponding HTTP config in the environment file exists. See log for more details. Original.\nOriginal error was: #{e.message}"
+          raise HttpError.new("The request '#{req['method']} #{uri}' failed. Please check if the given URL '#{uri}' is valid and available or a corresponding HTTP config in the environment file exists. See log for more details. Original.\nOriginal error was: #{e.message}")
+        rescue Net::ReadTimeout
+          raise HttpError.new("HTTP timeout of #{net_http.read_timeout}s exceeded")
         end
 
         end_time = Time.now
