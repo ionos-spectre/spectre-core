@@ -213,7 +213,7 @@ RSpec.describe 'spectre/http' do
         Spectre::Http.http 'some_client' do
           path '/some-resource'
         end
-      }.to raise_error(RuntimeError)
+      }.to raise_error(Spectre::Http::HttpError)
     end
   end
 

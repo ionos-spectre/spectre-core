@@ -1,3 +1,7 @@
+### vNext
+
+#### Minor
+ - Custom spectre error class added. Will be raised on general spectre errors.
 ### v1.12.0
 
 ### Major

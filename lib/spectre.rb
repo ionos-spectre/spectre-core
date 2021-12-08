@@ -33,6 +33,12 @@ module Spectre
   ###########################################
 
 
+  class SpectreError < Exception
+    def initialize message
+      super message
+    end
+  end
+
   class ExpectationFailure < Exception
     attr_reader :expectation
 
@@ -167,7 +173,7 @@ module Spectre
 
       begin
         specs.each do |spec|
-          raise "Multi data definition (`with' parameter) of '#{spec.subject.desc} #{spec.desc}' has to be an `Array'" unless !spec.data.nil? and spec.data.is_a? Array
+          raise SpectreError.new("Multi data definition (`with' parameter) of '#{spec.subject.desc} #{spec.desc}' has to be an `Array'") unless !spec.data.nil? and spec.data.is_a? Array
 
           if spec.data.any?
             spec.data
@@ -365,7 +371,7 @@ module Spectre
 
     def self.redirect method_name, *args, **kwargs, &block
       target = @@mappings[method_name] || Kernel
-      raise "no variable or method '#{method_name}' found" unless target.respond_to? method_name
+      raise SpectreError.new("no variable or method '#{method_name}' found") unless target.respond_to? method_name
 
       target.send(method_name, *args, **kwargs, &block)
     end
