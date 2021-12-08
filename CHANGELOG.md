@@ -3,6 +3,7 @@
 #### Minor
  - Custom spectre error class added. Will be raised on general spectre errors.
  - Line number added to filepath in exception report
+ - Some expectation failure messages updated
 
 
 ### v1.12.0
