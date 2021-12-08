@@ -2,6 +2,9 @@
 
 #### Minor
  - Custom spectre error class added. Will be raised on general spectre errors.
+ - Line number added to filepath in exception report
+
+
 ### v1.12.0
 
 ### Major
