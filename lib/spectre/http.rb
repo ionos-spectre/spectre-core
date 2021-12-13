@@ -20,6 +20,7 @@ module Spectre
       'headers' => nil,
       'query' => nil,
       'content_type' => '',
+      'timeout' => 180,
     }.freeze
 
     @@modules = []
@@ -268,7 +269,7 @@ module Spectre
         # Create HTTP client
 
         net_http = Net::HTTP.new(uri.host, uri.port)
-        net_http.read_timeout = req['timeout'] || 180
+        net_http.read_timeout = req['timeout']
 
         if uri.scheme == 'https'
           net_http.use_ssl = true
