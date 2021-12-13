@@ -2,6 +2,7 @@
 
 #### Minor
  - HTTP default value setting fixed
+ - Certifcate `nil` value error fixed. When `cert` was set to `nil` a error occured, instead of ignoring the `cert` setting.
 
 
 ### v1.12.1
