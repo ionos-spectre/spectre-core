@@ -83,6 +83,7 @@ Commands:
   run         Run specs (default)
   show        Print current environment settings
   dump        Dumps the given environment in YAML format to console
+  cleanup     Will remove all generated files (e.g. logs and reports)
   init        Initializes a new spectre project
 
 Specific options:}
@@ -389,6 +390,24 @@ end
 
 if 'dump' == action
   puts YAML.dump(cfg)
+end
+
+
+###########################################
+# Cleanup
+###########################################
+
+
+if 'cleanup' == action
+  log_file_pattern = cfg['log_file'].gsub('<date>', '*')
+
+  Dir.glob(log_file_pattern).each do |log_file|
+    File.delete(log_file)
+  end
+
+  Dir.glob(File.join cfg['out_path'], '/*').each do |out_file|
+    File.delete(out_file)
+  end
 end
 
 
