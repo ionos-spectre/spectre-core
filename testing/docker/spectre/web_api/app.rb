@@ -21,6 +21,14 @@ get '/api/v1/bad' do
   request.body.read
 end
 
+get '/api/v1/longpoll' do
+  sleep 2
+  status 200
+  {
+    message: 'Hello there!'
+  }.to_json
+end
+
 get '/api/v1/health' do
   status 200
 end

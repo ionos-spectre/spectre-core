@@ -8,7 +8,7 @@
 
 # Spectre
 
-Spectre is a DSL and commandline tool for test automation.
+Spectre is a DSL and command line tool for test automation.
 
 It is written in [Ruby](https://www.ruby-lang.org/de/) and inspired by the Unit-Test framework [rspec](https://rspec.info/).
 
@@ -17,7 +17,7 @@ It is written in [Ruby](https://www.ruby-lang.org/de/) and inspired by the Unit-
 
 > Code is documentation
 
-The framework is designed for non-developers and to provide easy to read tests. When writing and reading tests, you should immediatlely understand what is going on.
+The framework is designed for non-developers and to provide easy to read tests. When writing and reading tests, you should immediately understand what is going on.
 This helps to debug test subjects and to better understand what and how it is tested.
 
 
@@ -36,7 +36,7 @@ This helps to debug test subjects and to better understand what and how it is te
 `spectre` is available as a docker image. Just run your *specs* in a Docker container with
 
 ```bash
-docker run -t --rm -v "$(pwd)/path/to/specs" ionos-spectre/spectre
+$ docker run -t --rm -v "$(pwd)/path/to/specs" ionos-spectre/spectre
 ```
 
 
@@ -45,7 +45,7 @@ docker run -t --rm -v "$(pwd)/path/to/specs" ionos-spectre/spectre
 To use the command line tool, Ruby has to be installed on your system. To install Ruby on Debian or Ubuntu run:
 
 ```bash
-sudo apt-get install ruby-full
+$ sudo apt install ruby-full
 ```
 
 For other linux distributions see [ruby-lang.org](https://www.ruby-lang.org/en/documentation/installation/).
@@ -59,14 +59,14 @@ choco install ruby
 Spectre is available as a Ruby *gem* from https://rubygems.org/
 
 ```bash
-gem install spectre-core
+$ sudo gem install spectre-core
 ```
 
 To test, if the tool is working, try one of the following commands.
 
 ```bash
-spectre -h
-spectre --version
+$ spectre -h
+$ spectre --version
 ```
 
 ### CURL
@@ -123,7 +123,7 @@ LoadError: cannot load such file -- bundler/gem_tasks
 To create a minimal spectre project run the following command
 
 ```bash
-spectre init
+$ spectre init
 ```
 
 This will create a basic folder structure and generate some sample files.
@@ -133,10 +133,10 @@ This will create a basic folder structure and generate some sample files.
 
 Create a new project structure by executing
 ```bash
-spectre init
+$ spectre init
 ```
 
-This will create mutliple empty directories and a `spectre.yaml` config file.
+This will create multiple empty directories and a `spectre.yaml` config file.
 
 | Directory/File | Description |
 | -------------- | ----------- |
@@ -146,7 +146,7 @@ This will create mutliple empty directories and a `spectre.yaml` config file.
 | `reports` | This folder contains report files like JUnit, which are written by `reporter` |
 | `resources` | This folder can contain any files, which will be used in *spec* definitions. |
 | `specs` | This is the folder, where all spec files should be placed. The standard file pattern is `**/*_spec.rb` |
-| `spectre.yaml` | This is `spectre`'s default config file. This file includes default file patterns and paths. Options in this file can be overritten with command line arguments. |
+| `spectre.yaml` | This is `spectre`'s default config file. This file includes default file patterns and paths. Options in this file can be overwritten with command line arguments. |
 | `.gitignore` | This `.gitignore` file contains files and directories, which should not be tracked by version control. If created manually, make sure your environment files are not tracked. |
 
 
@@ -211,10 +211,10 @@ log_path: "./logs"
 curl_path: curl
 ```
 
-All options can also be overriden with the command line argument `-p` or `--property`
+All options can also be overridden with the command line argument `-p` or `--property`
 
 ```bash
-spectre -p config_file=my_custom_spectre.yml -p "reporter=Spectre::Reporter::JUnit"
+$ spectre -p config_file=my_custom_spectre.yml -p "reporter=Spectre::Reporter::JUnit"
 ```
 
 You can also create a global spectre config file with the options above. Create a file `.spectre` in your users home directory (`~/.spectre`) and set the options you like.
@@ -281,7 +281,7 @@ end
 
 ### Subject
 
-A *subject* is the the top level description block of a testsuite. A *subject* can be anything that groups functionality, e.g. some REST API, or an abstract business domain/process like *Order Process*.
+A *subject* is the top level description block of a test suite. A *subject* can be anything that groups functionality, e.g. some REST API, or an abstract business domain/process like *Order Process*.
 
 A *subject* is described by the `describe` function, and can contain many `context`
 
@@ -393,7 +393,7 @@ end
 
 *Expectations* are defined within a *spec*. These blocks are description blocks like `describe`, `context` and `it`, but will be evaluated at runtime.
 
-*Expectation* are fullfilled, when the code in this block runs without any errors. Unexpected runtime exceptions will generate an `error` status and will end the *spec* run and continue with the next *spec*.
+*Expectation* are fulfilled, when the code in this block runs without any errors. Unexpected runtime exceptions will generate an `error` status and will end the *spec* run and continue with the next *spec*.
 
 Raising an `ExpectationFailure` exception in this block, will end up in a `failed` status and also end the *spec* run.
 
@@ -431,7 +431,7 @@ end
 The status of an `expect` can be either `failed` or `error`.
 
 If you don't want the run to end, when an error or failure occurs, wrap the code with `observe`.
-The result is available with `success?`. The value is `true`, if no exception occured within the block.
+The result is available with `success?`. The value is `true`, if no exception occurred within the block.
 
 ```ruby
 describe 'Hollow API' do
@@ -548,7 +548,7 @@ foo: bar
 and use the environment by running `spectre` with the `-e NAME` parameter
 
 ```bash
-spectre -e development
+$ spectre -e development
 ```
 
 When no `-e` is given, the `default` environment is used. Any env yaml file without a specified `name` property, will be used as the default environment.
@@ -557,14 +557,14 @@ The environment file is merged with the `spectre.yml`, so you can override any p
 To show all variables of an environment, execute
 
 ```bash
-spectre show
-spectre show -e development
+$ spectre show
+$ spectre show -e development
 ```
 
 You can also override any of those variables with the command line parameter `-p` or `--property`
 
 ```bash
-spectre -p foo=bla
+$ spectre -p foo=bla
 ```
 
 By default all files in `environments/**/*.env.yml` will be read.
@@ -580,8 +580,8 @@ env_patterns:
 
 #### Partial environment files
 
-Environment files can be split into sperarate files. By default environment files with name `*.env.secret.yml` will be merged
-with the corrensponding environment defined by the `name` property.
+Environment files can be split into separate files. By default environment files with name `*.env.secret.yml` will be merged
+with the corresponding environment defined by the `name` property.
 
 `environments/development.env.yml`
 
@@ -625,7 +625,7 @@ env_partial_patterns:
 To list specs execute
 
 ```bash
-spectre list
+$ spectre list
 ```
 
 The output looks like this
@@ -644,7 +644,7 @@ Note that this ID can change, when more *specs* are added.
 In order to run our test, simply execute
 
 ```bash
-spectre
+$ spectre
 ```
 
 The output should look like this
@@ -675,7 +675,7 @@ Spooky
 You can also run one or more specific specs
 
 ```bash
-spectre -s spooky-1,spooky-3
+$ spectre -s spooky-1,spooky-3
 ```
 
 ```
@@ -698,7 +698,7 @@ Spooky
 or run only specs with specific tags
 
 ```bash
-spectre --tags scary+!dangerous,spooky
+$ spectre --tags scary+!dangerous,spooky
 ```
 
 This will run all specs with the tags _scary_, but not _dangerous_, or with the tag _spooky_.
@@ -731,7 +731,7 @@ For example, when writing *specs* for a REST API, the *specs* could be grouped b
 
 Specs of a RPC API can be grouped by its functions.
 
-Our *Hollow API* has two resources *ghosts* and *monsters*. Each resource can be *created*, *read*, *updated* and *deleted*. The project structur could then look something like this:
+Our *Hollow API* has two resources *ghosts* and *monsters*. Each resource can be *created*, *read*, *updated* and *deleted*. The project structure could then look something like this:
 
 ```
 hollow_webapi

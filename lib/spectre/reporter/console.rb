@@ -91,8 +91,7 @@ module Spectre::Reporter
       file.slice!(Dir.pwd + '/')
 
       str = ''
-      str += "       file.....: #{file}\n"
-      str += "       line.....: #{line}\n"
+      str += "       file.....: #{file}:#{line}\n"
       str += "       type.....: #{error.class}\n"
       str += "       message..: #{error.message}\n"
       str += "       backtrace: \n         #{error.backtrace.join("\n         ")}\n" if @config['debug']

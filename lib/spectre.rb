@@ -2,7 +2,7 @@ module Spectre
   module Version
     MAJOR = 1
     MINOR = 12
-    TINY  = 0
+    TINY  = 1
   end
 
   VERSION = [Version::MAJOR, Version::MINOR, Version::TINY].compact * '.'
@@ -32,6 +32,12 @@ module Spectre
   # Custom Exceptions
   ###########################################
 
+
+  class SpectreError < Exception
+    def initialize message
+      super message
+    end
+  end
 
   class ExpectationFailure < Exception
     attr_reader :expectation
@@ -104,7 +110,8 @@ module Spectre
   end
 
   class RunInfo
-    attr_accessor :spec, :data, :started, :finished, :error, :failure, :skipped, :log, :properties
+    attr_accessor :spec, :data, :started, :finished, :error, :failure, :skipped
+    attr_reader :log, :properties
 
     def initialize spec, data=nil
       @spec = spec
@@ -167,7 +174,7 @@ module Spectre
 
       begin
         specs.each do |spec|
-          raise "Multi data definition (`with' parameter) of '#{spec.subject.desc} #{spec.desc}' has to be an `Array'" unless !spec.data.nil? and spec.data.is_a? Array
+          raise SpectreError.new("Multi data definition (`with' parameter) of '#{spec.subject.desc} #{spec.desc}' has to be an `Array'") unless !spec.data.nil? and spec.data.is_a? Array
 
           if spec.data.any?
             spec.data
@@ -176,7 +183,7 @@ module Spectre
                 Logger.log_spec(spec, data) do
                   runs << run_spec(spec, data)
                 end
-            end
+              end
           else
             Logger.log_spec(spec) do
               runs << run_spec(spec)
@@ -365,7 +372,7 @@ module Spectre
 
     def self.redirect method_name, *args, **kwargs, &block
       target = @@mappings[method_name] || Kernel
-      raise "no variable or method '#{method_name}' found" unless target.respond_to? method_name
+      raise SpectreError.new("no variable or method '#{method_name}' found") unless target.respond_to? method_name
 
       target.send(method_name, *args, **kwargs, &block)
     end

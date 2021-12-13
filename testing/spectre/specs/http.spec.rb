@@ -63,4 +63,20 @@ describe 'spectre/http' do
       response.json.id.should_be 1
     end
   end
+
+  it 'does long polling successfully', tags: [:http, :get, :longpolling] do
+    http 'web_api' do
+      method 'GET'
+      path 'longpoll'
+      timeout 10
+    end
+
+    expect 'the response code to be 200' do
+      response.code.should_be 200
+    end
+
+    expect 'a message' do
+      response.json.message.should_be 'Hello there!'
+    end
+  end
 end

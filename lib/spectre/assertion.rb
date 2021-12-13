@@ -24,7 +24,7 @@ module Spectre
       end
 
       def should_not_be_empty
-        raise AssertionFailure.new('The value should not be empty', 'nothing', self) unless self != nil
+        raise AssertionFailure.new('The value is empty', 'nothing', self) unless self != nil
       end
 
       def or other
@@ -52,7 +52,7 @@ module Spectre
       end
 
       def should_not_be_empty
-        raise AssertionFailure.new('not empty', 'nil')
+        raise AssertionFailure.new('The list is empty', 'nil')
       end
     end
 
@@ -66,21 +66,21 @@ module Spectre
       end
 
       def should_be_empty
-        raise AssertionFailure.new("The object should be empty", nil, self) unless self.empty?
+        raise AssertionFailure.new('The object should be empty', nil, self) unless self.empty?
       end
 
       def should_not_be_empty
-        raise AssertionFailure.new("The object should not be empty", nil, self) if self.empty?
+        raise AssertionFailure.new('The object should not be empty', nil, self) if self.empty?
       end
     end
 
     class ::OpenStruct
       def should_be_empty
-        raise AssertionFailure.new("The object should be empty", nil, self) unless self.to_h.empty?
+        raise AssertionFailure.new('The object should be empty', nil, self) unless self.to_h.empty?
       end
 
       def should_not_be_empty
-        raise AssertionFailure.new("The object should not be empty", nil, self) if self.to_h.empty?
+        raise AssertionFailure.new('The object should not be empty', nil, self) if self.to_h.empty?
       end
     end
 
@@ -108,11 +108,11 @@ module Spectre
       end
 
       def should_be_empty
-        raise AssertionFailure.new('empty list', self) unless self.empty?
+        raise AssertionFailure.new('The list is not empty', self) unless self.empty?
       end
 
       def should_not_be_empty
-        raise AssertionFailure.new('no empty list', self) if self.empty?
+        raise AssertionFailure.new('The list is empty', self) if self.empty?
       end
     end
 
@@ -134,7 +134,7 @@ module Spectre
       end
 
       def should_contain(value)
-        raise AssertionFailure.new("`value' must not be nil") if value.nil?
+        raise AssertionFailure.new("The value is nil") if value.nil?
 
         predicate = proc { |x| self.include? x.to_s }
         evaluation = SingleEvaluation.new(value)
@@ -252,7 +252,7 @@ module Spectre
       end
 
       def observe desc = nil
-        prefix = "observing"
+        prefix = 'observing'
         prefix += " '#{desc}'" if desc
 
         begin

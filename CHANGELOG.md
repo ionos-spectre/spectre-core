@@ -1,3 +1,11 @@
+### vNext
+
+#### Minor
+ - Custom spectre error class added. Will be raised on general spectre errors.
+ - Line number added to filepath in exception report
+ - Some expectation failure messages updated
+
+
 ### v1.12.0
 
 ### Major
@@ -49,9 +57,9 @@
 #### Major
  - The docker image is now based on alpine linux, which is 10 times smaller, than the previous spectre image
  - Some modules were removed from the core project and are available as separate gem packages
-   - `spectre/mysql` moved to https://github.com/cneubauer/spectre-mysql
-   - `spectre/ssh` moved to https://github.com/cneubauer/spectre-ssh
-   - `spectre/ftp` moved to https://github.com/cneubauer/spectre-ftp
+   - `spectre/mysql` moved to https://github.com/ionos-spectre/spectre-mysql
+   - `spectre/ssh` moved to https://github.com/ionos-spectre/spectre-ssh
+   - `spectre/ftp` moved to https://github.com/ionos-spectre/spectre-ftp
 
 #### Minor
  - Added placeholder substitution function to `String` (`with(Hash)`)
