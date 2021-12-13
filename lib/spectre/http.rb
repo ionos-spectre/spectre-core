@@ -21,7 +21,7 @@ module Spectre
       'query' => nil,
       'content_type' => '',
       'timeout' => 180,
-    }.freeze
+    }
 
     @@modules = []
 
@@ -173,7 +173,7 @@ module Spectre
       end
 
       def http name, secure: false, &block
-        req = {}
+        req = DEFAULT_HTTP_CONFIG.clone
 
         if @@http_cfg.key? name
           req.deep_merge! @@http_cfg[name].deep_clone

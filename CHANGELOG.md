@@ -1,6 +1,12 @@
 ### vNext
 
 #### Minor
+ - HTTP default value setting fixed
+
+
+### v1.12.1
+
+#### Minor
  - Custom spectre error class added. Will be raised on general spectre errors.
  - Line number added to filepath in exception report
  - Some expectation failure messages updated
