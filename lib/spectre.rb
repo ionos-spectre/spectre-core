@@ -110,7 +110,8 @@ module Spectre
   end
 
   class RunInfo
-    attr_accessor :spec, :data, :started, :finished, :error, :failure, :skipped, :log, :properties
+    attr_accessor :spec, :data, :started, :finished, :error, :failure, :skipped
+    attr_reader :log, :properties
 
     def initialize spec, data=nil
       @spec = spec
