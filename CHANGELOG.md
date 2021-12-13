@@ -1,4 +1,4 @@
-### vNext
+### v1.12.2
 
 #### Minor
  - HTTP `max_retry` set to 0 by default and added `retries` property to HTTP module to make it configurable
