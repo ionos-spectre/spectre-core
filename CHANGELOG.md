@@ -1,4 +1,12 @@
-### vNext
+### v1.12.2
+
+#### Minor
+ - HTTP `max_retry` set to 0 by default and added `retries` property to HTTP module to make it configurable
+ - HTTP default value setting fixed
+ - Certifcate `nil` value error fixed. When `cert` was set to `nil` a error occured, instead of ignoring the `cert` setting.
+
+
+### v1.12.1
 
 #### Minor
  - Custom spectre error class added. Will be raised on general spectre errors.

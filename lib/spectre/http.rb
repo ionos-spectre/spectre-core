@@ -21,7 +21,8 @@ module Spectre
       'query' => nil,
       'content_type' => '',
       'timeout' => 180,
-    }.freeze
+      'retries' => 0,
+    }
 
     @@modules = []
 
@@ -55,6 +56,10 @@ module Spectre
 
       def timeout seconds
         @__req['timeout'] = seconds
+      end
+
+      def retries count
+        @__req['retries'] = count
       end
 
       def header name, value
@@ -173,7 +178,7 @@ module Spectre
       end
 
       def http name, secure: false, &block
-        req = {}
+        req = DEFAULT_HTTP_CONFIG.clone
 
         if @@http_cfg.key? name
           req.deep_merge! @@http_cfg[name].deep_clone
@@ -270,11 +275,12 @@ module Spectre
 
         net_http = Net::HTTP.new(uri.host, uri.port)
         net_http.read_timeout = req['timeout']
+        net_http.max_retries = req['retries']
 
         if uri.scheme == 'https'
           net_http.use_ssl = true
 
-          if req.key? 'cert'
+          if req['cert']
             raise HttpError.new("Certificate '#{req['cert']}' does not exist") unless File.exists? req['cert']
 
             net_http.verify_mode = OpenSSL::SSL::VERIFY_PEER
