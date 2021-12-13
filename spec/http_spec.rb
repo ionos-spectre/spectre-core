@@ -18,6 +18,9 @@ RSpec.describe 'spectre/http' do
     before do
       @net_http = double(::Net::HTTP)
       allow(@net_http).to receive(:read_timeout=)
+      allow(@net_http).to receive(:max_retries=)
+      allow(@net_http).to receive(:use_ssl=)
+      allow(@net_http).to receive(:verify_mode=)
 
       net_res = create_response()
       allow(@net_http).to receive(:request).and_return(net_res)
@@ -41,6 +44,7 @@ RSpec.describe 'spectre/http' do
       expect(@net_req).to receive(:content_type=).with('application/json')
 
       expect(@net_http).to receive(:read_timeout=).with(100)
+      expect(@net_http).to receive(:max_retries=).with(0)
       expect(@net_http).to receive(:request).with(@net_req)
 
       Spectre::Http.http 'some-url.de' do
@@ -67,6 +71,19 @@ RSpec.describe 'spectre/http' do
 
       Spectre::Http.https 'some-url.de' do
         path '/some-resource'
+      end
+    end
+
+    it 'sets max retries and timeout' do
+      expect(@net_http).to receive(:max_retries=).with(5)
+      expect(@net_http).to receive(:read_timeout=).with(300)
+
+      Spectre.configure({})
+
+      Spectre::Http.https 'some-url.de' do
+        path '/some-resource'
+        timeout 300
+        retries 5
       end
     end
 
@@ -219,7 +236,8 @@ RSpec.describe 'spectre/http' do
 
   it 'does some HTTP request with keystone auth' do
     client = double(::Net::HTTP)
-    expect(client).to receive(:read_timeout=).with(180)
+    allow(client).to receive(:read_timeout=)
+    allow(client).to receive(:max_retries=)
 
     net_res = create_response('201', 'Created', '{}')
     allow(net_res).to receive(:[]).with('X-Subject-Token').and_return('somekeystonetoken')

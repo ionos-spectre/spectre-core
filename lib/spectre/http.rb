@@ -21,6 +21,7 @@ module Spectre
       'query' => nil,
       'content_type' => '',
       'timeout' => 180,
+      'retries' => 0,
     }
 
     @@modules = []
@@ -55,6 +56,10 @@ module Spectre
 
       def timeout seconds
         @__req['timeout'] = seconds
+      end
+
+      def retries count
+        @__req['retries'] = count
       end
 
       def header name, value
@@ -270,6 +275,7 @@ module Spectre
 
         net_http = Net::HTTP.new(uri.host, uri.port)
         net_http.read_timeout = req['timeout']
+        net_http.max_retries = req['retries']
 
         if uri.scheme == 'https'
           net_http.use_ssl = true
