@@ -301,7 +301,10 @@ module Spectre::Curl
 
       req_log = "[>] #{req_id} #{req['method']} #{uri}\n"
       req_log += header_to_s(req['headers'])
-      req_log += try_format_json(req['body'], pretty: true)
+
+      if req[:body] != nil and not req[:body].empty?
+        req_log += try_format_json(req['body'], pretty: true)
+      end
 
       @@logger.info(req_log)
 
