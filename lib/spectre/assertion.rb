@@ -247,7 +247,7 @@ module Spectre
           raise AssertionFailure.new(e.message, e.expected, e.actual, desc), cause: nil
         rescue Exception => e
           Logger.log_status(desc, Logger::Status::ERROR)
-          raise AssertionFailure.new("An unexpected error occured during expectation: #{e.message}", nil, nil, desc), cause: e
+          raise AssertionFailure.new("An unexpected error occurred during expectation: #{e.message}", nil, nil, desc), cause: e
         end
       end
 

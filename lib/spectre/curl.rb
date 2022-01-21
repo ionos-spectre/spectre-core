@@ -332,7 +332,7 @@ module Spectre::Curl
 
       exit_code = wait_thr.value.exitstatus
 
-      raise Exception.new "An error occured while executing curl:\n#{debug_log.lines.map { |x| not x.empty? }}" unless exit_code == 0
+      raise Exception.new "An error occurred while executing curl:\n#{debug_log.lines.map { |x| not x.empty? }}" unless exit_code == 0
 
       # Parse protocol, version, status code and status message from response
       match = /^(?<protocol>[A-Za-z0-9]+)\/(?<version>\d+\.?\d*) (?<code>\d+) (?<message>.*)/.match result

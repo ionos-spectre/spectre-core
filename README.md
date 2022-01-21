@@ -665,7 +665,7 @@ Spooky
        but it failed with no ghosts
 
   2) Spooky only scares some people [spooky-3]
-       but an error occured while running the test
+       but an error occurred while running the test
          file.....: specs/spooky_spec.rb
          line.....: 18
          type.....: RuntimeError
@@ -688,7 +688,7 @@ Spooky
 1 errors
 
   1) Spooky only scares some people [spooky-3]
-       but an error occured while running the test
+       but an error occurred while running the test
          file.....: spooky_spec.rb
          line.....: 18
          type.....: RuntimeError
@@ -715,7 +715,7 @@ Spooky
        but it failed with no ghosts
 
   2) Spooky only scares some people [spooky-3]
-       but an error occured while running the test
+       but an error occurred while running the test
          file.....: spooky_spec.rb
          line.....: 18
          type.....: RuntimeError
@@ -932,7 +932,7 @@ There are some helper methods for various use cases
 | `exists?` | `string` | Treats the string as a file path and returns `true` if the file exists, `false` otherwise |
 | `remove!` | `string` | Treats the string as a file path and deletes the file |
 | `size` | `string` | Treats the string as a file path and returns the file size |
-| `trim` | `string` | Trims a long string to the given size. Default ist 50 |
+| `trim` | `string` | Trims a long string to the given size. Default is 50 |
 | `default_to!`, `defaults_to!` | `Hash`, `OpenStruct` | Sets default values to the `Hash` or `OpenStruct` |
 | `to_json` | `OpenStruct` | Converts a `OpenStruct` object into a JSON string |
 | `uuid(length=5)` | `Kernel` | Generates a UUID and returns characters with given length. Default is 5. |

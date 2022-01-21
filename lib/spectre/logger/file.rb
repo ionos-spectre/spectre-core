@@ -79,7 +79,7 @@ module Spectre
 
       def log_error spec, exception
         file, line = exception.backtrace[0].match(/(.*\.rb):(\d+)/).captures
-        @file_log.error "An unexpected error occured at '#{file}:#{line}' while running spec '#{spec.name}': [#{exception.class}] #{exception.message}\n#{exception.backtrace.join "\n"}"
+        @file_log.error "An unexpected error occurred at '#{file}:#{line}' while running spec '#{spec.name}': [#{exception.class}] #{exception.message}\n#{exception.backtrace.join "\n"}"
       end
 
       def log_skipped spec
