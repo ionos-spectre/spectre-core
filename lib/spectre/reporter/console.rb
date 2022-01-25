@@ -21,7 +21,7 @@ module Spectre::Reporter
         if run_info.failure
           report_str += "     Expected #{run_info.failure.expectation}"
           report_str += " with #{run_info.data}" if run_info.data
-          report_str += " during #{spec.context.__desc}" if spec.context.__desc
+          report_str += " #{spec.context.__desc}" if spec.context.__desc
 
           report_str += " but it failed"
 
