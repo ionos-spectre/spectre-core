@@ -52,7 +52,7 @@ module Spectre
       end
 
       def should_not_be_empty
-        raise AssertionFailure.new('The list is empty', 'nil')
+        raise AssertionFailure.new('The value does not exist', 'nil')
       end
     end
 
