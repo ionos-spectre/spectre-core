@@ -21,7 +21,6 @@ module Spectre::Reporter
         if run_info.failure
           report_str += "     Expected #{run_info.failure.expectation}"
           report_str += " with #{run_info.data}" if run_info.data
-          report_str += " #{spec.context.__desc}" if spec.context.__desc
 
           report_str += " but it failed"
 
@@ -68,6 +67,7 @@ module Spectre::Reporter
 
     def format_title run_info
       title = run_info.spec.subject.desc
+      title += " #{run_info.spec.context.__desc}" if run_info.spec.context.__desc
       title += ' ' + run_info.spec.desc
       title += " (#{'%.3f' % run_info.duration}s)"
       title += " [#{run_info.spec.name}]"
