@@ -40,7 +40,7 @@ module Spectre::Reporter
           failures += 1
 
         else
-          report_str += "     but an unexpected error occured during run\n"
+          report_str += "     but an unexpected error occurred during run\n"
           report_str += format_exception(run_info.error)
           errors += 1
         end
