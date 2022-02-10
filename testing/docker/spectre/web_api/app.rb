@@ -25,7 +25,7 @@ get '/api/v1/longpoll' do
   sleep 2
   status 200
   {
-    message: 'Hello there!'
+    message: 'Hello there!',
   }.to_json
 end
 
