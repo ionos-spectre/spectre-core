@@ -72,9 +72,10 @@ DEFAULT_CONFIG = {
 
 
 cmd_options = {}
+property_overrides = {}
 
 opt_parser = OptionParser.new do |opts|
-  opts.banner = %{Spectre #{Spectre::VERSION}
+opts.banner = %{Spectre #{Spectre::VERSION}
 
 Usage: spectre [command] [options]
 
@@ -133,17 +134,24 @@ Specific options:}
   end
 
   opts.on('-p KEY=VAL', '--property KEY=VAL', "Override config option. Use `spectre show` to get list of available options") do |option|
-    key, val = option.split '='
-    val = val.split ',' if DEFAULT_CONFIG[key].is_a? Array
-    val = ['true', '1'].include? val if [true, false].include? DEFAULT_CONFIG[key]
+    key, val = option.split('=')
+    val = val.split(',') if DEFAULT_CONFIG[key].is_a? Array
+    val = ['true', '1'].include? val if [true, false].include?(DEFAULT_CONFIG[key])
     val = val.to_i if DEFAULT_CONFIG[key].is_a? Integer
-    cmd_options[key] = val
 
-    curr_opt = cmd_options
-    (key.split '.').each do |k|
-      curr_opt[k] = {} unless curr_opt.key? k
+    opt_path = key.split('.')
+
+    curr_opt = property_overrides
+
+    opt_path.each_with_index do |part, i|
+      if i == opt_path.count-1
+        curr_opt[part] = val
+        break
+      end
+
+      curr_opt[part] = {} unless curr_opt.key?(part)
+      curr_opt = curr_opt[part]
     end
-    curr_opt = val
   end
 
   opts.separator "\nCommon options:"
@@ -188,7 +196,6 @@ end
 
 cfg.deep_merge! cmd_options
 
-
 ###########################################
 # Load Environment
 ###########################################
@@ -225,7 +232,10 @@ cfg['env_partial_patterns'].each do |pattern|
 end
 
 env = envs[cfg['environment']]
-cfg.merge! env if env
+cfg.deep_merge! env if env
+
+# Merge property overrides after environment load to give it higher priority
+cfg.deep_merge! property_overrides
 
 
 String.colored! if cfg['colored']

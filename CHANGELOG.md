@@ -3,6 +3,9 @@
 #### Major
  - `spectre cleanup` command added. This command will delete all log files and file in `out_path` directory (e.g. reports).
 
+#### Minor
+ - Property override fixed
+
 
 ### v1.12.2
 
