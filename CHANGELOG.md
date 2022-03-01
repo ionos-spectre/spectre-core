@@ -5,6 +5,7 @@
 
 #### Minor
  - Property override fixed
+ - Spec descriptions are now HTML escaped in JUnit reports
 
 
 ### v1.12.2

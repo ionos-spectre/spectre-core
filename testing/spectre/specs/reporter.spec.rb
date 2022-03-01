@@ -48,4 +48,9 @@ describe 'spectre/reporter' do
     info 'do some other stuff here'
     raise 'Oops!'
   end
+
+  it 'allows some $pecial chars in => description #$@<>', tags: [:reporter] do
+    info 'some log message with special chars $#@!+<>'
+  end
+
 end

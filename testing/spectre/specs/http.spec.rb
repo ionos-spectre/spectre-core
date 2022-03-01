@@ -64,7 +64,7 @@ describe 'spectre/http' do
     end
   end
 
-  it 'does long polling successfully', tags: [:http, :get, :longpolling] do
+  it 'does long polling successfully', tags: [:http, :get, :longpolling, :deps] do
     http 'web_api' do
       method 'GET'
       path 'longpoll'
