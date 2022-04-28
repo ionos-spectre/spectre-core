@@ -1,4 +1,4 @@
-require 'CGI'
+require 'cgi'
 
 # https://llg.cubic.org/docs/junit/
 # Azure mappings: https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/test/publish-test-results?view=azure-devops&tabs=junit%2Cyaml
