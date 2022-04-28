@@ -9,6 +9,11 @@ require 'ectoplasm'
 
 require_relative '../lib/spectre'
 
+def load_yaml file_path
+  yaml = File.read(file_path)
+  YAML.safe_load(yaml, aliases: true)
+end
+
 
 DEFAULT_CONFIG = {
   'config_file' => './spectre.yml',
@@ -182,14 +187,14 @@ cfg.deep_merge! DEFAULT_CONFIG
 global_config_file = File.join File.expand_path('~'), '.spectre'
 
 if File.exists? global_config_file
-  global_options = YAML.load_file(global_config_file)
+  global_options = load_yaml(global_config_file)
   cfg.deep_merge! global_options if global_options
 end
 
 config_file = cmd_options['config_file'] || cfg['config_file']
 
 if File.exists? config_file
-  file_options = YAML.load_file(config_file)
+  file_options = load_yaml(config_file)
   cfg.deep_merge! file_options
   Dir.chdir File.dirname(config_file)
 end
@@ -205,7 +210,7 @@ envs = {}
 read_env_files = {}
 cfg['env_patterns'].each do |pattern|
   Dir.glob(pattern).each do|f|
-    spec_env = YAML.load_file(f) || {}
+    spec_env = load_yaml(f) || {}
 
     name = spec_env['name'] || 'default'
 
@@ -223,7 +228,7 @@ end
 # Merge partial environment configs with existing environments
 cfg['env_partial_patterns'].each do |pattern|
   Dir.glob(pattern).each do|f|
-    partial_env = YAML.load_file(f)
+    partial_env = load_yaml(f)
     name = partial_env.delete('name') || 'default'
     next unless envs.key? name
 
