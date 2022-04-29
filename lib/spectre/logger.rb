@@ -109,8 +109,8 @@ module Spectre
         delegate(:log_error, spec, exception)
       end
 
-      def log_skipped spec
-        delegate(:log_skipped, spec)
+      def log_skipped spec, message=nil
+        delegate(:log_skipped, spec, message)
       end
 
       def log_status desc, status, annotation=nil
