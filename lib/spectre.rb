@@ -2,7 +2,7 @@ module Spectre
   module Version
     MAJOR = 1
     MINOR = 12
-    TINY  = 3
+    TINY  = 4
   end
 
   VERSION = [Version::MAJOR, Version::MINOR, Version::TINY].compact * '.'
@@ -45,6 +45,12 @@ module Spectre
     def initialize message, expectation
       super message
       @expectation = expectation
+    end
+  end
+
+  class SpectreSkip < Interrupt
+    def initialize message
+      super message
     end
   end
 
@@ -252,9 +258,12 @@ module Spectre
         spec.block.call(data)
       rescue ExpectationFailure => e
         run_info.failure = e
+      rescue SpectreSkip => e
+        run_info.skipped = true
+        Logger.log_skipped spec, e.message
       rescue Interrupt
         run_info.skipped = true
-        Logger.log_skipped spec
+        Logger.log_skipped spec, 'canceled by user'
       rescue Exception => e
         run_info.error = e
         Logger.log_error spec, e
@@ -438,9 +447,13 @@ module Spectre
     def property key, val
       Spectre::Runner.current.properties[key] = val
     end
+
+    def skip message=nil
+      raise SpectreSkip.new(message)
+    end
   end
 
-  delegate :describe, :property, to: Spectre
+  delegate :describe, :property, :skip, to: Spectre
 end
 
 

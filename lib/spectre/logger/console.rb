@@ -113,8 +113,14 @@ module Spectre
         print_line('', txt)
       end
 
-      def log_skipped _spec
-        print_line('', Status::SKIPPED.grey)
+      def log_skipped _spec, message=nil
+        txt = Status::SKIPPED
+
+        unless message.nil?
+          txt += ' - ' + message
+        end
+
+        print_line('', txt.grey)
       end
 
       private

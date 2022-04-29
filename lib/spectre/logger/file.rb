@@ -82,8 +82,14 @@ module Spectre
         @file_log.error "An unexpected error occurred at '#{file}:#{line}' while running spec '#{spec.name}': [#{exception.class}] #{exception.message}\n#{exception.backtrace.join "\n"}"
       end
 
-      def log_skipped spec
-        @file_log.warn "spec '#{spec.desc}' canceled by user"
+      def log_skipped spec, message=nil
+        txt = "spec '#{spec.desc}' skipped"
+
+        unless message.nil?
+          txt += ': ' + message
+        end
+
+        @file_log.warn txt
       end
 
       def log_status desc, status, annotation=nil

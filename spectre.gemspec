@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'A DSL and command line tool to describe and run automated tests'
   spec.homepage      = 'https://github.com/ionos-spectre/spectre-core'
   spec.license       = 'GPL-3.0-or-later'
-  spec.required_ruby_version = Gem::Requirement.new('>= 2.5.0')
+  spec.required_ruby_version = Gem::Requirement.new('>= 3.0.0')
 
   spec.metadata['allowed_push_host'] = 'https://rubygems.org/'
 
