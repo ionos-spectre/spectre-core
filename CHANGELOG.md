@@ -1,3 +1,13 @@
+### vNext
+
+#### Major
+ - `Dockerfile` fixed and updated. It will now build with all Spectre modules.
+ - Changed Ruby requirement to Ruby >= v3.0.0
+ - `skip` feature implemented. Spec runs can now be skipped by calling `skip <message>`.
+
+#### Minor
+ - `cgi` package loading fixt for linux systems
+
 ### v1.12.3
 
 #### Major
