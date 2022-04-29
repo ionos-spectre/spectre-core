@@ -1,4 +1,4 @@
-### vNext
+### v1.12.4
 
 #### Major
  - `Dockerfile` fixed and updated. It will now build with all Spectre modules.
