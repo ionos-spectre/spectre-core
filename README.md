@@ -37,7 +37,7 @@ This helps to debug test subjects and to better understand what and how it is te
 `spectre` is available as a docker image. Just run your *specs* in a Docker container with
 
 ```bash
-$ docker run -t --rm -v "$(pwd)/path/to/specs" ionos-spectre/spectre
+$ docker run -t --rm -v "path/to/specs" cneubauer/spectre [options]
 ```
 
 
