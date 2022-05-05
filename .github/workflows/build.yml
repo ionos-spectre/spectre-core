@@ -20,7 +20,7 @@ jobs:
         ruby-version: '3.1'
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
     - name: Style check
-      run: rubocop
+      run: bundle exec rubocop
     - name: Run tests
       run: bundle exec rspec spec
     - name: Build gem
