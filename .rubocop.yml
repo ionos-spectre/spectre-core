@@ -610,7 +610,7 @@ Layout/IndentationWidth:
   Enabled: true
   VersionAdded: '0.49'
   Width: 2
-  IgnoredPatterns: []
+  AllowedPatterns: []
 
 # Supports --auto-correct
 Layout/InitialIndentation:
@@ -661,7 +661,7 @@ Layout/LineLength:
   - http
   - https
   IgnoreCopDirectives: true
-  IgnoredPatterns: []
+  AllowedPatterns: []
   AutoCorrect: true
 
 # Supports --auto-correct
@@ -1797,7 +1797,7 @@ Lint/ShadowedException:
 Lint/ShadowingOuterLocalVariable:
   Description: Do not use the same name as outer local variable for block arguments
     or block local variables.
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.9'
 
 Lint/StructNewOverride:
@@ -1833,41 +1833,41 @@ Lint/Syntax:
 Lint/ToEnumArguments:
   Description: This cop ensures that `to_enum`/`enum_for`, called for the current method,
     has correct arguments.
-  Enabled: false
+  Enabled: true
   VersionAdded: '1.1'
 
 # Supports --auto-correct
 Lint/ToJSON:
   Description: 'Ensure #to_json includes an optional argument.'
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.66'
 
 Lint/TopLevelReturnWithArgument:
   Description: This cop detects top level return statements with argument.
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.89'
 
 # Supports --auto-correct
 Lint/TrailingCommaInAttributeDeclaration:
   Description: This cop checks for trailing commas in attribute declarations.
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.90'
 
 # Supports --auto-correct
 Lint/TripleQuotes:
   Description: Checks for useless triple quote constructs.
-  Enabled: false
+  Enabled: true
   VersionAdded: '1.9'
 
 Lint/UnderscorePrefixedVariableName:
   Description: Do not use prefix `_` for a variable that is used.
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.21'
   AllowKeywordBlockArguments: false
 
 Lint/UnexpectedBlockArity:
   Description: Looks for blocks that have fewer arguments that the calling method expects.
-  Enabled: false
+  Enabled: true
   Safe: false
   VersionAdded: '1.5'
   Methods:
@@ -1885,7 +1885,7 @@ Lint/UnexpectedBlockArity:
 # Supports --auto-correct
 Lint/UnifiedInteger:
   Description: Use Integer instead of Fixnum or Bignum.
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.43'
 
 Lint/UnmodifiedReduceAccumulator:
@@ -1897,7 +1897,7 @@ Lint/UnmodifiedReduceAccumulator:
 
 Lint/UnreachableCode:
   Description: Unreachable code.
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.9'
 
 Lint/UnreachableLoop:
@@ -1905,14 +1905,14 @@ Lint/UnreachableLoop:
   Enabled: false
   VersionAdded: '0.89'
   VersionChanged: '1.7'
-  IgnoredPatterns:
+  AllowedPatterns:
   - !ruby/regexp /(exactly|at_least|at_most)\(\d+\)\.times/
 
 # Supports --auto-correct
 Lint/UnusedBlockArgument:
   Description: Checks for unused block arguments.
   StyleGuide: "#underscore-unused-vars"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.21'
   VersionChanged: '0.22'
   IgnoreEmptyBlocks: true
@@ -1935,19 +1935,19 @@ Lint/UriEscapeUnescape:
     on your specific use case. Also `URI.unescape` method is obsolete and should not
     be used. Instead, use `CGI.unescape`, `URI.decode_www_form` or `URI.decode_www_form_component`
     depending on your specific use case."
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.50'
 
 # Supports --auto-correct
 Lint/UriRegexp:
   Description: Use `URI::DEFAULT_PARSER.make_regexp` instead of `URI.regexp`.
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.50'
 
 # Supports --auto-correct
 Lint/UselessAccessModifier:
   Description: Checks for useless access modifiers.
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.20'
   VersionChanged: '0.83'
   ContextCreatingMethods: []
@@ -1956,7 +1956,7 @@ Lint/UselessAccessModifier:
 Lint/UselessAssignment:
   Description: Checks for useless assignment to a local variable.
   StyleGuide: "#underscore-unused-vars"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.11'
 
 Lint/UselessElseWithoutRescue:
@@ -1967,10 +1967,9 @@ Lint/UselessElseWithoutRescue:
 # Supports --auto-correct
 Lint/UselessMethodDefinition:
   Description: Checks for useless method definitions.
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.90'
   Safe: false
-  AllowComments: true
 
 Lint/UselessRuby2Keywords:
   Description: Finds unnecessary uses of `ruby2_keywords`.
@@ -2275,7 +2274,7 @@ Naming/MethodName:
   SupportedStyles:
   - snake_case
   - camelCase
-  IgnoredPatterns: []
+  AllowedPatterns: []
 
 Naming/MethodParameterName:
   Description: Checks for method parameter names that contain capital letters, end in
@@ -3310,7 +3309,7 @@ Style/MethodCallWithArgsParentheses:
   VersionChanged: '1.7'
   IgnoreMacros: true
   IgnoredMethods: []
-  IgnoredPatterns: []
+  AllowedPatterns: []
   IncludedMacros: []
   AllowParenthesesInMultilineCall: false
   AllowParenthesesInChaining: false
@@ -4505,8 +4504,28 @@ Style/YodaCondition:
 # Supports --auto-correct
 Style/ZeroLengthPredicate:
   Description: 'Use #empty? when testing for objects of length 0.'
-  Enabled: false
+  Enabled: true
   Safe: false
   VersionAdded: '0.37'
   VersionChanged: '0.39'
 
+Naming/BlockForwarding: # new in 1.24
+  Enabled: true
+Security/CompoundHash: # new in 1.28
+  Enabled: true
+Style/FetchEnvVar: # new in 1.28
+  Enabled: true
+Style/FileRead: # new in 1.24
+  Enabled: true
+Style/FileWrite: # new in 1.24
+  Enabled: true
+Style/MapToHash: # new in 1.24
+  Enabled: true
+Style/NestedFileDirname: # new in 1.26
+  Enabled: true
+Style/ObjectThen: # new in 1.28
+  Enabled: true
+Style/RedundantInitialize: # new in 1.27
+  Enabled: true
+Lint/RefinementImportMethods: # new in 1.27
+  Enabled: true
