@@ -144,6 +144,7 @@ Layout/AccessModifierIndentation:
   SupportedStyles:
   - outdent
   - indent
+  IndentationWidth:
 
 # Supports --auto-correct
 Layout/ArgumentAlignment:
@@ -156,6 +157,7 @@ Layout/ArgumentAlignment:
   SupportedStyles:
   - with_first_argument
   - with_fixed_indentation
+  IndentationWidth:
 
 # Supports --auto-correct
 Layout/ArrayAlignment:
@@ -168,6 +170,7 @@ Layout/ArrayAlignment:
   SupportedStyles:
   - with_first_element
   - with_fixed_indentation
+  IndentationWidth:
 
 # Supports --auto-correct
 Layout/AssignmentIndentation:
@@ -176,6 +179,7 @@ Layout/AssignmentIndentation:
   Enabled: false
   VersionAdded: '0.49'
   VersionChanged: '0.77'
+  IndentationWidth:
 
 # Supports --auto-correct
 Layout/BeginEndAlignment:
@@ -217,6 +221,7 @@ Layout/CaseIndentation:
   - case
   - end
   IndentOneStep: false
+  IndentationWidth:
 
 # Supports --auto-correct
 Layout/ClassStructure:
@@ -254,7 +259,9 @@ Layout/ClosingParenthesisIndentation:
 Layout/CommentIndentation:
   Description: Indentation of comments.
   Enabled: true
+  AllowForAlignment: false
   VersionAdded: '0.49'
+  VersionChanged: '1.24'
 
 # Supports --auto-correct
 Layout/ConditionPosition:
@@ -469,6 +476,18 @@ Layout/ExtraSpacing:
   ForceEqualSignAlignment: false
 
 # Supports --auto-correct
+Layout/FirstArgumentIndentation:
+  Description: Checks the indentation of the first parameter in a method definition.
+  Enabled: true
+  VersionAdded: '0.49'
+  VersionChanged: '0.77'
+  EnforcedStyle: consistent
+  SupportedStyles:
+  - consistent
+  - align_parentheses
+  IndentationWidth:
+
+# Supports --auto-correct
 Layout/FirstArrayElementIndentation:
   Description: Checks the indentation of the first element in an array literal.
   Enabled: true
@@ -479,6 +498,7 @@ Layout/FirstArrayElementIndentation:
   - special_inside_parentheses
   - consistent
   - align_brackets
+  IndentationWidth:
 
 # Supports --auto-correct
 Layout/FirstArrayElementLineBreak:
@@ -497,6 +517,7 @@ Layout/FirstHashElementIndentation:
   - special_inside_parentheses
   - consistent
   - align_braces
+  IndentationWidth:
 
 # Supports --auto-correct
 Layout/FirstHashElementLineBreak:
@@ -519,7 +540,7 @@ Layout/FirstMethodParameterLineBreak:
   VersionAdded: '0.49'
 
 # Supports --auto-correct
-Layout/FirstArgumentIndentation:
+Layout/FirstParameterIndentation:
   Description: Checks the indentation of the first parameter in a method definition.
   Enabled: true
   VersionAdded: '0.49'
@@ -528,6 +549,7 @@ Layout/FirstArgumentIndentation:
   SupportedStyles:
   - consistent
   - align_parentheses
+  IndentationWidth:
 
 # Supports --auto-correct
 Layout/HashAlignment:
@@ -589,6 +611,7 @@ Layout/IndentationStyle:
   Enabled: true
   VersionAdded: '0.49'
   VersionChanged: '0.82'
+  IndentationWidth:
   EnforcedStyle: spaces
   SupportedStyles:
   - spaces
@@ -602,6 +625,7 @@ Layout/IndentationWidth:
   VersionAdded: '0.49'
   Width: 2
   AllowedPatterns: []
+  IgnoredPatterns: []
 
 # Supports --auto-correct
 Layout/InitialIndentation:
@@ -636,7 +660,6 @@ Layout/LineEndStringConcatenationIndentation:
   SupportedStyles:
   - aligned
   - indented
-  IndentationWidth:
 
 # Supports --auto-correct
 Layout/LineLength:
@@ -653,6 +676,7 @@ Layout/LineLength:
   - https
   IgnoreCopDirectives: true
   AllowedPatterns: []
+  IgnoredPatterns: []
   AutoCorrect: true
 
 # Supports --auto-correct
@@ -747,6 +771,7 @@ Layout/MultilineMethodCallIndentation:
   - aligned
   - indented
   - indented_relative_to_receiver
+  IndentationWidth:
 
 # Supports --auto-correct
 Layout/MultilineMethodDefinitionBraceLayout:
@@ -769,6 +794,7 @@ Layout/MultilineOperationIndentation:
   SupportedStyles:
   - aligned
   - indented
+  IndentationWidth:
 
 # Supports --auto-correct
 Layout/ParameterAlignment:
@@ -782,6 +808,7 @@ Layout/ParameterAlignment:
   SupportedStyles:
   - with_first_parameter
   - with_fixed_indentation
+  IndentationWidth:
 
 # Supports --auto-correct
 Layout/RedundantLineBreak:
@@ -1068,7 +1095,7 @@ Layout/TrailingWhitespace:
   VersionChanged: '1.0'
   AllowInHeredoc: false
 
-# Department 'Lint' (126):
+# Department 'Lint' (127):
 Lint/AmbiguousAssignment:
   Description: Checks for mistyped shorthand assignments.
   Enabled: false
@@ -1170,6 +1197,7 @@ Lint/Debugger:
   Enabled: false
   VersionAdded: '0.14'
   VersionChanged: '1.10'
+  DebuggerReceivers: []
   DebuggerMethods:
     Kernel:
     - binding.irb
@@ -1278,10 +1306,13 @@ Lint/DuplicateRegexpCharacterClassElement:
   Enabled: false
   VersionAdded: '1.1'
 
+# Supports --auto-correct
 Lint/DuplicateRequire:
   Description: Check for duplicate `require`s and `require_relative`s.
   Enabled: false
+  SafeAutoCorrect: false
   VersionAdded: '0.90'
+  VersionChanged: '1.28'
 
 Lint/DuplicateRescueException:
   Description: Checks that there are no repeated exceptions used in `rescue` expressions.
@@ -1427,7 +1458,9 @@ Lint/ImplicitStringConcatenation:
 Lint/IncompatibleIoSelectWithFiberScheduler:
   Description: Checks for `IO.select` that is incompatible with Fiber Scheduler.
   Enabled: false
+  SafeAutoCorrect: false
   VersionAdded: '1.21'
+  VersionChanged: '1.24'
 
 Lint/IneffectiveAccessModifier:
   Description: Checks for attempts to use `private` or `protected` to set the visibility
@@ -1439,7 +1472,9 @@ Lint/IneffectiveAccessModifier:
 Lint/InheritException:
   Description: Avoid inheriting from the `Exception` class.
   Enabled: false
+  SafeAutoCorrect: false
   VersionAdded: '0.41'
+  VersionChanged: '1.26'
   EnforcedStyle: runtime_error
   SupportedStyles:
   - runtime_error
@@ -1635,6 +1670,8 @@ Lint/RedundantDirGlobSort:
   Description: Checks for redundant `sort` method to `Dir.glob` and `Dir[]`.
   Enabled: false
   VersionAdded: '1.8'
+  VersionChanged: '1.26'
+  SafeAutoCorrect: false
 
 # Supports --auto-correct
 Lint/RedundantRequireStatement:
@@ -1683,6 +1720,13 @@ Lint/RedundantWithObject:
   Description: Checks for redundant `with_object`.
   Enabled: false
   VersionAdded: '0.51'
+
+Lint/RefinementImportMethods:
+  Description: Use `Refinement#import_methods` when using `include` or `prepend` in
+    `refine` block.
+  Enabled: true
+  SafeAutoCorrect: false
+  VersionAdded: '1.27'
 
 # Supports --auto-correct
 Lint/RegexpAsCondition:
@@ -1898,6 +1942,7 @@ Lint/UnreachableLoop:
   VersionChanged: '1.7'
   AllowedPatterns:
   - !ruby/regexp /(exactly|at_least|at_most)\(\d+\)\.times/
+  IgnoredPatterns: []
 
 # Supports --auto-correct
 Lint/UnusedBlockArgument:
@@ -1960,6 +2005,7 @@ Lint/UselessMethodDefinition:
   Description: Checks for useless method definitions.
   Enabled: true
   VersionAdded: '0.90'
+  VersionChanged: '0.91'
   Safe: false
 
 Lint/UselessRuby2Keywords:
@@ -2011,6 +2057,7 @@ Metrics/BlockLength:
   CountComments: false
   Max: 25
   CountAsOne: []
+  ExcludedMethods: []
   IgnoredMethods:
   - refine
   Exclude: []
@@ -2051,6 +2098,7 @@ Metrics/MethodLength:
   CountComments: false
   Max: 10
   CountAsOne: []
+  ExcludedMethods: []
   IgnoredMethods: []
 
 Metrics/ModuleLength:
@@ -2088,7 +2136,7 @@ Migration/DepartmentName:
   Enabled: false
   VersionAdded: '0.75'
 
-# Department 'Naming' (17):
+# Department 'Naming' (18):
 Naming/AccessorMethodName:
   Description: Check the naming of accessor methods for get_/set_.
   StyleGuide: "#accessor_mutator_method_names"
@@ -2110,6 +2158,18 @@ Naming/BinaryOperatorParameterName:
   Enabled: true
   VersionAdded: '0.50'
   VersionChanged: '1.2'
+
+# Supports --auto-correct
+Naming/BlockForwarding:
+  Description: Use anonymous block forwarding.
+  StyleGuide: "#block-forwarding"
+  Enabled: true
+  VersionAdded: '1.24'
+  EnforcedStyle: anonymous
+  SupportedStyles:
+  - anonymous
+  - explicit
+  BlockForwardingName: block
 
 Naming/BlockParameterName:
   Description: Checks for block parameter names that contain capital letters, end in
@@ -2151,6 +2211,7 @@ Naming/FileName:
   - spec
   - test
   - src
+  Regex:
   IgnoreExecutableScripts: true
   AllowedAcronyms:
   - CLI
@@ -2266,6 +2327,7 @@ Naming/MethodName:
   - snake_case
   - camelCase
   AllowedPatterns: []
+  IgnoredPatterns: []
 
 Naming/MethodParameterName:
   Description: Checks for method parameter names that contain capital letters, end in
@@ -2352,7 +2414,13 @@ Naming/VariableNumber:
   - rfc2822
   - rfc3339
 
-# Department 'Security' (6):
+# Department 'Security' (7):
+Security/CompoundHash:
+  Description: When overwriting Object#hash to combine values, prefer delegating to
+    Array#hash over writing a custom implementation.
+  Enabled: true
+  VersionAdded: '1.28'
+
 Security/Eval:
   Description: The use of eval represents a serious security risk.
   Enabled: false
@@ -2401,7 +2469,7 @@ Security/YAMLLoad:
   VersionAdded: '0.47'
   SafeAutoCorrect: false
 
-# Department 'Style' (220):
+# Department 'Style' (227):
 Style/AccessModifierDeclarations:
   Description: Checks style of how access modifiers are used.
   Enabled: false
@@ -2480,7 +2548,7 @@ Style/AsciiComments:
   VersionAdded: '0.9'
   VersionChanged: '0.52'
   AllowedChars:
-  - "-∩┐╜"
+  - "-G�G��G�"
 
 # Supports --auto-correct
 Style/Attr:
@@ -2976,6 +3044,29 @@ Style/ExponentialNotation:
   - integral
 
 # Supports --auto-correct
+Style/FetchEnvVar:
+  Description: This cop suggests `ENV.fetch` for the replacement of `ENV[]`.
+  Reference:
+  - https://rubystyle.guide/#hash-fetch-defaults
+  Enabled: true
+  VersionAdded: '1.28'
+  AllowedVars: []
+
+# Supports --auto-correct
+Style/FileRead:
+  Description: Favor `File.(bin)read` convenience methods.
+  StyleGuide: "#file-read"
+  Enabled: true
+  VersionAdded: '1.24'
+
+# Supports --auto-correct
+Style/FileWrite:
+  Description: Favor `File.(bin)write` convenience methods.
+  StyleGuide: "#file-write"
+  Enabled: true
+  VersionAdded: '1.24'
+
+# Supports --auto-correct
 Style/FloatDivision:
   Description: For performing float division, coerce one side only.
   StyleGuide: "#float-division"
@@ -2996,6 +3087,7 @@ Style/For:
   Description: Checks use of for or each in multiline loops.
   StyleGuide: "#no-for-loops"
   Enabled: false
+  SafeAutoCorrect: false
   VersionAdded: '0.13'
   VersionChanged: '0.59'
   EnforcedStyle: each
@@ -3066,6 +3158,7 @@ Style/GuardClause:
   VersionAdded: '0.20'
   VersionChanged: '0.22'
   MinBodyLength: 1
+  AllowConsecutiveConditionals: false
 
 # Supports --auto-correct
 Style/HashAsLastArrayItem:
@@ -3126,6 +3219,11 @@ Style/HashSyntax:
   - hash_rockets
   - no_mixed_keys
   - ruby19_no_mixed_keys
+  EnforcedShorthandSyntax: always
+  SupportedShorthandSyntax:
+  - always
+  - never
+  - either
   UseHashRocketsWithSymbolValues: false
   PreferHashRocketsForNonAlnumEndingSymbols: false
 
@@ -3292,6 +3390,13 @@ Style/LineEndConcatenation:
   VersionChanged: '0.64'
 
 # Supports --auto-correct
+Style/MapToHash:
+  Description: Prefer `to_h` with a block over `map.to_h`.
+  Enabled: true
+  VersionAdded: '1.24'
+  Safe: false
+
+# Supports --auto-correct
 Style/MethodCallWithArgsParentheses:
   Description: Use parentheses for method calls with arguments.
   StyleGuide: "#method-invocation-parens"
@@ -3301,6 +3406,7 @@ Style/MethodCallWithArgsParentheses:
   IgnoreMacros: true
   IgnoredMethods: []
   AllowedPatterns: []
+  IgnoredPatterns: []
   IncludedMacros: []
   AllowParenthesesInMultilineCall: false
   AllowParenthesesInChaining: false
@@ -3519,6 +3625,12 @@ Style/NegatedWhile:
   VersionAdded: '0.20'
 
 # Supports --auto-correct
+Style/NestedFileDirname:
+  Description: Checks for nested `File.dirname`.
+  Enabled: true
+  VersionAdded: '1.26'
+
+# Supports --auto-correct
 Style/NestedModifier:
   Description: Avoid using nested modifiers.
   StyleGuide: "#no-nested-modifiers"
@@ -3643,6 +3755,7 @@ Style/NumericLiterals:
   VersionChanged: '0.48'
   MinDigits: 5
   Strict: false
+  AllowedNumbers: []
 
 # Supports --auto-correct
 Style/NumericPredicate:
@@ -3659,6 +3772,17 @@ Style/NumericPredicate:
   - comparison
   IgnoredMethods: []
   Exclude: []
+
+# Supports --auto-correct
+Style/ObjectThen:
+  Description: Enforces the use of consistent method names `Object#yield_self` or `Object#then`.
+  StyleGuide: "#object-yield-self-vs-object-then"
+  Enabled: true
+  VersionAdded: '1.28'
+  EnforcedStyle: then
+  SupportedStyles:
+  - then
+  - yield_self
 
 # Supports --auto-correct
 Style/OneLineConditional:
@@ -3899,6 +4023,15 @@ Style/RedundantFreeze:
   VersionChanged: '0.66'
 
 # Supports --auto-correct
+Style/RedundantInitialize:
+  Description: Checks for redundant `initialize` methods.
+  Enabled: true
+  Safe: false
+  AllowComments: true
+  VersionAdded: '1.27'
+  VersionChanged: '1.28'
+
+# Supports --auto-correct
 Style/RedundantInterpolation:
   Description: Checks for strings that are just an interpolated expression.
   Enabled: false
@@ -4033,6 +4166,7 @@ Style/SafeNavigation:
   - try
   - try!
   SafeAutoCorrect: false
+  MaxChainLength: 2
 
 # Supports --auto-correct
 Style/Sample:
@@ -4285,6 +4419,7 @@ Style/SymbolProc:
   IgnoredMethods:
   - respond_to
   - define_method
+  AllowComments: false
 
 # Supports --auto-correct
 Style/TernaryParentheses:
@@ -4500,23 +4635,3 @@ Style/ZeroLengthPredicate:
   VersionAdded: '0.37'
   VersionChanged: '0.39'
 
-Naming/BlockForwarding: # new in 1.24
-  Enabled: true
-Security/CompoundHash: # new in 1.28
-  Enabled: true
-Style/FetchEnvVar: # new in 1.28
-  Enabled: true
-Style/FileRead: # new in 1.24
-  Enabled: true
-Style/FileWrite: # new in 1.24
-  Enabled: true
-Style/MapToHash: # new in 1.24
-  Enabled: true
-Style/NestedFileDirname: # new in 1.26
-  Enabled: true
-Style/ObjectThen: # new in 1.28
-  Enabled: true
-Style/RedundantInitialize: # new in 1.27
-  Enabled: true
-Lint/RefinementImportMethods: # new in 1.27
-  Enabled: true

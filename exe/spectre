@@ -300,13 +300,12 @@ if 'run' == action
   # Initialize logger
   now = Time.now
 
-  cfg['log_file'] = cfg['log_file'].frmt(
-{
-  shortdate: now.strftime('%Y-%m-%d'),
-  date: now.strftime('%Y-%m-%d_%H%M%S'),
-  timestamp: now.strftime('%s'),
-  subject: 'spectre',
-})
+  cfg['log_file'] = cfg['log_file'].frmt({
+    shortdate: now.strftime('%Y-%m-%d'),
+    date: now.strftime('%Y-%m-%d_%H%M%S'),
+    timestamp: now.strftime('%s'),
+    subject: 'spectre',
+  })
 
   log_dir = File.dirname cfg['log_file']
   FileUtils.makedirs log_dir unless Dir.exists? log_dir
