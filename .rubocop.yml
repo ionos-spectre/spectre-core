@@ -222,7 +222,7 @@ Layout/CaseIndentation:
 Layout/ClassStructure:
   Description: Enforces a configured order of definitions within a class body.
   StyleGuide: "#consistent-classes"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.52'
   Categories:
     module_inclusion:
@@ -247,7 +247,7 @@ Layout/ClosingHeredocIndentation:
 # Supports --auto-correct
 Layout/ClosingParenthesisIndentation:
   Description: Checks the indentation of hanging closing parentheses.
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.49'
 
 # Supports --auto-correct
@@ -260,7 +260,7 @@ Layout/CommentIndentation:
 Layout/ConditionPosition:
   Description: Checks for condition placed in a confusing position relative to the keyword.
   StyleGuide: "#same-line-condition"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.53'
   VersionChanged: '0.83'
 
@@ -311,7 +311,7 @@ Layout/EmptyLineAfterGuardClause:
 Layout/EmptyLineAfterMagicComment:
   Description: Add an empty line after magic comments to separate them from code.
   StyleGuide: "#separate-magic-comments-from-code"
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.49'
 
 # Supports --auto-correct
@@ -358,7 +358,7 @@ Layout/EmptyLinesAroundAccessModifier:
 # Supports --auto-correct
 Layout/EmptyLinesAroundArguments:
   Description: Keeps track of empty lines around method arguments.
-  Enabled: false
+  Enabled: true
   VersionAdded: '0.52'
 
 # Supports --auto-correct
