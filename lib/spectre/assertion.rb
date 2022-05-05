@@ -194,10 +194,6 @@ module Spectre
     end
 
     class OrEvaluation < Evaluation
-      def initialize value, other
-        super(value, other)
-      end
-
       def call predicate
         eval_assertion(predicate, @value) or eval_assertion(predicate, @other)
       end
@@ -208,10 +204,6 @@ module Spectre
     end
 
     class AndEvaluation < Evaluation
-      def initialize value, other
-        super(value, other)
-      end
-
       def call predicate
         eval_assertion(predicate, @value) and eval_assertion(predicate, @other)
       end

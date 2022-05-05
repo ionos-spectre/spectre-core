@@ -19,15 +19,15 @@ module Spectre::Reporter
 
       suite_id = 0
 
-      run_infos.group_by { |x| x.spec.subject }.each do |subject, run_infos|
-        failures = run_infos.select { |x| x.failure != nil }
-        errors = run_infos.select { |x| x.error != nil }
-        skipped = run_infos.select { |x| x.skipped? }
+      run_infos.group_by { |x| x.spec.subject }.each do |subject, info_group|
+        failures = info_group.select { |x| x.failure != nil }
+        errors = info_group.select { |x| x.error != nil }
+        skipped = info_group.select { |x| x.skipped? }
 
         xml_str += '<testsuite package="' + CGI::escapeHTML(subject.desc) + '" id="' + CGI::escapeHTML(suite_id.to_s) + '" name="' + CGI::escapeHTML(subject.desc) + '" timestamp="' + datetime + '" tests="' + run_infos.count.to_s + '" failures="' + failures.count.to_s + '" errors="' + errors.count.to_s + '" skipped="' + skipped.count.to_s + '">'
         suite_id += 1
 
-        run_infos.each do |run_info|
+        info_group.each do |run_info|
           xml_str += '<testcase classname="' + CGI::escapeHTML(run_info.spec.file.to_s) + '" name="' + CGI::escapeHTML(run_info.spec.desc) + '" timestamp="' + run_info.started.to_s + '"  time="' + ('%.3f' % run_info.duration) + '">'
 
           if run_info.failure and !run_info.failure.cause
@@ -94,9 +94,7 @@ module Spectre::Reporter
 
       file_path = File.join(@config['out_path'], "spectre-junit_#{timestamp}.xml")
 
-      File.open(file_path, 'w') do |file|
-        file.write(xml_str)
-      end
+      File.write(file_path, xml_str)
     end
   end
 end

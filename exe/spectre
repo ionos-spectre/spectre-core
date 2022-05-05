@@ -79,20 +79,20 @@ DEFAULT_CONFIG = {
 cmd_options = {}
 property_overrides = {}
 
-opt_parser = OptionParser.new do |opts|
-opts.banner = %{Spectre #{Spectre::VERSION}
+OptionParser.new do |opts|
+  opts.banner = %{Spectre #{Spectre::VERSION}
 
-Usage: spectre [command] [options]
+  Usage: spectre [command] [options]
 
-Commands:
-  list        List specs
-  run         Run specs (default)
-  show        Print current environment settings
-  dump        Dumps the given environment in YAML format to console
-  cleanup     Will remove all generated files (e.g. logs and reports)
-  init        Initializes a new spectre project
+  Commands:
+    list        List specs
+    run         Run specs (default)
+    show        Print current environment settings
+    dump        Dumps the given environment in YAML format to console
+    cleanup     Will remove all generated files (e.g. logs and reports)
+    init        Initializes a new spectre project
 
-Specific options:}
+  Specific options:}
 
   opts.on('-s SPEC,SPEC', '--specs SPEC,SPEC', Array, 'The specs to run') do |specs|
     cmd_options['specs'] = specs

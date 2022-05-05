@@ -27,9 +27,6 @@ module Spectre
     @@modules = []
 
     class HttpError < Exception
-      def initialize message
-        super message
-      end
     end
 
     class SpectreHttpRequest < Spectre::DslClass

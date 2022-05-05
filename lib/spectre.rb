@@ -10,7 +10,7 @@ module Spectre
 
   class ::Hash
     def deep_merge!(second)
-      merger = proc { |key, v1, v2| Hash === v1 && Hash === v2 ? v1.merge!(v2, &merger) : v2 }
+      merger = proc { |_key, v1, v2| Hash === v1 && Hash === v2 ? v1.merge!(v2, &merger) : v2 }
       self.merge!(second, &merger)
     end
 
@@ -34,9 +34,6 @@ module Spectre
 
 
   class SpectreError < Exception
-    def initialize message
-      super message
-    end
   end
 
   class ExpectationFailure < Exception
@@ -49,9 +46,6 @@ module Spectre
   end
 
   class SpectreSkip < Interrupt
-    def initialize message
-      super message
-    end
   end
 
 
@@ -154,11 +148,11 @@ module Spectre
     def run specs
       runs = []
 
-      specs.group_by { |x| x.subject }.each do |subject, spec_group|
+      specs.group_by { |x| x.subject }.each do |subject, subject_specs|
         Logger.log_subject subject do
-          spec_group.group_by { |x| x.context }.each do |context, specs|
+          subject_specs.group_by { |x| x.context }.each do |context, context_specs|
             Logger.log_context(context) do
-              runs.concat run_context(context, specs)
+              runs.concat run_context(context, context_specs)
             end
           end
         end
