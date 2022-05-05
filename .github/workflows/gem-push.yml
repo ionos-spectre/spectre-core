@@ -1,11 +1,7 @@
 name: Ruby Gem
 
 on:
-  # Manually publish
-  workflow_dispatch:
   push:
-    branches:
-      - main
     tags:
       - 'v*.*.*'
 
