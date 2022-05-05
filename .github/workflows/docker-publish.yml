@@ -1,11 +1,14 @@
 name: Docker
 
 on:
+  # Manually publish
+  workflow_dispatch:
   push:
-    branches: 
+    branches:
       - main
     # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
+    tags:
+      - 'v*.*.*'
 
 env:
   REGISTRY: docker.io
