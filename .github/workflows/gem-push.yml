@@ -1,10 +1,12 @@
 name: Ruby Gem
 
 on:
+  # Manually publish
+  workflow_dispatch:
   push:
-    branches: 
+    branches:
       - main
-    tags: 
+    tags:
       - v*
 
 jobs:
