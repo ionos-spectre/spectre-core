@@ -33,7 +33,7 @@ jobs:
           DOCKER_TOKEN: "${{secrets.DOCKER_TOKEN}}"
 
       - name: Docker Build
-        run: docker -t cneubauer/spectre .
+        run: docker build -t cneubauer/spectre .
 
       - name: Docker Push
         run: docker push cneubauer/spectre
