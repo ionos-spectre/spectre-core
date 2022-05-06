@@ -179,6 +179,12 @@ log_format:
     end_group: "-- End '<desc>'"
 debug: true
 out_path: "./reports"
+secure_keys:
+  - password
+  - secret
+  - token
+  - secure
+  - authorization
 spec_patterns:
   - "**/*.spec.rb"
 mixin_patterns:
@@ -724,6 +730,56 @@ Spooky
 ```
 
 
+## Filtering specs
+
+When listing or running specs, you might want to run only one or a specific set of specs. This can be done either by providing specific spec IDs, which can be listed by `spectre list`
+
+```
+$ spectre list
+[spooky-1] Spooky always has the right answer #simple
+[spooky-2] Spooky does some strange things in the neighbourhood #scary
+[spooky-3] Spooky only scares some people #scary #dangerous
+```
+
+and passed with
+
+```
+$ spectre -s spooky-1,spooky-2
+```
+
+It is also possible to filter specs by tags
+
+```
+$ spectre -t scary,simple
+```
+
+This will run all specs with tag `scary` **or** `simple`.
+
+```
+$ spectre -t scary+dangerous
+```
+
+This will run all specs with tag `scary` **and** `dangerous`.
+
+```
+$ spectre -t scary+!dangerous
+```
+
+This will run all specs with tag `scary` and **not** `dangerous`.
+
+```
+$ spectre -t scary+!dangerous,simple
+```
+
+This will run all specs with tag `scary` and **not** `dangerous`, or with tag `simple`
+
+If you want to run spec in a specific file, you can override the `spec_patterns` with
+
+```
+$ spectre --spec-pattern path/to/some.spec.rb
+```
+
+
 ## Advanced writing specs
 
 Your project could consist of hundreds and thousand of *specs*. In order to easier maintain your project, it is recommended to place *specs* of a *subject* in different `*.spec.rb` files and folders, grouped by a specific context. A *subject* can be described in multiple files.
@@ -824,12 +880,20 @@ You can set the following properties in the `http` block:
 | Method | Arguments | Multiple | Description |
 | -------| ----------| -------- | ----------- |
 | `method` | `string` | no | The HTTP request method to use. Usually one of `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`, `HEAD` |
+| `url` | `string` | no | Overrides the `base_url` for the HTTP request |
 | `param` | `string`,`string` | yes | Adds a query parameter to the request |
+| `path` | `string` | no | The URL path to request |
 | `json` | `Hash` | no | Adds the given hash as json and sets content type to `application/json` |
+| `body` | `string` | no | The request body to send |
 | `header` | `string`,`string` | yes | Adds a header to the request |
 | `content_type` | `string` | no | Sets the `Content-Type` header to the given value |
 | `ensure_success!` | | no | Will raise an error, when the response code does not indicate success (codes >= 400). |
 | `auth` | `string` | no | The given authentication module will be used. Currently `basic_auth` and `keystone` are available. |
+| `timeout` | `integer` | no | The request timeout in seconds |
+| `retried` | `integer` | no | Internal request retry after timeout |
+| `no_auth!` | `bool` | no | Deactivates the configured auth method |
+| `certificate` | `string` | no | The file path to the certificate to use for request validation |
+| `use_ssl!` | `bool` | no | Enables HTTPS |
 
 
 Access the response with the `response` function. This returns an object with the following properties:
@@ -939,7 +1003,7 @@ There are some helper methods for various use cases
 | `uuid(length=5)` | `Kernel` | Generates a UUID and returns characters with given length. Default is 5. |
 | `pick` | `String`, `Hash`, `OpenStruct` | Applies a JsonPath to the data and returns the value. For more information about JsonPath see https://goessner.net/articles/JsonPath/ |
 | `first_element` | _none_ | Returns the first element of a list. Was implemented to be consistent with `last_element` |
-
+| `last_element` | _none_ | Returns the last element of a list. Was implemented, because some Ruby libraries override `Array.last`, which caused some issues. |
 
 
 ### Resources `spectre/resources`
@@ -1030,7 +1094,7 @@ Like every ruby block or function, a mixin has a return value (the last expressi
 If the return value is a `Hash`, it will be converted to an `OpenStruct` for better value access.
 
 ```ruby
-mixin 'do some spooky stuff' do
+mixin 'spooky stuff' do
   # spook around
 
   { say: 'Boo!' }
@@ -1042,7 +1106,7 @@ This can be used like that:
 ```ruby
 describe 'Hollow API' do
   it 'is scary' do
-    result = run 'do some spooky stuff'
+    result = run 'spooky stuff'
 
     expect 'some spooky things' do
       result.say.should_be 'Boo!'
