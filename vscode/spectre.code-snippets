@@ -1,351 +1,380 @@
 {
-	"Do HTTP request": {
-		"scope": "ruby",
-		"prefix": "http",
-		"description": "Do a request to a specified HTTP endpoint",
-		"body": [
-			"http '$1' do",
-			"\tmethod '${2:GET}'",
-			"\tpath '$3'",
-			"end",
-			"$0"
-		]
-	},
-	"Do HTTP request with status code": {
-		"scope": "ruby",
-		"prefix": "http strict",
-		"description": "Do HTTP request and expect a specific response code",
-		"body": [
-			"http '$1' do",
-			"\tmethod '${2:|GET,POST,DELETE,PUT,PATCH,OPTION,HEAD|}'",
-			"\tpath '$3'",
-			"\tensure_success!",
-			"end",
-			"$0"
-		]
-	},
-	"Configure simple HTTP client": {
-		"scope": "yaml",
-		"prefix": "http",
-		"description": "Configure a simple spectre HTTP client",
-		"body": [
-			"$1:",
-			"\tbase_url: http://$2",
-		]
-	},
-	"Configure HTTPS client": {
-		"scope": "yaml",
-		"prefix": "https",
-		"description": "Configure a spectre HTTPS client",
-		"body": [
-			"$1:",
-			"\tbase_url: https://$2",
-			"\t# cert: *cert"
-		]
-	},
-	"Configure HTTPS client with basic auth": {
-		"scope": "yaml",
-		"prefix": "https basic",
-		"description": "Configure a spectre HTTPS client with basic authentication",
-		"body": [
-			"$1:",
-			"\tbase_url: http://$2",
-			"\t# cert: *cert",
-			"\tbasic_auth:",
-			"\t\tusername: ",
-			"\t\tpassword: "
-		]
-	},
-	"Configure HTTPS client with Keystone auth": {
-		"scope": "yaml",
-		"prefix": "https keystone",
-		"description": "Configure a spectre HTTP client with keystone authentication",
-		"body": [
-			"$1:",
-			"\tbase_url: https://$2",
-			"\t# cert: *cert",
-			"\tkeystone: ",
-			"\t\turl: https://",
-			"\t\tusername: ",
-			"\t\tpassword: ",
-			"\t\tproject: ",
-			"\t\tdomain: ",
-			"\t\t# cert: *cert"
-		]
-	},
-	"Show full HTTP options": {
-		"scope": "ruby",
-		"prefix": "http full",
-		"description": "Do a request to a specified HTTP endpoint",
-		"body": [
-			"http '$1' do",
-			"\t# auth 'basic_auth'",
-			"\t# auth 'keystone'",
-			"\tmethod '${2:GET}'",
-			"\tpath '$3'",
-			"\t# param 'foo', 'bar'",
-			"\t# header 'X-Correlation-Id', ''",
-			"\t# json({",
-			"\t# \t\"message\": \"Hello Spectre!\"",
-			"\t# })",
-			"end",
-			"$0"
-		]
-	},
-	"Expect": {
-		"scope": "ruby",
-		"prefix": "expect",
-		"description": "Expect something",
-		"body": [
-			"expect '$1' do",
-			"\t$2.should_be $3",
-			"end",
-			"$0"
-		]
-	},
-	"Should be": {
-		"scope": "ruby",
-		"prefix": "should be",
-		"description": "Expect a value to be",
-		"body": [
-			"expect '$1' do",
-			"\t$2.should_be $3",
-			"end",
-			"$0"
-		]
-	},
-	"Should not be": {
-		"scope": "ruby",
-		"prefix": "should not be",
-		"description": "Expect a value not to be",
-		"body": [
-			"expect '$1' do",
-			"\t$2.should_not_be $3",
-			"end",
-			"$0"
-		]
-	},
-	"Should contain": {
-		"scope": "ruby",
-		"prefix": "should contain",
-		"description": "Expect a value to contain",
-		"body": [
-			"expect '$1' do",
-			"\t$2.should_contain $3",
-			"end",
-			"$0"
-		]
-	},
-	"Should not contain": {
-		"scope": "ruby",
-		"prefix": "should not contain",
-		"description": "Expect a value not to contain",
-		"body": [
-			"expect '$1' do",
-			"\t$2.should_not_contain $3",
-			"end",
-			"$0"
-		]
-	},
-	"Should match": {
-		"scope": "ruby",
-		"prefix": "should match",
-		"description": "Expect a value to match",
-		"body": [
-			"expect '$1' do",
-			"\t$2.should_match $3",
-			"end",
-			"$0"
-		]
-	},
-	"Should not match": {
-		"scope": "ruby",
-		"prefix": "should not match",
-		"description": "Expect a value not to match",
-		"body": [
-			"expect '$1' do",
-			"\t$2.should_not_match $3",
-			"end",
-			"$0"
-		]
-	},
-	"Expect a response code": {
-		"scope": "ruby",
-		"prefix": "expect response",
-		"description": "Expect a specific response code",
-		"body": [
-			"expect 'the response code to be $1' do",
-			"\tresponse.code.should_be $1",
-			"end",
-			"$0"
-		]
-	},
-	"Expect a json property": {
-		"scope": "ruby",
-		"prefix": "expect json property",
-		"description": "Expect a specified json value",
-		"body": [
-			"expect '$1' do",
-			"\tresponse.json.$2.should_be $3",
-			"end",
-			"$0"
-		]
-	},
-	"Describe a feature": {
-		"scope": "ruby",
-		"prefix": "it",
-		"description": "Describe a feature in an 'it' block",
-		"body": [
-			"it '$1', tags: [$2] do",
-			"\t$0",
-			"end"
-		]
-	},
-	"Describe a subject": {
-		"scope": "ruby",
-		"prefix": "describe",
-		"description": "Describe a spectre subject",
-		"body": [
-			"describe '$1' do",
-			"\tit '$2', tags: [$3] do",
-			"\t\t$0",
-			"\tend",
-			"end"
-		]
-	},
-	"Setup": {
-		"scope": "ruby",
-		"prefix": "setup",
-		"description": "Create a 'setup' block",
-		"body": [
-			"setup do",
-			"\t$0",
-			"end"
-		]
-	},
-	"Teardown": {
-		"scope": "ruby",
-		"prefix": "teardown",
-		"description": "Create a 'teardown' block",
-		"body": [
-			"teardown do",
-			"\t$0",
-			"end"
-		]
-	},
-	"Before spec": {
-		"scope": "ruby",
-		"prefix": "before",
-		"description": "Create a 'before' block",
-		"body": [
-			"before do",
-			"\t$0",
-			"end"
-		]
-	},
-	"After spec": {
-		"scope": "ruby",
-		"prefix": "after",
-		"description": "Create a 'after' block",
-		"body": [
-			"after do",
-			"\t$0",
-			"end"
-		]
-	},
-	"Configure SSH client": {
-		"scope": "yaml",
-		"prefix": "ssh",
-		"description": "Configure a spectre SSH client",
-		"body": [
-			"$1:",
-			"\thost: $2",
-			"\tusername: $3",
-			"\tpassword: $4"
-		]
-	},
-	"Execute SSH command": {
-		"scope": "ruby",
-		"prefix": "ssh",
-		"description": "Execute a SSH command with configured client",
-		"body": [
-			"ssh '$1' do",
-			"\t$0",
-			"end"
-		]
-	},
-	"Execute SSH command with credentials": {
-		"scope": "ruby",
-		"prefix": "ssh",
-		"description": "Execute a SSH command with configured client",
-		"body": [
-			"ssh '$1', username: $3, password: $4 do",
-			"\t$0",
-			"end"
-		]
-	},
-	"Log message": {
-		"scope": "ruby",
-		"prefix": "log",
-		"description": "Log info message",
-		"body": [
-			"log '$1'",
-			"",
-			"$0"
-		]
-	},
-	"Info message": {
-		"scope": "ruby",
-		"prefix": "info",
-		"description": "Log info message",
-		"body": [
-			"info '$1'",
-			"",
-			"$0"
-		]
-	},
-	"Debug message": {
-		"scope": "ruby",
-		"prefix": "debug",
-		"description": "Log debug message",
-		"body": [
-			"debug '$1'",
-			"",
-			"$0"
-		]
-	},
-	"Observe operation": {
-		"scope": "ruby",
-		"prefix": "debug",
-		"description": "Observe a operation",
-		"body": [
-			"observe '$1' do",
-			"\t$0",
-			"end"
-		]
-	},
-	"Execute MySQL query": {
-		"scope": "ruby",
-		"prefix": "debug",
-		"description": "Execute sql",
-		"body": [
-			"mysql '$1'",
-			"\tquery '$2'",
-			"$0"
-		]
-	},
-	"Execute MySQL query (full)": {
-		"scope": "ruby",
-		"prefix": "debug",
-		"description": "Execute sql",
-		"body": [
-			"mysql '$1'",
-			"\tdatabase '$2'",
-			"\tusername '$3'",
-			"\tpassword '$4'",
-			"\t",
-			"\tquery '$5'",
-			"$0"
-		]
-	}
+  "Do HTTP request": {
+    "scope": "ruby",
+    "prefix": "http",
+    "description": "Do a request to a specified HTTP endpoint",
+    "body": [
+      "http '$1' do",
+      "\tmethod '${2:|GET,POST,DELETE,PUT,PATCH,OPTION,HEAD|}'",
+      "\tpath '$3'",
+      "end",
+      "$0"
+    ]
+  },
+  "Do HTTP request with status code": {
+    "scope": "ruby",
+    "prefix": "http strict",
+    "description": "Do HTTP request and expect a specific response code",
+    "body": [
+      "http '$1' do",
+      "\tmethod '${2:|GET,POST,DELETE,PUT,PATCH,OPTION,HEAD|}'",
+      "\tpath '$3'",
+      "\tensure_success!",
+      "end",
+      "$0"
+    ]
+  },
+  "Configure simple HTTP client": {
+    "scope": "yaml",
+    "prefix": "http",
+    "description": "Configure a simple spectre HTTP client",
+    "body": [
+      "$1:",
+      "\tbase_url: http://$2",
+    ]
+  },
+  "Configure HTTPS client": {
+    "scope": "yaml",
+    "prefix": "https",
+    "description": "Configure a spectre HTTPS client",
+    "body": [
+      "$1:",
+      "\tbase_url: https://$2",
+      "\t# cert: *cert"
+    ]
+  },
+  "Configure HTTPS client with basic auth": {
+    "scope": "yaml",
+    "prefix": "https basic",
+    "description": "Configure a spectre HTTPS client with basic authentication",
+    "body": [
+      "$1:",
+      "\tbase_url: http://$2",
+      "\t# cert: *cert",
+      "\tbasic_auth:",
+      "\t\tusername: ",
+      "\t\tpassword: "
+    ]
+  },
+  "Configure HTTPS client with Keystone auth": {
+    "scope": "yaml",
+    "prefix": "https keystone",
+    "description": "Configure a spectre HTTP client with keystone authentication",
+    "body": [
+      "$1:",
+      "\tbase_url: https://$2",
+      "\t# cert: *cert",
+      "\tkeystone: ",
+      "\t\turl: https://",
+      "\t\tusername: ",
+      "\t\tpassword: ",
+      "\t\tproject: ",
+      "\t\tdomain: ",
+      "\t\t# cert: *cert"
+    ]
+  },
+  "Show full HTTP options": {
+    "scope": "ruby",
+    "prefix": "http full",
+    "description": "Do a request to a specified HTTP endpoint",
+    "body": [
+      "http '$1' do",
+      "\t# auth 'basic_auth'",
+      "\t# auth 'keystone'",
+      "\tmethod '${2:GET}'",
+      "\tpath '$3'",
+      "\t# param 'foo', 'bar'",
+      "\t# header 'X-Correlation-Id', ''",
+      "\t# content_type 'application/json'",
+      "\t# json({",
+      "\t# \t\"message\": \"Hello Spectre!\"",
+      "\t# })",
+      "\t# ensure_success!",
+      "end",
+      "$0"
+    ]
+  },
+  "Expect": {
+    "scope": "ruby",
+    "prefix": "expect",
+    "description": "Expect something",
+    "body": [
+      "expect '$1' do",
+      "\t$2",
+      "end",
+      "$0"
+    ]
+  },
+  "Should be": {
+    "scope": "ruby",
+    "prefix": "should be",
+    "description": "Expect a value to be",
+    "body": [
+      "expect '$1' do",
+      "\t$2.should_be $3",
+      "end",
+      "$0"
+    ]
+  },
+  "Should not be": {
+    "scope": "ruby",
+    "prefix": "should not be",
+    "description": "Expect a value not to be",
+    "body": [
+      "expect '$1' do",
+      "\t$2.should_not_be $3",
+      "end",
+      "$0"
+    ]
+  },
+  "Should contain": {
+    "scope": "ruby",
+    "prefix": "should contain",
+    "description": "Expect a value to contain",
+    "body": [
+      "expect '$1' do",
+      "\t$2.should_contain $3",
+      "end",
+      "$0"
+    ]
+  },
+  "Should not contain": {
+    "scope": "ruby",
+    "prefix": "should not contain",
+    "description": "Expect a value not to contain",
+    "body": [
+      "expect '$1' do",
+      "\t$2.should_not_contain $3",
+      "end",
+      "$0"
+    ]
+  },
+  "Should match": {
+    "scope": "ruby",
+    "prefix": "should match",
+    "description": "Expect a value to match",
+    "body": [
+      "expect '$1' do",
+      "\t$2.should_match $3",
+      "end",
+      "$0"
+    ]
+  },
+  "Should not match": {
+    "scope": "ruby",
+    "prefix": "should not match",
+    "description": "Expect a value not to match",
+    "body": [
+      "expect '$1' do",
+      "\t$2.should_not_match $3",
+      "end",
+      "$0"
+    ]
+  },
+  "Expect a response code": {
+    "scope": "ruby",
+    "prefix": "expect response",
+    "description": "Expect a specific response code",
+    "body": [
+      "expect 'the response code to be $1' do",
+      "\tresponse.code.should_be $1",
+      "end",
+      "$0"
+    ]
+  },
+  "Expect a json property": {
+    "scope": "ruby",
+    "prefix": "expect json property",
+    "description": "Expect a specified json value",
+    "body": [
+      "expect '$1' do",
+      "\tresponse.json.$2.should_be $3",
+      "end",
+      "$0"
+    ]
+  },
+  "Describe a feature": {
+    "scope": "ruby",
+    "prefix": "it",
+    "description": "Describe a feature in an 'it' block",
+    "body": [
+      "it '$1', tags: [$2] do",
+      "\t$0",
+      "end"
+    ]
+  },
+  "Describe a subject": {
+    "scope": "ruby",
+    "prefix": "describe",
+    "description": "Describe a spectre subject",
+    "body": [
+      "describe '$1' do",
+      "\tit '$2', tags: [$3] do",
+      "\t\t$0",
+      "\tend",
+      "end"
+    ]
+  },
+  "Setup": {
+    "scope": "ruby",
+    "prefix": "setup",
+    "description": "Create a 'setup' block",
+    "body": [
+      "setup do",
+      "\t$0",
+      "end"
+    ]
+  },
+  "Teardown": {
+    "scope": "ruby",
+    "prefix": "teardown",
+    "description": "Create a 'teardown' block",
+    "body": [
+      "teardown do",
+      "\t$0",
+      "end"
+    ]
+  },
+  "Before spec": {
+    "scope": "ruby",
+    "prefix": "before",
+    "description": "Create a 'before' block",
+    "body": [
+      "before do",
+      "\t$0",
+      "end"
+    ]
+  },
+  "After spec": {
+    "scope": "ruby",
+    "prefix": "after",
+    "description": "Create a 'after' block",
+    "body": [
+      "after do",
+      "\t$0",
+      "end"
+    ]
+  },
+  "Configure SSH client": {
+    "scope": "yaml",
+    "prefix": "ssh",
+    "description": "Configure a spectre SSH client",
+    "body": [
+      "$1:",
+      "\thost: $2",
+      "\tusername: $3",
+      "\tpassword: $4"
+    ]
+  },
+  "Execute SSH command": {
+    "scope": "ruby",
+    "prefix": "ssh",
+    "description": "Execute a SSH command with configured client",
+    "body": [
+      "ssh '$1' do",
+      "\t$0",
+      "end"
+    ]
+  },
+  "Execute SSH command with credentials": {
+    "scope": "ruby",
+    "prefix": "ssh",
+    "description": "Execute a SSH command with configured client",
+    "body": [
+      "ssh '$1', username: $3, password: $4 do",
+      "\t$0",
+      "end"
+    ]
+  },
+  "Execute SSH command with SSH key": {
+    "scope": "ruby",
+    "prefix": "ssh",
+    "description": "Execute a SSH command with configured client",
+    "body": [
+      "ssh '$1', username: '$3' key: '$4', passphrase: '$5' do",
+      "\t$0",
+      "end"
+    ]
+  },
+  "Log message": {
+    "scope": "ruby",
+    "prefix": "log",
+    "description": "Log info message",
+    "body": [
+      "log '$1'",
+      "",
+      "$0"
+    ]
+  },
+  "Info message": {
+    "scope": "ruby",
+    "prefix": "info",
+    "description": "Log info message",
+    "body": [
+      "info '$1'",
+      "",
+      "$0"
+    ]
+  },
+  "Debug message": {
+    "scope": "ruby",
+    "prefix": "debug",
+    "description": "Log debug message",
+    "body": [
+      "debug '$1'",
+      "",
+      "$0"
+    ]
+  },
+  "Skip spec": {
+    "scope": "ruby",
+    "prefix": "skip",
+    "description": "Skip the current spec",
+    "body": [
+      "skip '$1' $0"
+    ]
+  },
+  "Add property": {
+    "scope": "ruby",
+    "prefix": "property",
+    "description": "Add report property",
+    "body": [
+      "property '$1', $2",
+      "$0"
+    ]
+  },
+  "Observe operation": {
+    "scope": "ruby",
+    "prefix": "debug",
+    "description": "Observe a operation",
+    "body": [
+      "observe '$1' do",
+      "\t$0",
+      "end"
+    ]
+  },
+  "Execute MySQL query": {
+    "scope": "ruby",
+    "prefix": "debug",
+    "description": "Execute sql",
+    "body": [
+      "mysql '$1'",
+      "\tquery '$2'",
+      "$0"
+    ]
+  },
+  "Execute MySQL query (full)": {
+    "scope": "ruby",
+    "prefix": "debug",
+    "description": "Execute sql",
+    "body": [
+      "mysql '$1'",
+      "\tdatabase '$2'",
+      "\tusername '$3'",
+      "\tpassword '$4'",
+      "\t",
+      "\tquery '$5'",
+      "$0"
+    ]
+  }
 }

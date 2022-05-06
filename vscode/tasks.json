@@ -1,25 +1,25 @@
 {
   "version": "2.0.0",
   "tasks": [
-      {
-          "label": "Run spectre",
-          "type": "shell",
-          "command": "spectre",
-          "args": [
-              "-e", "${input:environment}"
-          ],
-          "options": {
-            "cwd": "${workspaceFolder}/${input:project}"
-          },
-          "group": {
-              "kind": "test",
-              "isDefault": true
-          },
-          "presentation": {
-              "reveal": "always",
-              "panel": "new"
-          }
+    {
+      "label": "Run spectre",
+      "type": "shell",
+      "command": "spectre",
+      "args": [
+        "-e", "${input:environment}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/${input:project}"
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
       }
+    }
   ],
   "inputs": [
     {
