@@ -938,7 +938,7 @@ There are some helper methods for various use cases
 | `to_json` | `OpenStruct` | Converts a `OpenStruct` object into a JSON string |
 | `uuid(length=5)` | `Kernel` | Generates a UUID and returns characters with given length. Default is 5. |
 | `pick` | `String`, `Hash`, `OpenStruct` | Applies a JsonPath to the data and returns the value. For more information about JsonPath see https://goessner.net/articles/JsonPath/ |
-
+| `first_element` | _none_ | Returns the first element of a list. Was implemented to be consistent with `last_element` |
 
 
 

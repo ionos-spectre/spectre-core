@@ -1,3 +1,9 @@
+### vNext
+
+#### Minor
+ - `Array.first_element` added to be consistent with `Array.last_element`, which was added because some libraries override `Array.last` which caused some issues.
+
+
 ### v1.12.4
 
 #### Major

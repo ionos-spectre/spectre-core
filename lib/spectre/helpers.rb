@@ -119,6 +119,10 @@ class ::Hash
 end
 
 class ::Array
+  def first_element
+    self[0]
+  end
+
   def last_element
     self[-1]
   end
