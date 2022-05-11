@@ -66,6 +66,7 @@ DEFAULT_CONFIG = {
     'spectre/http/basic_auth',
     'spectre/http/keystone',
     'spectre/resources',
+    'spectre/async',
   ],
   'include' => [
 

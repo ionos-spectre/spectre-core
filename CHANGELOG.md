@@ -1,5 +1,8 @@
 ### vNext
 
+### Major
+ - `spectre/async` module added. See _Async `spectre/async`_ section in `README.md` for more information.
+
 #### Minor
  - `Array.first_element` added to be consistent with `Array.last_element`, which was added because some libraries override `Array.last` which caused some issues.
 

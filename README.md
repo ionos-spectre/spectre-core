@@ -1182,3 +1182,136 @@ describe 'Hollow API' do
   end
 end
 ```
+
+
+### Async `spectre/async`
+
+You might want to execute some code in parallel or asynchronous within a test run. To do so, wrap the code with `async` and `await` the result
+
+```ruby
+describe 'Hollow API' do
+  it 'creates ghost' do
+    async do
+      http 'hollow' do
+        path 'haunt'
+      end
+
+      response
+    end
+
+    result = await
+
+    expect 'the the response code to be 200' do
+      result.code.should_be 200
+    end
+  end
+end
+```
+
+You can also name your `async` calls
+
+```ruby
+describe 'Hollow API' do
+  it 'creates ghost' do
+    async 'haunt' do
+      http 'hollow' do
+        path 'haunt'
+      end
+    end
+
+    async 'spooky' do
+      http 'hollow' do
+        path 'spooky'
+      end
+    end
+
+    haunt_result = await 'haunt'
+    spooky_result = await 'spooky'
+
+    expect 'the response codes to be 200' do
+      haunt_result.code.should_be 200
+      spooky_result.code.should_be 200
+    end
+  end
+end
+```
+
+When calling `async` multiple times with the same (or no) name, `await` will wait for all threads to finish with this name
+
+```ruby
+describe 'Hollow API' do
+  it 'creates ghost' do
+    async do
+      'fist result'
+    end
+
+    async do
+      'second result'
+    end
+
+    results = await
+
+    expect 'multiple results' do
+      results[0].should_be 'fist result'
+      results[1].should_be 'second result'
+    end
+
+    async 'spooky' do
+      'fist result'
+    end
+
+    async 'spooky' do
+      'second result'
+    end
+
+    results = await 'spooky'
+
+    expect 'multiple results' do
+      results[0].should_be 'fist result'
+      results[1].should_be 'second result'
+    end
+  end
+end
+```
+
+Be careful, when using `async` in conjunction with `http`. Do not use the global `response` helper, when checking response properties, as the `response` could be overriden by the `async` HTTP calls. Use the explicit returned response from the `http` module.
+
+```ruby
+describe 'Hollow API' do
+  it 'creates ghost' do
+    async 'haunt' do
+      http 'hollow' do
+        method 'POST' # produces 201 for example
+        path 'haunt'
+      end
+
+      # response will be returned directly by the `http` call
+    end
+
+    async 'spooky' do
+      http 'hollow' do
+        method 'DELETE' # produces 204 for example
+        path 'spooky'
+      end
+
+      # response will be returned directly by the `http` call
+    end
+
+    main_response = http 'hollow' do
+      method 'GET' # produces 200 for example
+      path 'spooky'
+    end
+
+    haunt_result = await 'haunt'
+    spooky_result = await 'spooky'
+
+    expect 'the response codes to be 200' do
+      main_response.code.should_be 200
+      haunt_result.code.should_be 201
+      spooky_result.code.should_be 204
+    end
+
+    response.code # will could be different for each run, depending on which request finishes last
+  end
+end
+```
