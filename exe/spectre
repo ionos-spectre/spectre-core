@@ -26,8 +26,8 @@ DEFAULT_CONFIG = {
     'Spectre::Reporter::Console',
   ],
   'loggers' => [
-    'Spectre::Logger::Console',
-    'Spectre::Logger::File',
+    'Spectre::Logging::Console',
+    'Spectre::Logging::File',
   ],
   'log_file' => './logs/spectre_<date>.log',
   'log_format' => {
@@ -346,11 +346,11 @@ if 'run' == action
 
   Spectre.configure(cfg)
 
-  Spectre::Logger.debug! if cfg['debug']
+  Spectre::Logging.debug! if cfg['debug']
 
   cfg['loggers'].each do |logger_name|
     logger = Kernel.const_get(logger_name).new(cfg)
-    Spectre::Logger.add(logger)
+    Spectre::Logging.add(logger)
   end if cfg['loggers']
 
   specs = Spectre.specs(cfg['specs'], cfg['tags'])

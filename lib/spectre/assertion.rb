@@ -229,16 +229,16 @@ module Spectre
 
       def expect desc
         begin
-          Logger.log_process("expect #{desc}")
+          Logging.log_process("expect #{desc}")
           yield
-          Logger.log_status(desc, Logger::Status::OK)
+          Logging.log_status(desc, Logging::Status::OK)
         rescue Interrupt => e
           raise e
         rescue AssertionFailure => e
-          Logger.log_status(desc, Logger::Status::FAILED)
+          Logging.log_status(desc, Logging::Status::FAILED)
           raise AssertionFailure.new(e.message, e.expected, e.actual, desc), cause: nil
         rescue Exception => e
-          Logger.log_status(desc, Logger::Status::ERROR)
+          Logging.log_status(desc, Logging::Status::ERROR)
           raise AssertionFailure.new("An unexpected error occurred during expectation: #{e.message}", nil, nil, desc), cause: e
         end
       end
@@ -248,7 +248,7 @@ module Spectre
         prefix += " '#{desc}'" if desc
 
         begin
-          Logger.log_info(prefix) if desc
+          Logging.log_info(prefix) if desc
           yield
           @@success = true
           @@logger.info("#{prefix} finished with success")

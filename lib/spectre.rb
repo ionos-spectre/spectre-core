@@ -134,7 +134,18 @@ module Spectre
     end
 
     def failed?
+      @failure != nil
+    end
+
+    def error?
       @error != nil
+    end
+
+    def status
+      return :error if error?
+      return :failed if failed?
+      return :skipped if skipped?
+      return :success
     end
   end
 
@@ -149,9 +160,9 @@ module Spectre
       runs = []
 
       specs.group_by { |x| x.subject }.each do |subject, subject_specs|
-        Logger.log_subject subject do
+        Logging.log_subject subject do
           subject_specs.group_by { |x| x.context }.each do |context, context_specs|
-            Logger.log_context(context) do
+            Logging.log_context(context) do
               runs.concat run_context(context, context_specs)
             end
           end
@@ -180,12 +191,12 @@ module Spectre
             spec.data
               .map { |x| x.is_a?(Hash) ? OpenStruct.new(x) : x }
               .each do |data|
-                Logger.log_spec(spec, data) do
+                Logging.log_spec(spec, data) do
                   runs << run_spec(spec, data)
                 end
               end
           else
-            Logger.log_spec(spec) do
+            Logging.log_spec(spec) do
               runs << run_spec(spec)
             end
           end
@@ -209,7 +220,7 @@ module Spectre
 
       run_info.started = Time.now
 
-      Logger.log_context ctx do
+      Logging.log_context ctx do
         begin
           blocks.each do |block|
             block.call
@@ -220,7 +231,7 @@ module Spectre
           run_info.failure = e
         rescue Exception => e
           run_info.error = e
-          Logger.log_error spec, e
+          Logging.log_error spec, e
         end
       end
 
@@ -242,7 +253,7 @@ module Spectre
         if spec.context.__before_blocks.count > 0
           before_ctx = SpecContext.new(spec.subject, 'before')
 
-          Logger.log_context before_ctx do
+          Logging.log_context before_ctx do
             spec.context.__before_blocks.each do |block|
               block.call(data)
             end
@@ -254,18 +265,18 @@ module Spectre
         run_info.failure = e
       rescue SpectreSkip => e
         run_info.skipped = true
-        Logger.log_skipped spec, e.message
+        Logging.log_skipped spec, e.message
       rescue Interrupt
         run_info.skipped = true
-        Logger.log_skipped spec, 'canceled by user'
+        Logging.log_skipped spec, 'canceled by user'
       rescue Exception => e
         run_info.error = e
-        Logger.log_error spec, e
+        Logging.log_error spec, e
       ensure
         if spec.context.__after_blocks.count > 0
           after_ctx = SpecContext.new(spec.subject, 'after')
 
-          Logger.log_context after_ctx do
+          Logging.log_context after_ctx do
             begin
               spec.context.__after_blocks.each do |block|
                 block.call
@@ -276,7 +287,7 @@ module Spectre
               run_info.failure = e
             rescue Exception => e
               run_info.error = e
-              Logger.log_error spec, e
+              Logging.log_error spec, e
             end
           end
         end

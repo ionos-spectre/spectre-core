@@ -12,12 +12,12 @@ module Spectre
 
       def required params, *keys
         missing_keys = keys.select { |x| !params.to_h.key? x }
-        Spectre::Logger.log_debug("required parameters for '#{@__desc}': #{keys.join ', '}")
+        Spectre::Logging.log_debug("required parameters for '#{@__desc}': #{keys.join ', '}")
         raise ArgumentError, "mixin '#{@__desc}' requires #{keys.join ', '}, but only has #{missing_keys.join ', '} given" unless missing_keys.empty?
       end
 
       def optional params, *keys
-        Spectre::Logger.log_debug("optional parameters for '#{@__desc}': #{keys.join ', '}")
+        Spectre::Logging.log_debug("optional parameters for '#{@__desc}': #{keys.join ', '}")
         params
       end
     end
@@ -32,7 +32,7 @@ module Spectre
       def run desc, with: []
         raise "no mixin with desc '#{desc}' defined" unless @@mixins.key? desc
 
-        Spectre::Logger.log_debug "running mixin '#{desc}'"
+        Spectre::Logging.log_debug "running mixin '#{desc}'"
 
         params = with || {}
 

@@ -164,8 +164,8 @@ colored: true
 verbose: false
 reporter: Spectre::Reporter::Console
 loggers:
-  - Spectre::Logger::Console
-  - Spectre::Logger::File
+  - Spectre::Logging::Console
+  - Spectre::Logging::File
 log_file: "./logs/spectre_<date>.log"
 log_format:
   console:

@@ -2,7 +2,7 @@ require_relative '../spectre'
 require 'date'
 
 module Spectre
-  module Logger
+  module Logging
     module Status
       OK = '[ok]'
       FAILED = '[failed]'
@@ -10,6 +10,28 @@ module Spectre
       INFO = '[info]'
       SKIPPED = '[skipped]'
       DEBUG = '[debug]'
+    end
+
+    class Logger
+      def initialize config, name
+        @name = name
+        @logger = ::Logger.new(config['log_file'], progname: name)
+      end
+
+      def info message
+        @logger.info(message)
+        Logging.add_log(message, :info, @name)
+      end
+
+      def debug message
+        @logger.debug(message)
+        Logging.add_log(message, :debug, @name)
+      end
+
+      def warn message
+        @logger.warn(message)
+        Logging.add_log(message, :warn, @name)
+      end
     end
 
     class << self
@@ -93,19 +115,19 @@ module Spectre
       end
 
       def log_info message
-        add_log(message)
+        add_log(message, :info)
         delegate(:log_info, message)
       end
 
       def log_debug message
         return unless @@debug
 
-        add_log(message)
+        add_log(message, :debug)
         delegate(:log_debug, message)
       end
 
       def log_error spec, exception
-        add_log(exception)
+        add_log(exception, :error)
         delegate(:log_error, spec, exception)
       end
 
@@ -118,9 +140,13 @@ module Spectre
       end
 
       def group desc
-        Logger.start_group desc
+        Logging.start_group desc
         yield
-        Logger.end_group desc
+        Logging.end_group desc
+      end
+
+      def add_log message, level, logger_name=''
+        Spectre::Runner.current.log.append([DateTime.now, message, level, logger_name])
       end
 
       alias_method :info, :log_info
@@ -134,10 +160,6 @@ module Spectre
         @@logger.each do |logger|
           logger.send(method, *args) if logger.respond_to? method
         end
-      end
-
-      def add_log message
-        Spectre::Runner.current.log.append([DateTime.now, message])
       end
     end
 
