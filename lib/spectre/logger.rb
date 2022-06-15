@@ -145,7 +145,7 @@ module Spectre
         Logging.end_group desc
       end
 
-      def add_log message, level, logger_name=''
+      def add_log message, level, logger_name='spectre'
         Spectre::Runner.current.log.append([DateTime.now, message, level, logger_name])
       end
 
