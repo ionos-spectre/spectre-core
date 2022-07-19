@@ -178,8 +178,8 @@ module Spectre
     def run_context context, specs
       runs = []
 
-      if context.__setup_blocks.count > 0
-        setup_run = run_blocks('setup', context, context.__setup_blocks)
+      context.__setup_blocks.each do |setup_spec|
+        setup_run = run_setup(setup_spec)
         runs << setup_run
         return runs if setup_run.error or setup_run.failure
       end
@@ -203,29 +203,24 @@ module Spectre
           end
         end
       ensure
-        if context.__teardown_blocks.count > 0
-          runs << run_blocks('teardown', context, context.__teardown_blocks)
+        context.__teardown_blocks.each do |teardown_spec|
+          runs << run_setup(teardown_spec)
         end
       end
 
       runs
     end
 
-    def run_blocks name, context, blocks
-      ctx = SpecContext.new context.__subject, name
-      spec = Spec.new name, context.__subject, name, [], nil, nil, ctx, nil
-
-      run_info = RunInfo.new spec
+    def run_setup spec
+      run_info = RunInfo.new(spec)
 
       @@current = run_info
 
       run_info.started = Time.now
 
-      Logging.log_context ctx do
+      Logging.log_context(spec.context) do
         begin
-          blocks.each do |block|
-            block.call
-          end
+          spec.block.call()
 
           run_info.finished = Time.now
         rescue ExpectationFailure => e
@@ -340,11 +335,19 @@ module Spectre
     end
 
     def setup &block
+      name = "#{@__subject.name}-setup"
+      spec_file = get_file()
+
       setup_ctx = SpecContext.new(@__subject, 'setup', self)
+      @__setup_blocks << Spec.new(name, @__subject, 'setup', [], nil, block, setup_ctx, spec_file)
     end
 
     def teardown &block
+      name = "#{@__subject.name}-teardown"
+      spec_file = get_file()
+
       teardown_ctx = SpecContext.new(@__subject, 'teardown', self)
+      @__teardown_blocks << Spec.new(name, @__subject, 'teardown', [], nil, block, teardown_ctx, spec_file)
     end
 
     def context desc=nil, &block
