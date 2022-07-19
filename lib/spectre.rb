@@ -252,7 +252,7 @@ module Spectre
 
       begin
         if spec.context.__before_blocks.count > 0
-          before_ctx = SpecContext.new(spec.subject, 'before')
+          before_ctx = SpecContext.new(spec.subject, 'before', spec.context)
 
           Logging.log_context before_ctx do
             spec.context.__before_blocks.each do |block|
@@ -275,7 +275,7 @@ module Spectre
         Logging.log_error spec, e
       ensure
         if spec.context.__after_blocks.count > 0
-          after_ctx = SpecContext.new(spec.subject, 'after')
+          after_ctx = SpecContext.new(spec.subject, 'after', spec.context)
 
           Logging.log_context after_ctx do
             begin
@@ -309,11 +309,12 @@ module Spectre
 
 
   class SpecContext < DslClass
-    attr_reader :__subject, :__desc, :__before_blocks, :__after_blocks, :__setup_blocks, :__teardown_blocks
+    attr_reader :__subject, :__desc, :__parent, :__before_blocks, :__after_blocks, :__setup_blocks, :__teardown_blocks
 
-    def initialize subject, desc=nil
+    def initialize subject, desc=nil, parent=nil
       @__subject = subject
       @__desc = desc
+      @__parent = parent
 
       @__before_blocks = []
       @__after_blocks = []
@@ -339,15 +340,15 @@ module Spectre
     end
 
     def setup &block
-      @__setup_blocks << block
+      setup_ctx = SpecContext.new(@__subject, 'setup', self)
     end
 
     def teardown &block
-      @__teardown_blocks << block
+      teardown_ctx = SpecContext.new(@__subject, 'teardown', self)
     end
 
     def context desc=nil, &block
-      ctx = SpecContext.new(@__subject, desc)
+      ctx = SpecContext.new(@__subject, desc, self)
       ctx._evaluate &block
     end
 
