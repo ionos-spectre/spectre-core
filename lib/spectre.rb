@@ -325,17 +325,7 @@ module Spectre
       # Get the file, where the spec is defined.
       # Nasty, but it works
       # Maybe there is another way, but this works for now
-      spec_file = nil
-      begin
-        raise
-      rescue => e
-        spec_file = e.backtrace
-          .select { |file| !file.include? 'lib/spectre' }
-          .first
-          .match(/(.*\.rb):\d+/)
-          .captures
-          .first
-      end
+      spec_file = get_file()
 
       @__subject.add_spec(desc, tags, with, block, self, spec_file)
     end
@@ -359,6 +349,21 @@ module Spectre
     def context desc=nil, &block
       ctx = SpecContext.new(@__subject, desc)
       ctx._evaluate &block
+    end
+
+    private
+
+    def get_file
+      begin
+        raise
+      rescue => e
+        return e.backtrace
+          .select { |file| !file.include? 'lib/spectre' }
+          .first
+          .match(/(.*\.rb):\d+/)
+          .captures
+          .first
+      end
     end
   end
 
