@@ -227,7 +227,7 @@ module Spectre
           run_info.failure = e
         rescue Exception => e
           run_info.error = e
-          Logging.log_error spec, e
+          Logging.log_error(spec, e)
         end
       end
 
@@ -261,13 +261,13 @@ module Spectre
         run_info.failure = e
       rescue SpectreSkip => e
         run_info.skipped = true
-        Logging.log_skipped spec, e.message
+        Logging.log_skipped(spec, e.message)
       rescue Interrupt
         run_info.skipped = true
-        Logging.log_skipped spec, 'canceled by user'
+        Logging.log_skipped(spec, 'canceled by user')
       rescue Exception => e
         run_info.error = e
-        Logging.log_error spec, e
+        Logging.log_error(spec, e)
       ensure
         if spec.context.__after_blocks.count > 0
           after_ctx = SpecContext.new(spec.subject, 'after', spec.context)
@@ -283,7 +283,7 @@ module Spectre
               run_info.failure = e
             rescue Exception => e
               run_info.error = e
-              Logging.log_error spec, e
+              Logging.log_error(spec, e)
             end
           end
         end
@@ -421,14 +421,14 @@ module Spectre
 
     def tag? tags, tag_exp
       tags = tags.map { |x| x.to_s }
-      all_tags = tag_exp.split '+'
+      all_tags = tag_exp.split('+')
       included_tags = all_tags.select { |x| !x.start_with? '!' }
       excluded_tags = all_tags.select { |x| x.start_with? '!' }.map { |x| x[1..-1] }
       included_tags & tags == included_tags and excluded_tags & tags == []
     end
 
     def delegate *method_names, to: nil
-      Spectre::Delegator.delegate *method_names, to
+      Spectre::Delegator.delegate(*method_names, to)
     end
 
     def register &block
