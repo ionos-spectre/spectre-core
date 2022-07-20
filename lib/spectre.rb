@@ -145,6 +145,7 @@ module Spectre
       return :error if error?
       return :failed if failed?
       return :skipped if skipped?
+
       return :success
     end
   end
