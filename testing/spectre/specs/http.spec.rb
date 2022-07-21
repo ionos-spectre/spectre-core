@@ -33,6 +33,25 @@ describe 'spectre/http' do
     end
   end
 
+  it 'fails to post a new resource', tags: [:http, :post, :deps, :fail] do
+    http 'localhost:4567/api/v1/non-existing-endpoint' do
+      method 'POST'
+      path 'echo'
+      json({
+        "id": 2,
+        "desc": "Do some more stuff",
+      })
+    end
+
+    expect 'the response code to be 200' do
+      response.code.should_be 200
+    end
+
+    expect 'the id to be 2' do
+      fail_with response.json.id unless response.json.id == 2
+    end
+  end
+
   it 'updates a resource with preconfigured http client', tags: [:http, :put, :deps] do
     info 'get the first todo'
 
