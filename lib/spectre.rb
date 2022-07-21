@@ -151,7 +151,7 @@ module Spectre
   end
 
   class Runner
-    @@current
+    @@current = nil
 
     def self.current
       @@current
