@@ -2,6 +2,7 @@
 
 ### Major
  - `spectre/async` module added. See _Async `spectre/async`_ section in `README.md` for more information.
+ - `spectre/reporter/vstest` report added. This reporter writes Visual Studio Test (TRX) reports
 
 #### Minor
  - `Array.first_element` added to be consistent with `Array.last_element`, which was added because some libraries override `Array.last` which caused some issues.
