@@ -13,6 +13,6 @@ resource_paths:
   - './resources'
 reporters:
   - Spectre::Reporter::Console
-  - Spectre::Reporter::JUnit
+  - Spectre::Reporter::VSTest
 include:
   - spectre/curl
