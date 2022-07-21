@@ -12,10 +12,13 @@ module Spectre
       DEBUG = '[debug]'
     end
 
-    class Logger
+    class  ModuleLogger
       def initialize config, name
         @name = name
+        @debug = config['debug']
         @logger = ::Logger.new(config['log_file'], progname: name)
+
+        @logger.level = @debug ? ::Logger::DEBUG : ::Logger::INFO
       end
 
       def info message
@@ -25,7 +28,7 @@ module Spectre
 
       def debug message
         @logger.debug(message)
-        Logging.add_log(message, :debug, @name)
+        Logging.add_log(message, :debug, @name) if @debug
       end
 
       def warn message

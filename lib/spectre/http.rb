@@ -358,7 +358,7 @@ module Spectre
     end
 
     Spectre.register do |config|
-      @@logger = Spectre::Logging::Logger.new(config, 'spectre/http')
+      @@logger = Spectre::Logging::ModuleLogger.new(config, 'spectre/http')
       @@secure_keys = config['secure_keys'] || []
       @@debug = config['debug']
 

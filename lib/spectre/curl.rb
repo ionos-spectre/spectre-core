@@ -380,11 +380,9 @@ module Spectre::Curl
   Spectre.register do |config|
     @@debug = config['debug']
 
-    @@logger = ::Logger.new(config['log_file'], progname: 'spectre/curl')
-    @@logger.level = @@debug ? Logger::DEBUG : Logger::INFO
+    @@logger = Spectre::Logging::ModuleLogger.new(config, 'spectre/curl')
 
     @@secure_keys = config['secure_keys'] || []
-
     @@curl_path = config['curl_path'] || 'curl'
 
     if config.key? 'http'

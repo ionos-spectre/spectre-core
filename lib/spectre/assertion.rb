@@ -273,7 +273,7 @@ module Spectre
     end
 
     Spectre.register do |config|
-      @@logger = ::Logger.new(config['log_file'], progname: 'spectre/assertion')
+      @@logger = Spectre::Logging::ModuleLogger.new(config, 'spectre/assertion')
       @@debug = config['debug']
     end
 
