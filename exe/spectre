@@ -308,8 +308,8 @@ if 'run' == action
     subject: 'spectre',
   })
 
-  log_dir = File.dirname cfg['log_file']
-  FileUtils.makedirs log_dir unless Dir.exists? log_dir
+  log_dir = File.dirname(cfg['log_file'])
+  FileUtils.makedirs(log_dir)
 
   # Load Modules
 
