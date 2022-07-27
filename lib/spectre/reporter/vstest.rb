@@ -12,6 +12,8 @@ module Spectre::Reporter
     end
 
     def report run_infos
+      now = Time.now.getutc
+
       xml_str = '<?xml version="1.0" encoding="UTF-8" ?>'
       xml_str += %{<TestRun xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">}
 
@@ -133,8 +135,7 @@ module Spectre::Reporter
 
       Dir.mkdir(@config['out_path']) unless Dir.exists? @config['out_path']
 
-      # file_path = File.join(@config['out_path'], "spectre-vstest_#{timestamp}.trx")
-      file_path = File.join(@config['out_path'], "spectre-vstest.trx")
+      file_path = File.join(@config['out_path'], "spectre-vstest_#{now.strftime('%s')}.trx")
 
       File.write(file_path, xml_str)
     end
