@@ -89,7 +89,7 @@ module Spectre::Reporter
           if run_info.failed? or run_info.error?
             xml_str += '<ErrorInfo>'
 
-            if run_info.failed?
+            if run_info.failed? and not run_info.failure.cause
               xml_str += '<Message>'
 
               failure_message = "Expected #{run_info.failure.expectation}"
@@ -105,7 +105,6 @@ module Spectre::Reporter
             if run_info.error or (run_info.failed? and run_info.failure.cause)
               error = run_info.error || run_info.failure.cause
 
-              type = error.class.name
               failure_message = error.message
 
               xml_str += '<Message>'
