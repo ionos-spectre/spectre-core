@@ -24,18 +24,20 @@ module Spectre::Reporter
 
       xml_str += %{<Times start="#{started.strftime(@date_format)}" finish="#{finished.strftime(@date_format)}" />}
 
-      report_files = Dir[File.join(@config['out_path'], '*')]
-
 
       # Write summary with file attachments
       xml_str += '<ResultSummary>'
       xml_str += '<ResultFiles>'
-      # xml_str += %{<ResultFile path="#{File.absolute_path(@config['log_file'])}"></ResultFile>}
+      xml_str += %{<ResultFile path="#{File.absolute_path(@config['log_file'])}"></ResultFile>} if File.exists? @config['log_file']
+
+      report_files = Dir[File.join(@config['out_path'], '*')]
+
       if report_files.any?
         report_files.each do |report_file|
           xml_str += %{<ResultFile path="#{File.absolute_path(report_file)}"></ResultFile>}
         end
       end
+
       xml_str += '</ResultFiles>'
       xml_str += '</ResultSummary>'
 
