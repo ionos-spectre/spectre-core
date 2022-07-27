@@ -318,9 +318,6 @@ module Spectre
     end
 
     def it desc, tags: [], with: [], &block
-      # Get the file, where the spec is defined.
-      # Nasty, but it works
-      # Maybe there is another way, but this works for now
       spec_file = get_file()
 
       @__subject.add_spec(desc, tags, with, block, self, spec_file)
@@ -358,6 +355,10 @@ module Spectre
     private
 
     def get_file
+      # Get the file, where the spec is defined.
+      # Nasty, but it works
+      # Maybe there is another way, but this works for now
+
       begin
         raise
       rescue => e
