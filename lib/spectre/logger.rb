@@ -12,7 +12,7 @@ module Spectre
       DEBUG = '[debug]'
     end
 
-    class  ModuleLogger
+    class ModuleLogger
       def initialize config, name
         @name = name
         @debug = config['debug']
@@ -150,6 +150,7 @@ module Spectre
 
       def add_log message, level, logger_name='spectre'
         return unless Spectre::Runner.current
+
         Spectre::Runner.current.log.append([DateTime.now, message, level, logger_name])
       end
 
