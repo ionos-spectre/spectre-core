@@ -9,6 +9,13 @@ module Spectre::Reporter
       @config = config
     end
 
+    def get_name run_info
+      run_name = "[#{run_info.spec.name}] #{run_info.spec.subject.desc}"
+      run_name += " - #{run_info.spec.context.__desc} -" unless run_info.spec.context.__desc.nil?
+      run_name += " #{run_info.spec.desc}"
+      run_name
+    end
+
     def report run_infos
       now = Time.now.getutc
       timestamp = now.strftime('%s')
@@ -30,7 +37,7 @@ module Spectre::Reporter
         info_group.each do |run_info|
           started = run_info.started.strftime('%FT%T.%L')
 
-          xml_str += %{<testcase classname="#{CGI::escapeHTML(run_info.spec.file.to_s)}" name="[#{run_info.spec.name}] #{CGI::escapeHTML(run_info.spec.desc)}" timestamp="#{started}"  time="#{('%.3f' % run_info.duration)}">}
+          xml_str += %{<testcase classname="#{CGI::escapeHTML(run_info.spec.file.to_s)}" name="#{get_name(run_info)}" timestamp="#{started}"  time="#{('%.3f' % run_info.duration)}">}
 
           if run_info.failure and !run_info.failure.cause
             failure_message = "Expected #{run_info.failure.expectation}"
