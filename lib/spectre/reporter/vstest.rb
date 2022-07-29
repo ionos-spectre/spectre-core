@@ -79,9 +79,23 @@ module Spectre::Reporter
           # Write log entries
           xml_str += '<StdOut>'
           log_str = ''
+
+          if run_info.properties.count > 0
+            run_info.properties.each do |key, val|
+              log_str += "#{key}: #{val}\n"
+            end
+          end
+
+          if run_info.data
+            data_str = run_info.data
+            data_str = run_info.data.to_json unless run_info.data.is_a? String or run_info.data.is_a? Integer
+            log_str += "data: #{data_str}\n"
+          end
+
           run_info.log.each do |timestamp, message, level, name|
             log_str += %{#{timestamp.strftime(@date_format)} #{level.to_s.upcase} -- #{name}: #{CGI::escapeHTML(message.to_s)}\n}
           end
+
           xml_str += log_str
           xml_str += '</StdOut>'
 
