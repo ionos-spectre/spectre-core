@@ -16,6 +16,7 @@ end
 
 
 DEFAULT_CONFIG = {
+  'project' => nil,
   'config_file' => './spectre.yml',
   'environment' => 'default',
   'specs' => [],
@@ -202,6 +203,8 @@ if File.exists? config_file
   cfg.deep_merge! file_options
   Dir.chdir File.dirname(config_file)
 end
+
+cfg['project'] = File.basename(Dir.pwd) unless cfg['project']
 
 cfg.deep_merge! cmd_options
 
