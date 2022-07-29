@@ -74,7 +74,7 @@ module Spectre::Reporter
 
             if run_info.data
               data_str = run_info.data
-              data_str = run_info.data.inspect unless run_info.data.is_a? String or run_info.data.is_a? Integer
+              data_str = run_info.data.to_json unless run_info.data.is_a? String or run_info.data.is_a? Integer
               xml_str += "data: #{data_str}\n"
             end
 
