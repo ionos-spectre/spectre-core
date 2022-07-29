@@ -81,6 +81,8 @@ DEFAULT_CONFIG = {
 cmd_options = {}
 property_overrides = {}
 
+$COMMAND = ['spectre'].concat(ARGV.clone).join(' ')
+
 OptionParser.new do |opts|
   opts.banner = %{Spectre #{Spectre::VERSION}
 
