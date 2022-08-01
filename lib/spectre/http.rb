@@ -362,7 +362,7 @@ module Spectre
           unless req['no_log']
             res_log += try_format_json(net_res.body, pretty: true)
           else
-            req_log += '[...]'
+            res_log += '[...]'
           end
         end
 
