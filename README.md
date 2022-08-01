@@ -162,7 +162,8 @@ specs: []
 tags: []
 colored: true
 verbose: false
-reporter: Spectre::Reporter::Console
+reporters:
+  - Spectre::Reporter::Console
 loggers:
   - Spectre::Logging::Console
   - Spectre::Logging::File
@@ -221,7 +222,7 @@ curl_path: curl
 All options can also be overridden with the command line argument `-p` or `--property`
 
 ```bash
-$ spectre -p config_file=my_custom_spectre.yml -p "reporter=Spectre::Reporter::JUnit"
+$ spectre -p config_file=my_custom_spectre.yml -p "reporters=Spectre::Reporter::JUnit"
 ```
 
 You can also create a global spectre config file with the options above. Create a file `.spectre` in your users home directory (`~/.spectre`) and set the options you like.
