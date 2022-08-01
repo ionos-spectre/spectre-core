@@ -1,8 +1,8 @@
 module Spectre
   module Version
     MAJOR = 1
-    MINOR = 12
-    TINY  = 4
+    MINOR = 13
+    TINY  = 0
   end
 
   VERSION = [Version::MAJOR, Version::MINOR, Version::TINY].compact * '.'
@@ -10,7 +10,7 @@ module Spectre
 
   class ::Hash
     def deep_merge!(second)
-      merger = proc { |key, v1, v2| Hash === v1 && Hash === v2 ? v1.merge!(v2, &merger) : v2 }
+      merger = proc { |_key, v1, v2| Hash === v1 && Hash === v2 ? v1.merge!(v2, &merger) : v2 }
       self.merge!(second, &merger)
     end
 
@@ -34,9 +34,6 @@ module Spectre
 
 
   class SpectreError < Exception
-    def initialize message
-      super message
-    end
   end
 
   class ExpectationFailure < Exception
@@ -49,9 +46,6 @@ module Spectre
   end
 
   class SpectreSkip < Interrupt
-    def initialize message
-      super message
-    end
   end
 
 
@@ -117,7 +111,7 @@ module Spectre
 
   class RunInfo
     attr_accessor :spec, :data, :started, :finished, :error, :failure, :skipped
-    attr_reader :log, :properties
+    attr_reader :expectations, :log, :properties
 
     def initialize spec, data=nil
       @spec = spec
@@ -128,6 +122,7 @@ module Spectre
       @failure = nil
       @skipped = false
       @log = []
+      @expectations = []
       @properties = {}
     end
 
@@ -140,12 +135,24 @@ module Spectre
     end
 
     def failed?
+      @failure != nil
+    end
+
+    def error?
       @error != nil
+    end
+
+    def status
+      return :error if error?
+      return :failed if failed?
+      return :skipped if skipped?
+
+      return :success
     end
   end
 
   class Runner
-    @@current
+    @@current = nil
 
     def self.current
       @@current
@@ -154,11 +161,11 @@ module Spectre
     def run specs
       runs = []
 
-      specs.group_by { |x| x.subject }.each do |subject, spec_group|
-        Logger.log_subject subject do
-          spec_group.group_by { |x| x.context }.each do |context, specs|
-            Logger.log_context(context) do
-              runs.concat run_context(context, specs)
+      specs.group_by { |x| x.subject }.each do |subject, subject_specs|
+        Logging.log_subject subject do
+          subject_specs.group_by { |x| x.context }.each do |context, context_specs|
+            Logging.log_context(context) do
+              runs.concat run_context(context, context_specs)
             end
           end
         end
@@ -172,8 +179,8 @@ module Spectre
     def run_context context, specs
       runs = []
 
-      if context.__setup_blocks.count > 0
-        setup_run = run_blocks('setup', context, context.__setup_blocks)
+      context.__setup_blocks.each do |setup_spec|
+        setup_run = run_setup(setup_spec)
         runs << setup_run
         return runs if setup_run.error or setup_run.failure
       end
@@ -186,47 +193,42 @@ module Spectre
             spec.data
               .map { |x| x.is_a?(Hash) ? OpenStruct.new(x) : x }
               .each do |data|
-                Logger.log_spec(spec, data) do
+                Logging.log_spec(spec, data) do
                   runs << run_spec(spec, data)
                 end
               end
           else
-            Logger.log_spec(spec) do
+            Logging.log_spec(spec) do
               runs << run_spec(spec)
             end
           end
         end
       ensure
-        if context.__teardown_blocks.count > 0
-          runs << run_blocks('teardown', context, context.__teardown_blocks)
+        context.__teardown_blocks.each do |teardown_spec|
+          runs << run_setup(teardown_spec)
         end
       end
 
       runs
     end
 
-    def run_blocks name, context, blocks
-      ctx = SpecContext.new context.__subject, name
-      spec = Spec.new name, context.__subject, name, [], nil, nil, ctx, nil
-
-      run_info = RunInfo.new spec
+    def run_setup spec
+      run_info = RunInfo.new(spec)
 
       @@current = run_info
 
       run_info.started = Time.now
 
-      Logger.log_context ctx do
+      Logging.log_context(spec.context) do
         begin
-          blocks.each do |block|
-            block.call
-          end
+          spec.block.call()
 
           run_info.finished = Time.now
         rescue ExpectationFailure => e
           run_info.failure = e
         rescue Exception => e
           run_info.error = e
-          Logger.log_error spec, e
+          Logging.log_error(spec, e)
         end
       end
 
@@ -246,9 +248,9 @@ module Spectre
 
       begin
         if spec.context.__before_blocks.count > 0
-          before_ctx = SpecContext.new(spec.subject, 'before')
+          before_ctx = SpecContext.new(spec.subject, 'before', spec.context)
 
-          Logger.log_context before_ctx do
+          Logging.log_context before_ctx do
             spec.context.__before_blocks.each do |block|
               block.call(data)
             end
@@ -260,18 +262,18 @@ module Spectre
         run_info.failure = e
       rescue SpectreSkip => e
         run_info.skipped = true
-        Logger.log_skipped spec, e.message
+        Logging.log_skipped(spec, e.message)
       rescue Interrupt
         run_info.skipped = true
-        Logger.log_skipped spec, 'canceled by user'
+        Logging.log_skipped(spec, 'canceled by user')
       rescue Exception => e
         run_info.error = e
-        Logger.log_error spec, e
+        Logging.log_error(spec, e)
       ensure
         if spec.context.__after_blocks.count > 0
-          after_ctx = SpecContext.new(spec.subject, 'after')
+          after_ctx = SpecContext.new(spec.subject, 'after', spec.context)
 
-          Logger.log_context after_ctx do
+          Logging.log_context after_ctx do
             begin
               spec.context.__after_blocks.each do |block|
                 block.call
@@ -282,7 +284,7 @@ module Spectre
               run_info.failure = e
             rescue Exception => e
               run_info.error = e
-              Logger.log_error spec, e
+              Logging.log_error(spec, e)
             end
           end
         end
@@ -303,11 +305,12 @@ module Spectre
 
 
   class SpecContext < DslClass
-    attr_reader :__subject, :__desc, :__before_blocks, :__after_blocks, :__setup_blocks, :__teardown_blocks
+    attr_reader :__subject, :__desc, :__parent, :__before_blocks, :__after_blocks, :__setup_blocks, :__teardown_blocks
 
-    def initialize subject, desc=nil
+    def initialize subject, desc=nil, parent=nil
       @__subject = subject
       @__desc = desc
+      @__parent = parent
 
       @__before_blocks = []
       @__after_blocks = []
@@ -316,20 +319,7 @@ module Spectre
     end
 
     def it desc, tags: [], with: [], &block
-      # Get the file, where the spec is defined.
-      # Nasty, but it works
-      # Maybe there is another way, but this works for now
-      spec_file = nil
-      begin
-        raise
-      rescue => e
-        spec_file = e.backtrace
-          .select { |file| !file.include? 'lib/spectre' }
-          .first
-          .match(/(.*\.rb):\d+/)
-          .captures
-          .first
-      end
+      spec_file = get_file()
 
       @__subject.add_spec(desc, tags, with, block, self, spec_file)
     end
@@ -343,16 +333,43 @@ module Spectre
     end
 
     def setup &block
-      @__setup_blocks << block
+      name = "#{@__subject.name}-setup"
+      spec_file = get_file()
+
+      setup_ctx = SpecContext.new(@__subject, 'setup', self)
+      @__setup_blocks << Spec.new(name, @__subject, 'setup', [], nil, block, setup_ctx, spec_file)
     end
 
     def teardown &block
-      @__teardown_blocks << block
+      name = "#{@__subject.name}-teardown"
+      spec_file = get_file()
+
+      teardown_ctx = SpecContext.new(@__subject, 'teardown', self)
+      @__teardown_blocks << Spec.new(name, @__subject, 'teardown', [], nil, block, teardown_ctx, spec_file)
     end
 
     def context desc=nil, &block
-      ctx = SpecContext.new(@__subject, desc)
+      ctx = SpecContext.new(@__subject, desc, self)
       ctx._evaluate &block
+    end
+
+    private
+
+    def get_file
+      # Get the file, where the spec is defined.
+      # Nasty, but it works
+      # Maybe there is another way, but this works for now
+
+      begin
+        raise
+      rescue => e
+        return e.backtrace
+          .select { |file| !file.include? 'lib/spectre' }
+          .first
+          .match(/(.*\.rb):\d+/)
+          .captures
+          .first
+      end
     end
   end
 
@@ -406,14 +423,14 @@ module Spectre
 
     def tag? tags, tag_exp
       tags = tags.map { |x| x.to_s }
-      all_tags = tag_exp.split '+'
+      all_tags = tag_exp.split('+')
       included_tags = all_tags.select { |x| !x.start_with? '!' }
       excluded_tags = all_tags.select { |x| x.start_with? '!' }.map { |x| x[1..-1] }
       included_tags & tags == included_tags and excluded_tags & tags == []
     end
 
     def delegate *method_names, to: nil
-      Spectre::Delegator.delegate *method_names, to
+      Spectre::Delegator.delegate(*method_names, to)
     end
 
     def register &block

@@ -9,38 +9,43 @@ module Spectre::Reporter
       @config = config
     end
 
+    def get_name run_info
+      run_name = "[#{run_info.spec.name}] #{run_info.spec.subject.desc}"
+      run_name += " - #{run_info.spec.context.__desc} -" unless run_info.spec.context.__desc.nil?
+      run_name += " #{run_info.spec.desc}"
+      run_name
+    end
+
     def report run_infos
       now = Time.now.getutc
       timestamp = now.strftime('%s')
-      datetime = now.strftime('%FT%T%:z')
+      datetime = now.strftime('%FT%T.%L')
 
       xml_str = '<?xml version="1.0" encoding="UTF-8" ?>'
       xml_str += '<testsuites>'
 
       suite_id = 0
 
-      run_infos.group_by { |x| x.spec.subject }.each do |subject, run_infos|
-        failures = run_infos.select { |x| x.failure != nil }
-        errors = run_infos.select { |x| x.error != nil }
-        skipped = run_infos.select { |x| x.skipped? }
+      run_infos.group_by { |x| x.spec.subject }.each do |subject, info_group|
+        failures = info_group.select { |x| x.failure != nil }
+        errors = info_group.select { |x| x.error != nil }
+        skipped = info_group.select { |x| x.skipped? }
 
-        xml_str += '<testsuite package="' + CGI::escapeHTML(subject.desc) + '" id="' + CGI::escapeHTML(suite_id.to_s) + '" name="' + CGI::escapeHTML(subject.desc) + '" timestamp="' + datetime + '" tests="' + run_infos.count.to_s + '" failures="' + failures.count.to_s + '" errors="' + errors.count.to_s + '" skipped="' + skipped.count.to_s + '">'
+        xml_str += %{<testsuite package="#{CGI::escapeHTML(subject.desc)}" id="#{CGI::escapeHTML(suite_id.to_s)}" name="#{CGI::escapeHTML(subject.desc)}" timestamp="#{datetime}" tests="#{run_infos.count}" failures="#{failures.count}" errors="#{errors.count}" skipped="#{skipped.count}">}
         suite_id += 1
 
-        run_infos.each do |run_info|
-          xml_str += '<testcase classname="' + CGI::escapeHTML(run_info.spec.file.to_s) + '" name="' + CGI::escapeHTML(run_info.spec.desc) + '" timestamp="' + run_info.started.to_s + '"  time="' + ('%.3f' % run_info.duration) + '">'
+        info_group.each do |run_info|
+          started = run_info.started.strftime('%FT%T.%L')
+
+          xml_str += %{<testcase classname="#{CGI::escapeHTML(run_info.spec.file.to_s)}" name="#{get_name(run_info)}" timestamp="#{started}"  time="#{('%.3f' % run_info.duration)}">}
 
           if run_info.failure and !run_info.failure.cause
             failure_message = "Expected #{run_info.failure.expectation}"
             failure_message += " with #{run_info.data}" if run_info.data
+            failure_message += " but it failed"
+            failure_message += " with message: #{run_info.failure.message}" if run_info.failure.message
 
-            if run_info.failure.message
-              failure_message += " but it failed with #{run_info.failure.message}"
-            else
-              failure_message += " but it failed"
-            end
-
-            xml_str += '<failure message="' + CGI::escapeHTML(failure_message.gsub('"', '`')) + '"></failure>'
+            xml_str += %{<failure message="#{CGI::escapeHTML(failure_message.gsub('"', '`'))}"></failure>}
           end
 
 
@@ -51,8 +56,8 @@ module Spectre::Reporter
             failure_message = error.message
             text = error.backtrace.join "\n"
 
-            xml_str += '<error message="' + CGI::escapeHTML(failure_message.gsub('"', '`')) + '" type="' + type + '">'
-            xml_str += '<![CDATA[' + text + ']]>'
+            xml_str += %{<error message="#{CGI::escapeHTML(failure_message.gsub('"', '`'))}" type="#{type}">}
+            xml_str += "<![CDATA[#{text}]]>"
             xml_str += '</error>'
           end
 
@@ -69,7 +74,7 @@ module Spectre::Reporter
 
             if run_info.data
               data_str = run_info.data
-              data_str = run_info.data.inspect unless run_info.data.is_a? String or run_info.data.is_a? Integer
+              data_str = run_info.data.to_json unless run_info.data.is_a? String or run_info.data.is_a? Integer
               xml_str += "data: #{data_str}\n"
             end
 
@@ -94,9 +99,7 @@ module Spectre::Reporter
 
       file_path = File.join(@config['out_path'], "spectre-junit_#{timestamp}.xml")
 
-      File.open(file_path, 'w') do |file|
-        file.write(xml_str)
-      end
+      File.write(file_path, xml_str)
     end
   end
 end

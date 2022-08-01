@@ -12,7 +12,7 @@ module Spectre
       end
     end
 
-    Spectre.register do |config|
+    Spectre.register do |_config|
       @@bag = OpenStruct.new
     end
 

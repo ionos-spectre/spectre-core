@@ -8,23 +8,23 @@ module Spectre
   module Assertion
     class ::Object
       def should_be(val)
-        raise AssertionFailure.new("The value '#{self.to_s.trim}' should be '#{val.to_s.trim}'", val, self) unless self.to_s == val.to_s
+        raise AssertionFailure.new("'#{self.to_s.trim}' should be '#{val.to_s.trim}'", val, self) unless self.to_s == val.to_s
       end
 
       def should_be_empty
-        raise AssertionFailure.new("The value '#{self.to_s.trim}' should be empty", nil, self) unless self.nil?
+        raise AssertionFailure.new("'#{self.to_s.trim}' should be empty", nil, self) unless self.nil?
       end
 
       def should_not_be(val)
-        raise AssertionFailure.new("The value '#{self.to_s.trim}' should not be '#{val.to_s.trim}'", val, self) unless self.to_s != val.to_s
+        raise AssertionFailure.new("'#{self.to_s.trim}' should not be '#{val.to_s.trim}'", val, self) unless self.to_s != val.to_s
       end
 
       def should_not_exist
-        raise AssertionFailure.new("The value '#{self.to_s.trim}' should not exist, but it does", val, self) unless self.to_s != nil
+        raise AssertionFailure.new("'#{self.to_s.trim}' should not exist, but it does", val, self) unless self.to_s != nil
       end
 
       def should_not_be_empty
-        raise AssertionFailure.new('The value is empty', 'nothing', self) unless self != nil
+        raise AssertionFailure.new('empty value', 'nothing', self) unless self != nil
       end
 
       def or other
@@ -38,7 +38,7 @@ module Spectre
 
     class ::NilClass
       def should_be(val)
-        raise AssertionFailure.new("There is nothing, but the value should be '#{val.to_s.trim}'", val, nil) unless val == nil
+        raise AssertionFailure.new("Value is empty, but it should be '#{val.to_s.trim}'", val, nil) unless val == nil
       end
 
       def should_be_empty
@@ -52,7 +52,7 @@ module Spectre
       end
 
       def should_not_be_empty
-        raise AssertionFailure.new('The value does not exist', 'nil')
+        raise AssertionFailure.new('Value is empty', 'nil')
       end
     end
 
@@ -66,21 +66,21 @@ module Spectre
       end
 
       def should_be_empty
-        raise AssertionFailure.new('The object should be empty', nil, self) unless self.empty?
+        raise AssertionFailure.new('Object should be empty', nil, self) unless self.empty?
       end
 
       def should_not_be_empty
-        raise AssertionFailure.new('The object should not be empty', nil, self) if self.empty?
+        raise AssertionFailure.new('Object should not be empty', nil, self) if self.empty?
       end
     end
 
     class ::OpenStruct
       def should_be_empty
-        raise AssertionFailure.new('The object should be empty', nil, self) unless self.to_h.empty?
+        raise AssertionFailure.new('Object should be empty', nil, self) unless self.to_h.empty?
       end
 
       def should_not_be_empty
-        raise AssertionFailure.new('The object should not be empty', nil, self) if self.to_h.empty?
+        raise AssertionFailure.new('Object should not be empty', nil, self) if self.to_h.empty?
       end
     end
 
@@ -93,7 +93,7 @@ module Spectre
           val = OpenStruct.new(val)
         end
 
-        raise AssertionFailure.new("The list [#{list.join(', ').trim}] should contain '#{val.to_s.trim}'", val, list) unless list.include? val
+        raise AssertionFailure.new("[#{list.join(', ').trim}] should contain '#{val.to_s.trim}'", val, list) unless list.include? val
       end
 
       def should_not_contain(val)
@@ -104,37 +104,37 @@ module Spectre
           val = OpenStruct.new(val)
         end
 
-        raise AssertionFailure.new("The list [#{list.join(', ').trim}] should not contain '#{val.to_s.trim}'", val, list) if list.include? val
+        raise AssertionFailure.new("[#{list.join(', ').trim}] should not contain '#{val.to_s.trim}'", val, list) if list.include? val
       end
 
       def should_be_empty
-        raise AssertionFailure.new('The list is not empty', self) unless self.empty?
+        raise AssertionFailure.new('List is not empty', self) unless self.empty?
       end
 
       def should_not_be_empty
-        raise AssertionFailure.new('The list is empty', self) if self.empty?
+        raise AssertionFailure.new('List is empty', self) if self.empty?
       end
     end
 
     class ::String
       def should_be(val)
-        raise AssertionFailure.new("The text '#{self.trim}' should be '#{val.to_s.trim}'", val, self) unless self == val
+        raise AssertionFailure.new("'#{self.trim}' should be '#{val.to_s.trim}'", val, self) unless self == val
       end
 
       def should_be_empty
-        raise AssertionFailure.new("The text '#{self.trim}' should be empty", nil, self) unless self.empty?
+        raise AssertionFailure.new("'#{self.trim}' should be empty", nil, self) unless self.empty?
       end
 
       def should_not_be(val)
-        raise AssertionFailure.new("The text '#{self.trim}' should not be '#{val.to_s.trim}'", val, self) unless self != val
+        raise AssertionFailure.new("'#{self.trim}' should not be '#{val.to_s.trim}'", val, self) unless self != val
       end
 
       def should_not_be_empty
-        raise AssertionFailure.new('The text should not be empty', 'nothing', self) unless not self.empty?
+        raise AssertionFailure.new('Text should not be empty', 'nothing', self) unless not self.empty?
       end
 
       def should_contain(value)
-        raise AssertionFailure.new("The value is nil") if value.nil?
+        raise AssertionFailure.new("Value is nil") if value.nil?
 
         predicate = proc { |x| self.include? x.to_s }
         evaluation = SingleEvaluation.new(value)
@@ -142,19 +142,19 @@ module Spectre
 
         return if success
 
-        raise AssertionFailure.new("The text '#{self.to_s.trim}' should contain #{evaluation.to_s}", evaluation, self)
+        raise AssertionFailure.new("'#{self.to_s.trim}' should contain #{evaluation.to_s}", evaluation, self)
       end
 
       def should_not_contain(val)
-        raise AssertionFailure.new("The text '#{self.trim}' should not contain '#{val.trim}'", val, self) if self.include? val
+        raise AssertionFailure.new("'#{self.trim}' should not contain '#{val.trim}'", val, self) if self.include? val
       end
 
       def should_match(regex)
-        raise AssertionFailure.new("The text '#{self.trim}' should match '#{val}'", regex, self) unless self.match(regex)
+        raise AssertionFailure.new("'#{self.trim}' should match '#{val}'", regex, self) unless self.match(regex)
       end
 
       def should_not_match(regex)
-        raise AssertionFailure.new("The text '#{self.trim}' should not match '#{val}'", regex, self) if self.match(regex)
+        raise AssertionFailure.new("'#{self.trim}' should not match '#{val}'", regex, self) if self.match(regex)
       end
 
       alias :| :or
@@ -194,10 +194,6 @@ module Spectre
     end
 
     class OrEvaluation < Evaluation
-      def initialize value, other
-        super(value, other)
-      end
-
       def call predicate
         eval_assertion(predicate, @value) or eval_assertion(predicate, @other)
       end
@@ -208,10 +204,6 @@ module Spectre
     end
 
     class AndEvaluation < Evaluation
-      def initialize value, other
-        super(value, other)
-      end
-
       def call predicate
         eval_assertion(predicate, @value) and eval_assertion(predicate, @other)
       end
@@ -236,18 +228,26 @@ module Spectre
       @@success = nil
 
       def expect desc
+        status = 'unknown'
+
         begin
-          Logger.log_process("expect #{desc}")
+          Logging.log_process("expect #{desc}")
           yield
-          Logger.log_status(desc, Logger::Status::OK)
+          Logging.log_status(desc, Logging::Status::OK)
+          status = 'ok'
         rescue Interrupt => e
+          status = 'skipped'
           raise e
         rescue AssertionFailure => e
-          Logger.log_status(desc, Logger::Status::FAILED)
+          Logging.log_status(desc, Logging::Status::FAILED)
+          status = 'failed'
           raise AssertionFailure.new(e.message, e.expected, e.actual, desc), cause: nil
         rescue Exception => e
-          Logger.log_status(desc, Logger::Status::ERROR)
+          Logging.log_status(desc, Logging::Status::ERROR)
+          status = 'error'
           raise AssertionFailure.new("An unexpected error occurred during expectation: #{e.message}", nil, nil, desc), cause: e
+        ensure
+          Spectre::Runner.current.expectations.append([desc, status])
         end
       end
 
@@ -256,7 +256,7 @@ module Spectre
         prefix += " '#{desc}'" if desc
 
         begin
-          Logger.log_info(prefix) if desc
+          Logging.log_info(prefix) if desc
           yield
           @@success = true
           @@logger.info("#{prefix} finished with success")
@@ -281,7 +281,7 @@ module Spectre
     end
 
     Spectre.register do |config|
-      @@logger = ::Logger.new(config['log_file'], progname: 'spectre/assertion')
+      @@logger = Spectre::Logging::ModuleLogger.new(config, 'spectre/assertion')
       @@debug = config['debug']
     end
 

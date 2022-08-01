@@ -43,7 +43,7 @@
        inkscape:swatch="solid"
        gradientTransform="translate(3.6978833,7.3957665)">
       <stop
-         style="stop-color:#11c7e6;stop-opacity:1;"
+         style="stop-color:#0b9dcc;stop-opacity:1;"
          offset="0"
          id="stop929" />
     </linearGradient>
@@ -78,11 +78,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.93014925"
-     inkscape:cx="259.0982"
-     inkscape:cy="292.96374"
+     inkscape:zoom="1.3154297"
+     inkscape:cx="285.45806"
+     inkscape:cy="294.58055"
      inkscape:document-units="mm"
-     inkscape:current-layer="g4221-2"
+     inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:snap-global="true"
      inkscape:snap-bbox="true"
@@ -97,8 +97,8 @@
      units="px"
      inkscape:snap-grids="true"
      inkscape:window-width="1920"
-     inkscape:window-height="1009"
-     inkscape:window-x="1912"
+     inkscape:window-height="1129"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:pagecheckerboard="0"
@@ -116,11 +116,12 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Spectre"
+     inkscape:label="Spectre Profile"
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-161.53334)"
-     style="display:inline">
+     style="display:none"
+     sodipodi:insensitive="true">
     <circle
        style="fill:url(#linearGradient974);fill-opacity:1;stroke:none;stroke-width:1.25846;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill"
        id="path893"
@@ -171,7 +172,8 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="IONOS Spectre"
-     style="display:none">
+     style="display:none"
+     sodipodi:insensitive="true">
     <rect
        style="fill:url(#Spectre_Dark);fill-opacity:1;stroke:none;stroke-width:2.49915;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        id="rect5108"
@@ -222,6 +224,58 @@
         <path
            d="m 8.0112257,14.954736 c 0,0 -0.2622402,0.669385 -0.748107,0.683114 -0.4858668,0.01373 -0.7413854,-0.519393 -0.7413854,-0.519393 0,0 0.391654,0.0016 0.7384379,-0.03607 0.3467838,-0.03767 0.7510545,-0.127651 0.7510545,-0.127651 z"
            id="ellipse819-7-6"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="czczcc"
+           style="fill:url(#Spectre);fill-opacity:1;stroke-width:0.522545"
+           inkscape:export-filename="C:\Tools\spectre-core\spectre_icon.png"
+           inkscape:export-xdpi="299"
+           inkscape:export-ydpi="299" />
+      </g>
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="g867"
+     inkscape:label="Spectre Icon Light"
+     style="display:inline">
+    <path
+       d="M 97.351933,50.777271 H 38.455136 a 3.6810495,3.6810495 0 0 0 -3.681057,3.68105 v 42.332063 a 3.6810495,3.6810495 0 0 0 3.681057,3.681046 h 19.325507 v 5.52158 a 1.8405247,1.8405247 0 0 1 -1.840517,1.84052 h -6.441835 a 0.92026797,0.92026797 0 0 0 0,1.84053 H 65.14274 a 0.92026797,0.92026797 0 0 0 0,-1.84053 h -6.018512 a 3.6810495,3.6810495 0 0 0 0.496955,-1.84052 v -5.52158 h 3.681041 a 0.92026237,0.92026237 0 0 0 0,-1.840514 H 38.455144 A 1.8405247,1.8405247 0 0 1 36.61462,96.790384 V 54.458321 a 1.8405247,1.8405247 0 0 1 1.840524,-1.840529 H 97.35195 a 1.8405247,1.8405247 0 0 1 1.840524,1.840529 v 23.006554 a 0.92026237,0.92026237 0 0 0 1.840516,0 V 54.458321 a 3.6810495,3.6810495 0 0 0 -3.681057,-3.68105 z"
+       style="fill:url(#Spectre_Dark);fill-opacity:1;stroke-width:0.460133"
+       id="path853" />
+    <g
+       id="g855"
+       style="display:inline"
+       transform="translate(158.51086,-161.46142)" />
+    <g
+       id="g865"
+       style="display:inline"
+       transform="matrix(0.6616979,0,0,0.6616979,38.058106,-60.980614)">
+      <path
+         style="fill:none;stroke:url(#Spectre);stroke-width:2.75181;stroke-linecap:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+         inkscape:connector-curvature="0"
+         class="st0"
+         d="m 87.314438,220.45502 c -2.965446,-1.69357 -4.198358,-7.47409 -6.531567,-12.84322 -2.344591,-5.39532 -5.80024,-10.37523 -13.241437,-10.37523 -14.84627,0 -12.430241,16.45022 -18.715617,18.63643 -6.285375,2.18621 -11.344875,8.86753 -11.344875,15.69946 14.2896,-1.82364 8.286409,9.69604 11.92715,13.32925 4.174521,4.16589 7.891305,0.93451 11.934895,7.69523 3.695179,6.17818 12.014082,6.69916 12.014082,6.69916 0,0 -3.17754,-10.29522 5.345264,-12.54277 12.0242,-3.55261 3.991998,-12.1135 17.745155,-9.35513 -0.654889,-4.27936 0.134141,-11.65066 -9.13305,-16.94318 z"
+         id="path857"
+         sodipodi:nodetypes="sssscsscccs"
+         inkscape:export-filename="C:\Tools\spectre-core\spectre_icon.png"
+         inkscape:export-xdpi="299"
+         inkscape:export-ydpi="299" />
+      <g
+         id="g863"
+         transform="matrix(6.7937703,0,0,6.7937703,24.913612,115.45241)"
+         style="fill:#0b9dcc;fill-opacity:1">
+        <path
+           d="m 5.9963355,15.094538 c 0,0 -0.1905226,0.399828 -0.6815162,0.320321 -0.4909939,-0.0795 -0.6341843,-0.591042 -0.6341843,-0.591042 0,0 0.378481,0.114842 0.6619948,0.167782 0.2835137,0.05294 0.6537059,0.102935 0.6537059,0.102935 z"
+           id="path859"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="czczcc"
+           style="fill:url(#Spectre);fill-opacity:1;stroke-width:0.522545"
+           inkscape:export-filename="C:\Tools\spectre-core\spectre_icon.png"
+           inkscape:export-xdpi="299"
+           inkscape:export-ydpi="299" />
+        <path
+           d="m 8.0112257,14.954736 c 0,0 -0.2622402,0.669385 -0.748107,0.683114 -0.4858668,0.01373 -0.7413854,-0.519393 -0.7413854,-0.519393 0,0 0.391654,0.0016 0.7384379,-0.03607 0.3467838,-0.03767 0.7510545,-0.127651 0.7510545,-0.127651 z"
+           id="path861"
            inkscape:connector-curvature="0"
            sodipodi:nodetypes="czczcc"
            style="fill:url(#Spectre);fill-opacity:1;stroke-width:0.522545"

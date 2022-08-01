@@ -1,0 +1,27 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Test and Build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.1'
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+    - name: Style check
+      run: bundle exec rubocop
+    - name: Run tests
+      run: bundle exec rspec spec
+    - name: Build gem
+      run: bundle exec rake build

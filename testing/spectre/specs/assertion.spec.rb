@@ -1,6 +1,8 @@
 describe 'spectre/assertion' do
   context 'fails' do
     it 'compares two equal strings and fails', tags: [:assertion, :equal, :fatal] do
+      log 'check two string which should not be equal'
+
       expect 'two strings not to be equal' do
         'foo'.should_not_be 'foo'
       end

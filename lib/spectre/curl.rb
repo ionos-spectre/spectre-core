@@ -310,7 +310,7 @@ module Spectre::Curl
 
       start_time = Time.now
 
-      stdin, stdout, stderr, wait_thr = Open3.popen3(sys_cmd)
+      _, stdout, stderr, wait_thr = Open3.popen3(sys_cmd)
 
       end_time = Time.now
 
@@ -359,8 +359,8 @@ module Spectre::Curl
       end
 
       res_log = "[<] #{req_id} #{res[:code]} #{res[:message]} (#{end_time - start_time}s)\n"
-      res_headers.each do |header|
-        res_log += "#{header[0].to_s.ljust(30, '.')}: #{header[1].to_s}\n"
+      res_headers.each do |http_header|
+        res_log += "#{http_header[0].to_s.ljust(30, '.')}: #{http_header[1].to_s}\n"
       end
 
       if res[:body] != nil and not res[:body].empty?
@@ -380,11 +380,9 @@ module Spectre::Curl
   Spectre.register do |config|
     @@debug = config['debug']
 
-    @@logger = ::Logger.new(config['log_file'], progname: 'spectre/curl')
-    @@logger.level = @@debug ? Logger::DEBUG : Logger::INFO
+    @@logger = Spectre::Logging::ModuleLogger.new(config, 'spectre/curl')
 
     @@secure_keys = config['secure_keys'] || []
-
     @@curl_path = config['curl_path'] || 'curl'
 
     if config.key? 'http'

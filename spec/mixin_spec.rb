@@ -29,8 +29,6 @@ RSpec.describe 'spectre/mixin' do
   it 'runs a mixin with list parameters' do
     mixin_name = 'do something'
 
-    some_value = nil
-
     Spectre::Mixin.mixin mixin_name do |foo, bar|
       expect(foo).to eq(1)
       expect(bar).to eq(2)
@@ -41,8 +39,6 @@ RSpec.describe 'spectre/mixin' do
 
   it 'runs a mixin with a hash parameter' do
     mixin_name = 'do something'
-
-    some_value = nil
 
     Spectre::Mixin.mixin mixin_name do |params|
       expect(params).to be_a(OpenStruct)
@@ -56,7 +52,7 @@ RSpec.describe 'spectre/mixin' do
   it 'returns a value from a mixin' do
     mixin_name = 'do something'
 
-    Spectre::Mixin.mixin mixin_name do |params|
+    Spectre::Mixin.mixin mixin_name do |_params|
       'foo'
     end
 

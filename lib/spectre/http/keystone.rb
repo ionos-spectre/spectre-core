@@ -42,8 +42,6 @@ module Spectre::Http
       net_req['X-Auth-Token'] = token
     end
 
-    private
-
     def self.authenticate keystone_url, username, password, project, domain, cert
       auth_data = {
         auth: {

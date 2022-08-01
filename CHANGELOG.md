@@ -1,3 +1,14 @@
+### v1.13.0
+
+### Major
+ - `spectre/async` module added. See _Async `spectre/async`_ section in `README.md` for more information.
+ - `spectre/reporter/vstest` report added. This reporter writes Visual Studio Test (TRX) reports
+ - `spectre/reporter/html` report added. Creates an interactive HTML report for sharing and analyzing test results.
+
+#### Minor
+ - `Array.first_element` added to be consistent with `Array.last_element`, which was added because some libraries override `Array.last` which caused some issues.
+ - Updated the run info name in the JUnit report. It now contains spec name and context name
+
 ### v1.12.4
 
 #### Major

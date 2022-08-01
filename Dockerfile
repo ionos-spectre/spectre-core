@@ -6,7 +6,7 @@ WORKDIR /src
 
 RUN apk update; apk add build-base mariadb-dev
 
-RUN bundle update --bundler
+# RUN bundle update --bundler
 RUN bundle install
 RUN bundle exec rake install
 

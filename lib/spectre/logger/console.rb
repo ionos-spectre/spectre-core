@@ -1,7 +1,7 @@
 require 'ectoplasm'
 
 module Spectre
-  module Logger
+  module Logging
     class Console
       def initialize config
         raise 'No log format section in config for console logger' unless config.key? 'log_format' and config['log_format'].key? 'console'

@@ -16,6 +16,7 @@ end
 
 
 DEFAULT_CONFIG = {
+  'project' => nil,
   'config_file' => './spectre.yml',
   'environment' => 'default',
   'specs' => [],
@@ -26,8 +27,8 @@ DEFAULT_CONFIG = {
     'Spectre::Reporter::Console',
   ],
   'loggers' => [
-    'Spectre::Logger::Console',
-    'Spectre::Logger::File',
+    'Spectre::Logging::Console',
+    'Spectre::Logging::File',
   ],
   'log_file' => './logs/spectre_<date>.log',
   'log_format' => {
@@ -55,6 +56,8 @@ DEFAULT_CONFIG = {
     'spectre/helpers',
     'spectre/reporter/console',
     'spectre/reporter/junit',
+    'spectre/reporter/vstest',
+    'spectre/reporter/html',
     'spectre/logger/console',
     'spectre/logger/file',
     'spectre/assertion',
@@ -66,6 +69,7 @@ DEFAULT_CONFIG = {
     'spectre/http/basic_auth',
     'spectre/http/keystone',
     'spectre/resources',
+    'spectre/async',
   ],
   'include' => [
 
@@ -79,20 +83,22 @@ DEFAULT_CONFIG = {
 cmd_options = {}
 property_overrides = {}
 
-opt_parser = OptionParser.new do |opts|
-opts.banner = %{Spectre #{Spectre::VERSION}
+$COMMAND = ['spectre'].concat(ARGV.clone).join(' ')
 
-Usage: spectre [command] [options]
+OptionParser.new do |opts|
+  opts.banner = %{Spectre #{Spectre::VERSION}
 
-Commands:
-  list        List specs
-  run         Run specs (default)
-  show        Print current environment settings
-  dump        Dumps the given environment in YAML format to console
-  cleanup     Will remove all generated files (e.g. logs and reports)
-  init        Initializes a new spectre project
+  Usage: spectre [command] [options]
 
-Specific options:}
+  Commands:
+    list        List specs
+    run         Run specs (default)
+    show        Print current environment settings
+    dump        Dumps the given environment in YAML format to console
+    cleanup     Will remove all generated files (e.g. logs and reports)
+    init        Initializes a new spectre project
+
+  Specific options:}
 
   opts.on('-s SPEC,SPEC', '--specs SPEC,SPEC', Array, 'The specs to run') do |specs|
     cmd_options['specs'] = specs
@@ -199,6 +205,8 @@ if File.exists? config_file
   Dir.chdir File.dirname(config_file)
 end
 
+cfg['project'] = File.basename(Dir.pwd) unless cfg['project']
+
 cfg.deep_merge! cmd_options
 
 ###########################################
@@ -300,16 +308,15 @@ if 'run' == action
   # Initialize logger
   now = Time.now
 
-  cfg['log_file'] = cfg['log_file'].frmt(
-{
-  shortdate: now.strftime('%Y-%m-%d'),
-  date: now.strftime('%Y-%m-%d_%H%M%S'),
-  timestamp: now.strftime('%s'),
-  subject: 'spectre',
-})
+  cfg['log_file'] = cfg['log_file'].frmt({
+    shortdate: now.strftime('%Y-%m-%d'),
+    date: now.strftime('%Y-%m-%d_%H%M%S'),
+    timestamp: now.strftime('%s'),
+    subject: 'spectre',
+  })
 
-  log_dir = File.dirname cfg['log_file']
-  FileUtils.makedirs log_dir unless Dir.exists? log_dir
+  log_dir = File.dirname(cfg['log_file'])
+  FileUtils.makedirs(log_dir)
 
   # Load Modules
 
@@ -346,11 +353,11 @@ if 'run' == action
 
   Spectre.configure(cfg)
 
-  Spectre::Logger.debug! if cfg['debug']
+  Spectre::Logging.debug! if cfg['debug']
 
   cfg['loggers'].each do |logger_name|
     logger = Kernel.const_get(logger_name).new(cfg)
-    Spectre::Logger.add(logger)
+    Spectre::Logging.add(logger)
   end if cfg['loggers']
 
   specs = Spectre.specs(cfg['specs'], cfg['tags'])

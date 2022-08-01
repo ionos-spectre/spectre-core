@@ -51,6 +51,11 @@ describe 'spectre/reporter' do
 
   it 'allows some $pecial chars in => description #$@<>', tags: [:reporter] do
     info 'some log message with special chars $#@!+<>'
+    log '<script>alert(1)</script>'
   end
 
+  it 'does not allow HTML injection', tags: [:reporter] do
+    log '<script>alert(1)</script>'
+    log '<h1>Hello HTML!</h1></div>'
+  end
 end
