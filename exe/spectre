@@ -205,6 +205,10 @@ if File.exists? config_file
   Dir.chdir File.dirname(config_file)
 end
 
+# Set config options, which are only allowed to be overriden by command options
+cfg['debug'] = DEFAULT_CONFIG['debug']
+
+# Set project name
 cfg['project'] = File.basename(Dir.pwd) unless cfg['project']
 
 cfg.deep_merge! cmd_options
