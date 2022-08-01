@@ -228,18 +228,26 @@ module Spectre
       @@success = nil
 
       def expect desc
+        status = 'unknown'
+
         begin
           Logging.log_process("expect #{desc}")
           yield
           Logging.log_status(desc, Logging::Status::OK)
+          status = 'ok'
         rescue Interrupt => e
+          status = 'skipped'
           raise e
         rescue AssertionFailure => e
           Logging.log_status(desc, Logging::Status::FAILED)
+          status = 'failed'
           raise AssertionFailure.new(e.message, e.expected, e.actual, desc), cause: nil
         rescue Exception => e
           Logging.log_status(desc, Logging::Status::ERROR)
+          status = 'error'
           raise AssertionFailure.new("An unexpected error occurred during expectation: #{e.message}", nil, nil, desc), cause: e
+        ensure
+          Spectre::Runner.current.expectations.append([desc, status])
         end
       end
 

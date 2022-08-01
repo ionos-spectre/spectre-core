@@ -111,7 +111,7 @@ module Spectre
 
   class RunInfo
     attr_accessor :spec, :data, :started, :finished, :error, :failure, :skipped
-    attr_reader :log, :properties
+    attr_reader :expectations, :log, :properties
 
     def initialize spec, data=nil
       @spec = spec
@@ -122,6 +122,7 @@ module Spectre
       @failure = nil
       @skipped = false
       @log = []
+      @expectations = []
       @properties = {}
     end
 
