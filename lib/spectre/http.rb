@@ -109,6 +109,10 @@ module Spectre
         @__req['use_ssl'] = true
       end
 
+      def no_log!
+        @__req['no_log'] = true
+      end
+
       def to_s
         @__req.to_s
       end
@@ -227,6 +231,10 @@ module Spectre
           # do nothing
         end
 
+        if str.length > 1000
+          str = str[0...1000] + "\n[...]"
+        end
+
         str
       end
 
@@ -311,7 +319,14 @@ module Spectre
 
         req_log = "[>] #{req_id} #{req['method']} #{uri}\n"
         req_log += header_to_s(net_req)
-        req_log += try_format_json(req['body'], pretty: true) if req['body'] != nil and not req['body'].empty?
+
+        unless req['body'].nil? or req['body'].empty?
+          unless req['no_log']
+            req_log += try_format_json(req['body'], pretty: true)
+          else
+            req_log += '[...]'
+          end
+        end
 
         @@logger.info(req_log)
 
@@ -342,7 +357,14 @@ module Spectre
 
         res_log = "[<] #{req_id} #{net_res.code} #{net_res.message} (#{end_time - start_time}s)\n"
         res_log += header_to_s(net_res)
-        res_log += try_format_json(net_res.body, pretty: true) unless net_res.body.nil? or net_res.body.empty?
+
+        unless net_res.body.nil? or net_res.body.empty?
+          unless req['no_log']
+            res_log += try_format_json(net_res.body, pretty: true)
+          else
+            req_log += '[...]'
+          end
+        end
 
         @@logger.info(res_log)
 
