@@ -6,7 +6,7 @@
 
 #### Minor
  - `Array.first_element` added to be consistent with `Array.last_element`, which was added because some libraries override `Array.last` which caused some issues.
-
+ - Updated the run info name in the JUnit report. It now contains spec name and context name
 
 ### v1.12.4
 
