@@ -1,4 +1,4 @@
-### vNext
+### v1.13.0
 
 ### Major
  - `spectre/async` module added. See _Async `spectre/async`_ section in `README.md` for more information.
