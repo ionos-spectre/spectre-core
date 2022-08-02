@@ -1,3 +1,8 @@
+### vNext
+
+#### Minor
+ - Set `application/json` content, when `json()` in `http` module is called, only if `content_type` was not set before
+
 ### v1.13.0
 
 ### Major
