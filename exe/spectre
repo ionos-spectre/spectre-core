@@ -431,10 +431,12 @@ if 'cleanup' == action
 
   Dir.glob(log_file_pattern).each do |log_file|
     File.delete(log_file)
+    puts "#{log_file} deleted"
   end
 
   Dir.glob(File.join cfg['out_path'], '/*').each do |out_file|
     File.delete(out_file)
+    puts "#{out_file} deleted"
   end
 end
 
