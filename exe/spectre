@@ -86,19 +86,21 @@ property_overrides = {}
 $COMMAND = ['spectre'].concat(ARGV.clone).join(' ')
 
 OptionParser.new do |opts|
-  opts.banner = %{Spectre #{Spectre::VERSION}
+  opts.banner = <<~BANNER
+    Spectre #{Spectre::VERSION}
 
-  Usage: spectre [command] [options]
+    Usage: spectre [command] [options]
 
-  Commands:
-    list        List specs
-    run         Run specs (default)
-    show        Print current environment settings
-    dump        Dumps the given environment in YAML format to console
-    cleanup     Will remove all generated files (e.g. logs and reports)
-    init        Initializes a new spectre project
+      Commands:
+        list        List specs
+        run         Run specs (default)
+        show        Print current environment settings
+        dump        Dumps the given environment in YAML format to console
+        cleanup     Will remove all generated files (e.g. logs and reports)
+        init        Initializes a new spectre project
 
-  Specific options:}
+      Specific options:
+  BANNER
 
   opts.on('-s SPEC,SPEC', '--specs SPEC,SPEC', Array, 'The specs to run') do |specs|
     cmd_options['specs'] = specs
@@ -136,11 +138,11 @@ OptionParser.new do |opts|
     cmd_options['out_path'] = File.absolute_path(path)
   end
 
-  opts.on('-r NAME', '--reporters NAME', Array, "A list of reporters to use") do |reporters|
+  opts.on('-r NAME,NAME', '--reporters NAME,NAME', Array, "A list of reporters to use") do |reporters|
     cmd_options['reporters'] = reporters
   end
 
-  opts.on('-d', '--debug', "Run in debug mode") do
+  opts.on('-d', '--debug', "Run in debug mode. Do not use in production!") do
     cmd_options['debug'] = true
   end
 
@@ -165,9 +167,9 @@ OptionParser.new do |opts|
     end
   end
 
-  opts.separator "\nCommon options:"
+  opts.separator "\n  Common options:"
 
-  opts.on_tail('--version', 'Print current installed version') do
+  opts.on_tail('-v', '--version', 'Print current installed version') do
     puts Spectre::VERSION
     exit
   end
