@@ -19,7 +19,7 @@ module Spectre
       'cert' => nil,
       'headers' => nil,
       'query' => nil,
-      'content_type' => '',
+      'content_type' => nil,
       'timeout' => 180,
       'retries' => 0,
     }
