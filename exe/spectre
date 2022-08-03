@@ -519,7 +519,7 @@ SAMPLE_SPEC = %[describe '<subject>' do
     end
 
     expect 'a message to exist' do
-      response.json.message.should_not_be nil
+      response.json.message.should_not_be_empty
     end
   end
 end
