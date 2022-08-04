@@ -17,7 +17,6 @@ Gem::Specification.new do |spec|
   spec.metadata['changelog_uri']   = 'https://github.com/ionos-spectre/spectre-core/blob/master/CHANGELOG.md'
 
   spec.files        += Dir.glob('lib/**/*')
-  spec.files        += Dir.glob('resources/**/*')
   spec.files        += Dir.glob('exe/*')
 
   spec.bindir        = 'exe'
