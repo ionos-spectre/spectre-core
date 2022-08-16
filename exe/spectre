@@ -55,7 +55,6 @@ DEFAULT_CONFIG = {
   'modules' => [
     'spectre/helpers',
     'spectre/reporter/console',
-    'spectre/reporter/junit',
     'spectre/logger/console',
     'spectre/logger/file',
     'spectre/assertion',
