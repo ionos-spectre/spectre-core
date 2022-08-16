@@ -1,6 +1,8 @@
 ### vNext
 
 #### Major
+ - `spectre/reporter/junit` reporter module was extracted into a separate gem. See https://github.com/ionos-spectre/spectre-reporter-junit
+ - `spectre/reporter/vstest` reporter module was extracted into a separate gem. See https://github.com/ionos-spectre/spectre-reporter-vstest
  - `spectre/reporter/html` reporter module was extracted into a separate gem. See https://github.com/ionos-spectre/spectre-reporter-html
 
 #### Minor

@@ -201,9 +201,6 @@ resource_paths:
 modules: # Modules to require by default. Use `include` and `exclude` to modify this list without declaring explicit module list
   - spectre/helpers
   - spectre/reporter/console
-  - spectre/reporter/junit
-  - spectre/reporter/vstest
-  - spectre/reporter/html
   - spectre/logger/console
   - spectre/logger/file
   - spectre/assertion
@@ -1176,9 +1173,6 @@ The following reporters are available with `spectre-core`
 | Name | Module | Reference |
 | ---- | ------ | --------- |
 | Console | `spectre/reporters/console` | `Spectre::Reporter::Console` |
-| JUnit | `spectre/reporters/junit` | `Spectre::Reporter::JUnit` |
-| VSTest | `spectre/reporters/vstest` | `Spectre::Reporter::VTest` |
-| HTML | `spectre/reporters/html` | `Spectre::Reporter::HTML` |
 
 The reporter module provides some functions to add additional information to the report.
 
