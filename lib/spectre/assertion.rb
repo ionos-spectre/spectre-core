@@ -1,4 +1,5 @@
 require_relative '../spectre'
+require_relative '../spectre/helpers'
 
 require 'ostruct'
 require_relative 'logger'
