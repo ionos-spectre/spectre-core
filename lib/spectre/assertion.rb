@@ -8,32 +8,39 @@ require_relative 'logger'
 module Spectre
   module Assertion
     class ::Object
-      def should_be(val)
-        raise AssertionFailure.new("'#{self.to_s.trim}' should be '#{val.to_s.trim}'", val, self) unless self.to_s == val.to_s
+      def should_be(value)
+        evaluate(value, "#{self} should be #{value}") do |x|
+          self.equal? x
+        end
       end
 
       def should_be_empty
-        raise AssertionFailure.new("'#{self.to_s.trim}' should be empty", nil, self) unless self.nil?
+        raise AssertionFailure.new("#{self.to_s.trim} should be empty", nil, self) unless self.nil?
       end
 
       def should_not_be(val)
-        raise AssertionFailure.new("'#{self.to_s.trim}' should not be '#{val.to_s.trim}'", val, self) unless self.to_s != val.to_s
+        raise AssertionFailure.new("#{self.to_s.trim} should not be #{val.to_s.trim}", val, self) unless self.to_s != val.to_s
       end
 
       def should_not_exist
-        raise AssertionFailure.new("'#{self.to_s.trim}' should not exist, but it does", val, self) unless self.to_s != nil
+        raise AssertionFailure.new("#{self.to_s.trim} should not exist, but it does", val, self) unless self.to_s != nil
       end
 
       def should_not_be_empty
         raise AssertionFailure.new('empty value', 'nothing', self) unless self != nil
       end
 
+      def evaluate val, message, &block
+        val = Evaluation.new(val) unless val.is_a? Evaluation
+        raise AssertionFailure.new(message, val, self) unless val.run &block
+      end
+
       def or other
-        OrEvaluation.new self, other
+        OrEvaluation.new(self, other)
       end
 
       def and other
-        AndEvaluation.new self, other
+        AndEvaluation.new(self, other)
       end
     end
 
@@ -94,7 +101,9 @@ module Spectre
           val = OpenStruct.new(val)
         end
 
-        raise AssertionFailure.new("[#{list.join(', ').trim}] should contain '#{val.to_s.trim}'", val, list) unless list.include? val
+        evaluate(val, "#{self} should contain #{val.to_s}") do |x|
+          self.include? x
+        end
       end
 
       def should_not_contain(val)
@@ -135,15 +144,9 @@ module Spectre
       end
 
       def should_contain(value)
-        raise AssertionFailure.new("Value is nil") if value.nil?
-
-        predicate = proc { |x| self.include? x.to_s }
-        evaluation = SingleEvaluation.new(value)
-        success = evaluation.call(predicate)
-
-        return if success
-
-        raise AssertionFailure.new("'#{self.to_s.trim}' should contain #{evaluation.to_s}", evaluation, self)
+        evaluate(value, "'#{self.trim}' should contain #{value.to_s}") do |x|
+          self.include? x.to_s
+        end
       end
 
       def should_not_contain(val)
@@ -163,54 +166,58 @@ module Spectre
     end
 
     class Evaluation
-      def initialize value, other
-        @value = value
-        @other = other
+      def initialize val
+        @val = val
       end
 
-      def eval_assertion predicate, val
+      def run &block
+        evaluate(@val)
+      end
+
+      def evaluate(val, predicate)
         if val.is_a? Evaluation
-          val.call(predicate)
+          val.run &predicate
         else
           predicate.call(val)
         end
       end
 
-      alias :| :or
-      alias :& :and
-    end
-
-    class SingleEvaluation < Evaluation
-      def initialize value
-        super(value, nil)
-      end
-
-      def call predicate
-        eval_assertion(predicate, @value)
-      end
-
       def to_s
-        @value.to_s
+        @val.to_s
       end
     end
 
     class OrEvaluation < Evaluation
-      def call predicate
-        eval_assertion(predicate, @value) or eval_assertion(predicate, @other)
+      def initialize val, other
+        @val = val
+        @other = other
+      end
+
+      def run &block
+        res1 = evaluate(@val, block)
+        res2 = evaluate(@other, block)
+        res1 or res2
       end
 
       def to_s
-        "(#{@value.to_s} or #{@other.to_s})"
+        "(#{@val} or #{@other})"
       end
     end
 
     class AndEvaluation < Evaluation
-      def call predicate
-        eval_assertion(predicate, @value) and eval_assertion(predicate, @other)
+      def initialize val, other
+        @val = val
+        @other = other
+      end
+
+      def run &block
+        res1 = evaluate(@val, block)
+        res2 = evaluate(@other, block)
+        res1 and res2
       end
 
       def to_s
-        "(#{@value.to_s} and #{@other.to_s})"
+        "(#{@val} and #{@other})"
       end
     end
 
