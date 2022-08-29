@@ -171,7 +171,7 @@ module Spectre
       end
 
       def run &block
-        evaluate(@val)
+        evaluate(@val, block)
       end
 
       def evaluate(val, predicate)
