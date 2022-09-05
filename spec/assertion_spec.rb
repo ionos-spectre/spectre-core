@@ -2,7 +2,6 @@ require 'spectre/assertion'
 
 RSpec.describe 'spectre/assertion' do
   it 'evaluates single assertions' do
-
     42.should_be 42
     '42'.should_be 42
     42.should_be '42'
@@ -26,7 +25,6 @@ RSpec.describe 'spectre/assertion' do
   end
 
   it 'evaluates complex assertions' do
-
     42.should_be 42.or 12
     12.should_be 42.or 12
 
@@ -42,6 +40,5 @@ RSpec.describe 'spectre/assertion' do
     expect do
       [3, 4].should_contain 1.or 2.and 3
     end.to raise_error(Spectre::Assertion::AssertionFailure)
-
   end
 end

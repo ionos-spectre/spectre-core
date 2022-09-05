@@ -101,8 +101,8 @@ module Spectre
           val = OpenStruct.new(val)
         end
 
-        evaluate(val, "#{self} should contain #{val.to_s}") do |x|
-          self.include? x
+        evaluate(val, "#{list} should contain #{val.to_s}") do |x|
+          list.include? x
         end
       end
 
@@ -138,7 +138,7 @@ module Spectre
       end
 
       def should_not_be(val)
-        evaluate(value, "'#{self}' should not be '#{value}'") do |x|
+        evaluate(val, "'#{self}' should not be '#{val}'") do |x|
           self.to_s != x.to_s
         end
       end
