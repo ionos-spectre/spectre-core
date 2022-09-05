@@ -9,6 +9,8 @@
  - Set `application/json` content, when `json()` in `http` module is called, only if `content_type` was not set before
  - `-m --modules` parameter was added. This parameter lets you load additional modules before running spectre, e.g. load reporter module like `spectre/reporter/html`, which is not included in the `spectre-core` library.
  - `or` and `and` evaluation refactored and fixed. `or` and `and` did not work properly in combination with eachother.
+ - Log truncation for HTTP requests removed
+ - `no_log!` function for `http` module added, in order to ommit body logging for large content
 
 ### v1.13.0
 
