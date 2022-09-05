@@ -230,10 +230,6 @@ module Spectre
           # do nothing
         end
 
-        if str.length > 1000 and not @@debug
-          str = str[0...1000] + "\n[...]"
-        end
-
         str
       end
 
