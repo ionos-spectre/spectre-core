@@ -17,13 +17,12 @@ Gem::Specification.new do |spec|
   spec.metadata['changelog_uri']   = 'https://github.com/ionos-spectre/spectre-core/blob/master/CHANGELOG.md'
 
   spec.files        += Dir.glob('lib/**/*')
-  spec.files        += Dir.glob('resources/**/*')
   spec.files        += Dir.glob('exe/*')
 
   spec.bindir        = 'exe'
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_runtime_dependency 'ectoplasm', '>= 1.2.1'
+  spec.add_runtime_dependency 'ectoplasm', '>= 1.2.3'
   spec.add_runtime_dependency 'jsonpath', '>= 1.1.0'
 end

@@ -55,9 +55,6 @@ DEFAULT_CONFIG = {
   'modules' => [
     'spectre/helpers',
     'spectre/reporter/console',
-    'spectre/reporter/junit',
-    'spectre/reporter/vstest',
-    'spectre/reporter/html',
     'spectre/logger/console',
     'spectre/logger/file',
     'spectre/assertion',
@@ -86,19 +83,21 @@ property_overrides = {}
 $COMMAND = ['spectre'].concat(ARGV.clone).join(' ')
 
 OptionParser.new do |opts|
-  opts.banner = %{Spectre #{Spectre::VERSION}
+  opts.banner = <<~BANNER
+    Spectre #{Spectre::VERSION}
 
-  Usage: spectre [command] [options]
+    Usage: spectre [command] [options]
 
-  Commands:
-    list        List specs
-    run         Run specs (default)
-    show        Print current environment settings
-    dump        Dumps the given environment in YAML format to console
-    cleanup     Will remove all generated files (e.g. logs and reports)
-    init        Initializes a new spectre project
+      Commands:
+        list        List specs
+        run         Run specs (default)
+        show        Print current environment settings
+        dump        Dumps the given environment in YAML format to console
+        cleanup     Will remove all generated files (e.g. logs and reports)
+        init        Initializes a new spectre project
 
-  Specific options:}
+      Specific options:
+  BANNER
 
   opts.on('-s SPEC,SPEC', '--specs SPEC,SPEC', Array, 'The specs to run') do |specs|
     cmd_options['specs'] = specs
@@ -136,11 +135,17 @@ OptionParser.new do |opts|
     cmd_options['out_path'] = File.absolute_path(path)
   end
 
-  opts.on('-r NAME', '--reporters NAME', Array, "A list of reporters to use") do |reporters|
+  opts.on('-r NAME,NAME', '--reporters NAME,NAME', Array, "A list of reporters to use") do |reporters|
     cmd_options['reporters'] = reporters
   end
 
-  opts.on('-d', '--debug', "Run in debug mode") do
+  opts.on('-m MODULE,MODULE', '--modules MODULE,MODULE', Array, "Load the given modules") do |modules|
+    modules.each do |mod|
+      require mod
+    end
+  end
+
+  opts.on('-d', '--debug', "Run in debug mode. Do not use in production!") do
     cmd_options['debug'] = true
   end
 
@@ -165,9 +170,9 @@ OptionParser.new do |opts|
     end
   end
 
-  opts.separator "\nCommon options:"
+  opts.separator "\n  Common options:"
 
-  opts.on_tail('--version', 'Print current installed version') do
+  opts.on_tail('-v', '--version', 'Print current installed version') do
     puts Spectre::VERSION
     exit
   end
@@ -205,14 +210,18 @@ if File.exists? config_file
   Dir.chdir File.dirname(config_file)
 end
 
+# Set config options, which are only allowed to be overriden by command options
+cfg['debug'] = DEFAULT_CONFIG['debug']
+
+# Set project name
 cfg['project'] = File.basename(Dir.pwd) unless cfg['project']
 
 cfg.deep_merge! cmd_options
 
+
 ###########################################
 # Load Environment
 ###########################################
-
 
 envs = {}
 read_env_files = {}
@@ -258,127 +267,131 @@ require_relative '../lib/spectre/environment' unless cfg['exclude'].include? 'sp
 Spectre.configure(cfg)
 
 
-###########################################
-# Load Specs
-###########################################
+# Load specs only, when listing or running specs
+if ['list', 'run'].include? action
+
+  ###########################################
+  # Load Specs
+  ###########################################
 
 
-cfg['spec_patterns'].each do |pattern|
-  Dir.glob(pattern).each do|f|
-    require_relative File.join(Dir.pwd, f)
-  end
-end
-
-
-###########################################
-# List specs
-###########################################
-
-
-if 'list' == action
-  colors = [:blue, :magenta, :yellow, :green]
-  specs = Spectre.specs(cfg['specs'], cfg['tags'])
-
-  exit 1 unless specs.any?
-
-  counter = 0
-
-  specs.group_by { |x| x.subject }.each do |subject, spec_group|
-    spec_group.each do |spec|
-      tags = spec.tags.map { |x| '#' + x.to_s }.join ' '
-      desc = subject.desc
-      desc += ' - ' + spec.context.__desc + ' -' if spec.context.__desc
-      desc += ' ' + spec.desc
-      puts "[#{spec.name}]".send(colors[counter % colors.length]) + " #{desc} #{tags.cyan}"
-    end
-
-    counter += 1
-  end
-
-  exit 0
-end
-
-
-###########################################
-# Run
-###########################################
-
-
-if 'run' == action
-  # Initialize logger
-  now = Time.now
-
-  cfg['log_file'] = cfg['log_file'].frmt({
-    shortdate: now.strftime('%Y-%m-%d'),
-    date: now.strftime('%Y-%m-%d_%H%M%S'),
-    timestamp: now.strftime('%s'),
-    subject: 'spectre',
-  })
-
-  log_dir = File.dirname(cfg['log_file'])
-  FileUtils.makedirs(log_dir)
-
-  # Load Modules
-
-  cfg['modules']
-    .concat(cfg['include'])
-    .select { |mod| !cfg['exclude'].include? mod }
-    .each do |mod|
-    begin
-      mod_file = mod + '.rb'
-      spectre_lib_mod = File.join(File.dirname(__dir__), 'lib', mod_file)
-
-      if File.exists? mod_file
-        require_relative mod_file
-
-      elsif File.exists? spectre_lib_mod
-        require_relative spectre_lib_mod
-
-      else
-        require mod
-      end
-    rescue LoadError => e
-      puts "Unable to load module #{mod}. Check if the module exists or remove it from your spectre config:\n#{e.message}"
-      exit 1
-    end
-  end
-
-  # Load mixins
-
-  cfg['mixin_patterns'].each do |pattern|
+  cfg['spec_patterns'].each do |pattern|
     Dir.glob(pattern).each do|f|
       require_relative File.join(Dir.pwd, f)
     end
   end
 
-  Spectre.configure(cfg)
 
-  Spectre::Logging.debug! if cfg['debug']
+  ###########################################
+  # List specs
+  ###########################################
 
-  cfg['loggers'].each do |logger_name|
-    logger = Kernel.const_get(logger_name).new(cfg)
-    Spectre::Logging.add(logger)
-  end if cfg['loggers']
 
-  specs = Spectre.specs(cfg['specs'], cfg['tags'])
+  if 'list' == action
+    colors = [:blue, :magenta, :yellow, :green]
+    specs = Spectre.specs(cfg['specs'], cfg['tags'])
 
-  unless specs.any?
-    puts "No specs found in #{Dir.pwd}"
+    exit 1 unless specs.any?
+
+    counter = 0
+
+    specs.group_by { |x| x.subject }.each do |subject, spec_group|
+      spec_group.each do |spec|
+        tags = spec.tags.map { |x| '#' + x.to_s }.join ' '
+        desc = subject.desc
+        desc += ' - ' + spec.context.__desc + ' -' if spec.context.__desc
+        desc += ' ' + spec.desc
+        puts "[#{spec.name}]".send(colors[counter % colors.length]) + " #{desc} #{tags.cyan}"
+      end
+
+      counter += 1
+    end
+
+    exit 0
+  end
+
+
+  ###########################################
+  # Run
+  ###########################################
+
+
+  if 'run' == action
+    # Initialize logger
+    now = Time.now
+
+    cfg['log_file'] = cfg['log_file'].frmt({
+      shortdate: now.strftime('%Y-%m-%d'),
+      date: now.strftime('%Y-%m-%d_%H%M%S'),
+      timestamp: now.strftime('%s'),
+      subject: 'spectre',
+    })
+
+    log_dir = File.dirname(cfg['log_file'])
+    FileUtils.makedirs(log_dir)
+
+    # Load Modules
+
+    cfg['modules']
+      .concat(cfg['include'])
+      .select { |mod| !cfg['exclude'].include? mod }
+      .each do |mod|
+      begin
+        mod_file = mod + '.rb'
+        spectre_lib_mod = File.join(File.dirname(__dir__), 'lib', mod_file)
+
+        if File.exists? mod_file
+          require_relative mod_file
+
+        elsif File.exists? spectre_lib_mod
+          require_relative spectre_lib_mod
+
+        else
+          require mod
+        end
+      rescue LoadError => e
+        puts "Unable to load module #{mod}. Check if the module exists or remove it from your spectre config:\n#{e.message}"
+        exit 1
+      end
+    end
+
+    # Load mixins
+
+    cfg['mixin_patterns'].each do |pattern|
+      Dir.glob(pattern).each do|f|
+        require_relative File.join(Dir.pwd, f)
+      end
+    end
+
+    Spectre.configure(cfg)
+
+    Spectre::Logging.debug! if cfg['debug']
+
+    cfg['loggers'].each do |logger_name|
+      logger = Kernel.const_get(logger_name).new(cfg)
+      Spectre::Logging.add(logger)
+    end if cfg['loggers']
+
+    specs = Spectre.specs(cfg['specs'], cfg['tags'])
+
+    unless specs.any?
+      puts "No specs found in #{Dir.pwd}"
+      exit 1
+    end
+
+    run_infos = Spectre::Runner.new.run(specs)
+
+    cfg['reporters'].each do |reporter|
+      reporter = Kernel.const_get(reporter).new(cfg)
+      reporter.report(run_infos)
+    end
+
+    errors = run_infos.select { |x| nil != x.error or nil != x.failure }
+
+    exit 0 if cfg['ignore_failure'] or not errors.any?
+
     exit 1
   end
-
-  run_infos = Spectre::Runner.new.run(specs)
-
-  cfg['reporters'].each do |reporter|
-    reporter = Kernel.const_get(reporter).new(cfg)
-    reporter.report(run_infos)
-  end
-
-  errors = run_infos.select { |x| nil != x.error or nil != x.failure }
-
-  exit 0 if cfg['ignore_failure'] or not errors.any?
-
-  exit 1
 end
 
 
@@ -425,10 +438,12 @@ if 'cleanup' == action
 
   Dir.glob(log_file_pattern).each do |log_file|
     File.delete(log_file)
+    puts "#{log_file} deleted"
   end
 
   Dir.glob(File.join cfg['out_path'], '/*').each do |out_file|
     File.delete(out_file)
+    puts "#{out_file} deleted"
   end
 end
 
@@ -511,7 +526,7 @@ SAMPLE_SPEC = %[describe '<subject>' do
     end
 
     expect 'a message to exist' do
-      response.json.message.should_not_be nil
+      response.json.message.should_not_be_empty
     end
   end
 end

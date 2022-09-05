@@ -19,7 +19,7 @@ module Spectre
       'cert' => nil,
       'headers' => nil,
       'query' => nil,
-      'content_type' => '',
+      'content_type' => nil,
       'timeout' => 180,
       'retries' => 0,
     }
@@ -77,8 +77,7 @@ module Spectre
         data = data.to_h if data.is_a? OpenStruct
         body JSON.pretty_generate(data)
 
-        # TODO: Only set content type, if not explicitly set
-        content_type('application/json')
+        content_type('application/json') unless @__req['content_type']
       end
 
       def body body_content
@@ -229,10 +228,6 @@ module Spectre
           end
         rescue
           # do nothing
-        end
-
-        if str.length > 1000
-          str = str[0...1000] + "\n[...]"
         end
 
         str
