@@ -10,7 +10,7 @@ module Spectre
     class ::Object
       def should_be(value)
         evaluate(value, "#{self} should be #{value}") do |x|
-          self.equal? x
+          self.to_s == x.to_s
         end
       end
 
@@ -128,7 +128,9 @@ module Spectre
 
     class ::String
       def should_be(val)
-        raise AssertionFailure.new("'#{self.trim}' should be '#{val.to_s.trim}'", val, self) unless self == val
+        evaluate(val, "'#{self}' should be '#{val}'") do |x|
+          self.to_s == x.to_s
+        end
       end
 
       def should_be_empty
@@ -136,29 +138,37 @@ module Spectre
       end
 
       def should_not_be(val)
-        raise AssertionFailure.new("'#{self.trim}' should not be '#{val.to_s.trim}'", val, self) unless self != val
+        evaluate(value, "'#{self}' should not be '#{value}'") do |x|
+          self.to_s != x.to_s
+        end
       end
 
       def should_not_be_empty
         raise AssertionFailure.new('Text should not be empty', 'nothing', self) unless not self.empty?
       end
 
-      def should_contain(value)
-        evaluate(value, "'#{self.trim}' should contain #{value.to_s}") do |x|
+      def should_contain(val)
+        evaluate(val, "'#{self.trim}' should contain '#{val.to_s}'") do |x|
           self.include? x.to_s
         end
       end
 
       def should_not_contain(val)
-        raise AssertionFailure.new("'#{self.trim}' should not contain '#{val.trim}'", val, self) if self.include? val
+        evaluate(val, "'#{self}' should not contain '#{val}'") do |x|
+          not self.include? x.to_s
+        end
       end
 
       def should_match(regex)
-        raise AssertionFailure.new("'#{self.trim}' should match '#{val}'", regex, self) unless self.match(regex)
+        evaluate(regex, "'#{self.trim}' should match /#{regex}/") do |x|
+          self.match(x)
+        end
       end
 
       def should_not_match(regex)
-        raise AssertionFailure.new("'#{self.trim}' should not match '#{val}'", regex, self) if self.match(regex)
+        evaluate(regex, "'#{self.trim}' should not match '#{regex}'") do |x|
+          not self.match(x)
+        end
       end
 
       alias :| :or
