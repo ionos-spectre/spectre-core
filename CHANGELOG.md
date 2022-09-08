@@ -1,4 +1,4 @@
-### vNext
+### v1.14.2
 
 #### Minor
  - Refactor `uuid` generation. The helper method `uuid` will now return a GUID by default, when no length is given.
