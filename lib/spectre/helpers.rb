@@ -128,8 +128,9 @@ class ::Array
   end
 end
 
-def uuid length = 5
-  SecureRandom.uuid().gsub('-', '')[0..length-1]
+def uuid length = nil
+  return SecureRandom.hex(length/2) if length
+  SecureRandom.uuid
 end
 
 def now
