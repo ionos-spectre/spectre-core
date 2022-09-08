@@ -5,6 +5,8 @@ RSpec.describe 'spectre/assertion' do
     42.should_be 42
     '42'.should_be 42
     42.should_be '42'
+    'foo'.should_not_be 'bar'
+    42.should_not_be 666
 
     'foobar'.should_contain 'foo'
     'foobar'.should_not_contain 'blubber'
@@ -21,6 +23,10 @@ RSpec.describe 'spectre/assertion' do
 
     expect do
       '666'.should_be 42
+    end.to raise_error(Spectre::Assertion::AssertionFailure)
+
+    expect do
+      '42'.should_not_be '42'
     end.to raise_error(Spectre::Assertion::AssertionFailure)
   end
 
