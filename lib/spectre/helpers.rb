@@ -129,7 +129,7 @@ class ::Array
 end
 
 def uuid length = nil
-  return SecureRandom.hex(length) if length
+  return SecureRandom.hex(length/2) if length
   SecureRandom.uuid
 end
 

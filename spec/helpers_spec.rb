@@ -112,9 +112,9 @@ RSpec.describe 'spectre/helpers' do
     id = uuid 10
 
     expect(id.length).to eq(10)
-    expect(uuid.length).to eq(5)
+    expect(uuid.length).to eq(36)
     expect(uuid(32).length).to eq(32)
-    expect(uuid(50).length).to eq(32)
+    expect(uuid(50).length).to eq(50)
   end
 
   it 'uses jsonpath with string' do
