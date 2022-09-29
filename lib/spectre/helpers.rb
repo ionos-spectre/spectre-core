@@ -130,6 +130,7 @@ end
 
 def uuid length = nil
   return SecureRandom.hex(length/2) if length
+
   SecureRandom.uuid
 end
 
