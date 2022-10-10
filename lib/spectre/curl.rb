@@ -279,7 +279,7 @@ module Spectre::Curl
         cmd.append('-d', '"\n"')
       end
 
-      # Add certificate path if one if given
+      # Add certificate path if one is given
       if req['cert']
         raise "Certificate '#{req['cert']}' does not exist" unless File.exists? req['cert']
 
