@@ -13,10 +13,6 @@ module Spectre
       merger = proc { |_key, v1, v2| Hash === v1 && Hash === v2 ? v1.merge!(v2, &merger) : v2 }
       self.merge!(second, &merger)
     end
-
-    def deep_clone
-      Marshal.load(Marshal.dump(self))
-    end
   end
 
   class ::Object
@@ -24,6 +20,10 @@ module Spectre
       self.instance_variables.each_with_object({}) do |var, hash|
         hash[var.to_s.delete("@")] = self.instance_variable_get(var)
       end
+    end
+
+    def deep_clone
+      Marshal.load(Marshal.dump(self))
     end
   end
 
