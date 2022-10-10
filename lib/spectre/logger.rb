@@ -50,7 +50,7 @@ module Spectre
       end
 
       def add logger
-        @@logger.append logger
+        @@logger.append(logger)
       end
 
       def start_subject subject
@@ -143,9 +143,9 @@ module Spectre
       end
 
       def group desc
-        Logging.start_group desc
+        Logging.start_group(desc)
         yield
-        Logging.end_group desc
+        Logging.end_group(desc)
       end
 
       def add_log message, level, logger_name='spectre'
@@ -168,6 +168,6 @@ module Spectre
       end
     end
 
-    Spectre.delegate :log, :info, :debug, :group, :separate, to: self
+    Spectre.delegate(:log, :info, :debug, :group, :separate, to: self)
   end
 end
