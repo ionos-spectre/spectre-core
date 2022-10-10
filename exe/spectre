@@ -195,6 +195,7 @@ action = ARGV[0] || 'run'
 cfg = {}
 cfg.deep_merge! DEFAULT_CONFIG
 
+# Load global config file first
 global_config_file = File.join File.expand_path('~'), '.spectre'
 
 if File.exists? global_config_file
@@ -202,6 +203,7 @@ if File.exists? global_config_file
   cfg.deep_merge! global_options if global_options
 end
 
+# Then load local config file
 config_file = cmd_options['config_file'] || cfg['config_file']
 
 if File.exists? config_file
@@ -216,6 +218,7 @@ cfg['debug'] = DEFAULT_CONFIG['debug']
 # Set project name
 cfg['project'] = File.basename(Dir.pwd) unless cfg['project']
 
+# And merge the command line arguments last
 cfg.deep_merge! cmd_options
 
 
