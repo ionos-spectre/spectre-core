@@ -27,8 +27,9 @@ module Spectre
       end
 
       def debug message
+        return unless @debug
         @logger.debug(message)
-        Logging.add_log(message, :debug, @name) if @debug
+        Logging.add_log(message, :debug, @name)
       end
 
       def warn message
