@@ -467,7 +467,7 @@ module Spectre
     end
   end
 
-  delegate :describe, :property, :skip, to: Spectre
+  delegate(:describe, :property, :skip, to: Spectre)
 end
 
 
