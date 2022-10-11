@@ -409,9 +409,6 @@ module Spectre
     @@subjects = []
     @@modules = []
 
-    attr_reader :file_log, :logger
-
-
     def specs spec_filter=[], tags=[]
       @@subjects
         .map { |x| x.specs }
