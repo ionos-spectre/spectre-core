@@ -162,11 +162,6 @@ specs: []
 tags: []
 colored: true
 verbose: false
-reporters:
-  - Spectre::Reporter::Console
-loggers:
-  - Spectre::Logging::Console
-  - Spectre::Logging::File
 log_file: "./logs/spectre_<date>.log"
 log_format:
   console:
@@ -214,14 +209,13 @@ modules: # Modules to require by default. Use `include` and `exclude` to modify 
   - spectre/resources
 include: [] # Explicitly include modules
 exclude: [] # Explicitly exclude modules
-log_path: "./logs"
 curl_path: curl
 ```
 
 All options can also be overridden with the command line argument `-p` or `--property`
 
 ```bash
-$ spectre -p config_file=my_custom_spectre.yml -p "reporters=Spectre::Reporter::JUnit"
+$ spectre -p config_file=my_custom_spectre.yml -p "log_file=/var/logs/spectre/spectre-<date>.log"
 ```
 
 You can also create a global spectre config file with the options above. Create a file `.spectre` in your users home directory (`~/.spectre`) and set the options you like.

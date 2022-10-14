@@ -145,5 +145,9 @@ module Spectre
         end
       end
     end
+
+    Spectre.register do |config|
+      Spectre::Logging.add Console.new(config)
+    end
   end
 end
