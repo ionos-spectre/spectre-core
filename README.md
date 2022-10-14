@@ -1319,7 +1319,7 @@ describe 'Hollow API' do
       spooky_result.code.should_be 204
     end
 
-    response.code # will could be different for each run, depending on which request finishes last
+    response.code # could be different for each run, depending on which request finishes last
   end
 end
 ```
