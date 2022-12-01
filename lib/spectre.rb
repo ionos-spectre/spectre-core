@@ -88,6 +88,13 @@ module Spectre
       name = @name + '-' + (@specs.length+1).to_s
       @specs << Spec.new(name, self, desc, tags, data, block, context, file, line)
     end
+
+    def to_h
+      {
+        name: @name,
+        desc: @desc,
+        specs: @specs.map { |x| x.to_h }
+      }
     end
   end
 
@@ -108,6 +115,19 @@ module Spectre
 
     def full_desc
       @subject.desc + ' ' + desc
+    end
+
+    def to_h
+      {
+        name: @name,
+        context: @context.__desc,
+        data: @data.map { |x| x.to_h },
+        subject: @subject.desc,
+        desc: @desc,
+        tags: @tags,
+        file: @file,
+        line: @line,
+      }
     end
   end
 
@@ -150,6 +170,23 @@ module Spectre
       return :skipped if skipped?
 
       return :success
+    end
+
+    def to_h
+      date_format = '%FT%T.%L%:z'
+
+      {
+        spec: @spec.name,
+        data: @data,
+        started: @started.strftime(date_format),
+        finished: @finished.strftime(date_format),
+        error: @error,
+        failure: @failure,
+        skipped: @skipped,
+        log: @log.map { |timestamp, message, level, name| [timestamp.strftime(date_format), message, level, name] },
+        expectations: @expectations,
+        properties: @properties,
+      }
     end
   end
 
