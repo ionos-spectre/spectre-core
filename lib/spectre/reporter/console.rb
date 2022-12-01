@@ -1,7 +1,9 @@
+require_relative '../reporter'
+
 module Spectre::Reporter
   class Console
     def initialize config
-      @config = config
+      @debug = config['debug']
     end
 
     def report run_infos
@@ -91,8 +93,12 @@ module Spectre::Reporter
       str += "       file.....: #{file}:#{line}\n"
       str += "       type.....: #{error.class}\n"
       str += "       message..: #{error.message}\n"
-      str += "       backtrace: \n         #{error.backtrace.join("\n         ")}\n" if @config['debug']
+      str += "       backtrace: \n         #{error.backtrace.join("\n         ")}\n" if @debug
       str
+    end
+
+    Spectre.register do |config|
+      Spectre::Reporter.add Console.new(config)
     end
   end
 end

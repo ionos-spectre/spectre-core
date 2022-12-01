@@ -23,13 +23,6 @@ DEFAULT_CONFIG = {
   'tags' => [],
   'colored' => true,
   'verbose' => false,
-  'reporters' => [
-    'Spectre::Reporter::Console',
-  ],
-  'loggers' => [
-    'Spectre::Logging::Console',
-    'Spectre::Logging::File',
-  ],
   'log_file' => './logs/spectre_<date>.log',
   'log_format' => {
     'console' => {
@@ -55,8 +48,8 @@ DEFAULT_CONFIG = {
   'modules' => [
     'spectre/helpers',
     'spectre/reporter/console',
-    'spectre/logger/console',
-    'spectre/logger/file',
+    'spectre/logging/console',
+    'spectre/logging/file',
     'spectre/assertion',
     'spectre/diagnostic',
     'spectre/environment',
@@ -133,10 +126,6 @@ OptionParser.new do |opts|
 
   opts.on('-o PATH', '--out PATH', 'Output directory path') do |path|
     cmd_options['out_path'] = File.absolute_path(path)
-  end
-
-  opts.on('-r NAME,NAME', '--reporters NAME,NAME', Array, "A list of reporters to use") do |reporters|
-    cmd_options['reporters'] = reporters
   end
 
   opts.on('-m MODULE,MODULE', '--modules MODULE,MODULE', Array, "Load the given modules") do |modules|
@@ -370,11 +359,6 @@ if ['list', 'run'].include? action
 
     Spectre::Logging.debug! if cfg['debug']
 
-    cfg['loggers'].each do |logger_name|
-      logger = Kernel.const_get(logger_name).new(cfg)
-      Spectre::Logging.add(logger)
-    end if cfg['loggers']
-
     specs = Spectre.specs(cfg['specs'], cfg['tags'])
 
     unless specs.any?
@@ -384,12 +368,9 @@ if ['list', 'run'].include? action
 
     run_infos = Spectre::Runner.new.run(specs)
 
-    cfg['reporters'].each do |reporter|
-      reporter = Kernel.const_get(reporter).new(cfg)
-      reporter.report(run_infos)
-    end
+    Spectre::Reporter.report(run_infos)
 
-    errors = run_infos.select { |x| nil != x.error or nil != x.failure }
+    errors = run_infos.select { |x| x.error? or x.failed? }
 
     exit 0 if cfg['ignore_failure'] or not errors.any?
 

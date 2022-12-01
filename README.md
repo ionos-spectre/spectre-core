@@ -164,11 +164,6 @@ specs: []
 tags: []
 colored: true
 verbose: false
-reporters:
-  - Spectre::Reporter::Console
-loggers:
-  - Spectre::Logging::Console
-  - Spectre::Logging::File
 log_file: "./logs/spectre_<date>.log"
 log_format:
   console:
