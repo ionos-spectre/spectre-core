@@ -1,5 +1,6 @@
 require_relative '../spectre'
 require 'date'
+require 'logger'
 
 module Spectre
   module Logging
@@ -23,18 +24,18 @@ module Spectre
 
       def info message
         @logger.info(message)
-        Logging.add_log(message, :info, @name)
+        Spectre::Logging.add_log(message, :info, @name)
       end
 
       def debug message
         return unless @debug
         @logger.debug(message)
-        Logging.add_log(message, :debug, @name)
+        Spectre::Logging.add_log(message, :debug, @name)
       end
 
       def warn message
         @logger.warn(message)
-        Logging.add_log(message, :warn, @name)
+        Spectre::Logging.add_log(message, :warn, @name)
       end
     end
 
@@ -144,9 +145,9 @@ module Spectre
       end
 
       def group desc
-        Logging.start_group(desc)
+        Spectre::Logging.start_group(desc)
         yield
-        Logging.end_group(desc)
+        Spectre::Logging.end_group(desc)
       end
 
       def add_log message, level, logger_name='spectre'
