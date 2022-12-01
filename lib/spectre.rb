@@ -84,16 +84,17 @@ module Spectre
       @name = desc.downcase.gsub(/[^a-z0-9]+/, '_')
     end
 
-    def add_spec desc, tags, data, block, context, file
+    def add_spec desc, tags, data, block, context, file, line
       name = @name + '-' + (@specs.length+1).to_s
-      @specs << Spec.new(name, self, desc, tags, data, block, context, file)
+      @specs << Spec.new(name, self, desc, tags, data, block, context, file, line)
+    end
     end
   end
 
   class Spec
-    attr_reader :name, :subject, :context, :desc, :tags, :data, :block, :file
+    attr_reader :id, :name, :subject, :context, :desc, :tags, :data, :block, :file, :line
 
-    def initialize name, subject, desc, tags, data, block, context, file
+    def initialize name, subject, desc, tags, data, block, context, file, line
       @name = name
       @context = context
       @data = data
@@ -102,6 +103,7 @@ module Spectre
       @tags = tags
       @block = block
       @file = file
+      @line = line
     end
 
     def full_desc
@@ -319,9 +321,9 @@ module Spectre
     end
 
     def it desc, tags: [], with: [], &block
-      spec_file = get_file()
+      spec_file, line = get_call_location()
 
-      @__subject.add_spec(desc, tags, with, block, self, spec_file)
+      @__subject.add_spec(desc, tags, with, block, self, spec_file, line)
     end
 
     def before &block
@@ -334,18 +336,18 @@ module Spectre
 
     def setup &block
       name = "#{@__subject.name}-setup"
-      spec_file = get_file()
+      spec_file, line = get_call_location()
 
       setup_ctx = SpecContext.new(@__subject, 'setup', self)
-      @__setup_blocks << Spec.new(name, @__subject, 'setup', [], nil, block, setup_ctx, spec_file)
+      @__setup_blocks << Spec.new(name, @__subject, 'setup', [], nil, block, setup_ctx, spec_file, line)
     end
 
     def teardown &block
       name = "#{@__subject.name}-teardown"
-      spec_file = get_file()
+      spec_file, line = get_call_location()
 
       teardown_ctx = SpecContext.new(@__subject, 'teardown', self)
-      @__teardown_blocks << Spec.new(name, @__subject, 'teardown', [], nil, block, teardown_ctx, spec_file)
+      @__teardown_blocks << Spec.new(name, @__subject, 'teardown', [], nil, block, teardown_ctx, spec_file, line)
     end
 
     def context desc=nil, &block
@@ -355,21 +357,11 @@ module Spectre
 
     private
 
-    def get_file
-      # Get the file, where the spec is defined.
-      # Nasty, but it works
-      # Maybe there is another way, but this works for now
-
-      begin
-        raise
-      rescue => e
-        return e.backtrace
-          .select { |file| !file.include? 'lib/spectre' }
-          .first
-          .match(/(.*\.rb):\d+/)
-          .captures
-          .first
-      end
+    def get_call_location
+      path_and_line = caller[1].split(':')
+      line = path_and_line[-2].to_i
+      file = path_and_line[0..-3].join(':')
+      [file, line]
     end
   end
 
