@@ -438,6 +438,10 @@ module Spectre
     @@subjects = []
     @@modules = []
 
+    def subjects
+      @@subjects
+    end
+
     def specs spec_filter=[], tags=[]
       @@subjects
         .map { |x| x.specs }
@@ -467,6 +471,11 @@ module Spectre
       @@modules.each do |block|
         block.call(config)
       end
+    end
+
+    def purge
+      @@subjects = []
+      @@modules = []
     end
 
 
