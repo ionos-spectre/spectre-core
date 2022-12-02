@@ -372,7 +372,7 @@ module Spectre
     end
 
     def setup &block
-      name = "#{@__subject.name}-setup"
+      name = "#{@__subject.name}-setup-#{@__setup_blocks.count+1}"
       spec_file, line = get_call_location()
 
       setup_ctx = SpecContext.new(@__subject, 'setup', self)
@@ -380,7 +380,7 @@ module Spectre
     end
 
     def teardown &block
-      name = "#{@__subject.name}-teardown"
+      name = "#{@__subject.name}-teardown-#{@__teardown_blocks.count+1}"
       spec_file, line = get_call_location()
 
       teardown_ctx = SpecContext.new(@__subject, 'teardown', self)
