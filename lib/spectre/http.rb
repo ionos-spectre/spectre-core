@@ -1,4 +1,5 @@
 require_relative '../spectre'
+require_relative '../spectre/logging'
 
 require 'net/http'
 require 'openssl'
