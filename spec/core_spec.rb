@@ -43,8 +43,6 @@ RSpec.describe 'spectre/core' do
       end
     end
 
-    puts Spectre.subjects.map { |x| x.to_h }.to_json
-
     run_infos = Spectre::Runner.new.run(Spectre.specs)
 
     expect(run_infos.count).to eq(3)
