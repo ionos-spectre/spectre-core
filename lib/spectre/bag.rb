@@ -5,15 +5,11 @@ require 'ostruct'
 module Spectre
   module Bag
     class << self
-      @@bag
+      @@bag = OpenStruct.new
 
       def bag
         @@bag
       end
-    end
-
-    Spectre.register do |_config|
-      @@bag = OpenStruct.new
     end
 
     Spectre.delegate :bag, to: self
