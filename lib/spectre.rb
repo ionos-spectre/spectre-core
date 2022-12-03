@@ -191,10 +191,12 @@ module Spectre
   end
 
   class Runner
-    @@current = nil
-
     def self.current
-      @@current
+      Thread.current.thread_variable_get('current_run')
+    end
+
+    def self.current= run
+      Thread.current.thread_variable_set('current_run', run)
     end
 
     def run specs
@@ -254,7 +256,7 @@ module Spectre
     def run_setup spec
       run_info = RunInfo.new(spec)
 
-      @@current = run_info
+      Runner.current = run_info
 
       run_info.started = Time.now
 
@@ -273,7 +275,7 @@ module Spectre
 
       run_info.finished = Time.now
 
-      @@current = nil
+      Runner.current = nil
 
       run_info
     end
@@ -281,7 +283,7 @@ module Spectre
     def run_spec spec, data=nil
       run_info = RunInfo.new(spec, data)
 
-      @@current = run_info
+      Runner.current = run_info
 
       run_info.started = Time.now
 
@@ -331,7 +333,7 @@ module Spectre
 
       run_info.finished = Time.now
 
-      @@current = nil
+      Runner.current = nil
 
       run_info
     end
