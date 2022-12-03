@@ -201,8 +201,8 @@ resource_paths:
 modules: # Modules to require by default. Use `include` and `exclude` to modify this list without declaring explicit module list
   - spectre/helpers
   - spectre/reporter/console
-  - spectre/logger/console
-  - spectre/logger/file
+  - spectre/logging/console
+  - spectre/logging/file
   - spectre/assertion
   - spectre/diagnostic
   - spectre/environment
