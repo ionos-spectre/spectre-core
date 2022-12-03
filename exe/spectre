@@ -23,13 +23,6 @@ DEFAULT_CONFIG = {
   'tags' => [],
   'colored' => true,
   'verbose' => false,
-  'reporters' => [
-    'Spectre::Reporter::Console',
-  ],
-  'loggers' => [
-    'Spectre::Logging::Console',
-    'Spectre::Logging::File',
-  ],
   'log_file' => './logs/spectre_<date>.log',
   'log_format' => {
     'console' => {
@@ -135,10 +128,6 @@ OptionParser.new do |opts|
     cmd_options['out_path'] = File.absolute_path(path)
   end
 
-  opts.on('-r NAME,NAME', '--reporters NAME,NAME', Array, "A list of reporters to use") do |reporters|
-    cmd_options['reporters'] = reporters
-  end
-
   opts.on('-m MODULE,MODULE', '--modules MODULE,MODULE', Array, "Load the given modules") do |modules|
     modules.each do |mod|
       require mod
@@ -195,6 +184,7 @@ action = ARGV[0] || 'run'
 cfg = {}
 cfg.deep_merge! DEFAULT_CONFIG
 
+# Load global config file first
 global_config_file = File.join File.expand_path('~'), '.spectre'
 
 if File.exists? global_config_file
@@ -202,6 +192,7 @@ if File.exists? global_config_file
   cfg.deep_merge! global_options if global_options
 end
 
+# Then load local config file
 config_file = cmd_options['config_file'] || cfg['config_file']
 
 if File.exists? config_file
@@ -216,6 +207,7 @@ cfg['debug'] = DEFAULT_CONFIG['debug']
 # Set project name
 cfg['project'] = File.basename(Dir.pwd) unless cfg['project']
 
+# And merge the command line arguments last
 cfg.deep_merge! cmd_options
 
 
@@ -336,24 +328,24 @@ if ['list', 'run'].include? action
       .concat(cfg['include'])
       .select { |mod| !cfg['exclude'].include? mod }
       .each do |mod|
-      begin
-        mod_file = mod + '.rb'
-        spectre_lib_mod = File.join(File.dirname(__dir__), 'lib', mod_file)
+        begin
+          mod_file = mod + '.rb'
+          spectre_lib_mod = File.join(File.dirname(__dir__), 'lib', mod_file)
 
-        if File.exists? mod_file
-          require_relative mod_file
+          if File.exists? mod_file
+            require_relative mod_file
 
-        elsif File.exists? spectre_lib_mod
-          require_relative spectre_lib_mod
+          elsif File.exists? spectre_lib_mod
+            require_relative spectre_lib_mod
 
-        else
-          require mod
+          else
+            require mod
+          end
+        rescue LoadError => e
+          puts "Unable to load module #{mod}. Check if the module exists or remove it from your spectre config:\n#{e.message}"
+          exit 1
         end
-      rescue LoadError => e
-        puts "Unable to load module #{mod}. Check if the module exists or remove it from your spectre config:\n#{e.message}"
-        exit 1
       end
-    end
 
     # Load mixins
 
@@ -367,11 +359,6 @@ if ['list', 'run'].include? action
 
     Spectre::Logging.debug! if cfg['debug']
 
-    cfg['loggers'].each do |logger_name|
-      logger = Kernel.const_get(logger_name).new(cfg)
-      Spectre::Logging.add(logger)
-    end if cfg['loggers']
-
     specs = Spectre.specs(cfg['specs'], cfg['tags'])
 
     unless specs.any?
@@ -381,12 +368,9 @@ if ['list', 'run'].include? action
 
     run_infos = Spectre::Runner.new.run(specs)
 
-    cfg['reporters'].each do |reporter|
-      reporter = Kernel.const_get(reporter).new(cfg)
-      reporter.report(run_infos)
-    end
+    Spectre::Reporter.report(run_infos)
 
-    errors = run_infos.select { |x| nil != x.error or nil != x.failure }
+    errors = run_infos.select { |x| x.error? or x.failed? }
 
     exit 0 if cfg['ignore_failure'] or not errors.any?
 
@@ -542,10 +526,13 @@ DEFAULT_GEMFILE = %[source 'https://rubygems.org'
 
 gem 'spectre-core', '>= #{Spectre::VERSION}'
 # gem 'spectre-mysql', '>= 1.0.0'
-# gem 'spectre-ssh', '>= 1.0.0'
+# gem 'spectre-ssh', '>= 1.0.2'
 # gem 'spectre-ftp', '>= 1.0.0'
 # gem 'spectre-curl', '>= 1.0.0'
-# gem 'spectre-git', '>= 0.1.0'
+# gem 'spectre-git', '>= 0.2.1'
+# gem 'spectre-reporter-junit', '>= 1.0.0'
+# gem 'spectre-reporter-vstest', '>= 1.0.1'
+# gem 'spectre-reporter-html', '>= 1.0.0'
 ]
 
 if 'init' == action

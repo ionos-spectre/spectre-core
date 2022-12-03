@@ -49,7 +49,7 @@
     "description": "Configure a spectre HTTPS client with basic authentication",
     "body": [
       "$1:",
-      "\tbase_url: http://$2",
+      "\tbase_url: https://$2",
       "\t# cert: *cert",
       "\tbasic_auth:",
       "\t\tusername: ",

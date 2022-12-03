@@ -98,5 +98,9 @@ module Spectre
         @file_log.debug(msg)
       end
     end
+
+    Spectre.register do |config|
+      Spectre::Logging.add File.new(config)
+    end
   end
 end

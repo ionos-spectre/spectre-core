@@ -1,6 +1,4 @@
-require 'spectre/http'
-require 'spectre/http/basic_auth'
-require 'spectre/http/keystone'
+require 'net/http'
 
 def create_response code='200', message='Ok', body='{"message": "Hello World!"}'
   net_res = double(::Net::HTTPOK)
@@ -16,6 +14,10 @@ end
 RSpec.describe 'spectre/http' do
   context do
     before do
+      require 'spectre/http'
+      require 'spectre/http/basic_auth'
+      require 'spectre/http/keystone'
+
       @net_http = double(::Net::HTTP)
       allow(@net_http).to receive(:read_timeout=)
       allow(@net_http).to receive(:max_retries=)
@@ -34,11 +36,11 @@ RSpec.describe 'spectre/http' do
       allow(@net_req).to receive(:[]=)
       allow(@net_req).to receive(:content_type=)
       allow(::Net::HTTPGenericRequest).to receive(:new).and_return(@net_req)
+
+      Spectre.configure({})
     end
 
     it 'does some general HTTP request' do
-      Spectre.configure({})
-
       expect(@net_req).to receive(:body=).with("{\n  \"message\": \"Hello Spectre!\"\n}")
       expect(@net_req).to receive(:[]=).with('foo', 'bar')
       expect(@net_req).to receive(:content_type=).with('application/json')
@@ -67,8 +69,6 @@ RSpec.describe 'spectre/http' do
       expect(@net_http).to receive(:verify_mode=).with(OpenSSL::SSL::VERIFY_NONE)
       expect(@net_http).to receive(:request).with(@net_req)
 
-      Spectre.configure({})
-
       Spectre::Http.https 'some-url.de' do
         path '/some-resource'
       end
@@ -77,8 +77,6 @@ RSpec.describe 'spectre/http' do
     it 'sets max retries and timeout' do
       expect(@net_http).to receive(:max_retries=).with(5)
       expect(@net_http).to receive(:read_timeout=).with(300)
-
-      Spectre.configure({})
 
       Spectre::Http.https 'some-url.de' do
         path '/some-resource'
@@ -97,8 +95,6 @@ RSpec.describe 'spectre/http' do
       expect(@net_http).to receive(:ca_file=).with(cert_file)
       expect(@net_http).to receive(:request).with(@net_req)
 
-      Spectre.configure({})
-
       Spectre::Http.https 'some-url.de' do
         path '/some-resource'
         cert cert_file
@@ -112,8 +108,6 @@ RSpec.describe 'spectre/http' do
       expect(@net_http).to receive(:verify_mode=).with(OpenSSL::SSL::VERIFY_NONE)
       expect(@net_http).to receive(:request).with(@net_req)
 
-      Spectre.configure({})
-
       Spectre::Http.http 'https://some-url.de' do
         path '/some-resource'
       end
@@ -123,8 +117,6 @@ RSpec.describe 'spectre/http' do
       expect(@net_http).to receive(:use_ssl=).with(true)
       expect(@net_http).to receive(:verify_mode=).with(OpenSSL::SSL::VERIFY_NONE)
       expect(@net_http).to receive(:request).with(@net_req)
-
-      Spectre.configure({})
 
       Spectre::Http.http 'some-url.de' do
         path '/some-resource'
@@ -154,8 +146,6 @@ RSpec.describe 'spectre/http' do
 
       expect(@net_http).to receive(:request).with(@net_req)
       expect(@net_req).to receive(:basic_auth).with(username, password)
-
-      Spectre.configure({})
 
       Spectre::Http.http 'some-url.de' do
         method 'POST'
@@ -234,6 +224,14 @@ RSpec.describe 'spectre/http' do
     end
   end
 
+  before do
+    require 'spectre/http'
+    require 'spectre/http/basic_auth'
+    require 'spectre/http/keystone'
+
+    Spectre.configure({})
+  end
+
   it 'does some HTTP request with keystone auth' do
     client = double(::Net::HTTP)
     allow(client).to receive(:read_timeout=)
@@ -245,8 +243,6 @@ RSpec.describe 'spectre/http' do
     expect(client).to receive(:request).and_return(net_res) # second call is actual http spectre request
 
     allow(::Net::HTTP).to receive(:new).and_return(client)
-
-    Spectre.configure({})
 
     Spectre::Http.http 'some-url.de' do
       method 'POST'

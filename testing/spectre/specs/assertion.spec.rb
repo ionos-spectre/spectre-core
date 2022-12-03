@@ -113,24 +113,6 @@ describe 'spectre/assertion' do
     end
   end
 
-  context 'use of custom operators' do
-    it 'checks string values with grouped boolean operation', tags: [:assertion, :contain, :bool] do
-      expect '(foo and bar) or (bla and blubb) to be contained' do
-        'This text contains bar foo'.should_contain ('foo' & 'bar') | ('bla' & 'blubb')
-      end
-    end
-
-    it 'checks string values with grouped boolean operation, but it fails', tags: [:assertion, :contain, :bool, :fail] do
-      observe do
-        'This text contains bar blubb'.should_contain ('foo' & 'bar') | ('bla' & 'blubb')
-      end
-
-      expect 'the evaluation to fail' do
-        success?.should_be false
-      end
-    end
-  end
-
   it 'checks integer values with grouped boolean operation', tags: [:assertion, :contain, :bool] do
     expect '(1 and 2) or (3 and 4) to be contained' do
       'This text contains 1 2'.should_contain (1.and 2).or (3.and 4)

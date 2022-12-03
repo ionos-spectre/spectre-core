@@ -30,6 +30,9 @@ This helps to debug test subjects and to better understand what and how it is te
 | `spectre/git` | https://github.com/ionos-spectre/spectre-git |
 | `spectre/mysql` | https://github.com/ionos-spectre/spectre-mysql |
 | `spectre/ssh` | https://github.com/ionos-spectre/spectre-ssh |
+| `spectre/reporter/html` | https://github.com/ionos-spectre/spectre-reporter-html |
+| `spectre/reporter/vstest` | https://github.com/ionos-spectre/spectre-reporter-vstest |
+| `spectre/reporter/junit` | https://github.com/ionos-spectre/spectre-reporter-junit |
 
 
 ## Docker
@@ -142,7 +145,6 @@ This will create multiple empty directories and a `spectre.yaml` config file.
 | Directory/File | Description |
 | -------------- | ----------- |
 | `environments` | This directory should contain `**/*_env.yaml` files. In these files, you can define environment variables, which can be accessed during a spec run. |
-| `helpers` | This directory can contain any Ruby files. This path will be appended to Ruby's `$LOAD_PATH` variable. |
 | `logs` | Logs will be placed in this folder |
 | `reports` | This folder contains report files like JUnit, which are written by `reporter` |
 | `resources` | This folder can contain any files, which will be used in *spec* definitions. |
@@ -162,11 +164,6 @@ specs: []
 tags: []
 colored: true
 verbose: false
-reporters:
-  - Spectre::Reporter::Console
-loggers:
-  - Spectre::Logging::Console
-  - Spectre::Logging::File
 log_file: "./logs/spectre_<date>.log"
 log_format:
   console:
@@ -214,14 +211,13 @@ modules: # Modules to require by default. Use `include` and `exclude` to modify 
   - spectre/resources
 include: [] # Explicitly include modules
 exclude: [] # Explicitly exclude modules
-log_path: "./logs"
 curl_path: curl
 ```
 
 All options can also be overridden with the command line argument `-p` or `--property`
 
 ```bash
-$ spectre -p config_file=my_custom_spectre.yml -p "reporters=Spectre::Reporter::JUnit"
+$ spectre -p config_file=my_custom_spectre.yml -p "log_file=/var/log/spectre/spectre-<date>.log"
 ```
 
 You can also create a global spectre config file with the options above. Create a file `.spectre` in your users home directory (`~/.spectre`) and set the options you like.
@@ -454,7 +450,7 @@ describe 'Hollow API' do
 end
 ```
 
-Additional helper functions are available when using the `spectre/assertion` module, which is loaded automatically.
+Additional helper functions are available when using the `spectre/assertion` module, which is loaded automatically by default.
 
 
 ### Assertion `spectre/assertion`
@@ -509,9 +505,8 @@ describe 'Hollow API' do
     expect 'some assertions' do
       'Casper and Boogy are spooky'.should_contain 'Casper'.or 'Boogy'
       'Casper and Boogy are spooky'.should_contain 'Davy'.or ('Casper'.and 'Boogy')
-      'Casper and Boogy are spooky'.should_contain 'Casper' | 'Boogy'
-      'Casper and Boogy are spooky'.should_contain 'Davy' | ('Casper' & 'Boogy')
-      'Casper and Boogy are spooky'.should_not_contain 42.or 1337 # Note, that `|` and `&` do not work with integer values
+      'Casper and Boogy are spooky'.should_contain 'Davy'.or ('Casper'.and 'Boogy')
+      'Casper and Boogy are spooky'.should_not_contain 42.or 1337
 
       # etc. I think you got the concept
     end
@@ -662,14 +657,15 @@ Spooky
     starting to do some calculations ................................[info]
     expect the answer to be 42 ......................................[ok]
   does some strange things in the neighbourhood
-    expect some ghost in the streets ................................[failed - 1]
-  only scares some people ...........................................[error - 2]
+    expect some ghost in the streets ................................[failed]
+  only scares some people ...........................................[error]
 
 1 failures 1 errors
 
   1) Spooky does some strange things in the neighbourhood [spooky-2]
        expected some ghost in the streets
-       but it failed with no ghosts
+       but it failed with:
+       no ghosts
 
   2) Spooky only scares some people [spooky-3]
        but an error occurred while running the test
@@ -690,7 +686,7 @@ Spooky
   always has the right answer
     starting to do some calculations.................................[info]
     expect the answer to be 42.......................................[ok]
-  only scares some people............................................[error - 2]
+  only scares some people............................................[error]
 
 1 errors
 
@@ -713,7 +709,7 @@ This will run all specs with the tags _scary_, but not _dangerous_, or with the 
 ```
 Spooky
   does some strange things in the neighbourhood
-    expect some ghost in the streets.................................[failed - 1]
+    expect some ghost in the streets.................................[failed]
 
 1 failures 1 errors
 
@@ -887,13 +883,14 @@ You can set the following properties in the `http` block:
 | `body` | `string` | no | The request body to send |
 | `header` | `string`,`string` | yes | Adds a header to the request |
 | `content_type` | `string` | no | Sets the `Content-Type` header to the given value |
-| `ensure_success!` | | no | Will raise an error, when the response code does not indicate success (codes >= 400). |
+| `ensure_success!` | *none* | no | Will raise an error, when the response code does not indicate success (codes >= 400). |
 | `auth` | `string` | no | The given authentication module will be used. Currently `basic_auth` and `keystone` are available. |
-| `timeout` | `integer` | no | The request timeout in seconds |
-| `retried` | `integer` | no | Internal request retry after timeout |
-| `no_auth!` | `bool` | no | Deactivates the configured auth method |
+| `timeout` | `integer` | no | The request timeout in seconds. *default: 180* |
+| `retries` | `integer` | no | Internal request retry after timeout. *default: 0* |
+| `no_auth!` | *none* | no | Deactivates the configured auth method |
 | `certificate` | `string` | no | The file path to the certificate to use for request validation |
-| `use_ssl!` | `bool` | no | Enables HTTPS |
+| `use_ssl!` | *none* | no | Enables HTTPS |
+| `no_log!` | *none* | no | If `true` request and response bodies will not be logged. Use this, when handling sensitive, binary or large response and request data. |
 
 
 Access the response with the `response` function. This returns an object with the following properties:
@@ -1317,7 +1314,7 @@ describe 'Hollow API' do
       spooky_result.code.should_be 204
     end
 
-    response.code # will could be different for each run, depending on which request finishes last
+    response.code # could be different for each run, depending on which request finishes last
   end
 end
 ```

@@ -4,15 +4,18 @@ module Spectre
   module Logging
     class Console
       def initialize config
-        raise 'No log format section in config for console logger' unless config.key? 'log_format' and config['log_format'].key? 'console'
+        @indent = 2
+        @width = 80
 
-        @config = config['log_format']['console']
-        @indent = @config['indent'] || 2
-        @width = @config['width'] || 80
-        @fmt_end_context = @config['end_context']
-        @fmt_sep = @config['separator']
-        @fmt_start_group = @config['start_group']
-        @fmt_end_group = @config['end_group']
+        if config.has_key? 'log_format'
+          @config = config['log_format']['console'] || {}
+          @indent = @config['indent'] || @indent
+          @width = @config['width'] || @width
+          @fmt_end_context = @config['end_context']
+          @fmt_sep = @config['separator']
+          @fmt_start_group = @config['start_group']
+          @fmt_end_group = @config['end_group']
+        end
 
         @process = nil
         @level = 0
@@ -144,6 +147,10 @@ module Spectre
           @process = nil
         end
       end
+    end
+
+    Spectre.register do |config|
+      Spectre::Logging.add Console.new(config)
     end
   end
 end
