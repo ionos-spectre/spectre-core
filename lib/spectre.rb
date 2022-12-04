@@ -48,6 +48,23 @@ module Spectre
   class SpectreSkip < Interrupt
   end
 
+  ###########################################
+  # Internal Modules
+  ###########################################
+
+  module Event
+    @@handlers = []
+
+    def self.send event, *args
+      @@handlers.each do |handler|
+        handler.send(event, *args) if handler.respond_to? event
+      end
+    end
+
+    def self.register handler
+      @@handlers << handler
+    end
+  end
 
   ###########################################
   # Internal Classes
@@ -183,6 +200,7 @@ module Spectre
         error: @error,
         failure: @failure,
         skipped: @skipped,
+        status: status,
         log: @log.map { |timestamp, message, level, name| [timestamp.strftime(date_format), message, level, name] },
         expectations: @expectations,
         properties: @properties,
@@ -287,6 +305,8 @@ module Spectre
 
       run_info.started = Time.now
 
+      Event.send(:start_spec, spec, data)
+
       begin
         if spec.context.__before_blocks.count > 0
           before_ctx = SpecContext.new(spec.subject, 'before', spec.context)
@@ -332,6 +352,8 @@ module Spectre
       end
 
       run_info.finished = Time.now
+
+      Event.send(:end_spec, spec, data, run_info)
 
       Runner.current = nil
 
