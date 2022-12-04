@@ -1,8 +1,8 @@
 require_relative '../spectre'
-require_relative '../spectre/helpers'
+require_relative 'helpers'
+require_relative 'logging'
 
 require 'ostruct'
-require_relative 'logging'
 
 
 module Spectre
