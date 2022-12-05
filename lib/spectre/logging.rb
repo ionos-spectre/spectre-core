@@ -156,9 +156,6 @@ module Spectre
         Spectre::Runner.current.log.append([DateTime.now, message, level, logger_name])
       end
 
-      alias_method :info, :log_info
-      alias_method :log, :log_info
-      alias_method :debug, :log_debug
       alias_method :separate, :log_separator
 
       private
@@ -170,6 +167,6 @@ module Spectre
       end
     end
 
-    Spectre.delegate(:log, :info, :debug, :group, :separate, to: self)
+    Spectre.delegate(:separate, to: self)
   end
 end

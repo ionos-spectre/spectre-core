@@ -1,5 +1,5 @@
 describe 'spectre/logging' do
-  it 'logs messages', tags: [:log, :core] do
+  it 'logs messages', tags: [:log, :logging] do
     info 'this is a info message'
     log 'this is a log message'
     debug 'this is a debug message'
@@ -16,7 +16,7 @@ describe 'spectre/logging' do
   end
 
   context 'a context' do
-    it 'logs messages in a context', tags: [:log, :core] do
+    it 'logs messages in a context', tags: [:log, :logging] do
       info 'this is a info message'
       log 'this is a log message'
       debug 'this is a debug message'
@@ -24,7 +24,7 @@ describe 'spectre/logging' do
   end
 
   context 'another context' do
-    it 'logs messages in another context', tags: [:log, :core] do
+    it 'logs messages in another context', tags: [:log, :logging] do
       info 'this is a info message'
       log 'this is a log message'
       debug 'this is a debug message'
@@ -58,7 +58,7 @@ describe 'spectre/logging' do
       log 'do some stuff after the spec run'
     end
 
-    it 'logs messages in another context', tags: [:log, :setup, :core] do
+    it 'logs messages in another context', tags: [:log, :setup, :logging] do
       info 'this is a info message'
       log 'this is a log message'
       debug 'this is a debug message'

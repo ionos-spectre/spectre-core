@@ -181,6 +181,10 @@ module Spectre
       @error != nil
     end
 
+    def success?
+      @error == nil && @failure == nil
+    end
+
     def status
       return :error if error?
       return :failed if failed?
@@ -221,13 +225,15 @@ module Spectre
       runs = []
 
       specs.group_by { |x| x.subject }.each do |subject, subject_specs|
-        Spectre::Logging.log_subject subject do
-          subject_specs.group_by { |x| x.context }.each do |context, context_specs|
-            Spectre::Logging.log_context(context) do
-              runs.concat run_context(context, context_specs)
-            end
-          end
+        Spectre::Event.send(:start_subject, subject)
+
+        subject_specs.group_by { |x| x.context }.each do |context, context_specs|
+          Spectre::Event.send(:start_context, context)
+          runs.concat run_context(context, context_specs)
+          Spectre::Event.send(:end_context, context)
         end
+
+        Spectre::Event.send(:end_subject, subject)
       end
 
       runs
@@ -239,9 +245,9 @@ module Spectre
       runs = []
 
       context.__setup_blocks.each do |setup_spec|
-        setup_run = run_setup(setup_spec)
+        setup_run = run_setup(setup_spec, :setup)
         runs << setup_run
-        return runs if setup_run.error or setup_run.failure
+        return runs unless setup_run.success?
       end
 
       begin
@@ -252,46 +258,44 @@ module Spectre
             spec.data
               .map { |x| x.is_a?(Hash) ? OpenStruct.new(x) : x }
               .each do |data|
-                Spectre::Logging.log_spec(spec, data) do
-                  runs << run_spec(spec, data)
-                end
+                runs << run_spec(spec, data)
               end
           else
-            Spectre::Logging.log_spec(spec) do
-              runs << run_spec(spec)
-            end
+            runs << run_spec(spec)
           end
         end
       ensure
         context.__teardown_blocks.each do |teardown_spec|
-          runs << run_setup(teardown_spec)
+          runs << run_setup(teardown_spec, :teardown)
         end
       end
 
       runs
     end
 
-    def run_setup spec
+    def run_setup spec, type
       run_info = RunInfo.new(spec)
 
       Runner.current = run_info
 
       run_info.started = Time.now
 
-      Spectre::Logging.log_context(spec.context) do
-        begin
-          spec.block.call()
+      Spectre::Event.send(('start_' + type.to_s).to_sym, run_info)
 
-          run_info.finished = Time.now
-        rescue ExpectationFailure => e
-          run_info.failure = e
-        rescue Exception => e
-          run_info.error = e
-          Spectre::Logging.log_error(spec, e)
-        end
+      begin
+        spec.block.call()
+
+        run_info.finished = Time.now
+      rescue ExpectationFailure => e
+        run_info.failure = e
+      rescue Exception => e
+        run_info.error = e
+        Spectre::Logging.log_error(spec, e)
       end
 
       run_info.finished = Time.now
+
+      Spectre::Event.send(('end_' + type.to_s).to_sym, run_info)
 
       Runner.current = nil
 
@@ -305,17 +309,17 @@ module Spectre
 
       run_info.started = Time.now
 
-      Event.send(:start_spec, spec, data)
+      Event.send(:start_spec, run_info)
 
       begin
         if spec.context.__before_blocks.count > 0
-          before_ctx = SpecContext.new(spec.subject, 'before', spec.context)
+          Event.send(:start_before, run_info)
 
-          Spectre::Logging.log_context before_ctx do
-            spec.context.__before_blocks.each do |block|
-              block.call(data)
-            end
+          spec.context.__before_blocks.each do |block|
+            block.call(data)
           end
+
+          Event.send(:end_before, run_info)
         end
 
         spec.block.call(data)
@@ -323,37 +327,37 @@ module Spectre
         run_info.failure = e
       rescue SpectreSkip => e
         run_info.skipped = true
-        Spectre::Logging.log_skipped(spec, e.message)
+        Event.send(:spec_skip, run_info, e.message)
       rescue Interrupt
         run_info.skipped = true
-        Spectre::Logging.log_skipped(spec, 'canceled by user')
+        Event.send(:spec_skip, spec, data, 'canceled by user')
       rescue Exception => e
         run_info.error = e
-        Spectre::Logging.log_error(spec, e)
+        Event.send(:spec_error, run_info)
       ensure
         if spec.context.__after_blocks.count > 0
-          after_ctx = SpecContext.new(spec.subject, 'after', spec.context)
+          Event.send(:start_after, run_info)
 
-          Spectre::Logging.log_context after_ctx do
-            begin
-              spec.context.__after_blocks.each do |block|
-                block.call
-              end
-
-              run_info.finished = Time.now
-            rescue ExpectationFailure => e
-              run_info.failure = e
-            rescue Exception => e
-              run_info.error = e
-              Spectre::Logging.log_error(spec, e)
+          begin
+            spec.context.__after_blocks.each do |block|
+              block.call
             end
+
+            run_info.finished = Time.now
+          rescue ExpectationFailure => e
+            run_info.failure = e
+          rescue Exception => e
+            run_info.error = e
+            Event.send(:spec_error, run_info)
           end
+
+          Event.send(:end_after, run_info)
         end
       end
 
       run_info.finished = Time.now
 
-      Event.send(:end_spec, spec, data, run_info)
+      Event.send(:end_spec, run_info)
 
       Runner.current = nil
 
@@ -524,12 +528,30 @@ module Spectre
       Spectre::Runner.current.properties[key] = val
     end
 
+    def group desc
+      Spectre::Event.send(:start_group, desc)
+      yield
+      Spectre::Event.send(:end_group, desc)
+    end
+
     def skip message=nil
       raise SpectreSkip.new(message)
     end
+
+    def info message
+      Spectre::Event.send(:log, message, :info)
+      Spectre::Runner.current.log << [message, :info]
+    end
+
+    def debug message
+      Spectre::Event.send(:log, message, :debug)
+      Spectre::Runner.current.log << [message, :debug]
+    end
+
+    alias :log :info
   end
 
-  delegate(:describe, :property, :skip, to: Spectre)
+  delegate(:describe, :property, :group, :skip, :log, :info, :debug, to: Spectre)
 end
 
 
