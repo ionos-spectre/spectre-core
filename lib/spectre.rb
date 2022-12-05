@@ -542,12 +542,12 @@ module Spectre
 
     def info message
       Spectre::Event.send(:log, message, :info)
-      Spectre::Runner.current.log << [message, :info]
+      Spectre::Runner.current.log << [DateTime.now, message, :info]
     end
 
     def debug message
       Spectre::Event.send(:log, message, :debug)
-      Spectre::Runner.current.log << [message, :debug]
+      Spectre::Runner.current.log << [DateTime.now, message, :debug]
     end
 
     alias :log :info
