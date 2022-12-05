@@ -335,7 +335,7 @@ module Spectre
         Event.send(:spec_skip, spec, data, 'canceled by user')
       rescue Exception => e
         run_info.error = e
-        Event.send(:spec_error, run_info)
+        Event.send(:spec_error, run_info, e)
       ensure
         if spec.context.__after_blocks.count > 0
           Event.send(:start_after, run_info)
@@ -350,7 +350,7 @@ module Spectre
             run_info.failure = e
           rescue Exception => e
             run_info.error = e
-            Event.send(:spec_error, run_info)
+            Event.send(:spec_error, run_info, e)
           end
 
           Event.send(:end_after, run_info)
