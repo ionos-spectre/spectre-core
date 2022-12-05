@@ -201,13 +201,13 @@ module Spectre
       {
         spec: @spec.name,
         data: @data,
-        started: @started.strftime(date_format),
-        finished: @finished.strftime(date_format),
+        started: @started.nil? ? nil : @started.strftime(date_format),
+        finished: @finished.nil? ? nil : @finished.strftime(date_format),
         error: @error,
         failure: @failure,
         skipped: @skipped,
         status: status,
-        log: @log.map { |timestamp, message, level, name| [timestamp.strftime(date_format), message, level, name] },
+        log: @log.map { |timestamp, message, level| [timestamp.strftime(date_format), message, level] },
         expectations: @expectations,
         properties: @properties,
       }
