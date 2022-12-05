@@ -186,6 +186,8 @@ module Spectre
     end
 
     def status
+      return :queued unless @started
+      return :running if @started and not @finished
       return :error if error?
       return :failed if failed?
       return :skipped if skipped?
