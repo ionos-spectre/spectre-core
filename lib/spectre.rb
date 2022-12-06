@@ -52,7 +52,7 @@ module Spectre
   # Internal Modules
   ###########################################
 
-  module Event
+  module Eventing
     @@handlers = []
 
     def self.send event, *args
@@ -227,15 +227,15 @@ module Spectre
       runs = []
 
       specs.group_by { |x| x.subject }.each do |subject, subject_specs|
-        Spectre::Event.send(:start_subject, subject)
+        Spectre::Eventing.send(:start_subject, subject)
 
         subject_specs.group_by { |x| x.context }.each do |context, context_specs|
-          Spectre::Event.send(:start_context, context)
+          Spectre::Eventing.send(:start_context, context)
           runs.concat run_context(context, context_specs)
-          Spectre::Event.send(:end_context, context)
+          Spectre::Eventing.send(:end_context, context)
         end
 
-        Spectre::Event.send(:end_subject, subject)
+        Spectre::Eventing.send(:end_subject, subject)
       end
 
       runs
@@ -282,7 +282,7 @@ module Spectre
 
       run_info.started = Time.now
 
-      Spectre::Event.send(('start_' + type.to_s).to_sym, run_info)
+      Spectre::Eventing.send(('start_' + type.to_s).to_sym, run_info)
 
       begin
         spec.block.call()
@@ -297,7 +297,7 @@ module Spectre
 
       run_info.finished = Time.now
 
-      Spectre::Event.send(('end_' + type.to_s).to_sym, run_info)
+      Spectre::Eventing.send(('end_' + type.to_s).to_sym, run_info)
 
       Runner.current = nil
 
@@ -311,17 +311,17 @@ module Spectre
 
       run_info.started = Time.now
 
-      Event.send(:start_spec, run_info)
+      Eventing.send(:start_spec, run_info)
 
       begin
         if spec.context.__before_blocks.count > 0
-          Event.send(:start_before, run_info)
+          Eventing.send(:start_before, run_info)
 
           spec.context.__before_blocks.each do |block|
             block.call(data)
           end
 
-          Event.send(:end_before, run_info)
+          Eventing.send(:end_before, run_info)
         end
 
         spec.block.call(data)
@@ -329,16 +329,16 @@ module Spectre
         run_info.failure = e
       rescue SpectreSkip => e
         run_info.skipped = true
-        Event.send(:spec_skip, run_info, e.message)
+        Eventing.send(:spec_skip, run_info, e.message)
       rescue Interrupt
         run_info.skipped = true
-        Event.send(:spec_skip, run_info, 'canceled by user')
+        Eventing.send(:spec_skip, run_info, 'canceled by user')
       rescue Exception => e
         run_info.error = e
-        Event.send(:spec_error, run_info, e)
+        Eventing.send(:spec_error, run_info, e)
       ensure
         if spec.context.__after_blocks.count > 0
-          Event.send(:start_after, run_info)
+          Eventing.send(:start_after, run_info)
 
           begin
             spec.context.__after_blocks.each do |block|
@@ -350,16 +350,16 @@ module Spectre
             run_info.failure = e
           rescue Exception => e
             run_info.error = e
-            Event.send(:spec_error, run_info, e)
+            Eventing.send(:spec_error, run_info, e)
           end
 
-          Event.send(:end_after, run_info)
+          Eventing.send(:end_after, run_info)
         end
       end
 
       run_info.finished = Time.now
 
-      Event.send(:end_spec, run_info)
+      Eventing.send(:end_spec, run_info)
 
       Runner.current = nil
 
@@ -531,9 +531,9 @@ module Spectre
     end
 
     def group desc
-      Spectre::Event.send(:start_group, desc)
+      Spectre::Eventing.send(:start_group, desc)
       yield
-      Spectre::Event.send(:end_group, desc)
+      Spectre::Eventing.send(:end_group, desc)
     end
 
     def skip message=nil
@@ -541,13 +541,13 @@ module Spectre
     end
 
     def info message
-      Spectre::Event.send(:log, message, :info)
-      Spectre::Runner.current.log << [DateTime.now, message, :info]
+      Spectre::Eventing.send(:log, message, :info)
+      Spectre::Runner.current.log << [DateTime.now, message, :info, nil]
     end
 
     def debug message
-      Spectre::Event.send(:log, message, :debug)
-      Spectre::Runner.current.log << [DateTime.now, message, :debug]
+      Spectre::Eventing.send(:log, message, :debug)
+      Spectre::Runner.current.log << [DateTime.now, message, :debug, nil]
     end
 
     alias :log :info

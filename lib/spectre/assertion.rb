@@ -244,13 +244,15 @@ module Spectre
 
     class << self
       @@success = nil
+      @@debug = false
+      @@logger = Spectre::Logging::ModuleLogger.new('spectre/assertion')
 
       def expect desc
         status = :unknown
         message = nil
 
         begin
-          Spectre::Event.send(:start_expect, desc)
+          Spectre::Eventing.send(:start_expect, desc)
           yield
           status = :ok
         rescue Interrupt => e
@@ -264,7 +266,7 @@ module Spectre
           message = e.class.name
           raise AssertionFailure.new("An unexpected error occurred during expectation: #{e.message}", nil, nil, desc), cause: e
         ensure
-          Spectre::Event.send(:end_expect, desc, status, message)
+          Spectre::Eventing.send(:end_expect, desc, status, message)
           Spectre::Runner.current.expectations.append([desc, status])
         end
       end
@@ -274,7 +276,7 @@ module Spectre
         prefix += " '#{desc}'" if desc
 
         begin
-          Spectre::Event.send(:log, prefix, :info) if desc
+          Spectre::Eventing.send(:log, prefix, :info) if desc
           yield
           @@success = true
           @@logger.info("#{prefix} finished with success")
@@ -299,7 +301,6 @@ module Spectre
     end
 
     Spectre.register do |config|
-      @@logger = Spectre::Logging::ModuleLogger.new(config, 'spectre/assertion')
       @@debug = config['debug']
     end
 

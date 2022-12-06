@@ -173,6 +173,7 @@ module Spectre
       @@request = nil
       @@modules = []
       @@secure_keys = []
+      @@logger = Spectre::Logging::ModuleLogger.new('spectre/http')
 
       def https name, &block
         http(name, secure: true, &block)
@@ -376,7 +377,6 @@ module Spectre
     end
 
     Spectre.register do |config|
-      @@logger = Spectre::Logging::ModuleLogger.new(config, 'spectre/http')
       @@secure_keys = config['secure_keys'] || []
       @@debug = config['debug']
 

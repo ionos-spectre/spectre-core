@@ -155,6 +155,7 @@ module Spectre::Curl
     @@response = nil
     @@request = nil
     @@modules = []
+    @@logger = Spectre::Logging::ModuleLogger.new('spectre/curl')
 
     def curl name, secure: false, &block
       req = {
@@ -379,8 +380,6 @@ module Spectre::Curl
 
   Spectre.register do |config|
     @@debug = config['debug']
-
-    @@logger = Spectre::Logging::ModuleLogger.new(config, 'spectre/curl')
 
     @@secure_keys = config['secure_keys'] || []
     @@curl_path = config['curl_path'] || 'curl'

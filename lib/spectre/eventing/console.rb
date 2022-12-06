@@ -1,10 +1,10 @@
 require 'ectoplasm'
 
-module Spectre::Logging
+module Spectre::Eventing
   class ::String
     alias :ok :green
     alias :error :red
-    alias :failure :red
+    alias :failed :red
     alias :info :blue
     alias :debug :grey
   end
@@ -144,6 +144,6 @@ module Spectre::Logging
   end
 
   Spectre.register do |_|
-    Spectre::Event.register(ConsoleLogger.new)
+    Spectre::Eventing.register(ConsoleLogger.new)
   end
 end
