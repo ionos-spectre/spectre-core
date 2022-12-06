@@ -4,44 +4,44 @@ require 'date'
 module Spectre
   module Logging
     class ModuleLogger
-      @@debug = false
-      @@handlers = []
-
       def initialize name
         @name = name
       end
 
       def info message
-        add_log(message, :info)
+        Spectre::Logging.log(message, :info, @name)
       end
 
       def debug message
         # return unless Logging.debug
-        add_log(message, :debug)
+        Spectre::Logging.log(message, :debug, @name)
       end
 
       def warn message
-        add_log(message, :warn)
+        Spectre::Logging.log(message, :warn, @name)
       end
 
       def error message
-        add_log(message, :error)
+        Spectre::Logging.log(message, :error, @name)
       end
+    end
 
-      private
+    class << self
+      @@debug = false
+      @@handlers = []
 
-      def add_log message, level
+      def log message, level, name=nil
         @@handlers.each do |handler|
           handler.send(level, message)
         end
 
         return unless Spectre::Runner.current
-        Spectre::Runner.current.log << [DateTime.now, message, level, @name]
+        Spectre::Runner.current.log << [DateTime.now, message, level, name]
       end
     end
 
-    # Spectre.register do |config|
-    #   @@debug = config['debug']
-    # end
+    Spectre.register do |config|
+      @@debug = config['debug']
+    end
   end
 end
