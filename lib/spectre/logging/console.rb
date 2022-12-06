@@ -105,6 +105,22 @@ module Spectre::Logging
       puts "[#{level}]".send(level)
     end
 
+    def spec_skip run_info, message
+      write_line('', fill: true, newline: false)
+      status = '[skipped]'
+
+      status += ' - ' + message if message
+      puts status.grey
+    end
+
+    def spec_error run_info, error
+      write_line('', fill: true, newline: false)
+      status = '[error]'
+
+      status += ' - ' + error.message if error
+      puts status.red
+    end
+
     private
 
     def indent
