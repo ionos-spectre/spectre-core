@@ -332,7 +332,7 @@ module Spectre
         Event.send(:spec_skip, run_info, e.message)
       rescue Interrupt
         run_info.skipped = true
-        Event.send(:spec_skip, spec, data, 'canceled by user')
+        Event.send(:spec_skip, run_info, 'canceled by user')
       rescue Exception => e
         run_info.error = e
         Event.send(:spec_error, run_info, e)
