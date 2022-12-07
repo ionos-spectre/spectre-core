@@ -12,17 +12,17 @@ end
 
 module Spectre
   module Environment
-    class << self
-      @@environment = OpenStruct.new
+    @@environment = OpenStruct.new
 
-      def env
-        @@environment
-      end
+    def self.env
+      Thread.current.thread_variable_get('spectre_env')
     end
 
     Spectre.register do |config|
-      @@environment = to_recursive_ostruct(config)
-      @@environment.freeze
+      env = to_recursive_ostruct(config)
+      env.freeze
+
+      Thread.current.thread_variable_set('spectre_env', env)
     end
 
     Spectre.delegate :env, to: self
