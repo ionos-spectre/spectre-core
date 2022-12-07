@@ -1,4 +1,5 @@
 require_relative '../spectre'
+
 require 'date'
 
 module Spectre
@@ -8,40 +9,38 @@ module Spectre
         @name = name
       end
 
-      def info message
-        Spectre::Logging.log(message, :info, @name)
-      end
-
-      def debug message
-        # return unless Logging.debug
-        Spectre::Logging.log(message, :debug, @name)
-      end
-
-      def warn message
-        Spectre::Logging.log(message, :warn, @name)
-      end
-
-      def error message
-        Spectre::Logging.log(message, :error, @name)
+      [:info, :debug, :warn, :error].each do |level|
+        define_method(level) do |message|
+          Spectre::Logging.log(message, level, @name)
+        end
       end
     end
 
     class << self
-      @@debug = false
       @@handlers = []
 
       def log message, level, name=nil
+        log_entry = [DateTime.now, message, level, name]
+
         @@handlers.each do |handler|
-          handler.send(level, message)
+          handler.send(:log, *log_entry) if handler.respond_to? :log
         end
 
         return unless Spectre::Runner.current
-        Spectre::Runner.current.log << [DateTime.now, message, level, name]
+        Spectre::Runner.current.log << log_entry
+      end
+
+      def register module_logger
+        @@handlers << module_logger
       end
     end
 
     Spectre.register do |config|
       @@debug = config['debug']
+
+      @@handlers.each do |handler|
+        handler.configure(config) if handler.respond_to? :configure
+      end
     end
   end
 end
