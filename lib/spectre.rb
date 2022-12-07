@@ -327,6 +327,7 @@ module Spectre
         spec.block.call(data)
       rescue ExpectationFailure => e
         run_info.failure = e
+        Logging.log(e.message, :error)
       rescue SpectreSkip => e
         run_info.skipped = true
         Eventing.send(:spec_skip, run_info, e.message)
@@ -336,6 +337,7 @@ module Spectre
       rescue Exception => e
         run_info.error = e
         Eventing.send(:spec_error, run_info, e)
+        Logging.log(e.message, :error)
       ensure
         if spec.context.__after_blocks.count > 0
           Eventing.send(:start_after, run_info)
@@ -351,6 +353,7 @@ module Spectre
           rescue Exception => e
             run_info.error = e
             Eventing.send(:spec_error, run_info, e)
+            Logging.log(e.message, :error)
           end
 
           Eventing.send(:end_after, run_info)
