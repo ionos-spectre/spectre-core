@@ -47,7 +47,6 @@ DEFAULT_CONFIG = {
     'spectre/diagnostic',
     'spectre/environment',
     'spectre/mixin',
-    'spectre/bag',
     'spectre/http',
     'spectre/http/basic_auth',
     'spectre/http/keystone',

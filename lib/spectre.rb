@@ -1,3 +1,5 @@
+require 'ostruct'
+
 module Spectre
   module Version
     MAJOR = 1
@@ -553,10 +555,16 @@ module Spectre
       Spectre::Runner.current.log << [DateTime.now, message, :debug, nil]
     end
 
+    def bag
+      Thread.current[:spectre_bag] || (Thread.current[:parent].nil? ? nil : Thread.current[:parent][:spectre_bag])
+    end
+
+    Thread.current[:spectre_bag] = OpenStruct.new
+
     alias :log :info
   end
 
-  delegate(:describe, :property, :group, :skip, :log, :info, :debug, to: Spectre)
+  delegate(:describe, :property, :group, :skip, :log, :info, :debug, :bag, to: Spectre)
 end
 
 
