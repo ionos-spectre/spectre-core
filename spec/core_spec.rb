@@ -51,7 +51,7 @@ RSpec.describe 'spectre/core' do
 
     expect(run_info.error).to eq(nil)
     expect(run_info.expectations.count).to eq(2)
-    expect(run_info.log.count).to eq(3)
+    expect(run_info.log.count).to eq(4)
     expect(run_info.failure).not_to eq(nil)
     expect(run_info.properties['foo']).to eq('bar')
     expect(run_info.skipped).to eq(false)
