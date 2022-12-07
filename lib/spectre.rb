@@ -2,9 +2,9 @@ require 'ostruct'
 
 module Spectre
   module Version
-    MAJOR = 1
-    MINOR = 14
-    TINY  = 2
+    MAJOR = 2
+    MINOR = 0
+    TINY  = 0
   end
 
   VERSION = [Version::MAJOR, Version::MINOR, Version::TINY].compact * '.'
@@ -15,6 +15,23 @@ module Spectre
       merger = proc { |_key, v1, v2| Hash === v1 && Hash === v2 ? v1.merge!(v2, &merger) : v2 }
       self.merge!(second, &merger)
     end
+
+    def deep_merge(second)
+      self.deep_clone.deep_merge!(second.deep_clone)
+    end
+
+    def deep_freeze
+      self
+        .map { |key, val| [key, val.deep_freeze] }
+        .to_h
+        .freeze
+    end
+  end
+
+  class ::Array
+    def deep_freeze
+      self.map { |x| x.deep_freeze }
+    end
   end
 
   class ::Object
@@ -22,6 +39,10 @@ module Spectre
       self.instance_variables.each_with_object({}) do |var, hash|
         hash[var.to_s.delete("@")] = self.instance_variable_get(var)
       end
+    end
+
+    def deep_freeze
+      self.freeze
     end
 
     def deep_clone
@@ -329,7 +350,7 @@ module Spectre
         spec.block.call(data)
       rescue ExpectationFailure => e
         run_info.failure = e
-        Logging.log(e.message, :error)
+        Logging.log("expected #{e.expectation}, but it failed with: #{e.message}", :error)
       rescue SpectreSkip => e
         run_info.skipped = true
         Eventing.send(:spec_skip, run_info, e.message)

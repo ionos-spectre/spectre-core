@@ -3,7 +3,6 @@ require 'spectre'
 RSpec.describe 'spectre/core' do
   before do
     Spectre.purge
-    require 'spectre/bag'
   end
 
   it 'does run specs' do
