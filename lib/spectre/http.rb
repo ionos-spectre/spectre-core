@@ -169,8 +169,6 @@ module Spectre
 
     class << self
       @@http_cfg = {}
-      @@response = nil
-      @@request = nil
       @@modules = []
       @@secure_keys = []
       @@logger = Spectre::Logging::ModuleLogger.new('spectre/http')
@@ -197,15 +195,15 @@ module Spectre
       end
 
       def request
-        raise 'No request has been invoked yet' unless @@request
+        raise 'No request has been invoked yet' unless Thread.current[:spectre_http_request]
 
-        @@request
+        Thread.current[:spectre_http_request]
       end
 
       def response
-        raise 'There is no response. No request has been invoked yet.' unless @@response
+        raise 'There is no response. No request has been invoked yet.' unless Thread.current[:spectre_http_response]
 
-        @@response
+        Thread.current[:spectre_http_response]
       end
 
       def register mod
@@ -249,7 +247,7 @@ module Spectre
       end
 
       def invoke req
-        @@request = nil
+        Thread.current[:spectre_http_request] = nil
 
         # Build URI
 
@@ -369,10 +367,9 @@ module Spectre
 
         # Set global request and response variables
 
-        @@request = OpenStruct.new(req)
-        @@request.freeze
+        Thread.current[:spectre_http_request] = OpenStruct.new(req).freeze
 
-        @@response = SpectreHttpResponse.new(net_res)
+        Thread.current[:spectre_http_response] = SpectreHttpResponse.new(net_res)
       end
     end
 

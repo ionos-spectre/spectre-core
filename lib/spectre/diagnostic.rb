@@ -3,33 +3,31 @@ require_relative '../spectre'
 module Spectre
   module Diagnostic
     module Stopwatch
-      @@duration = 0.0
-
       class << self
         def start_watch
-          @@start_time = Time.now
+          Thread.current[:spectre_stopwatch_started] = Time.now
         end
 
         def stop_watch
-          @@end_time = Time.now
+          Thread.current[:spectre_stopwatch_finished] = Time.now
         end
 
         def measure
-          start_watch
+          start_watch()
           yield
-          stop_watch
+          stop_watch()
         end
 
         def duration
-          @@end_time - @@start_time
+          finished_at - started_at
         end
 
         def started_at
-          @@start_time
+          Thread.current[:spectre_stopwatch_started]
         end
 
         def finished_at
-          @@end_time
+          Thread.current[:spectre_stopwatch_finished]
         end
       end
 

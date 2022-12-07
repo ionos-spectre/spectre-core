@@ -152,8 +152,6 @@ module Spectre::Curl
 
   class << self
     @@http_cfg = {}
-    @@response = nil
-    @@request = nil
     @@modules = []
     @@logger = Spectre::Logging::ModuleLogger.new('spectre/curl')
 
@@ -175,15 +173,15 @@ module Spectre::Curl
     end
 
     def curl_request
-      raise 'No request has been invoked yet' unless @@request
+      raise 'No request has been invoked yet' unless Thread.current[:spectre_curl_request]
 
-      @@request
+      Thread.current[:spectre_curl_request]
     end
 
     def curl_response
-      raise 'There is no response. No request has been invoked yet.' unless @@response
+      raise 'There is no response. No request has been invoked yet.' unless Thread.current[:spectre_curl_response]
 
-      @@response
+      Thread.current[:spectre_curl_response]
     end
 
     def register mod
@@ -292,7 +290,7 @@ module Spectre::Curl
       cmd.append('-i')
       cmd.append('-v')
 
-      @@request = OpenStruct.new(req)
+      Thread.current[:spectre_curl_request] = OpenStruct.new(req)
 
       sys_cmd = cmd.join(' ')
 
@@ -370,11 +368,13 @@ module Spectre::Curl
 
       @@logger.info res_log
 
-      @@response = SpectreHttpResponse.new(res)
+      response = SpectreHttpResponse.new(res)
 
-      raise "Response did not indicate success: #{@@response.code} #{@@response.message}" if req['ensure_success'] and not @@response.success?
+      raise "Response did not indicate success: #{response.code} #{response.message}" if req['ensure_success'] and not response.success?
 
-      @@response
+      Thread.current[:spectre_curl_response] = response
+
+      response
     end
   end
 

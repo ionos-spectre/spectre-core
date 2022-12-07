@@ -15,14 +15,14 @@ module Spectre
     @@environment = OpenStruct.new
 
     def self.env
-      Thread.current.thread_variable_get('spectre_env')
+      Thread.current[:spectre_env] || (Thread.current[:parent].nil? ? nil : Thread.current[:parent][:spectre_env])
     end
 
     Spectre.register do |config|
       env = to_recursive_ostruct(config)
       env.freeze
 
-      Thread.current.thread_variable_set('spectre_env', env)
+      Thread.current[:spectre_env] = env
     end
 
     Spectre.delegate :env, to: self
