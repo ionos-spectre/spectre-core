@@ -216,11 +216,11 @@ module Spectre
 
   class Runner
     def self.current
-      Thread.current.thread_variable_get('current_run')
+      Thread.current.thread_variable_get('spectre_current_run')
     end
 
     def self.current= run
-      Thread.current.thread_variable_set('current_run', run)
+      Thread.current.thread_variable_set('spectre_current_run', run)
     end
 
     def run specs
