@@ -128,7 +128,9 @@ module Spectre::Eventing
     end
 
     def fill text
-      text + ('.' * (@width - text.length - @indent * @level))
+      padding = @width - text.length - @indent * @level
+      return text unless padding > 0
+      text + ('.' * padding)
     end
 
     def write_line text, fill: false, newline: true
