@@ -1,4 +1,5 @@
 require_relative '../lib/spectre'
+require_relative '../lib/spectre/assertion'
 
 RSpec.describe 'spectre/core' do
   before do
