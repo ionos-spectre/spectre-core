@@ -1,4 +1,5 @@
 require 'ostruct'
+require 'date'
 
 module Spectre
   module Version
@@ -77,24 +78,6 @@ module Spectre
   end
 
   class SpectreSkip < Interrupt
-  end
-
-  ###########################################
-  # Internal Modules
-  ###########################################
-
-  module Eventing
-    @@handlers = []
-
-    def self.send event, *args
-      @@handlers.each do |handler|
-        handler.send(event, *args) if handler.respond_to? event
-      end
-    end
-
-    def self.register handler
-      @@handlers << handler
-    end
   end
 
   ###########################################
@@ -248,11 +231,11 @@ module Spectre
   module Runner
     class << self
       def current
-        Thread.current[:spectre_run] || (Thread.current[:parent].nil? ? nil : Thread.current[:parent][:spectre_run])
+        Environment.bucket(:spectre_run)
       end
 
       def current= run
-        Thread.current[:spectre_run] = run
+        Environment.put(:spectre_run, run)
       end
 
       def run specs
@@ -568,6 +551,28 @@ module Spectre
     end
   end
 
+  module Environment
+    def self.env
+      bucket(:spectre_env)
+    end
+
+    def self.bucket name
+      Thread.current[name] || (Thread.current[:parent].nil? ? nil : Thread.current[:parent][name])
+    end
+
+    def self.put name, val
+      Thread.current[name] = val
+    end
+
+    def self.delete name
+      Thread.current[name] = nil
+    end
+
+    def self.is_defined? name
+      not Thread.current[name].nil?
+    end
+  end
+
   class << self
     @@subjects = []
     @@modules = []
@@ -602,7 +607,9 @@ module Spectre
     end
 
     def configure config
-      Thread.current[:spectre_env] = config.to_recursive_struct.freeze
+      Environment.put(:spectre_env, config.to_recursive_struct.freeze)
+
+      Logging.configure(config)
 
       @@modules.each do |mod|
         mod.configure(config) if mod.respond_to? :configure
@@ -631,10 +638,6 @@ module Spectre
       ctx._evaluate &block
     end
 
-    def env
-      Thread.current[:spectre_env] || (Thread.current[:parent].nil? ? nil : Thread.current[:parent][:spectre_env])
-    end
-
     def property key, val
       Spectre::Runner.current.properties[key] = val
     end
@@ -649,28 +652,15 @@ module Spectre
       raise SpectreSkip.new(message)
     end
 
-    def info message
-      Spectre::Eventing.send(:log, message, :info)
-      Spectre::Runner.current.log << [DateTime.now, message, :info, nil]
-    end
-
-    def debug message
-      Spectre::Eventing.send(:log, message, :debug)
-      Spectre::Runner.current.log << [DateTime.now, message, :debug, nil]
-    end
-
     def bag
-      Thread.current[:spectre_bag] || (Thread.current[:parent].nil? ? nil : Thread.current[:parent][:spectre_bag])
+      Environment.put(:spectre_bag, OpenStruct.new) unless Environment.is_defined?(:spectre_bag)
+      Environment.bucket(:spectre_bag)
     end
-
-    Thread.current[:spectre_bag] = OpenStruct.new
-
-    alias :log :info
   end
 
   delegate(:describe, :property, :group, :skip, :bag, to: self)
   delegate(:log, :info, :debug, to: Eventing)
-  delegate(:describe, :env, :property, :group, :skip, :log, :info, :debug, :bag, to: Spectre)
+  delegate(:env, to: Environment)
 end
 
 

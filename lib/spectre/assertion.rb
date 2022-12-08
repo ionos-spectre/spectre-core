@@ -278,7 +278,7 @@ module Spectre
         begin
           Spectre::Eventing.trigger(:log, prefix, :info) if desc
           yield
-          Thread.current[:spectre_observe_success] = true
+          Spectre::Environment.put(:spectre_observe_success, true)
           @@logger.info("#{prefix} finished with success")
         rescue Interrupt => e
           raise e
@@ -287,12 +287,12 @@ module Spectre
           error_message += "\n" + e.backtrace.join("\n") if @@debug
 
           @@logger.info(error_message)
-          Thread.current[:spectre_observe_success] = false
+          Spectre::Environment.put(:spectre_observe_success, false)
         end
       end
 
       def success?
-        Thread.current[:spectre_observe_success]
+        Spectre::Environment.bucket(:spectre_observe_success)
       end
 
       def fail_with message

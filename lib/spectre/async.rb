@@ -5,7 +5,7 @@ Thread.abort_on_exception = true
 module Spectre
   module Async
     class << self
-      Thread.current[:spectre_threads] = {}
+      Spectre::Environment.put(:spectre_threads, {})
 
       def async name='default', &block
         unless threads.key? name
@@ -15,7 +15,7 @@ module Spectre
         current_thread = Thread.current
 
         threads[name] << Thread.new do
-          Thread.current[:parent] = current_thread
+          Spectre::Environment.put(:parent, current_thread)
           block.call
         end
       end
@@ -33,7 +33,7 @@ module Spectre
       private
 
       def threads
-        Thread.current[:spectre_threads]
+        Spectre::Environment.bucket(:spectre_threads)
       end
     end
 

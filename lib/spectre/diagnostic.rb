@@ -5,11 +5,11 @@ module Spectre
     module Stopwatch
       class << self
         def start_watch
-          Thread.current[:spectre_stopwatch_started] = Time.now
+          Spectre::Environment.put(:spectre_stopwatch_started, Time.now)
         end
 
         def stop_watch
-          Thread.current[:spectre_stopwatch_finished] = Time.now
+          Spectre::Environment.put(:spectre_stopwatch_finished, Time.now)
         end
 
         def measure
@@ -23,11 +23,11 @@ module Spectre
         end
 
         def started_at
-          Thread.current[:spectre_stopwatch_started]
+          Spectre::Environment.bucket(:spectre_stopwatch_started)
         end
 
         def finished_at
-          Thread.current[:spectre_stopwatch_finished]
+          Spectre::Environment.bucket(:spectre_stopwatch_finished)
         end
       end
 

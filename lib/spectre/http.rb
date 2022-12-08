@@ -168,10 +168,13 @@ module Spectre
 
 
     class << self
-      @@http_cfg = {}
       @@modules = []
       @@secure_keys = []
       @@logger = Spectre::Logging::ModuleLogger.new('spectre/http')
+
+      def config
+        Spectre::Environment.bucket(:spectre_http_config) || {}
+      end
 
       def https name, &block
         http(name, secure: true, &block)
@@ -180,8 +183,8 @@ module Spectre
       def http name, secure: false, &block
         req = DEFAULT_HTTP_CONFIG.clone
 
-        if @@http_cfg.key? name
-          req.deep_merge! @@http_cfg[name].deep_clone
+        if config.key? name
+          req.deep_merge! config[name].deep_clone
           raise HttpError.new("No `base_url' set for HTTP client '#{name}'. Check your HTTP config in your environment.") unless req['base_url']
         else
           req['base_url'] = name
@@ -195,15 +198,15 @@ module Spectre
       end
 
       def request
-        raise 'No request has been invoked yet' unless Thread.current[:spectre_http_request]
+        raise 'No request has been invoked yet' unless Spectre::Environment.bucket(:spectre_http_request)
 
-        Thread.current[:spectre_http_request]
+        Spectre::Environment.bucket(:spectre_http_request)
       end
 
       def response
-        raise 'There is no response. No request has been invoked yet.' unless Thread.current[:spectre_http_response]
+        raise 'There is no response. No request has been invoked yet.' unless Spectre::Environment.bucket(:spectre_http_response)
 
-        Thread.current[:spectre_http_response]
+        Spectre::Environment.bucket(:spectre_http_response)
       end
 
       def register mod
@@ -218,11 +221,7 @@ module Spectre
 
         return unless config.key? 'http'
 
-        @@http_cfg = {}
-
-        config['http'].each do |name, cfg|
-          @@http_cfg[name] = cfg
-        end
+        Spectre::Environment.put(:spectre_http_config, config['http'])
       end
 
       private
@@ -260,7 +259,7 @@ module Spectre
       end
 
       def invoke req
-        Thread.current[:spectre_http_request] = nil
+        Spectre::Environment.delete(:spectre_http_request)
 
         # Build URI
 
@@ -380,9 +379,8 @@ module Spectre
 
         # Set global request and response variables
 
-        Thread.current[:spectre_http_request] = OpenStruct.new(req).freeze
-
-        Thread.current[:spectre_http_response] = SpectreHttpResponse.new(net_res)
+        Spectre::Environment.put(:spectre_http_request, OpenStruct.new(req).freeze)
+        Spectre::Environment.put(:spectre_http_response, SpectreHttpResponse.new(net_res))
       end
     end
 

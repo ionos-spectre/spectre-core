@@ -173,15 +173,15 @@ module Spectre::Curl
     end
 
     def curl_request
-      raise 'No request has been invoked yet' unless Thread.current[:spectre_curl_request]
+      raise 'No request has been invoked yet' unless Spectre::Environment.bucket(:spectre_curl_request)
 
-      Thread.current[:spectre_curl_request]
+      Spectre::Environment.bucket(:spectre_curl_request)
     end
 
     def curl_response
-      raise 'There is no response. No request has been invoked yet.' unless Thread.current[:spectre_curl_response]
+      raise 'There is no response. No request has been invoked yet.' unless Spectre::Environment.bucket(:spectre_curl_response)
 
-      Thread.current[:spectre_curl_response]
+      Spectre::Environment.bucket(:spectre_curl_response)
     end
 
     def register mod
@@ -290,7 +290,7 @@ module Spectre::Curl
       cmd.append('-i')
       cmd.append('-v')
 
-      Thread.current[:spectre_curl_request] = OpenStruct.new(req)
+      Spectre::Environment.put(:spectre_curl_request, OpenStruct.new(req))
 
       sys_cmd = cmd.join(' ')
 
@@ -372,7 +372,7 @@ module Spectre::Curl
 
       raise "Response did not indicate success: #{response.code} #{response.message}" if req['ensure_success'] and not response.success?
 
-      Thread.current[:spectre_curl_response] = response
+      Spectre::Environment.bucket(:spectre_curl_response, response)
 
       response
     end
