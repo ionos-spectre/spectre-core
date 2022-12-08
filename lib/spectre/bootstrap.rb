@@ -27,7 +27,6 @@ module Spectre::Bootstrap
       'spectre/logging/file',
       'spectre/assertion',
       'spectre/diagnostic',
-      'spectre/environment',
       'spectre/mixin',
       'spectre/http',
       'spectre/http/basic_auth',

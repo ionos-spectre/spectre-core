@@ -26,6 +26,14 @@ module Spectre
         .to_h
         .freeze
     end
+
+    def to_recursive_struct
+      OpenStruct.new(
+        self.each_with_object({}) do |(key, val), memo|
+          memo[key] = val.is_a?(Hash) ? val.to_recursive_struct : val
+        end
+      )
+    end
   end
 
   class ::Array
@@ -526,6 +534,7 @@ module Spectre
     end
 
     def configure config
+      Thread.current[:spectre_env] = config.to_recursive_struct.freeze
 
       @@modules.each do |mod|
         mod.configure(config) if mod.respond_to? :configure
@@ -542,7 +551,6 @@ module Spectre
     # Global Functions
     ###########################################
 
-
     def describe desc, &block
       subject = @@subjects.find { |x| x.desc == desc }
 
@@ -553,6 +561,10 @@ module Spectre
 
       ctx = SpecContext.new(subject)
       ctx._evaluate &block
+    end
+
+    def env
+      Thread.current[:spectre_env] || (Thread.current[:parent].nil? ? nil : Thread.current[:parent][:spectre_env])
     end
 
     def property key, val
@@ -588,7 +600,7 @@ module Spectre
     alias :log :info
   end
 
-  delegate(:describe, :property, :group, :skip, :log, :info, :debug, :bag, to: Spectre)
+  delegate(:describe, :env, :property, :group, :skip, :log, :info, :debug, :bag, to: Spectre)
 end
 
 

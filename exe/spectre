@@ -123,11 +123,6 @@ config = Spectre::Bootstrap
 
 String.colored! if config['colored']
 
-# Load environment exlicitly before loading specs to make it available in spec definition
-require_relative '../lib/spectre/environment' unless config['exclude'].include? 'spectre/environment'
-Spectre.configure(config)
-
-
 # Load specs only, when listing or running specs
 if ['list', 'run'].include? action
 
@@ -175,7 +170,7 @@ if ['list', 'run'].include? action
       exit 1
     end
 
-    run_infos = Spectre::Runner.new.run(specs)
+    run_infos = Spectre::Runner.run(specs)
 
     Spectre::Reporter.report(run_infos)
 
