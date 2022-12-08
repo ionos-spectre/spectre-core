@@ -259,15 +259,15 @@ module Spectre
         runs = []
 
         specs.group_by { |x| x.subject }.each do |subject, subject_specs|
-          Spectre::Eventing.send(:start_subject, subject)
+          Spectre::Eventing.trigger(:start_subject, subject)
 
           subject_specs.group_by { |x| x.context }.each do |context, context_specs|
-            Spectre::Eventing.send(:start_context, context)
+            Spectre::Eventing.trigger(:start_context, context)
             runs.concat run_context(context, context_specs)
-            Spectre::Eventing.send(:end_context, context)
+            Spectre::Eventing.trigger(:end_context, context)
           end
 
-          Spectre::Eventing.send(:end_subject, subject)
+          Spectre::Eventing.trigger(:end_subject, subject)
         end
 
         runs
@@ -314,7 +314,7 @@ module Spectre
 
         run_info.started = Time.now
 
-        Spectre::Eventing.send(('start_' + type.to_s).to_sym, run_info)
+        Eventing.trigger(('start_' + type.to_s).to_sym, run_info)
 
         begin
           spec.block.call()
@@ -324,12 +324,13 @@ module Spectre
           run_info.failure = e
         rescue Exception => e
           run_info.error = e
-          Spectre::Logging.log_error(spec, e)
+          raise e
+          Eventing.trigger(:spec_error, run_info, e)
         end
 
         run_info.finished = Time.now
 
-        Spectre::Eventing.send(('end_' + type.to_s).to_sym, run_info)
+        Eventing.trigger(('end_' + type.to_s).to_sym, run_info)
 
         Runner.current = nil
 
@@ -343,17 +344,17 @@ module Spectre
 
         run_info.started = Time.now
 
-        Eventing.send(:start_spec, run_info)
+        Eventing.trigger(:start_spec, run_info)
 
         begin
           if spec.context.__before_blocks.count > 0
-            Eventing.send(:start_before, run_info)
+            Eventing.trigger(:start_before, run_info)
 
             spec.context.__before_blocks.each do |block|
               block.call(data)
             end
 
-            Eventing.send(:end_before, run_info)
+            Eventing.trigger(:end_before, run_info)
           end
 
           spec.block.call(data)
@@ -362,17 +363,18 @@ module Spectre
           Logging.log("expected #{e.expectation}, but it failed with: #{e.message}", :error)
         rescue SpectreSkip => e
           run_info.skipped = true
-          Eventing.send(:spec_skip, run_info, e.message)
+          Eventing.trigger(:spec_skip, run_info, e.message)
         rescue Interrupt
           run_info.skipped = true
-          Eventing.send(:spec_skip, run_info, 'canceled by user')
+          Eventing.trigger(:spec_skip, run_info, 'canceled by user')
         rescue Exception => e
           run_info.error = e
-          Eventing.send(:spec_error, run_info, e)
+          raise e
+          Eventing.trigger(:spec_error, run_info, e)
           Logging.log(e.message, :error)
         ensure
           if spec.context.__after_blocks.count > 0
-            Eventing.send(:start_after, run_info)
+            Eventing.trigger(:start_after, run_info)
 
             begin
               spec.context.__after_blocks.each do |block|
@@ -384,17 +386,18 @@ module Spectre
               run_info.failure = e
             rescue Exception => e
               run_info.error = e
-              Eventing.send(:spec_error, run_info, e)
+              raise e
+              Eventing.trigger(:spec_error, run_info, e)
               Logging.log(e.message, :error)
             end
 
-            Eventing.send(:end_after, run_info)
+            Eventing.trigger(:end_after, run_info)
           end
         end
 
         run_info.finished = Time.now
 
-        Eventing.send(:end_spec, run_info)
+        Eventing.trigger(:end_spec, run_info)
 
         Runner.current = nil
 
@@ -499,6 +502,71 @@ module Spectre
     end
   end
 
+  module Logging
+    class ModuleLogger
+      def initialize name
+        @name = name
+      end
+
+      [:info, :debug, :warn, :error].each do |level|
+        define_method(level) do |message|
+          Spectre::Logging.log(message, level, @name)
+        end
+      end
+    end
+
+    class << self
+      @@handlers = []
+
+      def log message, level, name=nil
+        log_entry = [DateTime.now, message, level, name]
+
+        @@handlers.each do |handler|
+          handler.send(:log, *log_entry) if handler.respond_to? :log
+        end
+
+        return unless Spectre::Runner.current
+        Spectre::Runner.current.log << log_entry
+      end
+
+      def register module_logger
+        @@handlers << module_logger
+      end
+
+      def configure config
+        @@debug = config['debug']
+
+        @@handlers.each do |handler|
+          handler.configure(config) if handler.respond_to? :configure
+        end
+      end
+    end
+  end
+
+  module Eventing
+    class << self
+      @@handlers = []
+
+      def trigger event, *args
+        @@handlers.each do |handler|
+          handler.send(event, *args) if handler.respond_to? event
+        end
+      end
+
+      def register handler
+        @@handlers << handler
+      end
+
+      [:info, :debug, :warn, :error].each do |level|
+        define_method(level) do |message|
+          trigger(:log, message, level)
+          Spectre::Runner.current.log << [DateTime.now, message, level, nil]
+        end
+      end
+
+      alias :log :info
+    end
+  end
 
   class << self
     @@subjects = []
@@ -572,9 +640,9 @@ module Spectre
     end
 
     def group desc
-      Spectre::Eventing.send(:start_group, desc)
+      Spectre::Eventing.trigger(:start_group, desc)
       yield
-      Spectre::Eventing.send(:end_group, desc)
+      Spectre::Eventing.trigger(:end_group, desc)
     end
 
     def skip message=nil
@@ -600,6 +668,8 @@ module Spectre
     alias :log :info
   end
 
+  delegate(:describe, :property, :group, :skip, :bag, to: self)
+  delegate(:log, :info, :debug, to: Eventing)
   delegate(:describe, :env, :property, :group, :skip, :log, :info, :debug, :bag, to: Spectre)
 end
 
