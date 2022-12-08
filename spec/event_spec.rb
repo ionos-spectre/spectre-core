@@ -1,4 +1,4 @@
-require 'spectre'
+require_relative '../lib/spectre'
 
 RSpec.describe 'spectre/event' do
   before do
@@ -32,7 +32,7 @@ RSpec.describe 'spectre/event' do
       end
     end
 
-    run_infos = Spectre::Runner.new.run(Spectre.specs)
+    run_infos = Spectre::Runner.run(Spectre.specs)
 
     expect(run_infos.count).to eq(3)
 

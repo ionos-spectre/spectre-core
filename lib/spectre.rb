@@ -237,159 +237,161 @@ module Spectre
     end
   end
 
-  class Runner
-    def self.current
-      Thread.current[:spectre_run] || (Thread.current[:parent].nil? ? nil : Thread.current[:parent][:spectre_run])
-    end
+  module Runner
+    class << self
+      def current
+        Thread.current[:spectre_run] || (Thread.current[:parent].nil? ? nil : Thread.current[:parent][:spectre_run])
+      end
 
-    def self.current= run
-      Thread.current[:spectre_run] = run
-    end
+      def current= run
+        Thread.current[:spectre_run] = run
+      end
 
-    def run specs
-      runs = []
+      def run specs
+        runs = []
 
-      specs.group_by { |x| x.subject }.each do |subject, subject_specs|
-        Spectre::Eventing.send(:start_subject, subject)
+        specs.group_by { |x| x.subject }.each do |subject, subject_specs|
+          Spectre::Eventing.send(:start_subject, subject)
 
-        subject_specs.group_by { |x| x.context }.each do |context, context_specs|
-          Spectre::Eventing.send(:start_context, context)
-          runs.concat run_context(context, context_specs)
-          Spectre::Eventing.send(:end_context, context)
+          subject_specs.group_by { |x| x.context }.each do |context, context_specs|
+            Spectre::Eventing.send(:start_context, context)
+            runs.concat run_context(context, context_specs)
+            Spectre::Eventing.send(:end_context, context)
+          end
+
+          Spectre::Eventing.send(:end_subject, subject)
         end
 
-        Spectre::Eventing.send(:end_subject, subject)
+        runs
       end
 
-      runs
-    end
+      private
 
-    private
+      def run_context context, specs
+        runs = []
 
-    def run_context context, specs
-      runs = []
+        context.__setup_blocks.each do |setup_spec|
+          setup_run = run_setup(setup_spec, :setup)
+          runs << setup_run
+          return runs unless setup_run.success?
+        end
 
-      context.__setup_blocks.each do |setup_spec|
-        setup_run = run_setup(setup_spec, :setup)
-        runs << setup_run
-        return runs unless setup_run.success?
-      end
+        begin
+          specs.each do |spec|
+            raise SpectreError.new("Multi data definition (`with' parameter) of '#{spec.subject.desc} #{spec.desc}' has to be an `Array'") unless !spec.data.nil? and spec.data.is_a? Array
 
-      begin
-        specs.each do |spec|
-          raise SpectreError.new("Multi data definition (`with' parameter) of '#{spec.subject.desc} #{spec.desc}' has to be an `Array'") unless !spec.data.nil? and spec.data.is_a? Array
-
-          if spec.data.any?
-            spec.data
-              .map { |x| x.is_a?(Hash) ? OpenStruct.new(x) : x }
-              .each do |data|
-                runs << run_spec(spec, data)
-              end
-          else
-            runs << run_spec(spec)
+            if spec.data.any?
+              spec.data
+                .map { |x| x.is_a?(Hash) ? OpenStruct.new(x) : x }
+                .each do |data|
+                  runs << run_spec(spec, data)
+                end
+            else
+              runs << run_spec(spec)
+            end
+          end
+        ensure
+          context.__teardown_blocks.each do |teardown_spec|
+            runs << run_setup(teardown_spec, :teardown)
           end
         end
-      ensure
-        context.__teardown_blocks.each do |teardown_spec|
-          runs << run_setup(teardown_spec, :teardown)
-        end
+
+        runs
       end
 
-      runs
-    end
+      def run_setup spec, type
+        run_info = RunInfo.new(spec)
 
-    def run_setup spec, type
-      run_info = RunInfo.new(spec)
+        Runner.current = run_info
 
-      Runner.current = run_info
+        run_info.started = Time.now
 
-      run_info.started = Time.now
+        Spectre::Eventing.send(('start_' + type.to_s).to_sym, run_info)
 
-      Spectre::Eventing.send(('start_' + type.to_s).to_sym, run_info)
+        begin
+          spec.block.call()
 
-      begin
-        spec.block.call()
+          run_info.finished = Time.now
+        rescue ExpectationFailure => e
+          run_info.failure = e
+        rescue Exception => e
+          run_info.error = e
+          Spectre::Logging.log_error(spec, e)
+        end
 
         run_info.finished = Time.now
-      rescue ExpectationFailure => e
-        run_info.failure = e
-      rescue Exception => e
-        run_info.error = e
-        Spectre::Logging.log_error(spec, e)
+
+        Spectre::Eventing.send(('end_' + type.to_s).to_sym, run_info)
+
+        Runner.current = nil
+
+        run_info
       end
 
-      run_info.finished = Time.now
+      def run_spec spec, data=nil
+        run_info = RunInfo.new(spec, data)
 
-      Spectre::Eventing.send(('end_' + type.to_s).to_sym, run_info)
+        Runner.current = run_info
 
-      Runner.current = nil
+        run_info.started = Time.now
 
-      run_info
-    end
+        Eventing.send(:start_spec, run_info)
 
-    def run_spec spec, data=nil
-      run_info = RunInfo.new(spec, data)
+        begin
+          if spec.context.__before_blocks.count > 0
+            Eventing.send(:start_before, run_info)
 
-      Runner.current = run_info
-
-      run_info.started = Time.now
-
-      Eventing.send(:start_spec, run_info)
-
-      begin
-        if spec.context.__before_blocks.count > 0
-          Eventing.send(:start_before, run_info)
-
-          spec.context.__before_blocks.each do |block|
-            block.call(data)
-          end
-
-          Eventing.send(:end_before, run_info)
-        end
-
-        spec.block.call(data)
-      rescue ExpectationFailure => e
-        run_info.failure = e
-        Logging.log("expected #{e.expectation}, but it failed with: #{e.message}", :error)
-      rescue SpectreSkip => e
-        run_info.skipped = true
-        Eventing.send(:spec_skip, run_info, e.message)
-      rescue Interrupt
-        run_info.skipped = true
-        Eventing.send(:spec_skip, run_info, 'canceled by user')
-      rescue Exception => e
-        run_info.error = e
-        Eventing.send(:spec_error, run_info, e)
-        Logging.log(e.message, :error)
-      ensure
-        if spec.context.__after_blocks.count > 0
-          Eventing.send(:start_after, run_info)
-
-          begin
-            spec.context.__after_blocks.each do |block|
-              block.call
+            spec.context.__before_blocks.each do |block|
+              block.call(data)
             end
 
-            run_info.finished = Time.now
-          rescue ExpectationFailure => e
-            run_info.failure = e
-          rescue Exception => e
-            run_info.error = e
-            Eventing.send(:spec_error, run_info, e)
-            Logging.log(e.message, :error)
+            Eventing.send(:end_before, run_info)
           end
 
-          Eventing.send(:end_after, run_info)
+          spec.block.call(data)
+        rescue ExpectationFailure => e
+          run_info.failure = e
+          Logging.log("expected #{e.expectation}, but it failed with: #{e.message}", :error)
+        rescue SpectreSkip => e
+          run_info.skipped = true
+          Eventing.send(:spec_skip, run_info, e.message)
+        rescue Interrupt
+          run_info.skipped = true
+          Eventing.send(:spec_skip, run_info, 'canceled by user')
+        rescue Exception => e
+          run_info.error = e
+          Eventing.send(:spec_error, run_info, e)
+          Logging.log(e.message, :error)
+        ensure
+          if spec.context.__after_blocks.count > 0
+            Eventing.send(:start_after, run_info)
+
+            begin
+              spec.context.__after_blocks.each do |block|
+                block.call
+              end
+
+              run_info.finished = Time.now
+            rescue ExpectationFailure => e
+              run_info.failure = e
+            rescue Exception => e
+              run_info.error = e
+              Eventing.send(:spec_error, run_info, e)
+              Logging.log(e.message, :error)
+            end
+
+            Eventing.send(:end_after, run_info)
+          end
         end
+
+        run_info.finished = Time.now
+
+        Eventing.send(:end_spec, run_info)
+
+        Runner.current = nil
+
+        run_info
       end
-
-      run_info.finished = Time.now
-
-      Eventing.send(:end_spec, run_info)
-
-      Runner.current = nil
-
-      run_info
     end
   end
 
