@@ -33,14 +33,16 @@ module Spectre
       def register module_logger
         @@handlers << module_logger
       end
-    end
 
-    Spectre.register do |config|
-      @@debug = config['debug']
+      def configure config
+        @@debug = config['debug']
 
-      @@handlers.each do |handler|
-        handler.configure(config) if handler.respond_to? :configure
+        @@handlers.each do |handler|
+          handler.configure(config) if handler.respond_to? :configure
+        end
       end
     end
+
+    Spectre.register(self)
   end
 end

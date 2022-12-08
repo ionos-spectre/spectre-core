@@ -31,7 +31,7 @@ module Spectre
         end
       end
 
-      Spectre.delegate :start_watch, :stop_watch, :duration, :measure, to: self
+      Spectre.delegate(:start_watch, :stop_watch, :duration, :measure, to: self)
     end
   end
 end

@@ -26,24 +26,25 @@ module Spectre
       def resources
         @@resources
       end
-    end
 
-    Spectre.register do |config|
-      return unless config.key? 'resource_paths'
+      def configure config
+        return unless config.key? 'resource_paths'
 
-      config['resource_paths'].each do |resource_path|
-        resource_files = Dir.glob File.join(resource_path, '**/*')
+        config['resource_paths'].each do |resource_path|
+          resource_files = Dir.glob File.join(resource_path, '**/*')
 
-        resource_files.each do |file|
-          file.slice! resource_path
-          file = file[1..-1]
-          @@resources.add file, File.expand_path(File.join resource_path, file)
+          resource_files.each do |file|
+            file.slice! resource_path
+            file = file[1..-1]
+            @@resources.add file, File.expand_path(File.join resource_path, file)
+          end
         end
-      end
 
-      @@resources.freeze
+        @@resources.freeze
+      end
     end
 
-    Spectre.delegate :resources, to: self
+    Spectre.register(self)
+    Spectre.delegate(:resources, to: self)
   end
 end

@@ -127,7 +127,7 @@ RSpec.describe 'spectre/http' do
     it 'does some HTTPS request with SSL switch' do
       expect(@net_http).to receive(:request).with(@net_req)
 
-      Spectre.configure({
+      Spectre::Http.configure({
         'http' => {
           'some_client' => {
             'base_url' => 'some-url.de',
@@ -161,7 +161,7 @@ RSpec.describe 'spectre/http' do
       expect(@net_http).to receive(:request).with(@net_req)
       expect(@net_req).to receive(:basic_auth).with(username, password)
 
-      Spectre.configure({
+      Spectre::Http.configure({
         'http' => {
           'some_client' => {
             'base_url' => 'some-url.de',
@@ -210,7 +210,7 @@ RSpec.describe 'spectre/http' do
     end
 
     it 'raise error with missing base URL' do
-      Spectre.configure({
+      Spectre::Http.configure({
         'http' => {
           'some_client' => {},
         },

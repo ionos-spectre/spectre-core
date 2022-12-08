@@ -55,6 +55,6 @@ module Spectre
       alias_method :step, :run
     end
 
-    Spectre.delegate :mixin, :run, :also, :step, to: self
+    Spectre.delegate(:mixin, :run, :also, :step, to: self)
   end
 end

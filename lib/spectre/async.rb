@@ -37,6 +37,6 @@ module Spectre
       end
     end
 
-    Spectre.delegate :async, :await, to: self
+    Spectre.delegate(:async, :await, to: self)
   end
 end

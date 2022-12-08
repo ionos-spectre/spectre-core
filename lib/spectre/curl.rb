@@ -376,22 +376,23 @@ module Spectre::Curl
 
       response
     end
-  end
 
-  Spectre.register do |config|
-    @@debug = config['debug']
+    def configure config
+      @@debug = config['debug']
 
-    @@secure_keys = config['secure_keys'] || []
-    @@curl_path = config['curl_path'] || 'curl'
+      @@secure_keys = config['secure_keys'] || []
+      @@curl_path = config['curl_path'] || 'curl'
 
-    if config.key? 'http'
-      @@http_cfg = {}
+      if config.key? 'http'
+        @@http_cfg = {}
 
-      config['http'].each do |name, cfg|
-        @@http_cfg[name] = cfg
+        config['http'].each do |name, cfg|
+          @@http_cfg[name] = cfg
+        end
       end
     end
   end
 
-  Spectre.delegate :curl, :curl_response, :curl_request, to: self
+  Spectre.register(self)
+  Spectre.delegate(:curl, :curl_response, :curl_request, to: self)
 end

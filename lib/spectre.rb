@@ -519,13 +519,14 @@ module Spectre
       Spectre::Delegator.delegate(*method_names, to)
     end
 
-    def register &block
-      @@modules << block
+    def register mod
+      @@modules << mod
     end
 
     def configure config
-      @@modules.each do |block|
-        block.call(config)
+
+      @@modules.each do |mod|
+        mod.configure(config) if mod.respond_to? :configure
       end
     end
 

@@ -212,6 +212,19 @@ module Spectre
         @@modules << mod
       end
 
+      def configure config
+        @@secure_keys = config['secure_keys'] || []
+        @@debug = config['debug']
+
+        return unless config.key? 'http'
+
+        @@http_cfg = {}
+
+        config['http'].each do |name, cfg|
+          @@http_cfg[name] = cfg
+        end
+      end
+
       private
 
       def try_format_json str, pretty: false
@@ -373,19 +386,7 @@ module Spectre
       end
     end
 
-    Spectre.register do |config|
-      @@secure_keys = config['secure_keys'] || []
-      @@debug = config['debug']
-
-      if config.key? 'http'
-        @@http_cfg = {}
-
-        config['http'].each do |name, cfg|
-          @@http_cfg[name] = cfg
-        end
-      end
-    end
-
-    Spectre.delegate :http, :https, :request, :response, to: self
+    Spectre.register(self)
+    Spectre.delegate(:http, :https, :request, :response, to: self)
   end
 end

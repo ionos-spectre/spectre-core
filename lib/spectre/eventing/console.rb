@@ -143,7 +143,5 @@ module Spectre::Eventing
     end
   end
 
-  Spectre.register do |_|
-    Spectre::Eventing.register(ConsoleLogger.new)
-  end
+  Spectre::Eventing.register(ConsoleLogger.new)
 end

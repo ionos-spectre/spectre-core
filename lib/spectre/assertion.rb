@@ -298,12 +298,13 @@ module Spectre
       def fail_with message
         raise AssertionFailure.new(message)
       end
+
+      def configure config
+        @@debug = config['debug']
+      end
     end
 
-    Spectre.register do |config|
-      @@debug = config['debug']
-    end
-
-    Spectre.delegate :expect, :observe, :success?, :fail_with, to: self
+    Spectre.register(self)
+    Spectre.delegate(:expect, :observe, :success?, :fail_with, to: self)
   end
 end

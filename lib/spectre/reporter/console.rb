@@ -62,6 +62,10 @@ module Spectre::Reporter
       puts report_str.red
     end
 
+    def self.configure config
+      Spectre::Reporter.add Console.new(config)
+    end
+
     private
 
     def format_title run_info
@@ -97,8 +101,6 @@ module Spectre::Reporter
       str
     end
 
-    Spectre.register do |config|
-      Spectre::Reporter.add Console.new(config)
-    end
+    Spectre.register(self)
   end
 end
