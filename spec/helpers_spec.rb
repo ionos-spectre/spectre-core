@@ -1,4 +1,4 @@
-require 'spectre/helpers'
+require_relative '../lib/spectre/helpers'
 
 RSpec.describe 'spectre/helpers' do
   it 'substitudes placeholders in strings' do

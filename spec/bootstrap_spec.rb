@@ -1,5 +1,5 @@
-require 'spectre'
-require 'spectre/bootstrap'
+require_relative '../lib/spectre'
+require_relative '../lib/spectre/bootstrap'
 
 RSpec.describe 'spectre/bootstrap' do
   it 'does load everything' do
@@ -10,8 +10,10 @@ RSpec.describe 'spectre/bootstrap' do
 
     expect(config).not_to eq(nil)
 
-    # Spectre::Bootstrap.load_modules(config)
+    Spectre::Bootstrap.load_modules(config)
     Spectre::Bootstrap.load_mixins(config)
     Spectre::Bootstrap.load_specs(config)
+
+    Spectre.configure(config)
   end
 end

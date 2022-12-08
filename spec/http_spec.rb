@@ -1,5 +1,10 @@
 require 'net/http'
 
+require_relative '../lib/spectre/http'
+require_relative '../lib/spectre/http/basic_auth'
+require_relative '../lib/spectre/http/keystone'
+
+
 def create_response code='200', message='Ok', body='{"message": "Hello World!"}'
   net_res = double(::Net::HTTPOK)
   allow(net_res).to receive(:code).and_return(code)
@@ -14,10 +19,6 @@ end
 RSpec.describe 'spectre/http' do
   context do
     before do
-      require 'spectre/http'
-      require 'spectre/http/basic_auth'
-      require 'spectre/http/keystone'
-
       @net_http = double(::Net::HTTP)
       allow(@net_http).to receive(:read_timeout=)
       allow(@net_http).to receive(:max_retries=)
@@ -36,8 +37,6 @@ RSpec.describe 'spectre/http' do
       allow(@net_req).to receive(:[]=)
       allow(@net_req).to receive(:content_type=)
       allow(::Net::HTTPGenericRequest).to receive(:new).and_return(@net_req)
-
-      Spectre.configure({})
     end
 
     it 'does some general HTTP request' do
@@ -222,14 +221,6 @@ RSpec.describe 'spectre/http' do
         end
       }.to raise_error(Spectre::Http::HttpError)
     end
-  end
-
-  before do
-    require 'spectre/http'
-    require 'spectre/http/basic_auth'
-    require 'spectre/http/keystone'
-
-    Spectre.configure({})
   end
 
   it 'does some HTTP request with keystone auth' do

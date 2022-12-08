@@ -1,4 +1,4 @@
-require 'spectre/assertion'
+require_relative '../lib/spectre/assertion'
 
 RSpec.describe 'spectre/assertion' do
   it 'evaluates single assertions' do

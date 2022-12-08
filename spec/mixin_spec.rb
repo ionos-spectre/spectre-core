@@ -1,4 +1,4 @@
-require 'spectre/mixin'
+require_relative '../lib/spectre/mixin'
 
 RSpec.describe 'spectre/mixin' do
   it 'runs a mixin without parameters' do

@@ -1,4 +1,4 @@
-require 'spectre/async'
+require_relative '../lib/spectre/async'
 
 RSpec.describe 'spectre/async' do
   it 'runs a block async after main' do
