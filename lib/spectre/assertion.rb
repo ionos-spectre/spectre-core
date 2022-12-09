@@ -244,30 +244,7 @@ module Spectre
 
     class << self
       @@debug = false
-      @@logger = Spectre::Logging::ModuleLogger.new('spectre/assertion')
-
-      def expect desc
-        status = :unknown
-        message = nil
-
-        begin
-          Spectre::Eventing.trigger(:start_expect, desc)
-          yield
-          status = :ok
-        rescue Interrupt => e
-          status = :skipped
-          raise e
-        rescue AssertionFailure => e
-          status = :failed
-          raise AssertionFailure.new(e.message, e.expected, e.actual, desc), cause: nil
-        rescue Exception => e
-          status = :error
-          raise e
-        ensure
-          Spectre::Eventing.trigger(:end_expect, desc, status, message)
-          Spectre::Runner.current.expectations.append([desc, status])
-        end
-      end
+      @@logger = Spectre::Logging::SpectreLogger.new('spectre/assertion')
 
       def observe desc = nil
         prefix = 'observing'
@@ -302,7 +279,6 @@ module Spectre
       end
     end
 
-    Spectre.register(self)
-    Spectre.delegate(:expect, :observe, :success?, :fail_with, to: self)
+    # Spectre.delegate(:observe, :success?, :fail_with, to: self)
   end
 end

@@ -1,13 +1,12 @@
-require_relative '../lib/spectre'
+require_relative '../lib/spectre/runner'
 require_relative '../lib/spectre/assertion'
 
 RSpec.describe 'spectre/core' do
-  before do
-    Spectre.purge
-  end
-
   it 'does run specs' do
-    Spectre.describe 'Some Subject' do
+
+    spectre_scope = Spectre::SpectreScope.new
+
+    spectre_scope.describe 'Some Subject' do
       setup do
         log 'do some setup stuff once'
       end
@@ -33,21 +32,23 @@ RSpec.describe 'spectre/core' do
 
         sleep 0.1
 
-        Spectre::Assertion.expect 'some stuff' do
+        expect 'some stuff' do
           42.should_be 42
         end
 
-        Spectre::Assertion.expect 'some stuff to break' do
+        expect 'some stuff to break' do
           fail_with 'Oops!'
         end
       end
     end
 
-    run_infos = Spectre.run(Spectre.specs)
+    run_infos = spectre_scope.run(spectre_scope.specs)
 
     expect(run_infos.count).to eq(3)
 
     run_info = run_infos[1]
+
+    puts run_info.log.to_json
 
     expect(run_info.error).to eq(nil)
     expect(run_info.expectations.count).to eq(2)
