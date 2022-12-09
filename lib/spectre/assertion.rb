@@ -101,7 +101,7 @@ module Spectre
           val = OpenStruct.new(val)
         end
 
-        evaluate(val, "#{list} should contain #{val.to_s}") do |x|
+        evaluate(val, "#{list} should contain '#{val.to_s}'") do |x|
           list.include? x
         end
       end
