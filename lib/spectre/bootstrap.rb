@@ -146,7 +146,7 @@ module Spectre::Bootstrap
         .each do |mod|
           begin
             mod_file = mod + '.rb'
-            spectre_lib_mod = File.join(File.dirname(__dir__), 'lib', mod_file)
+            spectre_lib_mod = File.join(File.dirname(__dir__), mod_file)
 
             if File.exists? mod_file
               require_relative mod_file
