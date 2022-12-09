@@ -8,7 +8,7 @@ require 'fileutils'
 require 'ectoplasm'
 
 require_relative '../lib/spectre'
-require_relative '../lib/spectre/bootstrap'
+require_relative '../lib/spectre/config'
 
 cmd_options = {}
 property_overrides = {}
@@ -115,18 +115,21 @@ end.parse!
 
 action = ARGV[0] || 'run'
 
-config = Spectre::Bootstrap
-  .load
-  .get_env(cmd_options['environment'])
+config = Spectre::Config.load()
+
+config = Spectre::Environment
+  .load(config)
+  .select(cmd_options['environment'])
   .deep_merge! cmd_options
   .deep_merge! property_overrides
+
 
 String.colored! if config['colored']
 
 # Load specs only, when listing or running specs
 if ['list', 'run'].include? action
 
-  Spectre::Bootstrap.load_specs(config)
+  Spectre.load(config)
 
   if 'list' == action
     colors = [:blue, :magenta, :yellow, :green]
@@ -158,11 +161,6 @@ if ['list', 'run'].include? action
 
 
   if 'run' == action
-    Spectre::Bootstrap.load_modules(config)
-    Spectre::Bootstrap.load_mixins(config)
-
-    Spectre.configure(config)
-
     specs = Spectre.specs(config['specs'], config['tags'])
 
     unless specs.any?
@@ -170,7 +168,7 @@ if ['list', 'run'].include? action
       exit 1
     end
 
-    run_infos = Spectre::Runner.run(specs)
+    run_infos = Spectre.run(specs, config)
 
     Spectre::Reporter.report(run_infos)
 

@@ -262,8 +262,7 @@ module Spectre
           raise AssertionFailure.new(e.message, e.expected, e.actual, desc), cause: nil
         rescue Exception => e
           status = :error
-          message = e.class.name
-          raise AssertionFailure.new("An unexpected error occurred during expectation: #{e.message}", nil, nil, desc), cause: e
+          raise e
         ensure
           Spectre::Eventing.trigger(:end_expect, desc, status, message)
           Spectre::Runner.current.expectations.append([desc, status])

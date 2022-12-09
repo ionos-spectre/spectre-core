@@ -2,6 +2,8 @@
 
 #### Major
  - Logger and reporter are added automatically, when corresponding module is loaded
+ - Logging is refactored in `Eventing` and `Logging` (see `eventing/console` and `logging/file`)
+ - Module registration and configuration is refactored. Modules do now have to implement a `configure(config)` method and register with `Spectre.register(mod)`
 
 ### v1.14.2
 

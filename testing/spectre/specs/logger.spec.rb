@@ -4,11 +4,9 @@ describe 'spectre/logging' do
     log 'this is a log message'
     debug 'this is a debug message'
 
-    separate 'a separator'
-
     info 'another info after separation'
 
-    group 'here comes a group messages' do
+    group 'grouping some message' do
       info 'here we go'
       debug "let's do some debugging"
       log 'and off we go'
@@ -35,11 +33,9 @@ describe 'spectre/logging' do
     setup do
       log 'do some setup stuff'
 
-      separate 'a separator'
-
       info 'another info after separation'
 
-      group 'here comes a group messages' do
+      group 'grouping some message' do
         info 'here we go'
         debug "let's do some debugging"
         log 'and off we go'
@@ -62,8 +58,6 @@ describe 'spectre/logging' do
       info 'this is a info message'
       log 'this is a log message'
       debug 'this is a debug message'
-
-      separate 'a separator'
 
       info 'another info after separation'
 

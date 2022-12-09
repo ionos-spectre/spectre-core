@@ -53,8 +53,19 @@ module Spectre
 
       alias_method :also, :run
       alias_method :step, :run
+
+      def configure config
+        return unless config.key? 'mixin_patterns'
+
+        config['mixin_patterns'].each do |pattern|
+          Dir.glob(pattern).each do|f|
+            require_relative File.join(config['working_dir'], f)
+          end
+        end
+      end
     end
 
+    Spectre.register(self)
     Spectre.delegate(:mixin, :run, :also, :step, to: self)
   end
 end

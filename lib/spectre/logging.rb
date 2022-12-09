@@ -1,8 +1,10 @@
 require_relative '../spectre'
+require_relative './runner'
 
 require 'date'
 
 module Spectre
+
   module Logging
     class ModuleLogger
       def initialize name
@@ -11,7 +13,7 @@ module Spectre
 
       [:info, :debug, :warn, :error].each do |level|
         define_method(level) do |message|
-          Spectre::Logging.log(message, level, @name)
+          Logging.log(message, level, @name)
         end
       end
     end
@@ -26,8 +28,8 @@ module Spectre
           handler.send(:log, *log_entry) if handler.respond_to? :log
         end
 
-        return unless Spectre::Runner.current
-        Spectre::Runner.current.log << log_entry
+        return unless Runner.current
+        Runner.current.log << log_entry
       end
 
       def register module_logger
@@ -42,7 +44,5 @@ module Spectre
         end
       end
     end
-
-    Spectre.register(self)
   end
 end

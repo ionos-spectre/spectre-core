@@ -44,7 +44,7 @@ describe 'spectre/reporter' do
     end
   end
 
-  it 'expect an error within an expectation', tags: [:reporter, :error, :fatal] do
+  it 'expect an error outside an expectation', tags: [:reporter, :error, :fatal] do
     info 'do some other stuff here'
     raise 'Oops!'
   end

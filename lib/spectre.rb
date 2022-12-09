@@ -1,5 +1,7 @@
 require 'ostruct'
-require 'date'
+
+require_relative './spectre/environment'
+require_relative './spectre/logging'
 
 module Spectre
   module Version
@@ -162,233 +164,6 @@ module Spectre
     end
   end
 
-  class RunInfo
-    attr_accessor :spec, :data, :started, :finished, :error, :failure, :skipped
-    attr_reader :expectations, :log, :properties
-
-    def initialize spec, data=nil
-      @spec = spec
-      @data = data
-      @started = nil
-      @finished = nil
-      @error = nil
-      @failure = nil
-      @skipped = false
-      @log = []
-      @expectations = []
-      @properties = {}
-    end
-
-    def duration
-      @finished - @started
-    end
-
-    def skipped?
-      @skipped
-    end
-
-    def failed?
-      @failure != nil
-    end
-
-    def error?
-      @error != nil
-    end
-
-    def success?
-      @error == nil && @failure == nil
-    end
-
-    def status
-      return :queued unless @started
-      return :running if @started and not @finished
-      return :error if error?
-      return :failed if failed?
-      return :skipped if skipped?
-
-      return :success
-    end
-
-    def to_h
-      date_format = '%FT%T.%L%:z'
-
-      {
-        spec: @spec.name,
-        data: @data,
-        started: @started.nil? ? nil : @started.strftime(date_format),
-        finished: @finished.nil? ? nil : @finished.strftime(date_format),
-        error: @error,
-        failure: @failure,
-        skipped: @skipped,
-        status: status,
-        log: @log.map { |timestamp, message, level| [timestamp.strftime(date_format), message, level] },
-        expectations: @expectations,
-        properties: @properties,
-      }
-    end
-  end
-
-  module Runner
-    class << self
-      def current
-        Environment.bucket(:spectre_run)
-      end
-
-      def current= run
-        Environment.put(:spectre_run, run)
-      end
-
-      def run specs
-        runs = []
-
-        specs.group_by { |x| x.subject }.each do |subject, subject_specs|
-          Spectre::Eventing.trigger(:start_subject, subject)
-
-          subject_specs.group_by { |x| x.context }.each do |context, context_specs|
-            Spectre::Eventing.trigger(:start_context, context)
-            runs.concat run_context(context, context_specs)
-            Spectre::Eventing.trigger(:end_context, context)
-          end
-
-          Spectre::Eventing.trigger(:end_subject, subject)
-        end
-
-        runs
-      end
-
-      private
-
-      def run_context context, specs
-        runs = []
-
-        context.__setup_blocks.each do |setup_spec|
-          setup_run = run_setup(setup_spec, :setup)
-          runs << setup_run
-          return runs unless setup_run.success?
-        end
-
-        begin
-          specs.each do |spec|
-            raise SpectreError.new("Multi data definition (`with' parameter) of '#{spec.subject.desc} #{spec.desc}' has to be an `Array'") unless !spec.data.nil? and spec.data.is_a? Array
-
-            if spec.data.any?
-              spec.data
-                .map { |x| x.is_a?(Hash) ? OpenStruct.new(x) : x }
-                .each do |data|
-                  runs << run_spec(spec, data)
-                end
-            else
-              runs << run_spec(spec)
-            end
-          end
-        ensure
-          context.__teardown_blocks.each do |teardown_spec|
-            runs << run_setup(teardown_spec, :teardown)
-          end
-        end
-
-        runs
-      end
-
-      def run_setup spec, type
-        run_info = RunInfo.new(spec)
-
-        Runner.current = run_info
-
-        run_info.started = Time.now
-
-        Eventing.trigger(('start_' + type.to_s).to_sym, run_info)
-
-        begin
-          spec.block.call()
-
-          run_info.finished = Time.now
-        rescue ExpectationFailure => e
-          run_info.failure = e
-        rescue Exception => e
-          run_info.error = e
-          raise e
-          Eventing.trigger(:spec_error, run_info, e)
-        end
-
-        run_info.finished = Time.now
-
-        Eventing.trigger(('end_' + type.to_s).to_sym, run_info)
-
-        Runner.current = nil
-
-        run_info
-      end
-
-      def run_spec spec, data=nil
-        run_info = RunInfo.new(spec, data)
-
-        Runner.current = run_info
-
-        run_info.started = Time.now
-
-        Eventing.trigger(:start_spec, run_info)
-
-        begin
-          if spec.context.__before_blocks.count > 0
-            Eventing.trigger(:start_before, run_info)
-
-            spec.context.__before_blocks.each do |block|
-              block.call(data)
-            end
-
-            Eventing.trigger(:end_before, run_info)
-          end
-
-          spec.block.call(data)
-        rescue ExpectationFailure => e
-          run_info.failure = e
-          Logging.log("expected #{e.expectation}, but it failed with: #{e.message}", :error)
-        rescue SpectreSkip => e
-          run_info.skipped = true
-          Eventing.trigger(:spec_skip, run_info, e.message)
-        rescue Interrupt
-          run_info.skipped = true
-          Eventing.trigger(:spec_skip, run_info, 'canceled by user')
-        rescue Exception => e
-          run_info.error = e
-          raise e
-          Eventing.trigger(:spec_error, run_info, e)
-          Logging.log(e.message, :error)
-        ensure
-          if spec.context.__after_blocks.count > 0
-            Eventing.trigger(:start_after, run_info)
-
-            begin
-              spec.context.__after_blocks.each do |block|
-                block.call
-              end
-
-              run_info.finished = Time.now
-            rescue ExpectationFailure => e
-              run_info.failure = e
-            rescue Exception => e
-              run_info.error = e
-              raise e
-              Eventing.trigger(:spec_error, run_info, e)
-              Logging.log(e.message, :error)
-            end
-
-            Eventing.trigger(:end_after, run_info)
-          end
-        end
-
-        run_info.finished = Time.now
-
-        Eventing.trigger(:end_spec, run_info)
-
-        Runner.current = nil
-
-        run_info
-      end
-    end
-  end
-
 
   ###########################################
   # DSL Classes
@@ -485,54 +260,23 @@ module Spectre
     end
   end
 
-  module Logging
-    class ModuleLogger
-      def initialize name
-        @name = name
-      end
-
-      [:info, :debug, :warn, :error].each do |level|
-        define_method(level) do |message|
-          Spectre::Logging.log(message, level, @name)
-        end
-      end
-    end
-
-    class << self
-      @@handlers = []
-
-      def log message, level, name=nil
-        log_entry = [DateTime.now, message, level, name]
-
-        @@handlers.each do |handler|
-          handler.send(:log, *log_entry) if handler.respond_to? :log
-        end
-
-        return unless Spectre::Runner.current
-        Spectre::Runner.current.log << log_entry
-      end
-
-      def register module_logger
-        @@handlers << module_logger
-      end
-
-      def configure config
-        @@debug = config['debug']
-
-        @@handlers.each do |handler|
-          handler.configure(config) if handler.respond_to? :configure
-        end
-      end
-    end
-  end
-
   module Eventing
     class << self
       @@handlers = []
 
       def trigger event, *args
-        @@handlers.each do |handler|
-          handler.send(event, *args) if handler.respond_to? event
+        if block_given?
+          broadcast('start_' + event.to_s, *args)
+
+          begin
+            yield
+          ensure
+            broadcast('end_' + event.to_s, *args)
+          end
+        else
+          @@handlers.each do |handler|
+            handler.send(event, *args) if handler.respond_to? event
+          end
         end
       end
 
@@ -543,33 +287,19 @@ module Spectre
       [:info, :debug, :warn, :error].each do |level|
         define_method(level) do |message|
           trigger(:log, message, level)
-          Spectre::Runner.current.log << [DateTime.now, message, level, nil]
+          Logging.log(message, level)
         end
       end
 
       alias :log :info
-    end
-  end
 
-  module Environment
-    def self.env
-      bucket(:spectre_env)
-    end
+      private
 
-    def self.bucket name
-      Thread.current[name] || (Thread.current[:parent].nil? ? nil : Thread.current[:parent][name])
-    end
-
-    def self.put name, val
-      Thread.current[name] = val
-    end
-
-    def self.delete name
-      Thread.current[name] = nil
-    end
-
-    def self.is_defined? name
-      not Thread.current[name].nil?
+      def broadcast event, *args
+        @@handlers.each do |handler|
+          handler.send(event, *args) if handler.respond_to? event
+        end
+      end
     end
   end
 
@@ -599,21 +329,62 @@ module Spectre
     end
 
     def delegate *method_names, to: nil
-      Spectre::Delegator.delegate(*method_names, to)
+      Delegator.delegate(*method_names, to)
     end
 
     def register mod
       @@modules << mod
     end
 
-    def configure config
-      Environment.put(:spectre_env, config.to_recursive_struct.freeze)
+    def load config
+      Environment.load(config)
 
+      if config.key? 'spec_patterns'
+        config['spec_patterns'].each do |pattern|
+          Dir.glob(pattern).each do|f|
+            require_relative File.join(config['working_dir'], f)
+          end
+        end
+      end
+    end
+
+    def configure config
       Logging.configure(config)
 
       @@modules.each do |mod|
         mod.configure(config) if mod.respond_to? :configure
       end
+    end
+
+    def run specs, config={}
+      if config.key? 'modules'
+        config['modules']
+          .concat(config['include'] || [])
+          .select { |mod| !(config['exclude'] || []).include? mod }
+          .each do |mod|
+            begin
+              mod_file = mod + '.rb'
+              spectre_lib_mod = File.join(File.dirname(__dir__), mod_file)
+
+              if File.exists? mod_file
+                require_relative mod_file
+
+              elsif File.exists? spectre_lib_mod
+                require_relative spectre_lib_mod
+
+              else
+                require mod
+              end
+            rescue LoadError => e
+              puts "Unable to load module #{mod}. Check if the module exists or remove it from your spectre config:\n#{e.message}"
+              exit 1
+            end
+          end
+      end
+
+      configure(config)
+
+      Runner.run(specs)
     end
 
     def purge
@@ -639,16 +410,20 @@ module Spectre
     end
 
     def property key, val
-      Spectre::Runner.current.properties[key] = val
+      Logging.log("Set property #{key} to #{val}", :info)
+      Runner.current.properties[key] = val
     end
 
     def group desc
-      Spectre::Eventing.trigger(:start_group, desc)
-      yield
-      Spectre::Eventing.trigger(:end_group, desc)
+      Logging.log("Start #{desc}", :info)
+      Eventing.trigger(:group, desc) do
+        yield
+      end
+      Logging.log("Finished #{desc}", :info)
     end
 
     def skip message=nil
+      Logging.log("Skipped #{Runner.current.desc}", :info)
       raise SpectreSkip.new(message)
     end
 

@@ -1,5 +1,6 @@
 require_relative '../spectre'
 require_relative '../spectre/logging'
+require_relative '../spectre/environment'
 
 require 'net/http'
 require 'openssl'
