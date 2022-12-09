@@ -243,7 +243,6 @@ module Spectre
 
 
     class << self
-      @@success = nil
       @@debug = false
       @@logger = Spectre::Logging::ModuleLogger.new('spectre/assertion')
 
