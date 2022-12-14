@@ -29,14 +29,6 @@ class ::String
     new_string
   end
 
-  def trim size = 50
-    if (self.length + 3) > size
-      return self[0..size-4] + '...'
-    end
-
-    self
-  end
-
   def pick path
     raise ArgumentError.new("`path' must not be nil or empty") if path.nil? or path.empty?
 

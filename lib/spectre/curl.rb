@@ -5,7 +5,7 @@ require 'ostruct'
 
 
 module Spectre::Curl
-  class SpectreHttpRequest < Spectre::DslClass
+  class SpectreHttpRequest < Spectre::DslBase
     def initialize request
       @__req = request
     end

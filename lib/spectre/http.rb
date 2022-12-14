@@ -26,12 +26,10 @@ module Spectre
       'retries' => 0,
     }
 
-    @@modules = []
-
     class HttpError < Exception
     end
 
-    class SpectreHttpRequest < Spectre::DslClass
+    class SpectreHttpRequest < Spectre::DslBase
       class Headers
         CONTENT_TYPE = 'Content-Type'
         UNIQUE_HEADERS = [CONTENT_TYPE].freeze
@@ -140,26 +138,21 @@ module Spectre
     end
 
     class SpectreHttpResponse
-      attr_reader :code, :message, :headers, :body
+      attr_reader :code, :message, :headers, :body, :json
 
       def initialize net_res
         @code = net_res.code.to_i
         @message = net_res.message
         @body = net_res.body
         @headers = SpectreHttpHeader.new(net_res.to_hash)
-        @json_data = nil
-      end
+        @json = nil
 
-      def json
-        if !@body.nil? and @json_data.nil?
+        unless @body.nil?
           begin
-            @json_data = JSON.parse(@body, object_class: OpenStruct)
+            @json = JSON.parse(@body, object_class: OpenStruct)
           rescue JSON::ParserError
-            raise HttpError.new("Body content is not a valid JSON:\n#{@body}")
           end
         end
-
-        @json_data
       end
 
       def success?
@@ -168,15 +161,18 @@ module Spectre
     end
 
 
-    class << self
-      @@modules = []
-      @@secure_keys = []
-      @@logger = Spectre::Logging::ModuleLogger.new('spectre/http')
-
-      def config
-        Spectre::Environment.bucket(:spectre_http_config) || {}
+    class HttpClient
+      def initialize config, logger, modules
+        @modules = modules
+        @secure_keys = []
+        @logger = logger
+        @request = nil
+        @response = nil
+        @secure_keys = config['secure_keys'] || []
+        @debug = config['debug']
+        @config = config['http'] || {}
       end
-
+      
       def https name, &block
         http(name, secure: true, &block)
       end
@@ -184,8 +180,8 @@ module Spectre
       def http name, secure: false, &block
         req = DEFAULT_HTTP_CONFIG.clone
 
-        if config.key? name
-          req.deep_merge! config[name].deep_clone
+        if @config.key? name
+          req.deep_merge! @config[name].deep_clone
           raise HttpError.new("No `base_url' set for HTTP client '#{name}'. Check your HTTP config in your environment.") unless req['base_url']
         else
           req['base_url'] = name
@@ -199,30 +195,13 @@ module Spectre
       end
 
       def request
-        raise 'No request has been invoked yet' unless Spectre::Environment.bucket(:spectre_http_request)
-
-        Spectre::Environment.bucket(:spectre_http_request)
+        raise 'No request has been invoked yet' unless @request
+        @request
       end
 
       def response
-        raise 'There is no response. No request has been invoked yet.' unless Spectre::Environment.bucket(:spectre_http_response)
-
-        Spectre::Environment.bucket(:spectre_http_response)
-      end
-
-      def register mod
-        raise 'Module must not be nil' unless mod
-
-        @@modules << mod
-      end
-
-      def configure config
-        @@secure_keys = config['secure_keys'] || []
-        @@debug = config['debug']
-
-        return unless config.key? 'http'
-
-        Spectre::Environment.put(:spectre_http_config, config['http'])
+        raise 'There is no response. No request has been invoked yet.' unless @response
+        @response
       end
 
       private
@@ -232,7 +211,7 @@ module Spectre
 
         begin
           json = JSON.parse(str)
-          json.obfuscate!(@@secure_keys) unless @@debug
+          json.obfuscate!(@secure_keys) unless @@debug
 
           if pretty
             str = JSON.pretty_generate(json)
@@ -247,7 +226,7 @@ module Spectre
       end
 
       def secure? key
-        @@secure_keys.any? { |x| key.to_s.downcase.include? x.downcase }
+        @secure_keys.any? { |x| key.to_s.downcase.include? x.downcase }
       end
 
       def header_to_s headers
@@ -260,7 +239,7 @@ module Spectre
       end
 
       def invoke req
-        Spectre::Environment.delete(:spectre_http_request)
+        @request = nil
 
         # Build URI
 
@@ -319,7 +298,7 @@ module Spectre
 
         # Run HTTP modules
 
-        @@modules.each do |mod|
+        @modules.each do |mod|
           mod.on_req(net_http, net_req, req) if mod.respond_to? :on_req
         end
 
@@ -336,7 +315,7 @@ module Spectre
           end
         end
 
-        @@logger.info(req_log)
+        @logger.info(req_log)
 
         # Request
 
@@ -357,7 +336,7 @@ module Spectre
 
         # Run HTTP modules
 
-        @@modules.each do |mod|
+        @modules.each do |mod|
           mod.on_res(net_http, net_res, req) if mod.respond_to? :on_res
         end
 
@@ -374,18 +353,24 @@ module Spectre
           end
         end
 
-        @@logger.info(res_log)
+        @logger.info(res_log)
 
         fail "Response code of #{req_id} did not indicate success: #{net_res.code} #{net_res.message}" if req['ensure_success'] and net_res.code.to_i >= 400
 
-        # Set global request and response variables
-
-        Spectre::Environment.put(:spectre_http_request, OpenStruct.new(req).freeze)
-        Spectre::Environment.put(:spectre_http_response, SpectreHttpResponse.new(net_res))
+        @request = OpenStruct.new(req).freeze
+        @response = SpectreHttpResponse.new(net_res).freeze
       end
     end
 
-    Spectre.register(self)
-    Spectre.delegate(:http, :https, :request, :response, to: self)
+    @@modules = []
+
+    def self.register mod
+      raise 'Module must not be nil' unless mod
+      @@modules << mod
+    end
+
+    Spectre.register 'spectre/http' do |logger, config|
+      HttpClient.new(config, logger, @@modules)
+    end
   end
 end

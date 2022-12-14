@@ -1,9 +1,11 @@
+require_relative '../lib/spectre/core'
 require_relative '../lib/spectre/runner'
 require_relative '../lib/spectre/assertion'
 
-RSpec.describe 'spectre/core' do
-  it 'does run specs' do
+require 'json'
 
+RSpec.describe 'spectre/core' do
+  it 'does run specs in new scope directly' do
     spectre_scope = Spectre::SpectreScope.new
 
     spectre_scope.describe 'Some Subject' do
@@ -46,15 +48,105 @@ RSpec.describe 'spectre/core' do
 
     expect(run_infos.count).to eq(3)
 
-    run_info = run_infos[1]
+    expect(run_infos[0].log.count).to eq(1)
+    expect(run_infos[2].log.count).to eq(1)
 
-    puts run_info.log.to_json
+    run_info = run_infos[1]
 
     expect(run_info.error).to eq(nil)
     expect(run_info.expectations.count).to eq(2)
-    expect(run_info.log.count).to eq(5)
+    expect(run_info.log.count).to eq(3)
     expect(run_info.failure).not_to eq(nil)
     expect(run_info.properties['foo']).to eq('bar')
     expect(run_info.skipped).to eq(false)
+  end
+
+  it 'does run specs with extensions' do
+    class TestExtension
+      def initialize logger
+        @logger = logger
+      end
+      
+      def greet name
+        @logger.info("Hello #{name}!")
+      end
+    end
+
+    Spectre::SpectreScope.register 'test' do |logger|
+      TestExtension.new(logger)
+    end
+
+    spectre_scope = Spectre::SpectreScope.new
+
+    spectre_scope.configure({}, ['test'])
+
+    spectre_scope.describe 'Some Subject' do
+      setup do
+        log 'do some setup stuff once'
+      end
+
+      teardown do
+        log 'do some teardown stuff once'
+      end
+
+      before do
+        log 'do some stuff before each run'
+
+        bag.foo = 'bar'
+      end
+
+      after do
+        log 'do some stuff after each run'
+      end
+
+      it 'does some stuff', tags: [:test, :dummy] do
+        log 'do some stuff'
+
+        property 'foo', 'bar'
+
+        greet 'Spectre'
+
+        expect 'some stuff' do
+          42.should_be 42
+        end
+
+        expect 'some stuff to break' do
+          fail_with 'Oops!'
+        end
+      end
+    end
+
+    run_infos = spectre_scope.run(spectre_scope.specs)
+
+    expect(run_infos.count).to eq(3)
+
+    expect(run_infos[0].log.count).to eq(1)
+    expect(run_infos[2].log.count).to eq(1)
+
+    run_info = run_infos[1]
+
+    expect(run_info.error).to eq(nil)
+    expect(run_info.expectations.count).to eq(2)
+    expect(run_info.log.count).to eq(3)
+    expect(run_info.failure).not_to eq(nil)
+    expect(run_info.properties['foo']).to eq('bar')
+    expect(run_info.skipped).to eq(false)
+  end
+
+  it 'does run specs with environment' do
+    spectre_scope = Spectre::SpectreScope.new
+
+    spectre_scope.configure({foo: 'bar'}, [])
+
+    spectre_scope.describe 'Some Subject' do
+      it 'does some stuff', tags: [:test, :dummy] do
+        log "env foo is #{env.foo}"
+      end
+    end
+
+    run_infos = spectre_scope.run(spectre_scope.specs)
+
+    expect(run_infos.first.error).to eq(nil)
+    expect(run_infos.first.log.first[1]).to eq('env foo is bar')
   end
 end

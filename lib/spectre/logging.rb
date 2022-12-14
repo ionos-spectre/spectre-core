@@ -1,6 +1,3 @@
-require_relative '../spectre'
-require_relative './runner'
-
 require 'date'
 
 module Spectre

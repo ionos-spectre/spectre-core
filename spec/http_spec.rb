@@ -37,6 +37,8 @@ RSpec.describe 'spectre/http' do
       allow(@net_req).to receive(:[]=)
       allow(@net_req).to receive(:content_type=)
       allow(::Net::HTTPGenericRequest).to receive(:new).and_return(@net_req)
+
+      @http_client = Spectre::Http::HttpClient.new({}, Spectre::Logging::SpectreLogger.new('spectre/http'), [])
     end
 
     it 'does some general HTTP request' do
@@ -48,7 +50,7 @@ RSpec.describe 'spectre/http' do
       expect(@net_http).to receive(:max_retries=).with(0)
       expect(@net_http).to receive(:request).with(@net_req)
 
-      Spectre::Http.http 'some-url.de' do
+      @http_client.http 'some-url.de' do
         method 'POST'
         path '/some-resource'
         timeout 100
@@ -59,8 +61,8 @@ RSpec.describe 'spectre/http' do
         })
       end
 
-      expect(Spectre::Http.response.code).to eq(200)
-      expect(Spectre::Http.response.json.message).to eq("Hello World!")
+      expect(@http_client.response.code).to eq(200)
+      expect(@http_client.response.json.message).to eq("Hello World!")
     end
 
     it 'does some HTTPS request' do
@@ -68,7 +70,7 @@ RSpec.describe 'spectre/http' do
       expect(@net_http).to receive(:verify_mode=).with(OpenSSL::SSL::VERIFY_NONE)
       expect(@net_http).to receive(:request).with(@net_req)
 
-      Spectre::Http.https 'some-url.de' do
+      @http_client.https 'some-url.de' do
         path '/some-resource'
       end
     end
@@ -77,7 +79,7 @@ RSpec.describe 'spectre/http' do
       expect(@net_http).to receive(:max_retries=).with(5)
       expect(@net_http).to receive(:read_timeout=).with(300)
 
-      Spectre::Http.https 'some-url.de' do
+      @http_client.https 'some-url.de' do
         path '/some-resource'
         timeout 300
         retries 5
@@ -94,7 +96,7 @@ RSpec.describe 'spectre/http' do
       expect(@net_http).to receive(:ca_file=).with(cert_file)
       expect(@net_http).to receive(:request).with(@net_req)
 
-      Spectre::Http.https 'some-url.de' do
+      @http_client.https 'some-url.de' do
         path '/some-resource'
         cert cert_file
       end
@@ -107,7 +109,7 @@ RSpec.describe 'spectre/http' do
       expect(@net_http).to receive(:verify_mode=).with(OpenSSL::SSL::VERIFY_NONE)
       expect(@net_http).to receive(:request).with(@net_req)
 
-      Spectre::Http.http 'https://some-url.de' do
+      @http_client.http 'https://some-url.de' do
         path '/some-resource'
       end
     end
@@ -117,7 +119,7 @@ RSpec.describe 'spectre/http' do
       expect(@net_http).to receive(:verify_mode=).with(OpenSSL::SSL::VERIFY_NONE)
       expect(@net_http).to receive(:request).with(@net_req)
 
-      Spectre::Http.http 'some-url.de' do
+      @http_client.http 'some-url.de' do
         path '/some-resource'
         use_ssl!
       end
@@ -126,15 +128,15 @@ RSpec.describe 'spectre/http' do
     it 'does some HTTPS request with SSL switch' do
       expect(@net_http).to receive(:request).with(@net_req)
 
-      Spectre::Http.configure({
+      http_client = Spectre::Http::HttpClient.new({
         'http' => {
           'some_client' => {
             'base_url' => 'some-url.de',
           },
         },
-      })
+      }, Spectre::Logging::SpectreLogger.new('spectre/http'), [])
 
-      Spectre::Http.http 'some_client' do
+      http_client.http 'some_client' do
         path '/some-resource'
       end
     end
@@ -146,7 +148,9 @@ RSpec.describe 'spectre/http' do
       expect(@net_http).to receive(:request).with(@net_req)
       expect(@net_req).to receive(:basic_auth).with(username, password)
 
-      Spectre::Http.http 'some-url.de' do
+      http_client = Spectre::Http::HttpClient.new({}, Spectre::Logging::SpectreLogger.new('spectre/http'), [Spectre::Http::BasicAuth])
+
+      http_client.http 'some-url.de' do
         method 'POST'
         path '/some-resource'
         basic_auth username, password
@@ -160,7 +164,7 @@ RSpec.describe 'spectre/http' do
       expect(@net_http).to receive(:request).with(@net_req)
       expect(@net_req).to receive(:basic_auth).with(username, password)
 
-      Spectre::Http.configure({
+      http_client = Spectre::Http::HttpClient.new({
         'http' => {
           'some_client' => {
             'base_url' => 'some-url.de',
@@ -170,9 +174,9 @@ RSpec.describe 'spectre/http' do
             },
           },
         },
-      })
+      }, Spectre::Logging::SpectreLogger.new('spectre/http'), [Spectre::Http::BasicAuth])
 
-      Spectre::Http.http 'some_client' do
+      http_client.http 'some_client' do
         method 'POST'
         path '/some-resource'
         auth 'basic_auth'
@@ -198,9 +202,9 @@ RSpec.describe 'spectre/http' do
         },
       }
 
-      Spectre.configure(http_cfg)
+      http_client = Spectre::Http::HttpClient.new(http_cfg, Spectre::Logging::SpectreLogger.new('spectre/http'), [Spectre::Http::BasicAuth])
 
-      Spectre::Http.http 'some_client' do
+      http_client.http 'some_client' do
         path '/some-resource'
         basic_auth username, password
       end
@@ -209,14 +213,14 @@ RSpec.describe 'spectre/http' do
     end
 
     it 'raise error with missing base URL' do
-      Spectre::Http.configure({
+      http_client = Spectre::Http::HttpClient.new({
         'http' => {
           'some_client' => {},
         },
-      })
+      }, Spectre::Logging::SpectreLogger.new('spectre/http'), [])
 
       expect {
-        Spectre::Http.http 'some_client' do
+        http_client.http 'some_client' do
           path '/some-resource'
         end
       }.to raise_error(Spectre::Http::HttpError)
@@ -235,7 +239,9 @@ RSpec.describe 'spectre/http' do
 
     allow(::Net::HTTP).to receive(:new).and_return(client)
 
-    Spectre::Http.http 'some-url.de' do
+    http_client = Spectre::Http::HttpClient.new({}, Spectre::Logging::SpectreLogger.new('spectre/http'), [Spectre::Http::Keystone])
+
+    http_client.http 'some-url.de' do
       method 'POST'
       path '/some-resource'
       keystone 'http://some-keystone-server.de/', 'dummy', 'somepass', 'foo', 'bar'
