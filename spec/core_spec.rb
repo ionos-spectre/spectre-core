@@ -7,8 +7,9 @@ require 'json'
 RSpec.describe 'spectre/core' do
   it 'does run specs in new scope directly' do
     spectre_scope = Spectre::SpectreScope.new
+    spectre_context = Spectre::SpectreContext.new(spectre_scope)
 
-    spectre_scope.describe 'Some Subject' do
+    spectre_context.describe 'Some Subject' do
       setup do
         log 'do some setup stuff once'
       end
@@ -72,15 +73,13 @@ RSpec.describe 'spectre/core' do
       end
     end
 
-    Spectre::SpectreScope.register 'test' do |logger|
-      TestExtension.new(logger)
-    end
-
     spectre_scope = Spectre::SpectreScope.new
+    spectre_context = Spectre::SpectreContext.new(spectre_scope)
+    module_context = Spectre::ModuleContext.new(spectre_scope, {})
 
-    spectre_scope.configure({}, ['test'])
+    module_context.register :greet, TestExtension.new(Spectre::Logging::SpectreLogger.new('test'))
 
-    spectre_scope.describe 'Some Subject' do
+    spectre_context.describe 'Some Subject' do
       setup do
         log 'do some setup stuff once'
       end
@@ -135,10 +134,11 @@ RSpec.describe 'spectre/core' do
 
   it 'does run specs with environment' do
     spectre_scope = Spectre::SpectreScope.new
+    spectre_context = Spectre::SpectreContext.new(spectre_scope)
 
     spectre_scope.configure({foo: 'bar'}, [])
 
-    spectre_scope.describe 'Some Subject' do
+    spectre_context.describe 'Some Subject' do
       it 'does some stuff', tags: [:test, :dummy] do
         log "env foo is #{env.foo}"
       end

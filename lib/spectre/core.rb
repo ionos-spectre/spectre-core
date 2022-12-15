@@ -145,8 +145,32 @@ module Spectre
   end
 
   ###########################################
-  # DSL Classes
+  # DSL Contexts
   ###########################################
+
+  class SpectreContext
+    attr_reader :env
+
+    def initialize scope
+      @scope = scope
+    end
+
+    def env
+      @scope.env
+    end
+
+    def describe desc, &block
+      subject = @scope.subjects.find { |x| x.desc == desc }
+
+      unless subject
+        subject = Subject.new(desc)
+        @scope.subjects << subject
+      end
+
+      ctx = SpecContext.new(subject)
+      ctx._evaluate &block
+    end
+  end
 
   class SpecContext < DslBase
     attr_reader :__subject, :__desc, :__parent, :__before_blocks, :__after_blocks, :__setup_blocks, :__teardown_blocks
@@ -204,6 +228,23 @@ module Spectre
       line = path_and_line[-2].to_i
       file = path_and_line[0..-3].join(':')
       [file, line]
+    end
+  end
+
+  class ModuleContext
+    def initialize scope, config
+      @scope = scope
+      @config = config
+    end
+
+    def define desc
+      yield(@config, Logging::SpectreLogger.new(desc))
+    end
+
+    def register *methods, target
+      methods.each do |method_name|
+        @scope.extensions[method_name] = target
+      end
     end
   end
 
@@ -278,7 +319,6 @@ module Spectre
 
   class SpectreScope
     @@modules = {}
-    @@semaphore = Mutex.new
 
     attr_reader :subjects, :env, :bag, :eventing, :logger, :extensions
 
@@ -291,18 +331,6 @@ module Spectre
       @logger = Logging::SpectreLogger.new('spectre')
     end
 
-    def describe desc, &block
-      subject = @subjects.find { |x| x.desc == desc }
-
-      unless subject
-        subject = Subject.new(desc)
-        @subjects << subject
-      end
-
-      ctx = SpecContext.new(subject)
-      ctx._evaluate &block
-    end
-
     def specs spec_filter=[], tags=[]
       @subjects
         .map { |x| x.specs }
@@ -312,40 +340,34 @@ module Spectre
         end
     end
 
-    def load patterns, working_dir
-      @@semaphore.synchronize do
-        Delegator.scope(:describe, :env, self) do
+    def load_specs patterns, working_dir
+      spectre_ctx = SpectreContext.new(self)
 
-          patterns.each do |pattern|
-            pattern = File.join(working_dir, pattern)
+      patterns.each do |pattern|
+        pattern = File.join(working_dir, pattern)
 
-            Dir.glob(pattern).each do|spec_file|
-              Kernel.load spec_file
-            end
-          end
-
+        Dir.glob(pattern).each do|spec_file|
+          spectre_ctx.instance_eval(File.read(spec_file), spec_file.delete(working_dir), 1)
         end
+      end
+    end
+
+    def load_modules modules, config
+      modules.each do |mod_name|
+        mod_path = $LOAD_PATH
+          .map { |x| File.join(x, mod_name) }
+          .find { |x| File.exists? x }
+
+        file_content = File.read(mod_path)
+
+        mod_ctx = ModuleContext.new(self, config)
+
+        mod_ctx.instance_eval(file_content, mod_path, 1)
       end
     end
 
     def configure config, modules
       @env = to_recursive_ostruct(config)
-
-      @extensions[:env] = self
-
-      modules.each do |mod|
-        next unless @@modules.key? mod
-
-        mod_logger = Logging::SpectreLogger.new(mod)
-
-        mod_instance = @@modules[mod].call(mod_logger, config)
-
-        mod_instance
-          .public_methods(false)
-          .each do |method_name|
-            @extensions[method_name] = mod_instance
-          end
-      end
     end
 
     def run specs

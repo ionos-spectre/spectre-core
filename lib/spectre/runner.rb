@@ -32,6 +32,10 @@ module Spectre
       super @scope.extensions
     end
 
+    def env
+      @scope.env
+    end
+
     def bag
       @scope.bag
     end
