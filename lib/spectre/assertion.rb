@@ -127,7 +127,7 @@ module Spectre::Assertion
       if (self.length + 3) > size
         return self[0..size-4] + '...'
       end
-  
+
       self
     end
 
