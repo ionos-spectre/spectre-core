@@ -286,21 +286,22 @@ module Spectre
   end
 
   class Eventing
-    def initialize
+    def initialize scope
+      @scope = scope
       @handlers = []
     end
 
-    def trigger event, *args
+    def trigger event, *args, run_info: nil
       if block_given?
-        broadcast('start_' + event.to_s, *args)
+        broadcast('start_' + event.to_s, *args, run_info: run_info)
 
         begin
           yield
         ensure
-          broadcast('end_' + event.to_s, *args)
+          broadcast('end_' + event.to_s, *args, run_info: run_info)
         end
       else
-        broadcast(event, *args)
+        broadcast(event, *args, run_info: run_info)
       end
     end
 
@@ -310,10 +311,12 @@ module Spectre
 
     private
 
-    def broadcast event, *args
+    def broadcast event, *args, run_info: nil
       @handlers.each do |handler|
         handler.send(event, *args) if handler.respond_to? event
       end
+
+      run_info.events << [event, *args] if run_info
     end
   end
 
@@ -326,7 +329,7 @@ module Spectre
       @vars = {}
       @env = OpenStruct.new
       @bag = OpenStruct.new
-      @eventing = Eventing.new
+      @eventing = Eventing.new(self)
       @loggers = {}
       @runs = []
 

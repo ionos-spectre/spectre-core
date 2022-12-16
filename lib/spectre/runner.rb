@@ -45,7 +45,7 @@ module Spectre
       message = nil
 
       begin
-        @scope.eventing.trigger(:start_expect, desc)
+        @scope.eventing.trigger(:start_expect, desc, run_info: @run_info)
         ExpectationContext.new(desc)._evaluate(&block)
         status = :ok
       rescue Interrupt => e
@@ -58,7 +58,7 @@ module Spectre
         status = :error
         raise e
       ensure
-        @scope.eventing.trigger(:end_expect, desc, status, message)
+        @scope.eventing.trigger(:end_expect, desc, status, message, run_info: @run_info)
         @run_info.expectations.append([desc, status])
       end
     end
@@ -108,6 +108,7 @@ module Spectre
     [:info, :debug, :warn, :error].each do |level|
       define_method(level) do |message|
         @scope.logger.log(message, level)
+        @scope.eventing.trigger(level, message, run_info: @run_info)
       end
     end
 
@@ -116,7 +117,7 @@ module Spectre
 
   class RunInfo
     attr_accessor :spec, :data, :started, :finished, :error, :failure, :skipped
-    attr_reader :expectations, :log, :properties
+    attr_reader :expectations, :log, :events, :properties
 
     def initialize spec, data=nil
       @spec = spec
@@ -127,6 +128,7 @@ module Spectre
       @failure = nil
       @skipped = false
       @log = []
+      @events = []
       @expectations = []
       @properties = {}
     end
@@ -241,7 +243,7 @@ module Spectre
 
       run_info.started = Time.now
 
-      @scope.eventing.trigger(type, run_info) do
+      @scope.eventing.trigger(type, run_info, run_info: run_info) do
         begin
           RunContext.new(run_info, @scope)._evaluate(&spec.block)
 
@@ -250,7 +252,7 @@ module Spectre
           run_info.failure = e
         rescue Exception => e
           run_info.error = e
-          @scope.eventing.trigger(:spec_error, run_info, e)
+          @scope.eventing.trigger(:spec_error, run_info, e, run_info: run_info)
         end
 
         run_info.finished = Time.now
@@ -265,17 +267,17 @@ module Spectre
 
       run_info.started = Time.now
 
-      @scope.eventing.trigger(:start_spec, run_info)
+      @scope.eventing.trigger(:start_spec, run_info, run_info: run_info)
 
       begin
         if spec.context.__before_blocks.count > 0
-          @scope.eventing.trigger(:start_before, run_info)
+          @scope.eventing.trigger(:start_before, run_info, run_info: run_info)
 
           spec.context.__before_blocks.each do |block|
             RunContext.new(run_info, @scope)._execute(data, &block)
           end
 
-          @scope.eventing.trigger(:end_before, run_info)
+          @scope.eventing.trigger(:end_before, run_info, run_info: run_info)
         end
 
         RunContext.new(run_info, @scope)._execute(data, &spec.block)
@@ -284,18 +286,18 @@ module Spectre
         @scope.logger.log("expected #{e.expectation}, but it failed with: #{e.message}", :error)
       rescue SpectreSkip => e
         run_info.skipped = true
-        @scope.eventing.trigger(:spec_skip, run_info, e.message)
+        @scope.eventing.trigger(:spec_skip, run_info, e.message, run_info: run_info)
       rescue Interrupt
         run_info.skipped = true
-        @scope.eventing.trigger(:spec_skip, run_info, 'canceled by user')
+        @scope.eventing.trigger(:spec_skip, run_info, 'canceled by user', run_info: run_info)
       rescue Exception => e
         run_info.error = e
         raise e
-        @scope.eventing.trigger(:spec_error, run_info, e)
+        @scope.eventing.trigger(:spec_error, run_info, e, run_info: run_info)
         @scope.logger.log(e.message, :error)
       ensure
         if spec.context.__after_blocks.count > 0
-          @scope.eventing.trigger(:start_after, run_info)
+          @scope.eventing.trigger(:start_after, run_info, run_info: run_info)
 
           begin
             spec.context.__after_blocks.each do |block|
@@ -307,17 +309,17 @@ module Spectre
             run_info.failure = e
           rescue Exception => e
             run_info.error = e
-            @scope.eventing.trigger(:spec_error, run_info, e)
+            @scope.eventing.trigger(:spec_error, run_info, e, run_info: run_info)
             @scope.logger.log(e.message, :error)
           end
 
-          @scope.eventing.trigger(:end_after, run_info)
+          @scope.eventing.trigger(:end_after, run_info, run_info: run_info)
         end
       end
 
       run_info.finished = Time.now
 
-      @scope.eventing.trigger(:end_spec, run_info)
+      @scope.eventing.trigger(:end_spec, run_info, run_info: run_info)
 
       run_info
     end

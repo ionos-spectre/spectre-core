@@ -57,6 +57,7 @@ RSpec.describe 'spectre/core' do
     expect(run_info.error).to eq(nil)
     expect(run_info.expectations.count).to eq(2)
     expect(run_info.log.count).to eq(5)
+    expect(run_info.events.count).to eq(13)
     expect(run_info.failure).not_to eq(nil)
     expect(run_info.properties['foo']).to eq('bar')
     expect(run_info.skipped).to eq(false)
@@ -100,6 +101,7 @@ RSpec.describe 'spectre/core' do
     expect(run_info.failure).to eq(nil)
     expect(run_info.log.count).to eq(2)
     expect(run_info.log[1][3]).to eq(mod_name)
+    expect(run_info.events.count).to eq(3)
   end
 
   it 'does run specs with extensions from module file' do
