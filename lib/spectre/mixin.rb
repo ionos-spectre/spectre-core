@@ -5,7 +5,7 @@ require 'ostruct'
 
 module Spectre
   module Mixin
-    class MixinContext < Spectre::DslBase
+    class MixinContext < DslBase
       def initialize desc, logger
         @__logger = logger
         @__desc = desc
@@ -68,12 +68,20 @@ module Spectre
       end
     end
 
-    def self.mixin desc, &block
-      @@mixins[desc] = block
-    end
+    class MixinSetupContext
+      def initialize
+        @mixins = {}
+      end
 
-    Spectre.register 'spectre/http' do |config, logger|
-      MixinExtensions.new(config, logger, @@modules)
+      def mixin desc, &block
+        @mixins[desc] = block
+      end
     end
   end
+end
+
+define 'spectre/mixin' do |config, logger|
+  MixinExtensions.new(config, logger, @@modules)
+
+  register :run, :step, :also, Spectre::Mixin::MixinContext.new
 end
