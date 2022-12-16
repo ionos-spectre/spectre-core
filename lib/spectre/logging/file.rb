@@ -4,16 +4,20 @@ require 'fileutils'
 require_relative '../logging'
 
 module Spectre::Logging
-  module FileLogger
-    @log_file = nil
+  class FileLogger
+    def initialize config
+      configure(config)
+    end
 
-    def self.log timestamp, message, level, name
+    def log timestamp, message, level, name
       return unless @log_file
       line = "[#{timestamp}] #{level.to_s.upcase.rjust(5, ' ')} -- #{name}: #{message}\n"
       File.write(@log_file, line, mode: 'a')
     end
 
-    def self.configure config
+    private
+
+    def configure config
       return unless config.key? 'log_file'
 
       now = DateTime.now
