@@ -1,5 +1,7 @@
 require 'ostruct'
 
+require_relative 'core'
+
 module Spectre
   class ExpectationFailure < Exception
     attr_reader :expectation
