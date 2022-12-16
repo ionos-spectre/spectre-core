@@ -28,7 +28,7 @@ module Spectre
       @run_info = run_info
       @scope = scope
       @success = nil
-      
+
       super @scope.extensions
     end
 
@@ -107,7 +107,7 @@ module Spectre
 
     [:info, :debug, :warn, :error].each do |level|
       define_method(level) do |message|
-        @run_info.log << [DateTime.now, message, level, nil]
+        @scope.logger.log(message, level)
       end
     end
 
@@ -237,6 +237,7 @@ module Spectre
 
     def run_setup spec, type
       run_info = RunInfo.new(spec)
+      @scope.runs << run_info
 
       run_info.started = Time.now
 
@@ -260,6 +261,7 @@ module Spectre
 
     def run_spec spec, data=nil
       run_info = RunInfo.new(spec, data)
+      @scope.runs << run_info
 
       run_info.started = Time.now
 

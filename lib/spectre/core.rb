@@ -238,7 +238,7 @@ module Spectre
     end
 
     def define desc
-      yield(@config, Logging::SpectreLogger.new(desc))
+      yield @config, @scope.create_logger(desc)
     end
 
     def register *methods, target
@@ -318,9 +318,7 @@ module Spectre
   end
 
   class SpectreScope
-    @@modules = {}
-
-    attr_reader :subjects, :vars, :env, :bag, :eventing, :logger, :extensions
+    attr_reader :subjects, :vars, :runs, :env, :bag, :eventing, :logger, :extensions
 
     def initialize
       @subjects = []
@@ -329,7 +327,10 @@ module Spectre
       @env = OpenStruct.new
       @bag = OpenStruct.new
       @eventing = Eventing.new
-      @logger = Logging::SpectreLogger.new('spectre')
+      @loggers = {}
+      @runs = []
+
+      @logger = create_logger('spectre')
     end
 
     def specs spec_filter=[], tags=[]
@@ -339,6 +340,12 @@ module Spectre
         .select do |spec|
           (spec_filter.empty? or spec_filter.any? { |x| spec.name.match('^' + x.gsub('*', '.*') + '$') }) or (tags.empty? or tags.any? { |x| tag?(spec.tags, x) })
         end
+    end
+
+    def create_logger name
+      return @loggers[name] if @loggers.key? name
+      logger = Logging::SpectreLogger.new(name, self)
+      @loggers[name] = logger
     end
 
     def load_specs patterns, working_dir
@@ -354,16 +361,19 @@ module Spectre
     end
 
     def load_modules modules, config
+      mod_ctx = ModuleContext.new(self, config)
+
       modules.each do |mod_name|
         mod_path = $LOAD_PATH
+          .clone
+          .append(Dir.pwd)
           .map { |x| File.join(x, mod_name + '.rb') }
           .find { |x| File.exists? x }
 
-        file_content = File.read(mod_path)
+        raise "no module '#{mod_name}' found" unless mod_path
 
-        ModuleContext
-          .new(self, config)
-          .instance_eval(file_content, mod_path, 1)
+        file_content = File.read(mod_path)
+        mod_ctx.instance_eval(file_content, mod_path, 1)
       end
     end
 
@@ -373,10 +383,6 @@ module Spectre
 
     def run specs
       Runner.new(self).run(specs)
-    end
-
-    def self.register name, &block
-      @@modules[name] = block
     end
 
     private
