@@ -1,5 +1,6 @@
 require 'date'
-require 'yaml'
+
+require_relative 'config'
 
 module Spectre
   attr_reader :envs
@@ -20,7 +21,7 @@ module Spectre
         pattern = File.join(config['working_dir'] || Dir.pwd, pattern)
 
         Dir.glob(pattern).each do |env_file|
-          spec_env = load_yaml(env_file)
+          spec_env = Config.load_yaml(env_file)
 
           name = spec_env['name'] || 'default'
 
@@ -42,7 +43,7 @@ module Spectre
         pattern = File.join(config['working_dir'] || Dir.pwd, pattern)
 
         Dir.glob(pattern).each do|env_file|
-          partial_env = load_yaml(env_file)
+          partial_env = Config.load_yaml(env_file)
           name = partial_env.delete('name') || 'default'
           next unless @envs.key? name
 
@@ -51,13 +52,6 @@ module Spectre
       end
 
       self
-    end
-
-    private
-
-    def load_yaml file_path
-      yaml = File.read(file_path)
-      YAML.safe_load(yaml, aliases: true) || {}
     end
   end
 end

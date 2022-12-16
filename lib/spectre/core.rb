@@ -252,39 +252,6 @@ module Spectre
   # Core Modules
   ###########################################
 
-  module Delegator
-    @@mappings = {}
-
-    def self.scope(*method, target)
-      delegate(*methods, target)
-      yield
-      remove(*methods)
-    end
-
-    private
-
-    def self.delegate(*methods, target)
-      methods.each do |method_name|
-        define_method(method_name) do |*args, &block|
-          return super(*args, &block) if respond_to? method_name
-
-          target.send(method_name, *args, &block)
-        end
-
-        @@mappings[method_name] = target
-
-        private method_name
-      end
-    end
-
-    def self.remove(*methods)
-      methods.each do |method_name|
-        remove_method(method_name)
-        @@mappings.delete(method_name)
-      end
-    end
-  end
-
   class Eventing
     def initialize scope
       @scope = scope
