@@ -48,7 +48,7 @@ RSpec.describe 'spectre/http' do
       allow(@net_req).to receive(:content_type=)
       allow(::Net::HTTPGenericRequest).to receive(:new).and_return(@net_req)
 
-      @http_client = Spectre::Http::HttpClient.new({}, Spectre::Logging::SpectreLogger.new('spectre/http'), [])
+      @http_client = Spectre::Http::HttpClient.new({}, Spectre::Logging::SpectreLogger.new('spectre/http', Spectre::SpectreScope.new), [])
     end
 
     it 'does some general HTTP request' do
@@ -144,7 +144,7 @@ RSpec.describe 'spectre/http' do
             'base_url' => 'some-url.de',
           },
         },
-      }, Spectre::Logging::SpectreLogger.new('spectre/http'), [])
+      }, Spectre::Logging::SpectreLogger.new('spectre/http', Spectre::SpectreScope.new), [])
 
       http_client.http 'some_client' do
         path '/some-resource'
@@ -158,7 +158,7 @@ RSpec.describe 'spectre/http' do
       expect(@net_http).to receive(:request).with(@net_req)
       expect(@net_req).to receive(:basic_auth).with(username, password)
 
-      http_client = Spectre::Http::HttpClient.new({}, Spectre::Logging::SpectreLogger.new('spectre/http'), [Spectre::Http::BasicAuth])
+      http_client = Spectre::Http::HttpClient.new({}, Spectre::Logging::SpectreLogger.new('spectre/http', Spectre::SpectreScope.new), [Spectre::Http::BasicAuth])
 
       http_client.http 'some-url.de' do
         method 'POST'
@@ -184,7 +184,7 @@ RSpec.describe 'spectre/http' do
             },
           },
         },
-      }, Spectre::Logging::SpectreLogger.new('spectre/http'), [Spectre::Http::BasicAuth])
+      }, Spectre::Logging::SpectreLogger.new('spectre/http', Spectre::SpectreScope.new), [Spectre::Http::BasicAuth])
 
       http_client.http 'some_client' do
         method 'POST'
@@ -212,7 +212,7 @@ RSpec.describe 'spectre/http' do
         },
       }
 
-      http_client = Spectre::Http::HttpClient.new(http_cfg, Spectre::Logging::SpectreLogger.new('spectre/http'), [Spectre::Http::BasicAuth])
+      http_client = Spectre::Http::HttpClient.new(http_cfg, Spectre::Logging::SpectreLogger.new('spectre/http', Spectre::SpectreScope.new), [Spectre::Http::BasicAuth])
 
       http_client.http 'some_client' do
         path '/some-resource'
@@ -227,7 +227,7 @@ RSpec.describe 'spectre/http' do
         'http' => {
           'some_client' => {},
         },
-      }, Spectre::Logging::SpectreLogger.new('spectre/http'), [])
+      }, Spectre::Logging::SpectreLogger.new('spectre/http', Spectre::SpectreScope.new), [])
 
       expect {
         http_client.http 'some_client' do
@@ -249,7 +249,7 @@ RSpec.describe 'spectre/http' do
 
     allow(::Net::HTTP).to receive(:new).and_return(client)
 
-    http_client = Spectre::Http::HttpClient.new({}, Spectre::Logging::SpectreLogger.new('spectre/http'), [Spectre::Http::Keystone])
+    http_client = Spectre::Http::HttpClient.new({}, Spectre::Logging::SpectreLogger.new('spectre/http', Spectre::SpectreScope.new), [Spectre::Http::Keystone])
 
     http_client.http 'some-url.de' do
       method 'POST'
