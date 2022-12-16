@@ -63,21 +63,23 @@ RSpec.describe 'spectre/core' do
   end
 
   it 'does run specs with extensions' do
+    spectre_scope = Spectre::SpectreScope.new
+    spectre_context = Spectre::SpectreContext.new(spectre_scope)
+    module_context = Spectre::ModuleContext.new(spectre_scope, {})
+
     class TestExtension
       def initialize logger
         @logger = logger
       end
-      
+
       def greet name
         @logger.info("Hello #{name}!")
       end
     end
 
-    spectre_scope = Spectre::SpectreScope.new
-    spectre_context = Spectre::SpectreContext.new(spectre_scope)
-    module_context = Spectre::ModuleContext.new(spectre_scope, {})
-
-    module_context.register :greet, TestExtension.new(Spectre::Logging::SpectreLogger.new('test'))
+    module_context.define 'test' do |config, logger|
+      module_context.register :greet, TestExtension.new(logger)
+    end
 
     spectre_context.describe 'Some Subject' do
       setup do

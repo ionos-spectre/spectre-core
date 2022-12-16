@@ -1,5 +1,15 @@
 require 'net/http'
 
+require_relative '../lib/spectre/core'
+
+# Mock the `define' and `register' methods of the Spectre ModuleContext
+# before loading spectre modules
+def define name
+end
+
+def register *args
+end
+
 require_relative '../lib/spectre/http'
 require_relative '../lib/spectre/http/basic_auth'
 require_relative '../lib/spectre/http/keystone'

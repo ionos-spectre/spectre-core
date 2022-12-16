@@ -320,11 +320,12 @@ module Spectre
   class SpectreScope
     @@modules = {}
 
-    attr_reader :subjects, :env, :bag, :eventing, :logger, :extensions
+    attr_reader :subjects, :vars, :env, :bag, :eventing, :logger, :extensions
 
     def initialize
       @subjects = []
       @extensions = {}
+      @vars = {}
       @env = OpenStruct.new
       @bag = OpenStruct.new
       @eventing = Eventing.new
@@ -355,14 +356,14 @@ module Spectre
     def load_modules modules, config
       modules.each do |mod_name|
         mod_path = $LOAD_PATH
-          .map { |x| File.join(x, mod_name) }
+          .map { |x| File.join(x, mod_name + '.rb') }
           .find { |x| File.exists? x }
 
         file_content = File.read(mod_path)
 
-        mod_ctx = ModuleContext.new(self, config)
-
-        mod_ctx.instance_eval(file_content, mod_path, 1)
+        ModuleContext
+          .new(self, config)
+          .instance_eval(file_content, mod_path, 1)
       end
     end
 
