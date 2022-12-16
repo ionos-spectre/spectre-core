@@ -22,7 +22,7 @@ module Spectre
           handler.send(:log, *log_entry) if handler.respond_to? :log
         end
 
-        @scope.runs.last.log << log_entry
+        @scope.runs.last.log << log_entry if @scope.runs.any?
       end
 
       def register module_logger
