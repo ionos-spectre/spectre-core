@@ -93,15 +93,6 @@ RSpec.describe 'spectre/helpers' do
     expect(timestamp).to eq(518572800)
   end
 
-  it 'trims a long string' do
-    content = 'This is a long text'
-
-    trimmed = content.trim 10
-
-    expect(trimmed.size).to eq(10)
-    expect(trimmed).to eq('This is...')
-  end
-
   it 'converts a OpenStruct into json string' do
     h = { foo: 'bar', bla: { key: 'val' } }
 
