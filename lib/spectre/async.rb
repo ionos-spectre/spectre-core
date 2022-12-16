@@ -2,41 +2,39 @@ require_relative '../spectre'
 
 Thread.abort_on_exception = true
 
-module Spectre
-  module Async
-    class << self
-      Spectre::Environment.put(:spectre_threads, {})
+module Spectre::Async
+  class AsyncContext
+    def initialize logger
+      @logger = logger
+      @threads = {}
+    end
 
-      def async name='default', &block
-        unless threads.key? name
-          threads[name] = []
-        end
+    def async desc='default', &block
+      @threads[desc] = [] unless @threads.key? desc
 
-        current_thread = Thread.current
+      @logger.info("asynchorously do #{desc}")
 
-        threads[name] << Thread.new do
-          Spectre::Environment.put(:parent, current_thread)
-          block.call
-        end
-      end
-
-      def await name='default'
-        return unless threads.key? name
-
-        thread_group = threads[name].map { |x| x.join() }
-
-        threads.delete(name)
-
-        thread_group.map { |x| x.value }
-      end
-
-      private
-
-      def threads
-        Spectre::Environment.bucket(:spectre_threads)
+      @threads[desc] << Thread.new do
+        block.call
       end
     end
 
-    Spectre.delegate(:async, :await, to: self)
+    def await desc='default'
+      return unless @threads.key? desc
+
+      @logger.info("waiting for #{desc} to finish")
+
+      thread_group = @threads[desc].map { |x| x.join() }
+
+      @threads.delete(desc)
+
+      thread_group.map { |x| x.value }
+    end
+
+    alias :wait_for :await
   end
+end
+
+define 'spectre/async' do |_config, _logger|
+  register :async, :await, :wait_for, Spectre::Async::AsyncContext.new
 end
