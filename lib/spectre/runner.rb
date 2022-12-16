@@ -45,7 +45,7 @@ module Spectre
       message = nil
 
       begin
-        @scope.eventing.trigger(:start_expect, desc, run_info: @run_info)
+        @scope.event.trigger(:start_expect, desc, run_info: @run_info)
         ExpectationContext.new(desc)._evaluate(&block)
         status = :ok
       rescue Interrupt => e
@@ -58,7 +58,7 @@ module Spectre
         status = :error
         raise e
       ensure
-        @scope.eventing.trigger(:end_expect, desc, status, message, run_info: @run_info)
+        @scope.event.trigger(:end_expect, desc, status, message, run_info: @run_info)
         @run_info.expectations.append([desc, status])
       end
     end
@@ -68,7 +68,7 @@ module Spectre
       prefix += " '#{desc}'" if desc
 
       begin
-        @scope.eventing.trigger(:log, prefix, :info) if desc
+        @scope.event.trigger(:log, prefix, :info) if desc
         yield
         @success = true
         @scope.logger.info("#{prefix} finished with success")
@@ -94,7 +94,7 @@ module Spectre
 
     def group desc
       @scope.logger.log("Start #{desc}", :info)
-      @scope.eventing.trigger(:group, desc) do
+      @scope.event.trigger(:group, desc) do
         yield
       end
       @scope.logger.log("Finished #{desc}", :info)
@@ -108,7 +108,7 @@ module Spectre
     [:info, :debug, :warn, :error].each do |level|
       define_method(level) do |message|
         @scope.logger.log(message, level)
-        @scope.eventing.trigger(level, message, run_info: @run_info)
+        @scope.event.trigger(level, message, run_info: @run_info)
       end
     end
 
@@ -191,9 +191,9 @@ module Spectre
       runs = []
 
       specs.group_by { |x| x.subject }.each do |subject, subject_specs|
-        @scope.eventing.trigger(:subject, subject) do
+        @scope.event.trigger(:subject, subject) do
           subject_specs.group_by { |x| x.context }.each do |context, context_specs|
-            @scope.eventing.trigger(:context, context) do
+            @scope.event.trigger(:context, context) do
               runs.concat run_context(context, context_specs)
             end
           end
@@ -243,7 +243,7 @@ module Spectre
 
       run_info.started = Time.now
 
-      @scope.eventing.trigger(type, run_info, run_info: run_info) do
+      @scope.event.trigger(type, run_info, run_info: run_info) do
         begin
           RunContext.new(run_info, @scope)._evaluate(&spec.block)
 
@@ -252,7 +252,7 @@ module Spectre
           run_info.failure = e
         rescue Exception => e
           run_info.error = e
-          @scope.eventing.trigger(:spec_error, run_info, e, run_info: run_info)
+          @scope.event.trigger(:spec_error, run_info, e, run_info: run_info)
         end
 
         run_info.finished = Time.now
@@ -267,17 +267,17 @@ module Spectre
 
       run_info.started = Time.now
 
-      @scope.eventing.trigger(:start_spec, run_info, run_info: run_info)
+      @scope.event.trigger(:start_spec, run_info, run_info: run_info)
 
       begin
         if spec.context.__before_blocks.count > 0
-          @scope.eventing.trigger(:start_before, run_info, run_info: run_info)
+          @scope.event.trigger(:start_before, run_info, run_info: run_info)
 
           spec.context.__before_blocks.each do |block|
             RunContext.new(run_info, @scope)._execute(data, &block)
           end
 
-          @scope.eventing.trigger(:end_before, run_info, run_info: run_info)
+          @scope.event.trigger(:end_before, run_info, run_info: run_info)
         end
 
         RunContext.new(run_info, @scope)._execute(data, &spec.block)
@@ -286,18 +286,18 @@ module Spectre
         @scope.logger.log("expected #{e.expectation}, but it failed with: #{e.message}", :error)
       rescue SpectreSkip => e
         run_info.skipped = true
-        @scope.eventing.trigger(:spec_skip, run_info, e.message, run_info: run_info)
+        @scope.event.trigger(:spec_skip, run_info, e.message, run_info: run_info)
       rescue Interrupt
         run_info.skipped = true
-        @scope.eventing.trigger(:spec_skip, run_info, 'canceled by user', run_info: run_info)
+        @scope.event.trigger(:spec_skip, run_info, 'canceled by user', run_info: run_info)
       rescue Exception => e
         run_info.error = e
         raise e
-        @scope.eventing.trigger(:spec_error, run_info, e, run_info: run_info)
+        @scope.event.trigger(:spec_error, run_info, e, run_info: run_info)
         @scope.logger.log(e.message, :error)
       ensure
         if spec.context.__after_blocks.count > 0
-          @scope.eventing.trigger(:start_after, run_info, run_info: run_info)
+          @scope.event.trigger(:start_after, run_info, run_info: run_info)
 
           begin
             spec.context.__after_blocks.each do |block|
@@ -309,17 +309,17 @@ module Spectre
             run_info.failure = e
           rescue Exception => e
             run_info.error = e
-            @scope.eventing.trigger(:spec_error, run_info, e, run_info: run_info)
+            @scope.event.trigger(:spec_error, run_info, e, run_info: run_info)
             @scope.logger.log(e.message, :error)
           end
 
-          @scope.eventing.trigger(:end_after, run_info, run_info: run_info)
+          @scope.event.trigger(:end_after, run_info, run_info: run_info)
         end
       end
 
       run_info.finished = Time.now
 
-      @scope.eventing.trigger(:end_spec, run_info, run_info: run_info)
+      @scope.event.trigger(:end_spec, run_info, run_info: run_info)
 
       run_info
     end

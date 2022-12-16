@@ -321,7 +321,7 @@ module Spectre
   end
 
   class SpectreScope
-    attr_reader :subjects, :vars, :runs, :env, :bag, :eventing, :logger, :extensions
+    attr_reader :subjects, :vars, :runs, :env, :bag, :event, :logger, :extensions
 
     def initialize
       @subjects = []
@@ -329,7 +329,7 @@ module Spectre
       @vars = {}
       @env = OpenStruct.new
       @bag = OpenStruct.new
-      @eventing = Eventing.new(self)
+      @event = Eventing.new(self)
       @loggers = {}
       @runs = []
 
