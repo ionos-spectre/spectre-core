@@ -1,89 +1,36 @@
-# require_relative '../lib/spectre/mixin'
+require_relative '../lib/spectre/core'
+require_relative '../lib/spectre/runner'
 
-# RSpec.describe 'spectre/mixin' do
-#   it 'runs a mixin without parameters' do
-#     mixin_name = 'do something'
+require 'json'
 
-#     some_value = nil
+RSpec.describe 'spectre/mixin' do
+  it 'does run specs with extensions' do
+    config = {
+      'mixin_patterns' => ['test_mixin.rb'],
+      'working_dir' => [File.join(File.absolute_path(File.dirname __FILE__), 'resources')],
+    }
 
-#     Spectre::Mixin.mixin mixin_name do
-#       some_value = 'Hello World!'
-#     end
+    spectre_scope = Spectre::SpectreScope.new
+    spectre_context = Spectre::SpectreContext.new(spectre_scope)
+    module_context = Spectre::ModuleContext.new(spectre_scope, config)
 
-#     Spectre::Mixin.run(mixin_name)
+    spectre_scope.load_modules(['../lib/spectre/mixin'], config)
 
-#     expect(some_value).to eq('Hello World!')
-#   end
+    spectre_context.describe 'Some Subject' do
+      it 'does some stuff', tags: [:test, :dummy] do
+        log 'do some stuff'
 
-#   it 'runs a mixin with nil parameter' do
-#     mixin_name = 'do something'
+        also 'do some additional testing'
+      end
+    end
 
-#     Spectre::Mixin.mixin mixin_name do |params|
-#       # expect the parameter to equal an empty OpenStruct, when nil is passed
-#       expect(params).to eq(OpenStruct.new)
-#     end
+    run_infos = spectre_scope.run(spectre_scope.specs)
 
-#     Spectre::Mixin.run(mixin_name, with: nil)
-#   end
+    expect(run_infos.count).to eq(1)
 
-#   it 'runs a mixin with list parameters' do
-#     mixin_name = 'do something'
+    run_info = run_infos.first
 
-#     Spectre::Mixin.mixin mixin_name do |foo, bar|
-#       expect(foo).to eq(1)
-#       expect(bar).to eq(2)
-#     end
-
-#     Spectre::Mixin.run(mixin_name, with: [1, 2])
-#   end
-
-#   it 'runs a mixin with a hash parameter' do
-#     mixin_name = 'do something'
-
-#     Spectre::Mixin.mixin mixin_name do |params|
-#       expect(params).to be_a(OpenStruct)
-#       expect(params.foo).to eq(1)
-#       expect(params.bar).to eq(2)
-#     end
-
-#     Spectre::Mixin.run(mixin_name, with: {foo: 1, bar: 2})
-#   end
-
-#   it 'returns a value from a mixin' do
-#     mixin_name = 'do something'
-
-#     Spectre::Mixin.mixin mixin_name do |_params|
-#       'foo'
-#     end
-
-#     value = Spectre::Mixin.run(mixin_name, with: {foo: 1, bar: 2})
-
-#     expect(value).to eq('foo')
-#   end
-
-#   it 'requires parameters' do
-#     mixin_name = 'do something'
-
-#     Spectre::Mixin.mixin mixin_name do |params|
-#       required params, :foo
-#       optional params, :bar, :bla
-#     end
-
-#     expect {
-#       Spectre::Mixin.run(mixin_name, with: {foo: 1, bar: 2})
-#     }.not_to raise_error
-#   end
-
-#   it 'requires parameters with missing' do
-#     mixin_name = 'do something'
-
-#     Spectre::Mixin.mixin mixin_name do |params|
-#       required params, :foo
-#       optional params, :bar
-#     end
-
-#     expect {
-#       Spectre::Mixin.run(mixin_name, with: {bar: 2})
-#     }.to raise_error(ArgumentError)
-#   end
-# end
+    expect(run_info.error).to eq(nil)
+    expect(run_info.failure).to eq(nil)
+  end
+end

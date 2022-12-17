@@ -25,13 +25,11 @@ module Spectre
     end
   end
 
-  class RunContext < DslBase
+  class RunContext
     def initialize run_info, scope
       @run_info = run_info
       @scope = scope
       @success = nil
-
-      super @scope.extensions
     end
 
     def env
@@ -115,6 +113,17 @@ module Spectre
     end
 
     alias_method :log, :info
+
+    def method_missing method, *args, **kwargs, &block
+      if @scope.extensions.key? method
+        target = @scope.extensions[method]
+        # TODO: Find a more elegant way to run the block in scope of the RunContext
+        target.run = self if target.respond_to? :run
+        target.send(method, *args, **kwargs, &block)
+      else
+        raise "no method or variable `#{method}' defined"
+      end
+    end
   end
 
   class RunInfo
@@ -247,7 +256,7 @@ module Spectre
 
       @scope.event.trigger(type, run_info, run_info: run_info) do
         begin
-          RunContext.new(run_info, @scope)._evaluate(&spec.block)
+          RunContext.new(run_info, @scope).instance_eval(&spec.block)
 
           run_info.finished = Time.now
         rescue ExpectationFailure => e
@@ -276,13 +285,13 @@ module Spectre
           @scope.event.trigger(:start_before, run_info, run_info: run_info)
 
           spec.context.__before_blocks.each do |block|
-            RunContext.new(run_info, @scope)._execute(data, &block)
+            RunContext.new(run_info, @scope).instance_exec(data, &block)
           end
 
           @scope.event.trigger(:end_before, run_info, run_info: run_info)
         end
 
-        RunContext.new(run_info, @scope)._execute(data, &spec.block)
+        RunContext.new(run_info, @scope).instance_exec(data, &spec.block)
       rescue ExpectationFailure => e
         run_info.failure = e
         @scope.logger.log("expected #{e.expectation}, but it failed with: #{e.message}", :error)
@@ -303,7 +312,7 @@ module Spectre
 
           begin
             spec.context.__after_blocks.each do |block|
-              RunContext.new(run_info, @scope)._evaluate(&block)
+              RunContext.new(run_info, @scope).instance_eval(&block)
             end
 
             run_info.finished = Time.now

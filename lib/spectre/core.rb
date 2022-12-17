@@ -63,10 +63,6 @@ module Spectre
 
   # https://www.dan-manges.com/blog/ruby-dsls-instance-eval-with-delegation
   class DslBase
-    def initialize extensions
-      @extensions = extensions
-    end
-
     def _evaluate &block
       @__bound_self__ = eval('self', block.binding)
       instance_eval(&block)
@@ -80,8 +76,6 @@ module Spectre
     def method_missing method, *args, **kwargs, &block
       if @__bound_self__.respond_to? method
         @__bound_self__.send(method, *args, **kwargs, &block)
-      elsif @extensions.key? method
-        @extensions[method].send(method, *args, **kwargs, &block)
       else
         raise "no method or variable `#{method}' defined"
       end
