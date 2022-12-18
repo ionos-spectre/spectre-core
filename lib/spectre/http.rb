@@ -365,11 +365,13 @@ module Spectre::Http
     @@modules << mod
   end
 
-  def self.create
+  def self.create config, logger
     HttpClient.new(config, logger, @@modules)
   end
 end
 
 define 'spectre/http' do |config, logger|
-  register :http, :https, :request, :response, Spectre::Http.create
+  register :http, :https, :request, :response do
+    Spectre::Http.create(config, logger)
+  end
 end

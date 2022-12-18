@@ -81,7 +81,9 @@ RSpec.describe 'spectre/core' do
     mod_name = 'spectre/test'
 
     module_context.define mod_name do |config, logger|
-      module_context.register :greet, TestExtension.new(logger)
+      module_context.register :greet do |_run_info|
+        TestExtension.new(logger)
+      end
     end
 
     spectre_context.describe 'Some Subject' do

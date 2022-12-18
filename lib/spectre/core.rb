@@ -235,9 +235,9 @@ module Spectre
       yield @config, @scope.create_logger(desc)
     end
 
-    def register *methods, target
+    def register *methods, &factory
       methods.each do |method_name|
-        @scope.extensions[method_name] = target
+        @scope.extensions << [*methods, factory]
       end
     end
   end
@@ -286,7 +286,7 @@ module Spectre
 
     def initialize
       @subjects = []
-      @extensions = {}
+      @extensions = []
       @vars = {}
       @env = OpenStruct.new
       @bag = OpenStruct.new

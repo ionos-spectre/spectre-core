@@ -23,24 +23,36 @@ module Spectre
     # end
 
     class MixinSetupContext
-      def initialize mixin_ctx
-        @mixin_ctx = mixin_ctx
+      attr_reader :mixins
+
+      def initialize
+        @mixins = {}
       end
 
       def mixin desc, &block
-        @mixin_ctx.mixins[desc] = block
+        @mixins[desc] = block
+      end
+
+      def load_mixins mixin_patterns, working_dir
+        mixin_patterns.each do |pattern|
+          pattern = File.join(working_dir, pattern)
+          
+          Dir.glob(pattern).each do |mixin_file|
+            file_content = File.read(mixin_file)
+            instance_eval(file_content, mixin_file, 1)
+          end
+        end
       end
     end
 
     class MixinExtensions
       attr_reader :mixins
-      attr_accessor :run
 
-      def initialize config, logger
+      def initialize config, logger, mixins, run_ctx
         @config = config
         @logger = logger
-        @mixins = {}
-        @run = nil
+        @mixins = mixins
+        @run_ctx = run_ctx
       end
 
       def run desc, with: []
@@ -51,14 +63,12 @@ module Spectre
         block = @mixins[desc]
         params = with || {}
 
-        ctx = MixinContext.new(desc, @logger)
-
         if params.is_a? Array
-          return_val = @run.instance_exec(*params, &block)
+          return_val = @run_ctx.instance_exec(*params, &block)
         elsif params.is_a? Hash
-          return_val = @run.instance_exec(OpenStruct.new(params), &block)
+          return_val = @run_ctx.instance_exec(OpenStruct.new(params), &block)
         else
-          return_val = @run.instance_exec(params, &block)
+          return_val = @run_ctx.instance_exec(params, &block)
         end
 
         return_val.is_a?(Hash) ? OpenStruct.new(return_val) : return_val
@@ -66,26 +76,15 @@ module Spectre
 
       alias_method :also, :run
       alias_method :step, :run
-
-      def load_mixins mixin_patterns, working_dir
-        setup_ctx = MixinSetupContext.new(self)
-
-        mixin_patterns.each do |pattern|
-          pattern = File.join(working_dir, pattern)
-          
-          Dir.glob(pattern).each do |mixin_file|
-            file_content = File.read(mixin_file)
-            setup_ctx.instance_eval(file_content, mixin_file, 1)
-          end
-        end
-      end
     end
   end
 end
 
 define 'spectre/mixin' do |config, logger|
-  extensions = Spectre::Mixin::MixinExtensions.new(config, logger)
-  extensions.load_mixins(config['mixin_patterns'], config['working_dir'])
+  setup_ctx = Spectre::Mixin::MixinSetupContext.new
+  setup_ctx.load_mixins(config['mixin_patterns'], config['working_dir'])
 
-  register :run, :step, :also, extensions
+  register :run, :step, :also do |run_ctx|
+    Spectre::Mixin::MixinExtensions.new(config, logger, setup_ctx.mixins, run_ctx)
+  end
 end

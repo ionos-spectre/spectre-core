@@ -30,6 +30,14 @@ module Spectre
       @run_info = run_info
       @scope = scope
       @success = nil
+      @extensions = {}
+
+      scope.extensions.each do |*methods, factory|
+        target = factory.call(self)
+        methods.each do |method_name|
+          @extensions[method_name] = target
+        end
+      end
     end
 
     def env
@@ -115,11 +123,8 @@ module Spectre
     alias_method :log, :info
 
     def method_missing method, *args, **kwargs, &block
-      if @scope.extensions.key? method
-        target = @scope.extensions[method]
-        # TODO: Find a more elegant way to run the block in scope of the RunContext
-        target.run = self if target.respond_to? :run
-        target.send(method, *args, **kwargs, &block)
+      if @extensions.key? method
+        @extensions[method].send(method, *args, **kwargs, &block)
       else
         raise "no method or variable `#{method}' defined"
       end

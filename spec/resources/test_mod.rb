@@ -9,5 +9,7 @@ class TestExtension
 end
 
 define 'test' do |config, logger|
-  register :greet, TestExtension.new(logger)
+  register :greet do |_run_info|
+    TestExtension.new(logger)
+  end
 end
