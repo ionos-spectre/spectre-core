@@ -63,6 +63,30 @@ RSpec.describe 'spectre/core' do
     expect(run_info.skipped).to eq(false)
   end
 
+  it 'does run specs in new scope from spec file' do
+    spectre_scope = Spectre::SpectreScope.new
+    spectre_context = Spectre::SpectreContext.new(spectre_scope)
+
+    spectre_scope.load_specs(['resources/spec_test.rb'], File.absolute_path(File.dirname __FILE__))
+
+    run_infos = spectre_scope.run(spectre_scope.specs)
+
+    expect(run_infos.count).to eq(3)
+
+    expect(run_infos[0].log.count).to eq(1)
+    expect(run_infos[2].log.count).to eq(1)
+
+    run_info = run_infos[1]
+
+    expect(run_info.error).to eq(nil)
+    expect(run_info.expectations.count).to eq(2)
+    expect(run_info.log.count).to eq(5)
+    expect(run_info.events.count).to eq(13)
+    expect(run_info.failure).not_to eq(nil)
+    expect(run_info.properties['foo']).to eq('bar')
+    expect(run_info.skipped).to eq(false)
+  end
+
   it 'does run specs with extensions' do
     spectre_scope = Spectre::SpectreScope.new
     spectre_context = Spectre::SpectreContext.new(spectre_scope)

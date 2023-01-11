@@ -319,7 +319,7 @@ module Spectre
         pattern = File.join(working_dir, pattern)
 
         Dir.glob(pattern).each do|spec_file|
-          spectre_ctx.instance_eval(File.read(spec_file), spec_file.delete(working_dir), 1)
+          spectre_ctx.instance_eval(File.read(spec_file), spec_file.slice!(working_dir), 1)
         end
       end
     end
