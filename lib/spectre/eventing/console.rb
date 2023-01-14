@@ -1,5 +1,7 @@
 require 'ectoplasm'
 
+require_relative '../core'
+
 module Spectre::Eventing
   class ::String
     alias :ok :green

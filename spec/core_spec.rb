@@ -157,7 +157,7 @@ RSpec.describe 'spectre/core' do
     spectre_scope = Spectre::SpectreScope.new
     spectre_context = Spectre::SpectreContext.new(spectre_scope)
 
-    spectre_scope.configure({foo: 'bar'}, [])
+    spectre_scope.configure({foo: 'bar'})
 
     spectre_context.describe 'Some Subject' do
       it 'does some stuff', tags: [:test, :dummy] do

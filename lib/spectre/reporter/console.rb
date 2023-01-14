@@ -100,7 +100,5 @@ module Spectre::Reporter
       str += "       backtrace: \n         #{error.backtrace.join("\n         ")}\n" if @debug
       str
     end
-
-    Spectre.register(self)
   end
 end

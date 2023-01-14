@@ -115,13 +115,12 @@ end.parse!
 
 action = ARGV[0] || 'run'
 
-config = Spectre::Config.load()
+# TODO: Load config file
 
-config = Spectre::Environment
-  .load(config)
-  .select(cmd_options['environment'])
-  .deep_merge! cmd_options
-  .deep_merge! property_overrides
+# TODO: Load environment file
+# TODO: Merge with existing config
+
+# TODO: Merge command line parameters with existing config
 
 
 String.colored! if config['colored']
@@ -129,7 +128,7 @@ String.colored! if config['colored']
 # Load specs only, when listing or running specs
 if ['list', 'run'].include? action
 
-  Spectre.load(config)
+  # TODO: Load specs
 
   if 'list' == action
     colors = [:blue, :magenta, :yellow, :green]
@@ -168,6 +167,9 @@ if ['list', 'run'].include? action
       exit 1
     end
 
+    # TODO: Load modules
+
+    # TODO: Run specs
     run_infos = Spectre.run(specs, config)
 
     Spectre::Reporter.report(run_infos)

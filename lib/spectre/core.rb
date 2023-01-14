@@ -341,13 +341,13 @@ module Spectre
       end
     end
 
-    def configure config, modules
+    def configure config
       @env = to_recursive_ostruct(config)
     end
 
-    def run specs
-      Runner.new(self).run(specs)
-    end
+    # def run specs
+    #   Runner.new(self).run(specs)
+    # end
 
     private
 

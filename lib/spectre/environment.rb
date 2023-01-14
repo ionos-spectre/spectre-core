@@ -12,16 +12,16 @@ module Spectre
       @envs[name || 'default'] || {}
     end
 
-    def load config
+    def load env_patterns, env_partial_patterns, working_dir, config
       @envs = {}
 
       read_env_files = {}
 
-      config['env_patterns'].each do |pattern|
-        pattern = File.join(config['working_dir'] || Dir.pwd, pattern)
+      env_patterns.each do |pattern|
+        pattern = File.join(working_dir, pattern)
 
         Dir.glob(pattern).each do |env_file|
-          spec_env = Config.load_yaml(env_file)
+          spec_env = ConfigLoader.load_yaml(env_file)
 
           name = spec_env['name'] || 'default'
 
@@ -39,11 +39,11 @@ module Spectre
       end
 
       # Merge partial environment configs with existing environments
-      config['env_partial_patterns'].each do |pattern|
-        pattern = File.join(config['working_dir'] || Dir.pwd, pattern)
+      env_partial_patterns.each do |pattern|
+        pattern = File.join(working_dir, pattern)
 
         Dir.glob(pattern).each do|env_file|
-          partial_env = Config.load_yaml(env_file)
+          partial_env = ConfigLoader.load_yaml(env_file)
           name = partial_env.delete('name') || 'default'
           next unless @envs.key? name
 
