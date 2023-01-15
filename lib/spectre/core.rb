@@ -232,7 +232,7 @@ module Spectre
     end
 
     def define desc
-      yield @config, @scope.create_logger(desc)
+      yield @config, @scope.create_logger(desc), @scope
     end
 
     def register *methods, &factory
