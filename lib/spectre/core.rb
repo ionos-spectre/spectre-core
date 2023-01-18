@@ -232,7 +232,7 @@ module Spectre
     end
 
     def define desc
-      yield @config, @scope.create_logger(desc), @scope
+      yield @config, @scope.log.create_logger(desc), @scope
     end
 
     def register *methods, &factory
@@ -282,7 +282,7 @@ module Spectre
   end
 
   class SpectreScope
-    attr_reader :subjects, :vars, :runs, :env, :bag, :event, :logger, :extensions
+    attr_reader :subjects, :vars, :runs, :env, :bag, :event, :log, :extensions
 
     def initialize
       @subjects = []
@@ -291,10 +291,11 @@ module Spectre
       @env = OpenStruct.new
       @bag = OpenStruct.new
       @event = Eventing.new(self)
+      @log = Logging::SpectreLogger.new(self)
       @loggers = {}
       @runs = []
 
-      @logger = create_logger('spectre')
+      @logger = @log.create_logger('spectre')
     end
 
     def specs spec_filter=[], tags=[]
@@ -304,12 +305,6 @@ module Spectre
         .select do |spec|
           (spec_filter.empty? or spec_filter.any? { |x| spec.name.match('^' + x.gsub('*', '.*') + '$') }) or (tags.empty? or tags.any? { |x| tag?(spec.tags, x) })
         end
-    end
-
-    def create_logger name
-      return @loggers[name] if @loggers.key? name
-      logger = Logging::SpectreLogger.new(name, self)
-      @loggers[name] = logger
     end
 
     def load_specs patterns, working_dir

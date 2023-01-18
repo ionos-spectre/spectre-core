@@ -3,20 +3,14 @@ require 'date'
 module Spectre
   module Logging
     class SpectreLogger
-      def initialize name, scope
-        @name = name
+      def initialize scope
         @scope = scope
         @handlers = []
+        @mod_loggers = {}
       end
 
-      [:info, :debug, :warn, :error].each do |level|
-        define_method(level) do |message|
-          log(message, level)
-        end
-      end
-
-      def log message, level
-        log_entry = [DateTime.now, message, level, @name]
+      def log message, level, name
+        log_entry = [DateTime.now, message, level, name]
 
         @handlers.each do |handler|
           handler.send(:log, *log_entry) if handler.respond_to? :log
@@ -34,6 +28,25 @@ module Spectre
 
         @handlers.each do |handler|
           handler.configure(config) if handler.respond_to? :configure
+        end
+      end
+
+      def create_logger name
+        return @mod_loggers[name] if @mod_loggers.key? name
+        logger = ModuleLogger.new(name, self)
+        @mod_loggers[name] = logger
+      end
+    end
+
+    class ModuleLogger
+      def initialize name, logger
+        @name = name
+        @logger = logger
+      end
+
+      [:info, :debug, :warn, :error].each do |level|
+        define_method(level) do |message|
+          @logger.log(message, level, @name)
         end
       end
     end
