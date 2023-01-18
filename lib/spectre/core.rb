@@ -282,7 +282,7 @@ module Spectre
   end
 
   class SpectreScope
-    attr_reader :subjects, :vars, :runs, :env, :bag, :event, :log, :extensions
+    attr_reader :subjects, :vars, :runs, :env, :bag, :event, :log, :logger, :extensions
 
     def initialize
       @subjects = []
@@ -340,9 +340,9 @@ module Spectre
       @env = to_recursive_ostruct(config)
     end
 
-    # def run specs
-    #   Runner.new(self).run(specs)
-    # end
+    def run specs
+      Runner.new(self).run(specs)
+    end
 
     private
 

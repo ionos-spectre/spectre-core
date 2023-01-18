@@ -115,7 +115,7 @@ module Spectre
 
     [:info, :debug, :warn, :error].each do |level|
       define_method(level) do |message|
-        @scope.logger.log(message, level)
+        @scope.logger.send(level, message)
         @scope.event.trigger(level, message, run_info: @run_info)
       end
     end
