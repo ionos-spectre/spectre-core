@@ -318,8 +318,8 @@ module Spectre
       patterns.each do |pattern|
         pattern = File.join(working_dir, pattern)
 
-        Dir.glob(pattern).each do|spec_file|
-          spectre_ctx.instance_eval(File.read(spec_file), spec_file.slice!(working_dir), 1)
+        Dir.glob(pattern).each do |spec_file|
+          spectre_ctx.instance_eval(File.read(spec_file), spec_file, 1)
         end
       end
     end
