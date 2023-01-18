@@ -33,6 +33,9 @@ module Spectre::Logging
       FileUtils.makedirs(log_dir)
     end
   end
+end
 
-  Spectre::Logging.register(FileLogger)
+define 'logging/file' do |config, logger, scope|
+  handler = Spectre::Logging::FileLogger.new(config)
+  scope.log.register(handler)
 end

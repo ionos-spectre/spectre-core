@@ -18,33 +18,33 @@ module Spectre
 
         @items[name]
       end
-    end
-
-    class << self
-      @@resources = ResourceCollection.new
 
       def resources
-        @@resources
+        self
       end
 
-      def configure config
-        return unless config.key? 'resource_paths'
-
-        config['resource_paths'].each do |resource_path|
+      def read_resources path
+        path.each do |resource_path|
           resource_files = Dir.glob File.join(resource_path, '**/*')
 
           resource_files.each do |file|
             file.slice! resource_path
             file = file[1..-1]
-            @@resources.add file, File.expand_path(File.join resource_path, file)
+            @items[file] = File.expand_path(File.join resource_path, file)
           end
         end
 
-        @@resources.freeze
+        @items.freeze
       end
     end
+  end
+end
 
-    Spectre.register(self)
-    Spectre.delegate(:resources, to: self)
+define 'spectre/resources' do |config, logger|
+  resource_collection = Spectre::Resources::ResourceCollection.new
+  resource_collection.read_resources(config['resource_paths'])
+
+  register :resources do |run_ctx|
+    resource_collection
   end
 end

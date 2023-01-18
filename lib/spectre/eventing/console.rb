@@ -148,6 +148,6 @@ module Spectre
   end
 end
 
-define 'test' do |config, logger, scope|
+define 'eventing/console' do |config, logger, scope|
   scope.event.register(Spectre::Eventing::ConsoleLogger.new)
 end
