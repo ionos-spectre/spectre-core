@@ -10,7 +10,9 @@ require_relative '../lib/spectre/async'
 
 RSpec.describe 'spectre/async' do
   before do
-    @async_ctx = Spectre::Async::AsyncContext.new(Spectre::Logging::ModuleLogger.new('spectre/async', Spectre::SpectreScope.new))
+    log = Spectre::Logging::SpectreLogger.new(Spectre::SpectreScope.new)
+    logger = Spectre::Logging::ModuleLogger.new('spectre/async', log)
+    @async_ctx = Spectre::Async::AsyncContext.new(logger)
   end
 
   it 'runs a block async after main' do
