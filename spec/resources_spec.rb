@@ -3,11 +3,15 @@ require_relative '../lib/spectre/runner'
 
 require 'json'
 
+require_relative '../lib/spectre/helpers'
+
 RSpec.describe 'spectre/resources' do
   it 'does read resources' do
+    working_dir = File.join(File.absolute_path(File.dirname __FILE__), 'resources')
+
     config = {
-      'resource_paths' => ['.'],
-      'working_dir' => [File.join(File.absolute_path(File.dirname __FILE__), 'resources')],
+      'resource_paths' => [working_dir],
+      'working_dir' => [working_dir],
     }
 
     spectre_scope = Spectre::SpectreScope.new
@@ -30,6 +34,6 @@ RSpec.describe 'spectre/resources' do
 
     expect(run_info.error).to eq(nil)
     expect(run_info.failure).to eq(nil)
-    expect(run_info.log.first).to eq('Hello Spectre!')
+    expect(run_info.log.first[1]).to eq('Hello Spectre!')
   end
 end
