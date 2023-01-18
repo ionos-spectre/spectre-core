@@ -235,7 +235,7 @@ module Spectre::Assertion
     end
   end
 
-  class AssertionFailure < Spectre::ExpectationFailure
+  class AssertionFailure < ::Spectre::ExpectationFailure
     attr_reader :expected, :actual
 
     def initialize message, expected=nil, actual=nil, expectation=nil
