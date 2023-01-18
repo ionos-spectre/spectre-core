@@ -96,20 +96,20 @@ module Spectre
     end
 
     def property key, val
-      @scope.logger.log("Set property #{key} to #{val}", :info)
+      @scope.logger.info("Set property #{key} to #{val}")
       @run_info.properties[key] = val
     end
 
     def group desc
-      @scope.logger.log("Start #{desc}", :info)
+      @scope.logger.info("Start #{desc}")
       @scope.event.trigger(:group, desc) do
         yield
       end
-      @scope.logger.log("Finished #{desc}", :info)
+      @scope.logger.info("Finished #{desc}")
     end
 
     def skip message=nil
-      @scope.logger.log("Skipped #{@run_info.spec.desc}", :info)
+      @scope.logger.info("Skipped #{@run_info.spec.desc}")
       raise SpectreSkip.new(message)
     end
 
@@ -299,7 +299,7 @@ module Spectre
         RunContext.new(run_info, @scope).instance_exec(data, &spec.block)
       rescue ExpectationFailure => e
         run_info.failure = e
-        @scope.logger.log("expected #{e.expectation}, but it failed with: #{e.message}", :error)
+        @scope.logger.error("expected #{e.expectation}, but it failed with: #{e.message}")
       rescue SpectreSkip => e
         run_info.skipped = true
         @scope.event.trigger(:spec_skip, run_info, e.message, run_info: run_info)
@@ -310,7 +310,7 @@ module Spectre
         run_info.error = e
         raise e
         @scope.event.trigger(:spec_error, run_info, e, run_info: run_info)
-        @scope.logger.log(e.message, :error)
+        @scope.logger.error(e.message)
       ensure
         if spec.context.__after_blocks.count > 0
           @scope.event.trigger(:start_after, run_info, run_info: run_info)
@@ -326,7 +326,7 @@ module Spectre
           rescue Exception => e
             run_info.error = e
             @scope.event.trigger(:spec_error, run_info, e, run_info: run_info)
-            @scope.logger.log(e.message, :error)
+            @scope.logger.error(e.message)
           end
 
           @scope.event.trigger(:end_after, run_info, run_info: run_info)
