@@ -173,4 +173,52 @@ RSpec.describe 'spectre/core' do
     expect(run_infos.first.error).to eq(nil)
     expect(run_infos.first.log.first[1]).to eq('env foo is bar')
   end
+
+  it 'filters specs' do
+    spectre_scope = Spectre::SpectreScope.new
+    spectre_context = Spectre::SpectreContext.new(spectre_scope)
+
+    spectre_scope.configure({foo: 'bar'})
+
+    spectre_context.describe 'Some Subject' do
+      it 'foo', tags: [:test, :dummy, :foo] do
+      end
+
+      it 'bar', tags: [:test, :dummy, :bar] do
+      end
+
+      it 'bla', tags: [:test, :bla] do
+      end
+    end
+
+    specs = spectre_scope.specs(['some_subject-1'])
+    expect(specs.count).to eq(1)
+    expect(specs.first.name).to eq('some_subject-1')
+
+    specs = spectre_scope.specs(['some_subject-*'])
+    expect(specs.count).to eq(3)
+
+    specs = spectre_scope.specs([], ['foo'])
+    expect(specs.count).to eq(1)
+    expect(specs.first.desc).to eq('foo')
+
+    specs = spectre_scope.specs([], ['!foo'])
+    expect(specs.count).to eq(2)
+    expect(specs[0].desc).to eq('bar')
+    expect(specs[1].desc).to eq('bla')
+
+    specs = spectre_scope.specs([], ['foo', 'bar'])
+    expect(specs.count).to eq(2)
+    expect(specs[0].desc).to eq('foo')
+    expect(specs[1].desc).to eq('bar')
+
+    specs = spectre_scope.specs([], ['test+dummy'])
+    expect(specs.count).to eq(2)
+    expect(specs[0].desc).to eq('foo')
+    expect(specs[1].desc).to eq('bar')
+
+    specs = spectre_scope.specs([], ['test+!dummy'])
+    expect(specs.count).to eq(1)
+    expect(specs.first.desc).to eq('bla')
+  end
 end

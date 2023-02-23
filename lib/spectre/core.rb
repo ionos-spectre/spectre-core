@@ -304,7 +304,7 @@ module Spectre
         .map { |x| x.specs }
         .flatten
         .select do |spec|
-          (spec_filter.empty? or spec_filter.any? { |x| spec.name.match('^' + x.gsub('*', '.*') + '$') }) or (tags.empty? or tags.any? { |x| tag?(spec.tags, x) })
+          (spec_filter.empty? and tags.empty?) or (spec_filter.any? { |x| spec.name.match?('^' + x.gsub('*', '.*') + '$') }) or (tags.any? { |x| tag?(spec.tags, x) })
         end
     end
 
