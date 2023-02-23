@@ -226,13 +226,8 @@ module Spectre
   end
 
   class ModuleContext
-    def initialize scope, config
+    def initialize scope
       @scope = scope
-      @config = config
-    end
-
-    def define desc
-      yield @config, @scope.log.create_logger(desc), @scope
     end
 
     def register *methods, &factory
@@ -284,6 +279,8 @@ module Spectre
   class SpectreScope
     attr_reader :subjects, :vars, :runs, :env, :bag, :event, :log, :logger, :extensions
 
+    @@modules = {}
+
     def initialize
       @subjects = []
       @extensions = []
@@ -296,6 +293,10 @@ module Spectre
       @runs = []
 
       @logger = @log.create_logger('spectre')
+    end
+
+    def self.define name, &block
+      @@modules[name] = block
     end
 
     def specs spec_filter=[], tags=[]
@@ -319,29 +320,15 @@ module Spectre
       end
     end
 
-    def load_modules modules, config
-      mod_ctx = ModuleContext.new(self, config)
-
-      modules.each do |mod_name|
-        mod_path = $LOAD_PATH
-          .clone
-          .append(Dir.pwd)
-          .map { |x| File.join(x, mod_name + '.rb') }
-          .find { |x| File.exists? x }
-
-        raise "no module '#{mod_name}' found" unless mod_path
-
-        file_content = File.read(mod_path)
-        mod_ctx.instance_eval(file_content, mod_path, 1)
-      end
-    end
-
     def configure config
       @env = to_recursive_ostruct(config)
-    end
 
-    def run specs
-      Runner.new(self).run(specs)
+      mod_ctx = ModuleContext.new(self)
+
+      @@modules.each do |mod_name, define_block|
+        logger = @log.create_logger(mod_name)
+        mod_ctx.instance_exec(config, logger, self, &define_block)
+      end
     end
 
     private

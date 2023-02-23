@@ -45,7 +45,7 @@ RSpec.describe 'spectre/core' do
       end
     end
 
-    run_infos = spectre_scope.run(spectre_scope.specs)
+    run_infos = Spectre::Runner.new(spectre_scope).run(spectre_scope.specs)
 
     expect(run_infos.count).to eq(3)
 
@@ -69,7 +69,7 @@ RSpec.describe 'spectre/core' do
 
     spectre_scope.load_specs(['resources/spec_test.rb'], File.absolute_path(File.dirname __FILE__))
 
-    run_infos = spectre_scope.run(spectre_scope.specs)
+    run_infos = Spectre::Runner.new(spectre_scope).run(spectre_scope.specs)
 
     expect(run_infos.count).to eq(3)
 
@@ -90,7 +90,6 @@ RSpec.describe 'spectre/core' do
   it 'does run specs with extensions' do
     spectre_scope = Spectre::SpectreScope.new
     spectre_context = Spectre::SpectreContext.new(spectre_scope)
-    module_context = Spectre::ModuleContext.new(spectre_scope, {})
 
     class TestExtension
       def initialize logger
@@ -104,8 +103,8 @@ RSpec.describe 'spectre/core' do
 
     mod_name = 'spectre/test'
 
-    module_context.define mod_name do |config, logger|
-      module_context.register :greet do |_run_info|
+    Spectre::SpectreScope.define mod_name do |config, logger, _scope|
+      register :greet do |_run_info|
         TestExtension.new(logger)
       end
     end
@@ -117,7 +116,9 @@ RSpec.describe 'spectre/core' do
       end
     end
 
-    run_infos = spectre_scope.run(spectre_scope.specs)
+    spectre_scope.configure({})
+
+    run_infos = Spectre::Runner.new(spectre_scope).run(spectre_scope.specs)
 
     expect(run_infos.count).to eq(1)
 
@@ -134,7 +135,7 @@ RSpec.describe 'spectre/core' do
     spectre_scope = Spectre::SpectreScope.new
     spectre_context = Spectre::SpectreContext.new(spectre_scope)
 
-    spectre_scope.load_modules(['resources/test_mod'], {})
+    require_relative 'resources/test_mod'
 
     spectre_context.describe 'Some Subject' do
       it 'does some stuff', tags: [:test, :dummy] do
@@ -142,7 +143,9 @@ RSpec.describe 'spectre/core' do
       end
     end
 
-    run_infos = spectre_scope.run(spectre_scope.specs)
+    spectre_scope.configure({})
+
+    run_infos = Spectre::Runner.new(spectre_scope).run(spectre_scope.specs)
 
     expect(run_infos.count).to eq(1)
 
@@ -165,7 +168,7 @@ RSpec.describe 'spectre/core' do
       end
     end
 
-    run_infos = spectre_scope.run(spectre_scope.specs)
+    run_infos = Spectre::Runner.new(spectre_scope).run(spectre_scope.specs)
 
     expect(run_infos.first.error).to eq(nil)
     expect(run_infos.first.log.first[1]).to eq('env foo is bar')

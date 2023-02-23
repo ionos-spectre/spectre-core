@@ -1,4 +1,4 @@
-require_relative '../spectre/core'
+require_relative '../spectre'
 
 require 'ostruct'
 
@@ -36,7 +36,7 @@ module Spectre
       def load_mixins mixin_patterns, working_dir
         mixin_patterns.each do |pattern|
           pattern = File.join(working_dir, pattern)
-          
+
           Dir.glob(pattern).each do |mixin_file|
             file_content = File.read(mixin_file)
             instance_eval(file_content, mixin_file, 1)
@@ -80,9 +80,12 @@ module Spectre
   end
 end
 
-define 'spectre/mixin' do |config, logger|
+Spectre.define 'spectre/mixin' do |config, logger, _scope|
   setup_ctx = Spectre::Mixin::MixinSetupContext.new
-  setup_ctx.load_mixins(config['mixin_patterns'], config['working_dir'])
+
+  unless config['mixin_patterns'].nil?
+    setup_ctx.load_mixins(config['mixin_patterns'], config['working_dir'])
+  end
 
   register :run, :step, :also do |run_ctx|
     Spectre::Mixin::MixinExtensions.new(config, logger, setup_ctx.mixins, run_ctx)

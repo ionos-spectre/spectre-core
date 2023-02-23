@@ -1,5 +1,6 @@
 require_relative '../lib/spectre/core'
 require_relative '../lib/spectre/runner'
+require_relative '../lib/spectre/resources'
 
 require 'json'
 
@@ -16,9 +17,7 @@ RSpec.describe 'spectre/resources' do
 
     spectre_scope = Spectre::SpectreScope.new
     spectre_context = Spectre::SpectreContext.new(spectre_scope)
-    module_context = Spectre::ModuleContext.new(spectre_scope, config)
-
-    spectre_scope.load_modules(['../lib/spectre/resources'], config)
+    module_context = Spectre::ModuleContext.new(spectre_scope)
 
     spectre_context.describe 'Some Subject' do
       it 'does some stuff', tags: [:test, :dummy] do
@@ -26,7 +25,9 @@ RSpec.describe 'spectre/resources' do
       end
     end
 
-    run_infos = spectre_scope.run(spectre_scope.specs)
+    spectre_scope.configure(config)
+
+    run_infos = Spectre::Runner.new(spectre_scope).run(spectre_scope.specs)
 
     expect(run_infos.count).to eq(1)
 

@@ -115,12 +115,8 @@ end.parse!
 
 action = ARGV[0] || 'run'
 
-# TODO: Load config file
-
-# TODO: Load environment file
-# TODO: Merge with existing config
-
-# TODO: Merge command line parameters with existing config
+config = Spectre.load(cmd_options['config_file'], cmd_options['environment'])
+config.deep_merge! cmd_options
 
 
 String.colored! if config['colored']
@@ -128,11 +124,11 @@ String.colored! if config['colored']
 # Load specs only, when listing or running specs
 if ['list', 'run'].include? action
 
-  # TODO: Load specs
+  scope = Spectre.setup(config)
 
   if 'list' == action
     colors = [:blue, :magenta, :yellow, :green]
-    specs = Spectre.specs(config['specs'], config['tags'])
+    specs = scope.specs(config['specs'], config['tags'])
 
     exit 1 unless specs.any?
 
@@ -160,17 +156,16 @@ if ['list', 'run'].include? action
 
 
   if 'run' == action
-    specs = Spectre.specs(config['specs'], config['tags'])
+    specs = scope.specs(config['specs'], config['tags'])
 
     unless specs.any?
       puts "No specs found in #{Dir.pwd}"
       exit 1
     end
 
-    # TODO: Load modules
+    require_relative File.join(config['working_dir'], 'bootstrap.rb')
 
-    # TODO: Run specs
-    run_infos = Spectre.run(specs, config)
+    run_infos = Spectre.run(scope, specs)
 
     Spectre::Reporter.report(run_infos)
 

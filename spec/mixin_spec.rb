@@ -10,11 +10,13 @@ RSpec.describe 'spectre/mixin' do
       'working_dir' => [File.join(File.absolute_path(File.dirname __FILE__), 'resources')],
     }
 
+    require_relative '../lib/spectre/mixin'
+
     spectre_scope = Spectre::SpectreScope.new
     spectre_context = Spectre::SpectreContext.new(spectre_scope)
-    module_context = Spectre::ModuleContext.new(spectre_scope, config)
+    module_context = Spectre::ModuleContext.new(spectre_scope)
 
-    spectre_scope.load_modules(['../lib/spectre/mixin'], config)
+    spectre_scope.configure(config)
 
     spectre_context.describe 'Some Subject' do
       it 'does some stuff', tags: [:test, :dummy] do
@@ -24,7 +26,7 @@ RSpec.describe 'spectre/mixin' do
       end
     end
 
-    run_infos = spectre_scope.run(spectre_scope.specs)
+    run_infos = Spectre::Runner.new(spectre_scope).run(spectre_scope.specs)
 
     expect(run_infos.count).to eq(1)
 

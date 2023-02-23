@@ -5,6 +5,8 @@ require 'securerandom'
 require 'logger'
 require 'ostruct'
 
+require_relative 'core'
+
 
 module Spectre::Http
   DEFAULT_HTTP_CONFIG = {
@@ -370,7 +372,7 @@ module Spectre::Http
   end
 end
 
-define 'spectre/http' do |config, logger|
+Spectre.define 'spectre/http' do |config, logger, _scope|
   register :http, :https, :request, :response do
     Spectre::Http.create(config, logger)
   end

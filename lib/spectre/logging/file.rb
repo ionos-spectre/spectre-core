@@ -35,7 +35,7 @@ module Spectre::Logging
   end
 end
 
-define 'logging/file' do |config, logger, scope|
+Spectre.define 'spectre/logging/file' do |config, _logger, scope|
   handler = Spectre::Logging::FileLogger.new(config)
   scope.log.register(handler)
 end

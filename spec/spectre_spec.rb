@@ -2,16 +2,19 @@ require_relative '../lib/spectre'
 
 RSpec.describe 'spectre' do
   it 'loads and setups config and environment from files' do
-    config_file = File.join File.dirname(__FILE__), './resources/spectre.yml'
+    config_file = File.join(File.dirname(__FILE__), './resources/spectre.yml')
 
     config = Spectre.load(config_file, 'default')
 
     expect(config['foo']).to eq('bar')
 
-    spectre_scope = config = Spectre.setup(config)
+    spectre_scope = Spectre.setup(config)
 
-    Spectre.run(spectre_scope, spectre_scope.specs)
+    run_infos = Spectre.run(spectre_scope, spectre_scope.specs)
 
-    expect(run_infos.count).to eq(1)
+    expect(run_infos.count).to eq(3)
+    expect(run_infos[0].spec.name).to eq('some_subject-setup-1')
+    expect(run_infos[1].spec.name).to eq('some_subject-1')
+    expect(run_infos[2].spec.name).to eq('some_subject-teardown-1')
   end
 end

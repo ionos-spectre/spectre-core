@@ -35,7 +35,7 @@ module Spectre::Async
   end
 end
 
-define 'spectre/async' do |_config, logger|
+Spectre.define 'spectre/async' do |_config, logger, _scope|
   async_ctx = Spectre::Async::AsyncContext.new(logger)
 
   register :async, :await, :wait_for do |_run_info|

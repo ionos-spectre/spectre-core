@@ -32,12 +32,15 @@ module Spectre
     spectre_scope.configure(config)
 
     spectre_scope.load_specs(config['spec_patterns'], config['working_dir'])
-    spectre_scope.load_modules(config['modules'], config)
 
     spectre_scope
   end
 
   def self.run spectre_scope, specs
     Spectre::Runner.new(spectre_scope).run(specs)
+  end
+
+  def self.define name, &block
+    Spectre::SpectreScope.define(name, &block)
   end
 end
