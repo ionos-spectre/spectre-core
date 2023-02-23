@@ -1,3 +1,5 @@
+require_relative '../../lib/spectre'
+
 class TestExtension
   def initialize logger
     @logger = logger
@@ -8,7 +10,7 @@ class TestExtension
   end
 end
 
-define 'test' do |config, logger|
+Spectre.define 'test' do |config, logger|
   register :greet do |_run_info|
     TestExtension.new(logger)
   end
