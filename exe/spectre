@@ -123,7 +123,6 @@ String.colored! if config['colored']
 
 # Load specs only, when listing or running specs
 if ['list', 'run'].include? action
-
   scope = Spectre.setup(config)
 
   if 'list' == action
@@ -163,11 +162,9 @@ if ['list', 'run'].include? action
       exit 1
     end
 
-    require_relative File.join(config['working_dir'], 'bootstrap.rb')
-
     run_infos = Spectre.run(scope, specs)
 
-    Spectre::Reporter.report(run_infos)
+    Spectre.report(run_infos, config, ['spectre/reporter/console'])
 
     errors = run_infos.select { |x| x.error? or x.failed? }
 

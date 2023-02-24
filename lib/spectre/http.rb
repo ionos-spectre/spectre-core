@@ -27,7 +27,7 @@ module Spectre::Http
   class HttpError < Exception
   end
 
-  class SpectreHttpRequest
+  class SpectreHttpRequest < Spectre::DslBase
     class Headers
       CONTENT_TYPE = 'Content-Type'
       UNIQUE_HEADERS = [CONTENT_TYPE].freeze
@@ -187,7 +187,7 @@ module Spectre::Http
 
       req['use_ssl'] = secure unless secure.nil?
 
-      SpectreHttpRequest.new(req).instance_eval(&block) if block_given?
+      SpectreHttpRequest.new(req)._evaluate(&block) if block_given?
 
       invoke(req)
     end
@@ -209,7 +209,7 @@ module Spectre::Http
 
       begin
         json = JSON.parse(str)
-        json.obfuscate!(@secure_keys) unless @@debug
+        json.obfuscate!(@secure_keys) unless @debug
 
         if pretty
           str = JSON.pretty_generate(json)
@@ -230,7 +230,7 @@ module Spectre::Http
     def header_to_s headers
       s = ''
       headers.each_header.each do |header, value|
-        value = '*****' if secure?(header) and not @@debug
+        value = '*****' if secure?(header) and not @debug
         s += "#{header.to_s.ljust(30, '.')}: #{value.to_s}\n"
       end
       s
@@ -372,7 +372,7 @@ module Spectre::Http
   end
 end
 
-Spectre.define 'spectre/http' do |config, logger, _scope|
+Spectre::SpectreScope.define 'spectre/http' do |config, logger, _scope|
   register :http, :https, :request, :response do
     Spectre::Http.create(config, logger)
   end

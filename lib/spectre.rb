@@ -2,6 +2,7 @@ require 'ostruct'
 
 require_relative './spectre/core'
 require_relative './spectre/runner'
+require_relative './spectre/reporter'
 
 module Spectre
   module Version
@@ -26,6 +27,10 @@ module Spectre
   end
 
   def self.setup config
+    # Load bootstrap file if exists
+    bootstrap_file = File.join(config['working_dir'], 'bootstrap.rb')
+    require_relative bootstrap_file if File.exists? bootstrap_file
+
     spectre_scope = Spectre::SpectreScope.new
     spectre_context = Spectre::SpectreContext.new(spectre_scope)
 
@@ -42,5 +47,9 @@ module Spectre
 
   def self.define name, &block
     Spectre::SpectreScope.define(name, &block)
+  end
+
+  def self.report run_infos, config, reporters
+    Spectre::Reporter.report(run_infos, config, reporters)
   end
 end

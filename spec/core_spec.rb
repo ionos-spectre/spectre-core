@@ -160,11 +160,17 @@ RSpec.describe 'spectre/core' do
     spectre_scope = Spectre::SpectreScope.new
     spectre_context = Spectre::SpectreContext.new(spectre_scope)
 
-    spectre_scope.configure({foo: 'bar'})
+    spectre_scope.configure({foo: 'bar', data: [1, 2, 3]})
 
-    spectre_context.describe 'Some Subject' do
-      it 'does some stuff', tags: [:test, :dummy] do
-        log "env foo is #{env.foo}"
+    spectre_context.instance_eval do
+      describe 'Some Subject' do
+        it 'does some stuff', tags: [:test, :dummy] do
+          log "env foo is #{env.foo}"
+        end
+
+        it 'does some stuff', tags: [:test, :dummy], with: env.data do
+          log "env foo is #{env.foo}"
+        end
       end
     end
 

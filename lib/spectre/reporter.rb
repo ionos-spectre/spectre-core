@@ -1,16 +1,17 @@
 module Spectre
   module Reporter
-    @@reporters = []
+    @@reporters = {}
 
-    def self.add reporter
-      raise NotImplementedError.new("#{reporter} does not implement `report' method") unless reporter.respond_to? :report
-      @@reporters.append(reporter)
+    def self.register name, &block
+      @@reporters[name] = block
     end
 
-    def self.report run_infos
-      @@reporters.each do |reporter|
-        reporter.report(run_infos)
-      end
+    def self.report run_infos, config, reporters=nil
+      @@reporters
+        .select { |name, _| reporters.nil? or reporters.include? name }
+        .each do |name, block|
+          block.call(run_infos, config)
+        end
     end
   end
 end

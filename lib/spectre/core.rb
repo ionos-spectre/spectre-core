@@ -74,11 +74,7 @@ module Spectre
     end
 
     def method_missing method, *args, **kwargs, &block
-      if @__bound_self__.respond_to? method
-        @__bound_self__.send(method, *args, **kwargs, &block)
-      else
-        raise "no method or variable `#{method}' defined"
-      end
+      @__bound_self__.send(method, *args, **kwargs, &block)
     end
   end
 

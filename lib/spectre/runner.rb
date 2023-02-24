@@ -48,13 +48,17 @@ module Spectre
       @scope.bag
     end
 
-    def expect desc, &block
+    def fail_with message
+      raise ExpectationFailure.new(message, @expectation)
+    end
+
+    def expect desc
       status = :unknown
       message = nil
 
       begin
         @scope.event.trigger(:start_expect, desc, run_info: @run_info)
-        ExpectationContext.new(desc)._evaluate(&block)
+        yield
         status = :ok
       rescue Interrupt => e
         status = :skipped
@@ -84,7 +88,7 @@ module Spectre
         raise e
       rescue Exception => e
         error_message = "#{prefix} finished with failure: #{e.message}"
-        error_message += "\n" + e.backtrace.join("\n") if @@debug
+        error_message += "\n" + e.backtrace.join("\n")
 
         @scope.logger.info(error_message)
         @success = false
@@ -317,7 +321,7 @@ module Spectre
 
           begin
             spec.context.__after_blocks.each do |block|
-              RunContext.new(run_info, @scope).instance_eval(&block)
+              RunContext.new(run_info, @scope).instance_exec(data, &block)
             end
 
             run_info.finished = Time.now

@@ -1,14 +1,7 @@
 require 'net/http'
 
 require_relative '../lib/spectre/core'
-
-# Mock the `define' and `register' methods of the Spectre ModuleContext
-# before loading spectre modules
-def define name
-end
-
-def register *args
-end
+require_relative '../lib/spectre/runner'
 
 require_relative '../lib/spectre/http'
 require_relative '../lib/spectre/http/basic_auth'
@@ -237,6 +230,27 @@ RSpec.describe 'spectre/http' do
           path '/some-resource'
         end
       }.to raise_error(Spectre::Http::HttpError)
+    end
+
+    it 'does requests in spectre context' do
+      spectre_scope = Spectre::SpectreScope.new
+      spectre_context = Spectre::SpectreContext.new(spectre_scope)
+
+      spectre_scope.configure({foo: 'bar'})
+
+      spectre_context.instance_eval do
+        describe 'Some Subject' do
+          it 'does some requests', tags: [:test, :http] do
+            log env.foo
+
+            http 'foo.de' do
+              path env.foo
+            end
+          end
+        end
+      end
+
+      run_infos = Spectre::Runner.new(spectre_scope).run(spectre_scope.specs)
     end
   end
 
