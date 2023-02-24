@@ -9,6 +9,7 @@ module Spectre
     alias :failed :red
     alias :info :blue
     alias :debug :grey
+    alias :warn :yellow
   end
 
   class ConsoleLogger
@@ -102,9 +103,11 @@ module Spectre
       puts text
     end
 
-    def log message, level
-      write_line(message, fill: true, newline: false)
-      puts "[#{level}]".send(level)
+    [:log, :info, :debug, :warn, :error].each do |level|
+      define_method(level) do |message|
+        write_line(message, fill: true, newline: false)
+        puts "[#{level}]".send(level)
+      end
     end
 
     def spec_skip run_info, message
