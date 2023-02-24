@@ -312,7 +312,6 @@ module Spectre
         @scope.event.trigger(:spec_skip, run_info, 'canceled by user', run_info: run_info)
       rescue Exception => e
         run_info.error = e
-        raise e
         @scope.event.trigger(:spec_error, run_info, e, run_info: run_info)
         @scope.logger.error(e.message)
       ensure
