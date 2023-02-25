@@ -104,7 +104,7 @@ module Spectre
     end
 
     [:log, :info, :debug, :warn, :error].each do |level|
-      define_method(level) do |message, run_info|
+      define_method(level) do |message, _options|
         write_line(message, fill: true, newline: false)
         puts "[#{level}]".send(level)
       end
