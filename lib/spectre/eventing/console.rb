@@ -19,98 +19,98 @@ module Spectre
       @level = 0
     end
 
-    def start_subject subject
+    def start_subject subject, run_info: nil
       write_line(subject.desc.blue)
       @level += 1
     end
 
-    def end_subject subject
+    def end_subject subject, run_info: nil
       @level -= 1
     end
 
-    def start_context context
+    def start_context context, run_info: nil
       return unless context.__desc
       write_line(context.__desc)
       @level += 1
     end
 
-    def end_context context
+    def end_context context, run_info: nil
       return unless context.__desc
       @level -= 1
     end
 
-    def start_setup run_info
+    def start_setup run_info: nil
       write_line('setup'.magenta)
       @level += 1
     end
 
-    def end_setup run_info
+    def end_setup run_info: nil
       @level -= 1
     end
 
-    def start_teardown run_info
+    def start_teardown run_info: nil
       write_line('teardown'.magenta)
       @level += 1
     end
 
-    def end_teardown run_info
+    def end_teardown run_info: nil
       @level -= 1
     end
 
-    def start_before run_info
+    def start_before run_info: nil
       write_line('before'.magenta)
       @level += 1
     end
 
-    def end_before run_info
+    def end_before run_info: nil
       @level -= 1
     end
 
-    def start_after run_info
+    def start_after run_info: nil
       write_line('after'.magenta)
       @level += 1
     end
 
-    def end_after run_info
+    def end_after run_info: nil
       @level -= 1
     end
 
-    def start_spec run_info
+    def start_spec run_info: nil
       write_line(run_info.spec.desc.cyan)
       @level += 1
     end
 
-    def end_spec run_info
+    def end_spec run_info: nil
       @level -= 1
     end
 
-    def start_group desc
+    def start_group desc, run_info: nil
       write_line(desc.yellow)
       @level += 1
     end
 
-    def end_group desc
+    def end_group desc, run_info: nil
       @level -= 1
     end
 
-    def start_expect desc
+    def start_expect desc, run_info: nil
       write_line("expect #{desc}", fill: true, newline: false)
     end
 
-    def end_expect desc, status, message
+    def end_expect desc, status, message, run_info: nil
       text = "[#{status}]".send(status)
       text += " - #{message}" if message
       puts text
     end
 
     [:log, :info, :debug, :warn, :error].each do |level|
-      define_method(level) do |message|
+      define_method(level) do |message, run_info|
         write_line(message, fill: true, newline: false)
         puts "[#{level}]".send(level)
       end
     end
 
-    def spec_skip run_info, message
+    def spec_skip message, run_info: nil
       write_line('', fill: true, newline: false)
       status = '[skipped]'
 
@@ -118,7 +118,7 @@ module Spectre
       puts status.grey
     end
 
-    def spec_error run_info, error
+    def spec_error error, run_info: nil
       write_line('', fill: true, newline: false)
       status = '[error]'
 

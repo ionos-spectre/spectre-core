@@ -265,7 +265,7 @@ module Spectre
 
     def broadcast event, *args, run_info: nil
       @handlers.each do |handler|
-        handler.send(event, *args) if handler.respond_to? event
+        handler.send(event, *args, run_info: run_info) if handler.respond_to? event
       end
 
       run_info.events << [event, *args] if run_info
