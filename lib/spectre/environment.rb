@@ -7,9 +7,10 @@ module Spectre
 
   class Environment
     @envs = {}
+    @default_env_name = 'default'
 
     def get name=nil
-      @envs[name || 'default'] || {}
+      @envs[name || @default_env_name] || {}
     end
 
     def load env_patterns, env_partial_patterns, working_dir, config
@@ -23,7 +24,7 @@ module Spectre
         Dir.glob(pattern).each do |env_file|
           spec_env = ConfigLoader.load_yaml(env_file)
 
-          name = spec_env['name'] || 'default'
+          name = spec_env['name'] || @default_env_name
 
           if @envs.key? name
             existing_env_file = read_env_files[name]
@@ -44,7 +45,7 @@ module Spectre
 
         Dir.glob(pattern).each do|env_file|
           partial_env = ConfigLoader.load_yaml(env_file)
-          name = partial_env.delete('name') || 'default'
+          name = partial_env.delete('name') || @default_env_name
           next unless @envs.key? name
 
           @envs[name].deep_merge!(partial_env)
