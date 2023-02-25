@@ -1,3 +1,5 @@
+require 'ectoplasm'
+
 require_relative '../reporter'
 
 module Spectre
