@@ -200,6 +200,7 @@ module Spectre
         log: @log.map { |timestamp, message, level| [timestamp.strftime(date_format), message, level] },
         expectations: @expectations,
         properties: @properties,
+        events: @events,
       }
     end
   end
