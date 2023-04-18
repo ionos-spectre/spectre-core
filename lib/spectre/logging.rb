@@ -29,6 +29,7 @@ module Spectre
 
       def debug message
         return unless @debug
+
         @logger.debug(message)
         Spectre::Logging.add_log(message, :debug, @name)
       end

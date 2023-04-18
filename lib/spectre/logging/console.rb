@@ -7,7 +7,7 @@ module Spectre
         @indent = 2
         @width = 80
 
-        if config.has_key? 'log_format'
+        if config.key? 'log_format'
           @config = config['log_format']['console'] || {}
           @indent = @config['indent'] || @indent
           @width = @config['width'] || @width

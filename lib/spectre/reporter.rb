@@ -4,6 +4,7 @@ module Spectre
 
     def self.add reporter
       raise NotImplementedError.new("#{reporter} does not implement `report' method") unless reporter.respond_to? :report
+
       @@reporters.append(reporter)
     end
 

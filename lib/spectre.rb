@@ -93,7 +93,7 @@ module Spectre
       {
         name: @name,
         desc: @desc,
-        specs: @specs.map { |x| x.to_h }
+        specs: @specs.map { |x| x.to_h },
       }
     end
   end
