@@ -1,4 +1,4 @@
-### vNext
+### v1.14.3
 
 #### Major
  - Logger and reporter are added automatically, when corresponding module is loaded
