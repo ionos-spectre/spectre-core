@@ -2,6 +2,7 @@
 
 #### Major
  - Logger and reporter are added automatically, when corresponding module is loaded
+ - Added `error` log method do module logger
 
 ### v1.14.2
 

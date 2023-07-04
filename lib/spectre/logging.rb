@@ -38,6 +38,11 @@ module Spectre
         @logger.warn(message)
         Spectre::Logging.add_log(message, :warn, @name)
       end
+
+      def error message
+        @logger.error(message)
+        Spectre::Logging.add_log(message, :error, @name)
+      end
     end
 
     class << self
