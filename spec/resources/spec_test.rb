@@ -32,4 +32,21 @@ describe 'Some Subject' do
       fail_with 'Oops!'
     end
   end
+
+  context 'some other context' do
+    setup do
+      log 'do some other setup stuff once'
+      bag.other_foo = 'bar'
+    end
+
+    it 'should run this also just fine' do
+      expect 'foo to be bar' do
+        bag.foo.should_be 'bar'
+      end
+
+      expect 'other foo to be also set' do
+        bag.other_foo.should_be 'bar'
+      end
+    end
+  end
 end

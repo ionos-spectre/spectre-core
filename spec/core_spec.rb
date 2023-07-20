@@ -71,7 +71,7 @@ RSpec.describe 'spectre/core' do
 
     run_infos = Spectre::Runner.new(spectre_scope).run(spectre_scope.specs)
 
-    expect(run_infos.count).to eq(3)
+    expect(run_infos.count).to eq(5)
 
     expect(run_infos[0].log.count).to eq(1)
     expect(run_infos[2].log.count).to eq(1)
