@@ -6,11 +6,12 @@ module Spectre
   attr_reader :envs
 
   class Environment
+    @@default_env_name = 'default'
+
     @envs = {}
-    @default_env_name = 'default'
 
     def get name=nil
-      @envs[name || @default_env_name] || {}
+      @envs[name || @@default_env_name] || {}
     end
 
     def load env_patterns, env_partial_patterns, working_dir, config
@@ -24,7 +25,7 @@ module Spectre
         Dir.glob(pattern).each do |env_file|
           spec_env = ConfigLoader.load_yaml(env_file)
 
-          name = spec_env['name'] || @default_env_name
+          name = spec_env['name'] || @@default_env_name
 
           if @envs.key? name
             existing_env_file = read_env_files[name]
@@ -33,6 +34,7 @@ module Spectre
           end
 
           read_env_files[name] = env_file
+
           @envs[name] = config
             .deep_clone
             .deep_merge(spec_env)
