@@ -1,4 +1,5 @@
 require_relative '../lib/spectre'
+require_relative '../lib/spectre/assertion'
 
 RSpec.describe 'spectre' do
   it 'loads and setups config and environment from files' do
@@ -7,6 +8,7 @@ RSpec.describe 'spectre' do
     config = Spectre.load(config_file, 'default')
 
     expect(config['foo']).to eq('bar')
+    expect(config['some_secret']).to eq('supersecret')
 
     spectre_scope = Spectre.setup(config)
 

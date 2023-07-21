@@ -1,3 +1,4 @@
 spec_patterns: ['spec_test.rb']
 env_patterns: ['default_env.yml']
+env_partial_patterns: ['default_env.secret.yml']
 # modules: ['resources/test_mod']

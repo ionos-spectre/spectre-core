@@ -47,7 +47,8 @@ module Spectre
 
         Dir.glob(pattern).each do|env_file|
           partial_env = ConfigLoader.load_yaml(env_file)
-          name = partial_env.delete('name') || @default_env_name
+          name = partial_env.delete('name') || @@default_env_name
+
           next unless @envs.key? name
 
           @envs[name].deep_merge!(partial_env)
