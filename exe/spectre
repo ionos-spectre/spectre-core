@@ -318,14 +318,14 @@ reports/
 DEFAULT_GEMFILE = %[source 'https://rubygems.org'
 
 gem 'spectre-core', '>= #{Spectre::VERSION}'
-# gem 'spectre-mysql', '>= 1.0.0'
-# gem 'spectre-ssh', '>= 1.0.2'
-# gem 'spectre-ftp', '>= 1.0.0'
-# gem 'spectre-curl', '>= 1.0.0'
-# gem 'spectre-git', '>= 0.2.1'
-# gem 'spectre-reporter-junit', '>= 1.0.0'
-# gem 'spectre-reporter-vstest', '>= 1.0.1'
-# gem 'spectre-reporter-html', '>= 1.0.0'
+# gem 'spectre-mysql', '>= 2.0.0'
+# gem 'spectre-ssh', '>= 2.0.0'
+# gem 'spectre-ftp', '>= 2.0.0'
+# gem 'spectre-curl', '>= 2.0.0'
+# gem 'spectre-git', '>= 2.0.0'
+# gem 'spectre-reporter-junit', '>= 2.0.0'
+# gem 'spectre-reporter-vstest', '>= 2.0.0'
+# gem 'spectre-reporter-html', '>= 2.0.0'
 ]
 
 if 'init' == action
