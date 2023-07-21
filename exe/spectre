@@ -124,12 +124,16 @@ String.colored! if config['colored']
 # Load specs only, when listing or running specs
 if ['list', 'run'].include? action
   scope = Spectre.setup(config)
+  specs = scope.specs(config['specs'], config['tags'])
+
+  unless specs.any?
+    puts "No specs found in #{Dir.pwd}"
+    exit 1
+  end
+
 
   if 'list' == action
     colors = [:blue, :magenta, :yellow, :green]
-    specs = scope.specs(config['specs'], config['tags'])
-
-    exit 1 unless specs.any?
 
     counter = 0
 
@@ -155,18 +159,11 @@ if ['list', 'run'].include? action
 
 
   if 'run' == action
-    specs = scope.specs(config['specs'], config['tags'])
-
-    unless specs.any?
-      puts "No specs found in #{Dir.pwd}"
-      exit 1
-    end
-
     run_infos = Spectre.run(scope, specs)
 
     Spectre.report(run_infos, config, ['spectre/reporter/console'])
 
-    errors = run_infos.select { |x| x.error? or x.failed? }
+    errors = run_infos.select { |x| not x.success? }
 
     exit 0 if config['ignore_failure'] or not errors.any?
 
