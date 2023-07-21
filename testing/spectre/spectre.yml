@@ -11,7 +11,3 @@ mixin_patterns:
 resource_paths:
   - '../common/resources'
   - './resources'
-reporters:
-  - Spectre::Reporter::Console
-include:
-  - spectre/curl
