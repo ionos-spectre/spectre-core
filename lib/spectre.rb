@@ -36,7 +36,7 @@ module Spectre
       .reject { |mod| config['exclude'].include? mod }
       .concat(config['include'])
       .each do |mod|
-        require_relative mod
+        require mod
       end
 
     spectre_scope = Spectre::SpectreScope.new
