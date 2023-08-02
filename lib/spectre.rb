@@ -31,6 +31,14 @@ module Spectre
     bootstrap_file = File.join(config['working_dir'], config['bootstrap_file'])
     require_relative bootstrap_file if File.exists? bootstrap_file
 
+    # Load modules
+    config['modules']
+      .reject { |mod| config['exclude'].include? mod }
+      .concat(config['include'])
+      .each do |mod|
+        require_relative mod
+      end
+
     spectre_scope = Spectre::SpectreScope.new
     spectre_context = Spectre::SpectreContext.new(spectre_scope)
 
