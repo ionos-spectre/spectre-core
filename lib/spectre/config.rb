@@ -6,6 +6,7 @@ module Spectre
       'project' => nil,
       'working_dir' => Dir.pwd,
       'config_file' => './spectre.yml',
+      'bootstrap_file' => './bootstrap.rb',
       'environment' => 'default',
       'specs' => [],
       'tags' => [],

@@ -28,7 +28,7 @@ module Spectre
 
   def self.setup config
     # Load bootstrap file if exists
-    bootstrap_file = File.join(config['working_dir'], 'bootstrap.rb')
+    bootstrap_file = File.join(config['working_dir'], config['bootstrap_file'])
     require_relative bootstrap_file if File.exists? bootstrap_file
 
     spectre_scope = Spectre::SpectreScope.new
