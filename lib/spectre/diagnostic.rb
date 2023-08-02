@@ -1,37 +1,36 @@
-# require_relative '../spectre'
+require_relative '../spectre'
 
-# module Spectre
-#   module Diagnostic
-#     module Stopwatch
-#       class << self
-#         def start_watch
-#           Spectre::Environment.put(:spectre_stopwatch_started, Time.now)
-#         end
+module Spectre
+  module Diagnostic
+    class Stopwatch
+      def initialize
+        @__started = nil
+        @__finished = nil
+      end
 
-#         def stop_watch
-#           Spectre::Environment.put(:spectre_stopwatch_finished, Time.now)
-#         end
+      def start_watch
+        @__started = Time.now
+      end
 
-#         def measure
-#           start_watch()
-#           yield
-#           stop_watch()
-#         end
+      def stop_watch
+        @__finished = Time.now
+      end
 
-#         def duration
-#           finished_at - started_at
-#         end
+      def measure
+        start_watch()
+        yield
+        stop_watch()
+      end
 
-#         def started_at
-#           Spectre::Environment.bucket(:spectre_stopwatch_started)
-#         end
+      def duration
+        @__finished - @__started
+      end
+    end
+  end
+end
 
-#         def finished_at
-#           Spectre::Environment.bucket(:spectre_stopwatch_finished)
-#         end
-#       end
-
-#       Spectre.delegate(:start_watch, :stop_watch, :duration, :measure, to: self)
-#     end
-#   end
-# end
+Spectre::SpectreScope.define 'spectre/diagnostic' do |config, logger, _scope|
+  register :start_watch, :stop_watch, :duration, :measure do
+    Spectre::Diagnostic::Stopwatch.new
+  end
+end
