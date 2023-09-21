@@ -314,6 +314,8 @@ module Spectre
           spectre_ctx.instance_eval(File.read(spec_file), spec_file, 1)
         end
       end
+
+      self
     end
 
     def configure config
@@ -325,6 +327,8 @@ module Spectre
         logger = @log.create_logger(mod_name)
         mod_ctx.instance_exec(config, logger, self, &define_block)
       end
+
+      self
     end
 
     private

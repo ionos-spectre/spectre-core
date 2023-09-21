@@ -39,14 +39,9 @@ module Spectre
         require mod
       end
 
-    spectre_scope = Spectre::SpectreScope.new
-    spectre_context = Spectre::SpectreContext.new(spectre_scope)
-
-    spectre_scope.configure(config)
-
-    spectre_scope.load_specs(config['spec_patterns'], config['working_dir'])
-
-    spectre_scope
+    Spectre::SpectreScope.new
+      .configure(config)
+      .load_specs(config['spec_patterns'], config['working_dir'])
   end
 
   def self.run spectre_scope, specs
