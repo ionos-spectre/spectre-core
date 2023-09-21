@@ -149,8 +149,8 @@ module Spectre
       end
     end
   end
+end
 
-  Spectre.define 'spectre/eventing/console' do |_config, _logger, scope|
-    scope.event.register(ConsoleLogger.new)
-  end
+Spectre.define 'spectre/eventing/console' do |_config, _logger, scope|
+  scope.event.register(Spectre::ConsoleLogger.new)
 end
