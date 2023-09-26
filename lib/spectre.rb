@@ -13,7 +13,7 @@ module Spectre
 
   VERSION = [Version::MAJOR, Version::MINOR, Version::TINY].compact * '.'
 
-  def self.load config_file, env_name
+  def self.load config_file, env_name=nil
     config_loader = Spectre::ConfigLoader.new
     config = config_loader.load(config_file)
 

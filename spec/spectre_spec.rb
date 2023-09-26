@@ -5,7 +5,7 @@ RSpec.describe 'spectre' do
   it 'loads and setups config and environment from files' do
     config_file = File.join(File.dirname(__FILE__), './resources/spectre.yml')
 
-    config = Spectre.load(config_file, 'default')
+    config = Spectre.load(config_file)
 
     expect(config['foo']).to eq('bar')
     expect(config['some_secret']).to eq('supersecret')
