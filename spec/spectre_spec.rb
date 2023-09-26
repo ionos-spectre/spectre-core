@@ -25,6 +25,7 @@ RSpec.describe 'spectre' do
     expect(run_infos[2].spec.name).to eq('some_subject-teardown-1')
     expect(run_infos[3].spec.name).to eq('some_subject-setup-1')
     expect(run_infos[4].spec.name).to eq('some_subject-2')
+    expect(run_infos[4].spec.context.__desc).to eq('some other context')
     expect(run_infos[4].success?).to eq(true)
   end
 end
