@@ -52,7 +52,7 @@ module Spectre
     Spectre::SpectreScope.define(name, &block)
   end
 
-  def self.report run_infos, config, reporters
+  def self.report run_infos, config, reporters=nil
     Spectre::Reporter.report(run_infos, config, reporters)
   end
 end
