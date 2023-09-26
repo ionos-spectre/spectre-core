@@ -14,7 +14,7 @@ module Spectre
       @envs[name || @@default_env_name] || {}
     end
 
-    def load env_patterns, env_partial_patterns, working_dir, config
+    def load env_patterns, env_partial_patterns, working_dir
       @envs = {}
 
       read_env_files = {}
@@ -35,9 +35,7 @@ module Spectre
 
           read_env_files[name] = env_file
 
-          @envs[name] = config
-            .deep_clone
-            .deep_merge(spec_env)
+          @envs[name] = spec_env
         end
       end
 
