@@ -343,7 +343,7 @@ if 'init' == action
   end
 
   DEFAULT_FILES.each do |file, content|
-    unless File.exists? file
+    unless File.exist? file
       File.write(file, content)
     end
   end

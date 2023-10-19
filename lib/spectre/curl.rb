@@ -280,7 +280,7 @@
 
 #       # Add certificate path if one is given
 #       if req['cert']
-#         raise "Certificate '#{req['cert']}' does not exist" unless File.exists? req['cert']
+#         raise "Certificate '#{req['cert']}' does not exist" unless File.exist? req['cert']
 
 #         cmd.append('--cacert', req['cert'])
 #       elsif req['use_ssl'] or uri.start_with? 'https'

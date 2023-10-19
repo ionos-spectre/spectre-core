@@ -991,7 +991,7 @@ There are some helper methods for various use cases
 | `as_date` | `string` | Parses the string as a `DateTime` object |
 | `content` | `string` | Treats the string as a file path and tries to read its content. Use `with` parameter to substitute placeholders in form of `#{foo}`. Example: `'path/to/file.txt'.content with:{foo: 'bar'}` |
 | `with` | `string` | Substitute placeholders in form of `#{foo}` with the given `Hash`. Example: `'path/to/file.txt'.content with:{foo: 'bar'}` |
-| `exists?` | `string` | Treats the string as a file path and returns `true` if the file exists, `false` otherwise |
+| `exist?` | `string` | Treats the string as a file path and returns `true` if the file exists, `false` otherwise |
 | `remove!` | `string` | Treats the string as a file path and deletes the file |
 | `size` | `string` | Treats the string as a file path and returns the file size |
 | `trim` | `string` | Trims a long string to the given size. Default is 50 |
@@ -1038,7 +1038,7 @@ The paths of these files are provided by the `resources` function. The files are
 describe 'Hollow API' do
   it 'sends out spooky ghosts' do
     expect 'the resource file to exist' do
-      resources['json/spooky_request_body.json'].exists?.should_be true
+      resources['json/spooky_request_body.json'].exist?.should_be true
     end
   end
 end

@@ -18,7 +18,7 @@ module Spectre
     config = config_loader.load(config_file)
 
     environment = Spectre::Environment.new
-    environment.load(config['env_patterns'], config['env_partial_patterns'], config['working_dir'], config)
+    environment.load(config['env_patterns'], config['env_partial_patterns'], config['working_dir'])
     env_config = environment.get(env_name)
 
     config.deep_merge! env_config
@@ -29,7 +29,7 @@ module Spectre
   def self.setup config
     # Load bootstrap file if exists
     bootstrap_file = File.join(config['working_dir'], config['bootstrap_file'])
-    require_relative bootstrap_file if File.exists? bootstrap_file
+    require_relative bootstrap_file if File.exist? bootstrap_file
 
     # Load modules
     config['modules']

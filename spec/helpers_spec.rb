@@ -30,12 +30,12 @@ RSpec.describe 'spectre/helpers' do
     File.write(file_path, 'Hello #{name}!')
 
     begin
-      expect(file_path.exists?).to eq(true)
+      expect(file_path.exist?).to eq(true)
     ensure
       File.delete(file_path)
     end
 
-    expect('does not exist'.exists?).to eq(false)
+    expect('does not exist'.exist?).to eq(false)
   end
 
   it 'removes an existing file' do

@@ -5,7 +5,7 @@ require 'securerandom'
 require 'logger'
 require 'ostruct'
 
-require_relative 'core'
+require_relative '../spectre'
 
 
 module Spectre::Http
@@ -271,7 +271,7 @@ module Spectre::Http
         net_http.use_ssl = true
 
         if req['cert']
-          raise HttpError.new("Certificate '#{req['cert']}' does not exist") unless File.exists? req['cert']
+          raise HttpError.new("Certificate '#{req['cert']}' does not exist") unless File.exist? req['cert']
 
           net_http.verify_mode = OpenSSL::SSL::VERIFY_PEER
           net_http.ca_file = req['cert']
@@ -372,7 +372,7 @@ module Spectre::Http
   end
 end
 
-Spectre::SpectreScope.define 'spectre/http' do |config, logger, _scope|
+Spectre.define 'spectre/http' do |config, logger, _scope|
   register :http, :https, :request, :response do
     Spectre::Http.create(config, logger)
   end

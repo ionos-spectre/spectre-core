@@ -47,7 +47,7 @@ module Spectre
       # Load global config file first
       global_config_file = File.join(File.expand_path('~'), '.spectre')
 
-      if File.exists? global_config_file
+      if File.exist? global_config_file
         global_options = ConfigLoader.load_yaml(global_config_file)
         @config.deep_merge!(global_options) if global_options
       end
@@ -55,7 +55,7 @@ module Spectre
       # Then load local config file
       config_file = config_file || @config['config_file']
 
-      if File.exists? config_file
+      if File.exist? config_file
         file_options = ConfigLoader.load_yaml(config_file)
         @config.deep_merge!(file_options)
         @config['working_dir'] = File.expand_path File.dirname(config_file)
