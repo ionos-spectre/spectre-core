@@ -1,8 +1,8 @@
 require 'ostruct'
 
-require_relative './spectre/core'
-require_relative './spectre/runner'
-require_relative './spectre/reporter'
+require_relative 'spectre/core'
+require_relative 'spectre/runner'
+require_relative 'spectre/reporter'
 
 module Spectre
   module Version

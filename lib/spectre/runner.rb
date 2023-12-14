@@ -7,7 +7,7 @@ module Spectre
     attr_reader :expectation
 
     def initialize message, expectation
-      super message
+      super(message)
       @expectation = expectation
     end
   end

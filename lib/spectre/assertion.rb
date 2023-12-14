@@ -1,6 +1,6 @@
 require 'ostruct'
 
-require_relative './runner'
+require_relative 'runner'
 
 module Spectre::Assertion
   class ::Object
@@ -239,7 +239,7 @@ module Spectre::Assertion
     attr_reader :expected, :actual
 
     def initialize message, expected=nil, actual=nil, expectation=nil
-      super message, expectation
+      super(message, expectation)
       @expected = expected
       @actual = actual
     end
