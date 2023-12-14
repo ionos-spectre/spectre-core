@@ -13,7 +13,7 @@ RSpec.describe 'spectre/eventing' do
         @exec_count = 0
       end
 
-      def foo message, *args, **kwargs
+      def foo _message, *_args, **_kwargs
         @exec_count += 1
       end
     end

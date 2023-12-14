@@ -276,6 +276,10 @@ module Spectre
 
     @@modules = {}
 
+    def self.define name, &block
+      @@modules[name] = block
+    end
+
     def initialize
       @subjects = []
       @extensions = []
@@ -288,10 +292,6 @@ module Spectre
       @runs = []
 
       @logger = @log.create_logger('spectre')
-    end
-
-    def self.define name, &block
-      @@modules[name] = block
     end
 
     def specs spec_filter=[], tags=[]

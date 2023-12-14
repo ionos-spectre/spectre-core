@@ -65,7 +65,6 @@ RSpec.describe 'spectre/core' do
 
   it 'does run specs in new scope from spec file' do
     spectre_scope = Spectre::SpectreScope.new
-    spectre_context = Spectre::SpectreContext.new(spectre_scope)
 
     spectre_scope.load_specs(['resources/spec_test.rb'], File.absolute_path(File.dirname __FILE__))
 
@@ -103,7 +102,7 @@ RSpec.describe 'spectre/core' do
 
     mod_name = 'spectre/test'
 
-    Spectre::SpectreScope.define mod_name do |config, logger, _scope|
+    Spectre::SpectreScope.define mod_name do |_config, logger, _scope|
       register :greet do |_run_info|
         TestExtension.new(logger)
       end

@@ -6,7 +6,7 @@ RSpec.describe 'spectre' do
 
     config = Spectre.load(config_file)
 
-    spectre_scope = Spectre.setup(config)
+    _spectre_scope = Spectre.setup(config)
 
     expected_modules = config['modules']
 
@@ -22,7 +22,7 @@ RSpec.describe 'spectre' do
 
     config['exclude'] = ['spectre/assertion']
 
-    spectre_scope = Spectre.setup(config)
+    _spectre_scope = Spectre.setup(config)
 
     config['exclude'].each do |mod|
       expect($LOADED_FEATURES.any? { |f| f.include? mod }).to eq(false)

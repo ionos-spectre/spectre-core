@@ -14,7 +14,7 @@ RSpec.describe 'spectre/mixin' do
 
     spectre_scope = Spectre::SpectreScope.new
     spectre_context = Spectre::SpectreContext.new(spectre_scope)
-    module_context = Spectre::ModuleContext.new(spectre_scope)
+    _module_context = Spectre::ModuleContext.new(spectre_scope)
 
     spectre_scope.configure(config)
 

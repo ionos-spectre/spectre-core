@@ -10,7 +10,7 @@ class TestExtension
   end
 end
 
-Spectre.define 'test' do |config, logger|
+Spectre.define 'test' do |_config, logger|
   register :greet do |_run_info|
     TestExtension.new(logger)
   end

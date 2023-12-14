@@ -37,6 +37,11 @@ module Spectre
       'exclude' => [],
     }
 
+    def self.load_yaml file_path
+      yaml = File.read(file_path)
+      YAML.safe_load(yaml, aliases: true) || {}
+    end
+
     def initialize
       @config = {}
     end
@@ -68,11 +73,6 @@ module Spectre
       @config['project'] = File.basename(@config['working_dir']) unless @config['project']
 
       @config
-    end
-
-    def self.load_yaml file_path
-      yaml = File.read(file_path)
-      YAML.safe_load(yaml, aliases: true) || {}
     end
   end
 end

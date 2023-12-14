@@ -9,7 +9,7 @@ require_relative '../lib/spectre/http/keystone'
 
 
 def create_response code='200', message='Ok', body='{"message": "Hello World!"}'
-  net_res = double(::Net::HTTPOK)
+  net_res = double(Net::HTTPOK)
   allow(net_res).to receive(:code).and_return(code)
   allow(net_res).to receive(:message).and_return(message)
   allow(net_res).to receive(:body).and_return(body)
@@ -22,7 +22,7 @@ end
 RSpec.describe 'spectre/http' do
   context do
     before do
-      @net_http = double(::Net::HTTP)
+      @net_http = double(Net::HTTP)
       allow(@net_http).to receive(:read_timeout=)
       allow(@net_http).to receive(:max_retries=)
       allow(@net_http).to receive(:use_ssl=)
@@ -31,15 +31,15 @@ RSpec.describe 'spectre/http' do
       net_res = create_response()
       allow(@net_http).to receive(:request).and_return(net_res)
 
-      allow(::Net::HTTP).to receive(:new).and_return(@net_http)
+      allow(Net::HTTP).to receive(:new).and_return(@net_http)
 
-      @net_req = double(::Net::HTTPGenericRequest)
+      @net_req = double(Net::HTTPGenericRequest)
       allow(@net_req).to receive(:body=)
       allow(@net_req).to receive(:basic_auth)
       allow(@net_req).to receive(:each_header).and_return([])
       allow(@net_req).to receive(:[]=)
       allow(@net_req).to receive(:content_type=)
-      allow(::Net::HTTPGenericRequest).to receive(:new).and_return(@net_req)
+      allow(Net::HTTPGenericRequest).to receive(:new).and_return(@net_req)
 
       log = Spectre::Logging::SpectreLogger.new(Spectre::SpectreScope.new)
       @logger = Spectre::Logging::ModuleLogger.new('spectre/http', log)
@@ -250,12 +250,12 @@ RSpec.describe 'spectre/http' do
         end
       end
 
-      run_infos = Spectre::Runner.new(spectre_scope).run(spectre_scope.specs)
+      _run_infos = Spectre::Runner.new(spectre_scope).run(spectre_scope.specs)
     end
   end
 
   it 'does some HTTP request with keystone auth' do
-    client = double(::Net::HTTP)
+    client = double(Net::HTTP)
     allow(client).to receive(:read_timeout=)
     allow(client).to receive(:max_retries=)
 
@@ -264,7 +264,7 @@ RSpec.describe 'spectre/http' do
     expect(client).to receive(:request).and_return(net_res) # first call returns keystone response
     expect(client).to receive(:request).and_return(net_res) # second call is actual http spectre request
 
-    allow(::Net::HTTP).to receive(:new).and_return(client)
+    allow(Net::HTTP).to receive(:new).and_return(client)
 
     log = Spectre::Logging::SpectreLogger.new(Spectre::SpectreScope.new)
     logger = Spectre::Logging::ModuleLogger.new('spectre/http', log)
