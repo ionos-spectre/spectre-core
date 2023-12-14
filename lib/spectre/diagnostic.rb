@@ -29,7 +29,7 @@ module Spectre
   end
 end
 
-Spectre::SpectreScope.define 'spectre/diagnostic' do |config, logger, _scope|
+Spectre::SpectreScope.define 'spectre/diagnostic' do |_config, _logger, _scope|
   register :start_watch, :stop_watch, :duration, :measure do
     Spectre::Diagnostic::Stopwatch.new
   end

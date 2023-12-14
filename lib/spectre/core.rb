@@ -14,8 +14,7 @@ module Spectre
 
     def deep_freeze
       self
-        .map { |key, val| [key, val.deep_freeze] }
-        .to_h
+        .to_h { |key, val| [key, val.deep_freeze] }
         .freeze
     end
 
@@ -73,8 +72,8 @@ module Spectre
       instance_exec(*args, &block)
     end
 
-    def method_missing method, *args, **kwargs, &block
-      @__bound_self__.send(method, *args, **kwargs, &block)
+    def method_missing(method, *args, **kwargs, &)
+      @__bound_self__.send(method, *args, **kwargs, &)
     end
   end
 
@@ -96,7 +95,7 @@ module Spectre
       {
         name: @name,
         desc: @desc,
-        specs: @specs.map { |x| x.to_h }
+        specs: @specs.map { |x| x.to_h },
       }
     end
   end
@@ -149,7 +148,7 @@ module Spectre
       @scope.env
     end
 
-    def describe desc, &block
+    def describe(desc, &)
       subject = @scope.subjects.find { |x| x.desc == desc }
 
       unless subject
@@ -158,7 +157,7 @@ module Spectre
       end
 
       ctx = SpecContext.new(subject)
-      ctx._evaluate &block
+      ctx._evaluate(&)
     end
   end
 
@@ -206,9 +205,9 @@ module Spectre
       @__teardown_blocks << Spec.new(name, @__subject, 'teardown', [], nil, block, teardown_ctx, spec_file, line)
     end
 
-    def context desc=nil, &block
+    def context(desc=nil, &)
       ctx = SpecContext.new(@__subject, desc, self)
-      ctx._evaluate &block
+      ctx._evaluate(&)
     end
 
     private
@@ -227,7 +226,7 @@ module Spectre
     end
 
     def register *methods, &factory
-      methods.each do |method_name|
+      methods.each do |_method_name|
         @scope.extensions << [*methods, factory]
       end
     end

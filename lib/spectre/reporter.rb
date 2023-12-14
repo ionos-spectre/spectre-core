@@ -9,7 +9,7 @@ module Spectre
     def self.report run_infos, config, reporters=nil
       @@reporters
         .select { |name, _| reporters.nil? or reporters.include? name }
-        .each do |name, block|
+        .each do |_name, block|
           block.call(run_infos, config)
         end
     end

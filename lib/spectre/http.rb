@@ -158,7 +158,6 @@ module Spectre::Http
     end
   end
 
-
   class HttpClient
     def initialize config, logger, modules
       @modules = modules
@@ -171,8 +170,8 @@ module Spectre::Http
       @config = config['http'] || {}
     end
 
-    def https name, &block
-      http(name, secure: true, &block)
+    def https(name, &)
+      http(name, secure: true, &)
     end
 
     def http name, secure: false, &block
@@ -194,11 +193,13 @@ module Spectre::Http
 
     def request
       raise 'No request has been invoked yet' unless @request
+
       @request
     end
 
     def response
       raise 'There is no response. No request has been invoked yet.' unless @response
+
       @response
     end
 
@@ -364,6 +365,7 @@ module Spectre::Http
 
   def self.register mod
     raise 'Module must not be nil' unless mod
+
     @@modules << mod
   end
 

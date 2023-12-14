@@ -40,14 +40,14 @@ module Spectre
   end
 end
 
-Spectre.define 'spectre/resources' do |config, logger, _scope|
+Spectre.define 'spectre/resources' do |config, _logger, _scope|
   resource_collection = Spectre::Resources::ResourceCollection.new
 
   unless config['resource_paths'].nil?
     resource_collection.read_resources(config['resource_paths'])
   end
 
-  register :resources do |run_ctx|
+  register :resources do |_run_ctx|
     resource_collection
   end
 end

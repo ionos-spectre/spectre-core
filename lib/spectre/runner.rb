@@ -126,9 +126,9 @@ module Spectre
 
     alias_method :log, :info
 
-    def method_missing method, *args, **kwargs, &block
+    def method_missing(method, *args, **kwargs, &)
       if @extensions.key? method
-        @extensions[method].send(method, *args, **kwargs, &block)
+        @extensions[method].send(method, *args, **kwargs, &)
       else
         raise "no method or variable `#{method}' defined"
       end

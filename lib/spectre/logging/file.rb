@@ -11,6 +11,7 @@ module Spectre::Logging
 
     def log timestamp, message, level, name
       return unless @log_file
+
       line = "[#{timestamp}] #{level.to_s.upcase.rjust(5, ' ')} -- #{name}: #{message}\n"
       File.write(@log_file, line, mode: 'a')
     end

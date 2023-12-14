@@ -19,59 +19,61 @@ module Spectre
       @level = 0
     end
 
-    def start_subject subject, run_info: nil
+    def start_subject subject, run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       write_line(subject.desc.blue)
       @level += 1
     end
 
-    def end_subject subject, run_info: nil
+    def end_subject _subject, run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       @level -= 1
     end
 
-    def start_context context, run_info: nil
+    def start_context context, run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       return unless context.__desc
+
       write_line(context.__desc)
       @level += 1
     end
 
-    def end_context context, run_info: nil
+    def end_context context, run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       return unless context.__desc
+
       @level -= 1
     end
 
-    def start_setup run_info: nil
+    def start_setup run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       write_line('setup'.magenta)
       @level += 1
     end
 
-    def end_setup run_info: nil
+    def end_setup run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       @level -= 1
     end
 
-    def start_teardown run_info: nil
+    def start_teardown run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       write_line('teardown'.magenta)
       @level += 1
     end
 
-    def end_teardown run_info: nil
+    def end_teardown run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       @level -= 1
     end
 
-    def start_before run_info: nil
+    def start_before run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       write_line('before'.magenta)
       @level += 1
     end
 
-    def end_before run_info: nil
+    def end_before run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       @level -= 1
     end
 
-    def start_after run_info: nil
+    def start_after run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       write_line('after'.magenta)
       @level += 1
     end
 
-    def end_after run_info: nil
+    def end_after run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       @level -= 1
     end
 
@@ -80,24 +82,24 @@ module Spectre
       @level += 1
     end
 
-    def end_spec run_info: nil
+    def end_spec run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       @level -= 1
     end
 
-    def start_group desc, run_info: nil
+    def start_group desc, run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       write_line(desc.yellow)
       @level += 1
     end
 
-    def end_group desc, run_info: nil
+    def end_group _desc, run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       @level -= 1
     end
 
-    def start_expect desc, run_info: nil
+    def start_expect _desc, run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       write_line("expect #{desc}", fill: true, newline: false)
     end
 
-    def end_expect desc, status, message, run_info: nil
+    def end_expect _desc, status, message, run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       text = "[#{status}]".send(status)
       text += " - #{message}" if message
       puts text
@@ -110,7 +112,7 @@ module Spectre
       end
     end
 
-    def spec_skip message, run_info: nil
+    def spec_skip message, run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       write_line('', fill: true, newline: false)
       status = '[skipped]'
 
@@ -118,7 +120,7 @@ module Spectre
       puts status.grey
     end
 
-    def spec_error error, run_info: nil
+    def spec_error error, run_info: nil # rubocop:disable Lint/UnusedMethodArgument
       write_line('', fill: true, newline: false)
       status = '[error]'
 
@@ -135,6 +137,7 @@ module Spectre
     def fill text
       padding = @width - text.length - @indent * @level
       return text unless padding > 0
+
       text + ('.' * padding)
     end
 

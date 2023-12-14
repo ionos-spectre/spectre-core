@@ -26,9 +26,9 @@ module Spectre::Assertion
       raise AssertionFailure.new('empty value', 'nothing', self) unless self != nil
     end
 
-    def evaluate val, message, &block
+    def evaluate(val, message, &)
       val = Evaluation.new(val) unless val.is_a? Evaluation
-      raise AssertionFailure.new(message, val, self) unless val.run &block
+      raise AssertionFailure.new(message, val, self) unless val.run(&)
     end
 
     def or other

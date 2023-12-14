@@ -33,6 +33,7 @@ module Spectre
 
       def create_logger name
         return @mod_loggers[name] if @mod_loggers.key? name
+
         logger = ModuleLogger.new(name, self)
         @mod_loggers[name] = logger
       end

@@ -48,8 +48,8 @@ module Spectre
     Spectre::Runner.new(spectre_scope).run(specs)
   end
 
-  def self.define name, &block
-    Spectre::SpectreScope.define(name, &block)
+  def self.define(name, &)
+    Spectre::SpectreScope.define(name, &)
   end
 
   def self.report run_infos, config, reporters=nil
