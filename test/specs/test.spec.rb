@@ -79,3 +79,25 @@ describe 'Another Test' do
     end
   end
 end
+
+describe 'HTTP' do
+  it 'should do a request', tags: [:http] do
+    http 'dummy' do
+    end
+
+    expect 'to get a 200' do
+      fail unless response.code.equal? 200
+    end
+  end
+end
+
+describe 'Mixins' do
+  before do
+    @some_var = 42
+  end
+
+  it 'should run a mixin' do
+    info "the answer is #{@some_var}"
+    also 'do additional stuff', with: ['Hello', 'World']
+  end
+end

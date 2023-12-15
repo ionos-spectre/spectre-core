@@ -113,6 +113,22 @@ class ::Array
     self[0]
   end
 
+  def second_element
+    self[1]
+  end
+
+  def third_element
+    self[2]
+  end
+
+  def fourth_element
+    self[3]
+  end
+
+  def fifth_element
+    self[4]
+  end
+
   def last_element
     self[-1]
   end
