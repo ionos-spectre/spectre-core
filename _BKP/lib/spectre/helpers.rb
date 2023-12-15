@@ -109,27 +109,27 @@ class ::Hash
 end
 
 class ::Array
-  def first_element
+  def first_item
     self[0]
   end
 
-  def second_element
+  def second_item
     self[1]
   end
 
-  def third_element
+  def third_item
     self[2]
   end
 
-  def fourth_element
+  def fourth_item
     self[3]
   end
 
-  def fifth_element
+  def fifth_item
     self[4]
   end
 
-  def last_element
+  def last_item
     self[-1]
   end
 end

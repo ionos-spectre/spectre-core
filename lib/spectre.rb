@@ -141,8 +141,13 @@ module Spectre
       @failure = nil
       @skipped = false
 
-      @started = nil
-      @finished = nil
+      @started = Time.now
+
+      begin
+        yield self
+      ensure
+        @finished = Time.now
+      end
     end
 
     def info message
@@ -175,28 +180,18 @@ module Spectre
     end
 
     def run desc, with: []
-      instance_exec(*with, &Spectre::MIXINS[desc])
+      instance_exec(*with, &MIXINS[desc])
     end
 
     alias :also :run
 
-    def run(&)
+    def execute(&)
       begin
         instance_exec(@data, &)
       rescue Interrupt
         LOGGER.progress('') { [:skipped, 'canceled by user'] }
       rescue Exception => e
         @error = e
-      end
-    end
-
-    def record
-      @started = Time.now
-
-      begin
-        yield
-      ensure
-        @finished = Time.now
       end
     end
   end
@@ -261,10 +256,10 @@ module Spectre
     end
 
     def run spec_filter=[], tags=[]
-      # specs = @specs.select { |spec| tags.empty? or spec.tags.any? { |tag| tags.include? tag } }
-
       specs = @specs.select do |spec|
-        (spec_filter.empty? and tags.empty?) or (spec_filter.any? { |x| spec.name.match?('^' + x.gsub('*', '.*') + '$') }) or (tags.any? { |x| tag?(spec.tags, x) })
+        (spec_filter.empty? and tags.empty?) or
+        (spec_filter.any? { |x| spec.name.match?('^' + x.gsub('*', '.*') + '$') }) or
+        (tags.any? { |x| tag?(spec.tags, x) })
       end
 
       return [] if specs.empty?
@@ -325,33 +320,29 @@ module Spectre
 
     def run
       @data.map do |data|
-        run_context = RunContext.new(self, data)
-
-        run_context.record do
+        RunContext.new(self, data) do |run_context|
           LOGGER.log('it ' + @desc, self) do
             begin
               if @befores.any?
                 LOGGER.log('before', self) do
                   @befores.each do |block|
-                    run_context.run(&block)
+                    run_context.execute(&block)
                   end
                 end
               end
 
-              run_context.run(&@block)
+              run_context.execute(&@block)
             ensure
               if @afters.any?
                 LOGGER.log('after', self) do
                   @afters.each do |block|
-                    run_context.run(&block)
+                    run_context.execute(&block)
                   end
                 end
               end
             end
           end
         end
-
-        run_context
       end
     end
   end
@@ -416,7 +407,7 @@ module Spectre
       end
 
       # Select environment and merge it
-      CONFIG.deep_merge!(ENVIRONMENTS[CONFIG['env'] || DEFAULT_ENV_NAME])
+      CONFIG.deep_merge!(ENVIRONMENTS[CONFIG.delete('selected_env') || DEFAULT_ENV_NAME])
 
       # Merge property overrides
       CONFIG.deep_merge!(config_overrides)
@@ -534,7 +525,7 @@ OptionParser.new do |opts|
   end
 
   opts.on('-e NAME', '--env NAME', 'Name of the environment to load') do |env_name|
-    Spectre::CONFIG['env'] = env_name
+    Spectre::CONFIG['selected_env'] = env_name
   end
 
   opts.on('-c FILE', '--config FILE', 'Config file to load') do |file_path|
@@ -571,9 +562,9 @@ OptionParser.new do |opts|
 
   opts.on('-p KEY=VAL', '--property KEY=VAL', "Override config option. Use `spectre show` to get list of available options") do |option|
     key, val = option.split('=')
-    val = val.split(',') if DEFAULT_Spectre::CONFIG[key].is_a? Array
-    val = ['true', '1'].include? val if [true, false].include?(DEFAULT_Spectre::CONFIG[key])
-    val = val.to_i if DEFAULT_Spectre::CONFIG[key].is_a? Integer
+    val = val.split(',') if Spectre::CONFIG[key].is_a? Array
+    val = ['true', '1'].include? val if [true, false].include?(Spectre::CONFIG[key])
+    val = val.to_i if Spectre::CONFIG[key].is_a? Integer
 
     opt_path = key.split('.')
 
