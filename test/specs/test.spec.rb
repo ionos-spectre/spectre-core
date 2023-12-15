@@ -10,6 +10,8 @@ describe 'Test' do
   it 'should do something', tags: [:tagged] do
     info 'do something'
 
+    debug 'a debug message'
+
     expect 'to run successfully' do
     end
   end

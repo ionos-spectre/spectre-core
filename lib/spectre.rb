@@ -50,6 +50,7 @@ class String
   alias :warn :yellow
   alias :ok :green
   alias :info :blue
+  alias :debug :grey
   alias :skipped :grey
 end
 
@@ -61,19 +62,19 @@ module Spectre
       @indent = 2
     end
 
-    def log message, subject
-      if message
+    def scope desc, subject
+      if desc
         if subject.is_a? DefinitionContext
-          message = message.blue
+          desc = desc.blue
         elsif subject.is_a? TestSpecification
-          if ['before', 'after'].include? message
-            message = message.magenta
+          if ['before', 'after'].include? desc
+            desc = desc.magenta
           else
-            message = message.cyan
+            desc = desc.cyan
           end
         end
 
-        write(message)
+        write(desc)
         puts
       end
 
@@ -88,7 +89,7 @@ module Spectre
       end
     end
 
-    def progress message
+    def log message
       output_len = write(message)
       result = yield
       print '.' * (@width - output_len)
@@ -150,8 +151,10 @@ module Spectre
       end
     end
 
-    def info message
-      LOGGER.progress(message) { [:info, nil] }
+    %i{debug info warn}.each do |method|
+      define_method(method) do |message|
+        LOGGER.log(message) { [method, nil] }
+      end
     end
 
     def fail_with message
@@ -159,7 +162,7 @@ module Spectre
     end
 
     def expect desc
-      LOGGER.progress('expect ' + desc) do
+      LOGGER.log('expect ' + desc) do
         result = [:ok, nil]
 
         begin
@@ -189,7 +192,7 @@ module Spectre
       begin
         instance_exec(@data, &)
       rescue Interrupt
-        LOGGER.progress('') { [:skipped, 'canceled by user'] }
+        LOGGER.log('') { [:skipped, 'canceled by user'] }
       rescue Exception => e
         @error = e
       end
@@ -266,9 +269,9 @@ module Spectre
 
       runs = []
 
-      LOGGER.log(@desc, self) do
+      LOGGER.scope(@desc, self) do
         if @setups.any?
-          LOGGER.log('setup', self) do
+          LOGGER.scope('setup', self) do
             @setups.each do |block|
               instance_eval(&block)
             end
@@ -280,7 +283,7 @@ module Spectre
         end
 
         if @teardowns.any?
-          LOGGER.log('teardown', self) do
+          LOGGER.scope('teardown', self) do
             @teardowns.each do |block|
               instance_eval(&block)
             end
@@ -321,10 +324,10 @@ module Spectre
     def run
       @data.map do |data|
         RunContext.new(self, data) do |run_context|
-          LOGGER.log('it ' + @desc, self) do
+          LOGGER.scope('it ' + @desc, self) do
             begin
               if @befores.any?
-                LOGGER.log('before', self) do
+                LOGGER.scope('before', self) do
                   @befores.each do |block|
                     run_context.execute(&block)
                   end
@@ -334,7 +337,7 @@ module Spectre
               run_context.execute(&@block)
             ensure
               if @afters.any?
-                LOGGER.log('after', self) do
+                LOGGER.scope('after', self) do
                   @afters.each do |block|
                     run_context.execute(&block)
                   end
