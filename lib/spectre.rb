@@ -1,43 +1,9 @@
 require 'ostruct'
 require 'yaml'
+require 'optparse'
+require 'ectoplasm'
 
-def get_error_info error
-  non_spectre_files = error.backtrace.select { |x| !x.include? 'lib/spectre' }
-
-  if non_spectre_files.count > 0
-    causing_file = non_spectre_files.first
-  else
-    causing_file = error.backtrace[0]
-  end
-
-  matches = causing_file.match(/(.*\.rb):(\d+)/)
-
-  return {} unless matches
-
-  file, line = matches.captures
-  file.slice!(Dir.pwd + '/')
-
-  {
-    file: file,
-    line: line,
-    type: error.class,
-    message: error.message,
-    backtrace: error.backtrace,
-  }
-end
-
-def load_files patterns
-  patterns.each do |pattern|
-    Dir.glob(pattern).each do |file|
-      require_relative File.join(Dir.pwd, file)
-    end
-  end
-end
-
-def load_yaml file_path
-  file_content = File.read(file_path)
-  YAML.safe_load(file_content, aliases: true) || {}
-end
+require_relative 'spectre/version'
 
 class Hash
   def deep_merge!(second)
@@ -79,44 +45,6 @@ class Object
 end
 
 class String
-  @@colored = false
-
-  def self.colored!
-    @@colored = true
-  end
-
-  def white; self; end
-
-  def red; colored '31'; end
-
-  def green; colored '32'; end
-
-  def yellow; colored '33'; end
-
-  def blue; colored '34'; end
-
-  def magenta; colored '35'; end
-
-  def cyan; colored '36'; end
-
-  def grey; colored '90'; end
-
-  def bold; colored '1'; end
-
-  def underline; colored '4'; end
-
-  def indent amount
-    self.lines.map { |line| (' ' * amount) + line }.join
-  end
-
-  private
-
-  def colored ansi_color
-    return self unless @@colored
-
-    "\e[#{ansi_color}m#{self}\e[0m"
-  end
-
   alias :error :red
   alias :failed :red
   alias :warn :yellow
@@ -125,421 +53,568 @@ class String
   alias :skipped :grey
 end
 
-class ConsoleLogger
-  def initialize
-    @level = 0
-    @width = 60
-    @indent = 2
-  end
+module Spectre
+  class ConsoleLogger
+    def initialize
+      @level = 0
+      @width = 60
+      @indent = 2
+    end
 
-  def log message, subject
-    if message
-      if subject.is_a? DefinitionContext
-        message = message.blue
-      elsif subject.is_a? TestSpecification
-        if ['before', 'after'].include? message
-          message = message.magenta
-        else
-          message = message.cyan
+    def log message, subject
+      if message
+        if subject.is_a? DefinitionContext
+          message = message.blue
+        elsif subject.is_a? TestSpecification
+          if ['before', 'after'].include? message
+            message = message.magenta
+          else
+            message = message.cyan
+          end
+        end
+
+        write(message)
+        puts
+      end
+
+      if block_given?
+        @level += 1
+
+        begin
+          yield
+        ensure
+          @level -= 1
+        end
+      end
+    end
+
+    def progress message
+      output_len = write(message)
+      result = yield
+      print '.' * (@width - output_len)
+
+      status = result[0]
+
+      status_text = "[#{result[0]}]"
+
+      if result[1].nil?
+        puts status_text.send(status)
+      else
+        puts "#{status_text} - #{result[1]}".send(status)
+      end
+    end
+
+    private
+
+    def indent
+      ' ' * (@level * @indent)
+    end
+
+    def write message
+      output = ''
+
+      if message.empty?
+        output = indent
+        print output
+      else
+        message.lines.each do |line|
+          output = indent + line
+          print output
         end
       end
 
-      write(message)
-      puts
+      output.length
+    end
+  end
+
+  class SpectreFailure < Exception
+  end
+
+  class RunContext
+    attr_reader :spec, :error, :failure, :skipped, :started, :finished
+
+    def initialize spec, data
+      @spec = spec
+      @data = data
+
+      @error = nil
+      @failure = nil
+      @skipped = false
+
+      @started = nil
+      @finished = nil
     end
 
-    if block_given?
-      @level += 1
+    def info message
+      LOGGER.progress(message) { [:info, nil] }
+    end
+
+    def fail_with message
+      raise SpectreFailure.new(message)
+    end
+
+    def expect desc
+      LOGGER.progress('expect ' + desc) do
+        result = [:ok, nil]
+
+        begin
+          yield
+        rescue SpectreFailure => e
+          @failure = [desc, e.message]
+          result = [:failed, nil]
+        rescue Interrupt
+          @skipped = true
+          result = [:skipped, 'canceled by user']
+        rescue Exception => e
+          @error = e
+          result = [:error, e.class.name]
+        end
+
+        result
+      end
+    end
+
+    def run desc, with: []
+      instance_exec(*with, &Spectre::MIXINS[desc])
+    end
+
+    alias :also :run
+
+    def run(&)
+      begin
+        instance_exec(@data, &)
+      rescue Interrupt
+        LOGGER.progress('') { [:skipped, 'canceled by user'] }
+      rescue Exception => e
+        @error = e
+      end
+    end
+
+    def record
+      @started = Time.now
 
       begin
         yield
       ensure
-        @level -= 1
+        @finished = Time.now
       end
     end
   end
 
-  def progress message
-    output_len = write(message)
-    result = yield
-    print '.' * (@width - output_len)
+  class DefinitionContext
+    attr_reader :parent, :name, :desc, :full_desc, :children, :specs
 
-    status = result[0]
+    def initialize desc, parent=nil
+      @parent = parent
+      @desc = desc
+      @children = []
+      @specs = []
 
-    status_text = "[#{result[0]}]"
+      @setups = []
+      @teardowns = []
 
-    if result[1].nil?
-      puts status_text.send(status)
-    else
-      puts "#{status_text} - #{result[1]}".send(status)
-    end
-  end
+      @befores = []
+      @afters = []
 
-  private
-
-  def indent
-    ' ' * (@level * @indent)
-  end
-
-  def write message
-    output = ''
-
-    if message.empty?
-      output = indent
-      print output
-    else
-      message.lines.each do |line|
-        output = indent + line
-        print output
-      end
+      @name = @desc.downcase.gsub(/[^a-z0-9]+/, '_')
     end
 
-    output.length
-  end
-end
+    def full_desc
+      return @desc unless @parent
 
-class SpectreFailure < Exception
-end
+      @parent.full_desc + ' ' + @desc
+    end
 
-class RunContext
-  attr_reader :spec, :error, :failure, :skipped, :started, :finished
+    def root
+      @parent ? @parent.root : self
+    end
 
-  def initialize spec, data
-    @spec = spec
-    @data = data
+    def all_specs
+      @specs + @children.map { |x| x.all_specs }.flatten
+    end
 
-    @error = nil
-    @failure = nil
-    @skipped = false
+    def context(desc, &)
+      context = DefinitionContext.new(desc, self)
+      @children << context
+      context.instance_eval(&)
+    end
 
-    @started = nil
-    @finished = nil
-  end
+    def setup &block
+      @setups << block
+    end
 
-  def info message
-    LOGGER.progress(message) { [:info, nil] }
-  end
+    def teardown &block
+      @teardowns << block
+    end
 
-  def fail_with message
-    raise SpectreFailure.new(message)
-  end
+    def before &block
+      @befores << block
+    end
 
-  def expect desc
-    LOGGER.progress('expect ' + desc) do
-      result = [:ok, nil]
+    def after &block
+      @afters << block
+    end
 
-      begin
-        yield
-      rescue SpectreFailure => e
-        @failure = [desc, e.message]
-        result = [:failed, nil]
-      rescue Interrupt
-        @skipped = true
-        result = [:skipped, 'canceled by user']
-      rescue Exception => e
-        @error = e
-        result = [:error, e.class.name]
+    def it desc, tags: [], with: nil, &block
+      spec = TestSpecification.new(self, desc, tags, with, block, @befores, @afters)
+      @specs << spec
+    end
+
+    def run spec_filter=[], tags=[]
+      # specs = @specs.select { |spec| tags.empty? or spec.tags.any? { |tag| tags.include? tag } }
+
+      specs = @specs.select do |spec|
+        (spec_filter.empty? and tags.empty?) or (spec_filter.any? { |x| spec.name.match?('^' + x.gsub('*', '.*') + '$') }) or (tags.any? { |x| tag?(spec.tags, x) })
       end
 
-      result
-    end
-  end
+      return [] if specs.empty?
 
-  def run desc, with: []
-    instance_exec(*with, &MIXINS[desc])
-  end
+      runs = []
 
-  alias :also :run
-
-  def run(&)
-    begin
-      instance_exec(@data, &)
-    rescue Interrupt
-      LOGGER.progress('') { [:skipped, 'canceled by user'] }
-    rescue Exception => e
-      @error = e
-    end
-  end
-
-  def record
-    @started = Time.now
-
-    begin
-      yield
-    ensure
-      @finished = Time.now
-    end
-  end
-end
-
-class DefinitionContext
-  attr_reader :parent, :name, :desc, :full_desc, :children, :specs
-
-  def initialize desc, parent=nil
-    @parent = parent
-    @desc = desc
-    @children = []
-    @specs = []
-
-    @setups = []
-    @teardowns = []
-
-    @befores = []
-    @afters = []
-
-    @name = @desc.downcase.gsub(/[^a-z0-9]+/, '_')
-  end
-
-  def full_desc
-    return @desc unless @parent
-
-    @parent.full_desc + ' ' + @desc
-  end
-
-  def root
-    @parent ? @parent.root : self
-  end
-
-  def all_specs
-    @specs + @children.map { |x| x.all_specs }.flatten
-  end
-
-  def context(desc, &)
-    context = DefinitionContext.new(desc, self)
-    @children << context
-    context.instance_eval(&)
-  end
-
-  def setup &block
-    @setups << block
-  end
-
-  def teardown &block
-    @teardowns << block
-  end
-
-  def before &block
-    @befores << block
-  end
-
-  def after &block
-    @afters << block
-  end
-
-  def it desc, tags: [], with: nil, &block
-    spec = TestSpecification.new(self, desc, tags, with, block, @befores, @afters)
-    @specs << spec
-  end
-
-  def run spec_filter=[], tags=[]
-    # specs = @specs.select { |spec| tags.empty? or spec.tags.any? { |tag| tags.include? tag } }
-
-    specs = @specs.select do |spec|
-      (spec_filter.empty? and tags.empty?) or (spec_filter.any? { |x| spec.name.match?('^' + x.gsub('*', '.*') + '$') }) or (tags.any? { |x| tag?(spec.tags, x) })
-    end
-
-    return [] if specs.empty?
-
-    runs = []
-
-    LOGGER.log(@desc, self) do
-      if @setups.any?
-        LOGGER.log('setup', self) do
-          @setups.each do |block|
-            instance_eval(&block)
+      LOGGER.log(@desc, self) do
+        if @setups.any?
+          LOGGER.log('setup', self) do
+            @setups.each do |block|
+              instance_eval(&block)
+            end
           end
+        end
+
+        runs = specs.map do |spec|
+          spec.run
+        end
+
+        if @teardowns.any?
+          LOGGER.log('teardown', self) do
+            @teardowns.each do |block|
+              instance_eval(&block)
+            end
+          end
+        end
+
+        @children.each do |context|
+          runs = runs + context.run(spec_filter, tags)
         end
       end
 
-      runs = specs.map do |spec|
-        spec.run
-      end
+      runs
+    end
+  end
 
-      if @teardowns.any?
-        LOGGER.log('teardown', self) do
-          @teardowns.each do |block|
-            instance_eval(&block)
-          end
-        end
-      end
+  class TestSpecification
+    attr_reader :context, :name, :desc, :tags, :data
 
-      @children.each do |context|
-        runs = runs + context.run(spec_filter, tags)
-      end
+    def initialize context, desc, tags, data, block, befores, afters
+      @context = context
+      @desc = desc
+      @tags = tags
+      @data = data || [nil]
+
+      @block = block
+      @befores = befores
+      @afters = afters
+
+      root_context = context.root
+
+      @name = "#{root_context.name}-#{root_context.all_specs.count + 1}"
     end
 
-    runs
-  end
-end
+    def full_desc
+      @context.full_desc + ' ' + @desc
+    end
 
-class TestSpecification
-  attr_reader :context, :name, :desc, :tags, :data
+    def run
+      @data.map do |data|
+        run_context = RunContext.new(self, data)
 
-  def initialize context, desc, tags, data, block, befores, afters
-    @context = context
-    @desc = desc
-    @tags = tags
-    @data = data || [nil]
-
-    @block = block
-    @befores = befores
-    @afters = afters
-
-    root_context = context.root
-
-    @name = "#{root_context.name}-#{root_context.all_specs.count + 1}"
-  end
-
-  def full_desc
-    @context.full_desc + ' ' + @desc
-  end
-
-  def run
-    @data.map do |data|
-      run_context = RunContext.new(self, data)
-
-      run_context.record do
-        LOGGER.log('it ' + @desc, self) do
-          begin
-            if @befores.any?
-              LOGGER.log('before', self) do
-                @befores.each do |block|
-                  run_context.run(&block)
+        run_context.record do
+          LOGGER.log('it ' + @desc, self) do
+            begin
+              if @befores.any?
+                LOGGER.log('before', self) do
+                  @befores.each do |block|
+                    run_context.run(&block)
+                  end
                 end
               end
-            end
 
-            run_context.run(&@block)
-          ensure
-            if @afters.any?
-              LOGGER.log('after', self) do
-                @afters.each do |block|
-                  run_context.run(&block)
+              run_context.run(&@block)
+            ensure
+              if @afters.any?
+                LOGGER.log('after', self) do
+                  @afters.each do |block|
+                    run_context.run(&block)
+                  end
                 end
               end
             end
           end
         end
+
+        run_context
+      end
+    end
+  end
+
+  # Define default config
+
+  CONFIG = {
+    'specs' => [],
+    'tags' => [],
+    'env_patterns' => ['environments/**/*.env.yml'],
+    'env_partial_patterns' => ['./environments/**/*.env.secret.yml'],
+    'spec_patterns' => ['spec/**/*.spec.rb'],
+    'mixin_patterns' => ['mixins/**/*.mixin.rb'],
+    'resource_paths' => ['../common/resources', './resources'],
+    'modules' => [],
+    'colored' => true,
+  }
+
+  CONTEXTS = []
+  LOGGER = ConsoleLogger.new
+  MIXINS = {}
+  RESOURCES = {}
+  ENVIRONMENTS = {}
+
+  DEFAULT_ENV_NAME = 'default'
+
+  class << self
+    attr_reader :env
+
+    def setup config_overrides
+      # Load global config file
+      global_config_file = File.join(File.expand_path('~'), '.spectre')
+
+      if File.exist? global_config_file
+        global_config = load_yaml(global_config_file)
+        CONFIG.deep_merge!(global_config)
       end
 
-      run_context
+      # Load main spectre config
+      main_config_file = File.join(Dir.pwd, 'spectre.yml')
+
+      if File.exist? main_config_file
+        main_config = load_yaml(main_config_file)
+        CONFIG.deep_merge!(main_config)
+      end
+
+      # Load environments
+      CONFIG['env_patterns'].each do |pattern|
+        Dir.glob(pattern).each do |file_path|
+          loaded_env = load_yaml(file_path)
+          env_name = loaded_env['name'] || DEFAULT_ENV_NAME
+          ENVIRONMENTS[env_name] = loaded_env
+        end
+      end
+
+      CONFIG['env_partial_patterns'].each do |pattern|
+        Dir.glob(pattern).each do |file_path|
+          loaded_env = load_yaml(file_path)
+          env_name = loaded_env['name'] || DEFAULT_ENV_NAME
+          ENVIRONMENTS[env_name].deep_merge!(loaded_env)
+        end
+      end
+
+      # Select environment and merge it
+      CONFIG.deep_merge!(ENVIRONMENTS[CONFIG['env'] || DEFAULT_ENV_NAME])
+
+      # Merge property overrides
+      CONFIG.deep_merge!(config_overrides)
+
+      # Load resources
+      CONFIG['resource_paths'].each do |resource_path|
+        resource_files = Dir.glob File.join(resource_path, '**/*')
+
+        resource_files.each do |file|
+          file.slice! resource_path
+          file = file[1..-1]
+          RESOURCES[file] = File.expand_path File.join(resource_path, file)
+        end
+      end
+
+      # Load modules
+      CONFIG['modules'].each do |module_name|
+        module_path = File.join(Dir.pwd, module_name)
+
+        if File.exist? module_path
+          require_relative module_path
+        else
+          require module_name
+        end
+      end
+
+      # Load specs
+      load_files(CONFIG['spec_patterns'])
+      CONTEXTS.freeze
+
+      # Load mixins
+      load_files(CONFIG['mixin_patterns'])
+      MIXINS.freeze
+
+      @env = OpenStruct.new(CONFIG).freeze
+    end
+
+    def run
+      CONTEXTS.map do |context|
+        context.run(CONFIG['specs'], CONFIG['tags'])
+      end.flatten
+    end
+
+    def list
+      CONTEXTS.map do |context|
+        context.all_specs
+      end.flatten
+    end
+
+    def describe(name, &)
+      main_context = DefinitionContext.new(name)
+      main_context.instance_eval(&)
+      CONTEXTS << main_context
+    end
+
+    def mixin desc, &block
+      MIXINS[desc] = block
+    end
+
+    def resources path
+      RESOURCES[path]
+    end
+
+    private
+
+    def load_files patterns
+      patterns.each do |pattern|
+        Dir.glob(pattern).each do |file|
+          require_relative File.join(Dir.pwd, file)
+        end
+      end
+    end
+
+    def load_yaml file_path
+      file_content = File.read(file_path)
+      YAML.safe_load(file_content, aliases: true) || {}
     end
   end
 end
 
-CONFIG = {
-  'env' => 'default',
-  'env_patterns' => ['environments/**/*.env.yml'],
-  'env_partial_patterns' => ['./environments/**/*.env.secret.yml'],
-  'spec_patterns' => ['spec/**/*.spec.rb'],
-  'mixin_patterns' => ['mixins/**/*.mixin.rb'],
-  'resource_paths' => ['../common/resources', './resources'],
-}
-
-ENV = OpenStruct.new(CONFIG).freeze
-
-CONTEXTS = []
-LOGGER = ConsoleLogger.new
-MIXINS = {}
-RESOURCES = {}
-ENVIRONMENTS = {}
-
-DEFAULT_ENV_NAME = 'default'
-
-# Load global config file
-global_config_file = File.join(File.expand_path('~'), '.spectre')
-
-if File.exist? global_config_file
-  global_config = load_yaml(global_config_file)
-  CONFIG.deep_merge!(global_config)
-end
-
-# Load main spectre config
-main_config_file = File.join(Dir.pwd, 'spectre.yml')
-
-if File.exist? main_config_file
-  main_config = load_yaml(main_config_file)
-  CONFIG.deep_merge!(main_config)
-end
-
-# Load environments
-CONFIG['env_patterns'].each do |pattern|
-  Dir.glob(pattern).each do |file_path|
-    loaded_env = load_yaml(file_path)
-    env_name = loaded_env['name'] || DEFAULT_ENV_NAME
-    ENVIRONMENTS[env_name] = loaded_env
+# Expose spectre methods
+%i{env describe mixin resources}.each do |method|
+  define_method(method) do |*args, &block|
+    Spectre.send(method, *args, &block)
   end
 end
 
-CONFIG['env_partial_patterns'].each do |pattern|
-  Dir.glob(pattern).each do |file_path|
-    loaded_env = load_yaml(file_path)
-    env_name = loaded_env['name'] || DEFAULT_ENV_NAME
-    ENVIRONMENTS[env_name].deep_merge!(loaded_env)
+# Define command line arguments
+
+config_overrides = {}
+
+OptionParser.new do |opts|
+  opts.banner = <<~BANNER
+    Spectre #{Spectre::VERSION}
+
+    Usage: spectre [command] [options]
+
+      Commands:
+        run         Run specs (default)
+        list        List specs
+        show        Print current environment settings
+        dump        Dumps the given environment in YAML format to console
+        cleanup     Will remove all generated files (e.g. logs and reports)
+        init        Initializes a new spectre project
+
+      Specific options:
+  BANNER
+
+  opts.on('-s SPEC,SPEC', '--specs SPEC,SPEC', Array, 'The specs to run') do |specs|
+    Spectre::CONFIG['specs'] = specs
   end
-end
 
-# Select environment and merge it
-CONFIG.deep_merge!(ENVIRONMENTS[CONFIG['env'] || DEFAULT_ENV_NAME])
-
-# Load resources
-CONFIG['resource_paths'].each do |resource_path|
-  resource_files = Dir.glob File.join(resource_path, '**/*')
-
-  resource_files.each do |file|
-    file.slice! resource_path
-    file = file[1..-1]
-    RESOURCES[file] = File.expand_path File.join(resource_path, file)
+  opts.on('-t TAG,TAG', '--tags TAG,TAG', Array, 'Run only specs with given tags') do |tags|
+    Spectre::CONFIG['tags'] = tags
   end
-end
 
-# Load modules
-CONFIG['modules'].each do |module_name|
-  module_path = File.join(Dir.pwd, module_name)
-
-  if File.exist? module_path
-    require_relative module_path
-  else
-    require module_name
+  opts.on('-e NAME', '--env NAME', 'Name of the environment to load') do |env_name|
+    Spectre::CONFIG['env'] = env_name
   end
-end
 
-# Define global available methods and properties
+  opts.on('-c FILE', '--config FILE', 'Config file to load') do |file_path|
+    Spectre::CONFIG['config_file'] = file_path
+  end
 
-def env
-  ENV
-end
+  opts.on('--spec-pattern PATTERN', Array, 'File pattern for spec files') do |spec_pattern|
+    Spectre::CONFIG['spec_patterns'] = spec_pattern
+  end
 
-def describe(name, &)
-  main_context = DefinitionContext.new(name)
-  main_context.instance_eval(&)
-  CONTEXTS << main_context
-end
+  opts.on('--env-pattern PATTERN', Array, 'File pattern for environment files') do |env_patterns|
+    Spectre::CONFIG['env_patterns'] = env_patterns
+  end
 
-def mixin desc, &block
-  MIXINS[desc] = block
-end
+  opts.on('--no-color', 'Disable colored output') do
+    Spectre::CONFIG['colored'] = false
+  end
 
-# Load specs
-load_files(CONFIG['spec_patterns'])
-CONTEXTS.freeze
+  opts.on('--ignore-failure', 'Always exit with code 0') do
+    Spectre::CONFIG['ignore_failure'] = true
+  end
 
-# Load mixins
-load_files(CONFIG['mixin_patterns'])
-MIXINS.freeze
+  opts.on('-o PATH', '--out PATH', 'Output directory path') do |path|
+    Spectre::CONFIG['out_path'] = File.absolute_path(path)
+  end
 
-String.colored!
+  opts.on('-m MODULE,MODULE', '--modules MODULE,MODULE', Array, "Load the given modules") do |modules|
+    Spectre::CONFIG['modules'] += modules
+  end
 
-spec_filter = []
-tags = []
+  opts.on('-d', '--debug', "Run in debug mode. Do not use in production!") do
+    Spectre::CONFIG['debug'] = true
+  end
 
+  opts.on('-p KEY=VAL', '--property KEY=VAL', "Override config option. Use `spectre show` to get list of available options") do |option|
+    key, val = option.split('=')
+    val = val.split(',') if DEFAULT_Spectre::CONFIG[key].is_a? Array
+    val = ['true', '1'].include? val if [true, false].include?(DEFAULT_Spectre::CONFIG[key])
+    val = val.to_i if DEFAULT_Spectre::CONFIG[key].is_a? Integer
+
+    opt_path = key.split('.')
+
+    curr_opt = config_overrides
+
+    opt_path.each_with_index do |part, i|
+      if i == opt_path.count-1
+        curr_opt[part] = val
+        break
+      end
+
+      curr_opt[part] = {} unless curr_opt.key?(part)
+      curr_opt = curr_opt[part]
+    end
+  end
+
+  opts.separator "\n  Common options:"
+
+  opts.on_tail('-v', '--version', 'Print current installed version') do
+    puts Spectre::VERSION
+    exit
+  end
+
+  opts.on_tail('-h', '--help', 'Print this help') do
+    puts opts
+    exit
+  end
+end.parse!
+
+# Setup spectre
+Spectre.setup(config_overrides)
+
+# Set colored output
+String.colored! if Spectre::CONFIG['colored']
+
+# Determine action
 action = ARGV[0] || 'run'
 
 # List specs
 if action == 'list'
-  specs = CONTEXTS.map do |context|
-    context.all_specs
-  end.flatten
+  specs = Spectre.list
 
   colors = [:blue, :magenta, :yellow, :green]
   counter = 0
@@ -556,11 +631,28 @@ if action == 'list'
     end
 end
 
+def get_error_info error
+  non_spectre_files = error.backtrace.select { |x| !x.include? 'lib/spectre' }
+
+  if non_spectre_files.count > 0
+    causing_file = non_spectre_files.first
+  else
+    causing_file = error.backtrace[0]
+  end
+
+  matches = causing_file.match(/(.*\.rb):(\d+)/)
+
+  return unless matches
+
+  file, line = matches.captures
+  file.slice!(Dir.pwd + '/')
+
+  return file, line
+end
+
 # Run specs
 if action == 'run'
-  runs = CONTEXTS.map do |context|
-    context.run(spec_filter, tags)
-  end.flatten
+  runs = Spectre.run
 
   errors = runs.count { |x| !x.error.nil? }
   failed = runs.count { |x| !x.failure.nil? }
@@ -570,28 +662,155 @@ if action == 'run'
   puts "\n#{succeded} succeded #{failed} failures #{errors} errors #{skipped} skipped\n".send(errors + failed > 0 ? :red : :green)
 
   runs.select { |x| !x.error.nil? or !x.failure.nil? }.each_with_index do |run, index|
-    puts "#{index+1}) #{run.spec.full_desc} [#{run.spec.name}]".red
+    puts "#{index+1}) #{run.spec.full_desc} (#{(run.finished - run.started).duration}) [#{run.spec.name}]".red
 
     if run.error
       str = "but an unexpected error occurred during run\n"
-      error_info = get_error_info(run.error)
+      file, line = get_error_info(run.error)
 
-      str += "  file.....: #{error_info[:file]}\n"
-      str += "  type.....: #{error_info[:type]}\n"
-      str += "  message..: #{error_info[:message]}\n"
+      str += "  file.....: #{file}:#{line}\n"
+      str += "  type.....: #{run.error.class.name}\n"
+      str += "  message..: #{run.error.message}\n"
 
       # str += "  backtrace:\n"
-      # error_info[:backtrace].each do |line|
+      # run.error.backtrace.each do |line|
       #   str += "    #{line}\n"
       # end
 
       puts str.indent(5).red
+      puts
     end
 
     if run.failure
       expected, failure = run.failure
 
       puts "     Expected #{expected} but it failed with:\n     #{failure}\n".red
+    end
+  end
+end
+
+if action == 'show'
+  puts Spectre::CONFIG.pretty
+end
+
+
+DEFAULT_SPECTRE_CFG = %{log_file: ./logs/spectre_<date>.log
+env_patterns:
+  - './environments/**/*.env.yml'
+env_partial_patterns:
+  - './environments/**/*.env.secret.yml'
+spec_patterns:
+  - './specs/**/*.spec.rb'
+mixin_patterns:
+  - '../common/**/*.mixin.rb'
+  - './mixins/**/*.mixin.rb'
+resource_paths:
+  - '../common/resources'
+  - './resources'
+}
+
+
+DEFAULT_ENV_CFG = %{cert: &cert ./resources/<root_cert>.cer
+http:
+  <http_client_name>:
+    base_url: http://localhost:5000/api/v1/
+    # basic_auth:
+      # username: <username>
+      # password: <password>
+    # keystone:
+      # url: https://<keystone_url>/main/v3/
+      # username: <username>
+      # password: <password>
+      # project: <project>
+      # domain: <domain>
+      # cert: *cert
+# ssh:
+  # <ssh_client_name>:
+    # host: <hostname>
+    # username: <username>
+    # password: <password>
+}
+
+DEFAULT_ENV_SECRET_CFG = %{http:
+  <http_client_name>:
+    # basic_auth:
+      # username: <username>
+      # password: <password>
+    # keystone:
+      # username: <username>
+      # password: <password>
+# ssh:
+  # <ssh_client_name>:
+    # username: <username>
+    # password: <password>
+}
+
+SAMPLE_SPEC = %[describe '<subject>' do
+  it 'does some http requests', tags: [:sample] do
+    log 'doing some http request'
+
+    http '<http_client_name>' do
+      auth 'basic'
+      # auth 'keystone'
+      method 'GET'
+      path 'path/to/resource'
+      param 'id', 4295118773
+      param 'foo', 'bar'
+      header 'X-Correlation-Id', '4c2367b1-bfee-4cc2-bdc5-ed17a6a9dd4b'
+      header 'Range', 'bytes=500-999'
+      json({
+        "message": "Hello Spectre!"
+      })
+    end
+
+    expect 'the response code to be 200' do
+      response.code.should_be 200
+    end
+
+    expect 'a message to exist' do
+      response.json.message.should_not_be_empty
+    end
+  end
+end
+]
+
+DEFAULT_GITIGNORE = %[*.code-workspace
+logs/
+reports/
+**/environments/*.env.secret.yml
+]
+
+DEFAULT_GEMFILE = %[source 'https://rubygems.org'
+
+gem 'spectre-core', '>= #{Spectre::VERSION}'
+# gem 'spectre-mysql', '>= 2.0.0'
+# gem 'spectre-ssh', '>= 2.0.0'
+# gem 'spectre-ftp', '>= 2.0.0'
+# gem 'spectre-curl', '>= 2.0.0'
+# gem 'spectre-git', '>= 2.0.0'
+# gem 'spectre-rabbitmq', '>= 2.0.0'
+# gem 'spectre-reporter-junit', '>= 2.0.0'
+# gem 'spectre-reporter-vstest', '>= 2.0.0'
+# gem 'spectre-reporter-html', '>= 2.0.0'
+]
+
+if 'init' == action
+  DEFAULT_FILES = [
+    ['./environments/default.env.yml', DEFAULT_ENV_CFG],
+    ['./environments/default.env.secret.yml', DEFAULT_ENV_SECRET_CFG],
+    ['./specs/sample.spec.rb', SAMPLE_SPEC],
+    ['./spectre.yml', DEFAULT_SPECTRE_CFG],
+    ['./.gitignore', DEFAULT_GITIGNORE],
+    ['./Gemfile', DEFAULT_GEMFILE],
+  ]
+
+  %w(environments logs specs).each do |dir_name|
+    Dir.mkdir(dir_name) unless File.directory? dir_name
+  end
+
+  DEFAULT_FILES.each do |file, content|
+    unless File.exist? file
+      File.write(file, content)
     end
   end
 end

@@ -1,6 +1,10 @@
+# frozen_string_literal: true
+
+require_relative 'lib/spectre/version'
+
 Gem::Specification.new do |spec|
   spec.name          = 'spectre-core'
-  spec.version       = '2.0.0'
+  spec.version       = Spectre::VERSION
   spec.authors       = ['Christian Neubauer']
   spec.email         = ['christian.neubauer@ionos.com']
 
@@ -14,10 +18,12 @@ Gem::Specification.new do |spec|
   spec.metadata['source_code_uri'] = 'https://github.com/ionos-spectre/spectre-core'
   spec.metadata['changelog_uri']   = 'https://github.com/ionos-spectre/spectre-core/blob/master/CHANGELOG.md'
 
-  spec.files        += Dir.glob('lib/**/*')
+  spec.files = Dir['lib/**/*']
   # spec.files        += Dir.glob('exe/*')
 
   # spec.bindir        = 'exe'
   # spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
+
+  spec.add_runtime_dependency 'ectoplasm', '>= 1.2.0'
 end

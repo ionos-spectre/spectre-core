@@ -1,7 +1,7 @@
 require 'ostruct'
 
 def http name
-  puts "GET #{CONFIG['http'][name]['base_url']} "
+  puts "GET #{Spectre::CONFIG['http'][name]['base_url']} "
 end
 
 def response
