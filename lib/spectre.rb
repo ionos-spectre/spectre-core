@@ -653,34 +653,38 @@ if action == 'run'
   skipped = runs.count { |x| x.skipped }
   succeded = runs.count - errors - failed - skipped
 
-  puts "\n#{succeded} succeded #{failed} failures #{errors} errors #{skipped} skipped\n".send(errors + failed > 0 ? :red : :green)
+  output = ''
+
+  output += "\n#{succeded} succeded #{failed} failures #{errors} errors #{skipped} skipped\n\n".send(errors + failed > 0 ? :red : :green)
 
   runs.select { |x| !x.error.nil? or !x.failure.nil? }.each_with_index do |run, index|
-    puts "#{index+1}) #{run.spec.full_desc} (#{(run.finished - run.started).duration}) [#{run.spec.name}]".red
+    output += "#{index+1}) #{run.spec.full_desc} (#{(run.finished - run.started).duration}) [#{run.spec.name}]".red
+    output += "\n"
 
     if run.error
-      str = "but an unexpected error occurred during run\n"
+      error_output = "but an unexpected error occurred during run\n"
       file, line = get_error_info(run.error)
 
-      str += "  file.....: #{file}:#{line}\n"
-      str += "  type.....: #{run.error.class.name}\n"
-      str += "  message..: #{run.error.message}\n"
+      error_output += "  file.....: #{file}:#{line}\n"
+      error_output += "  type.....: #{run.error.class.name}\n"
+      error_output += "  message..: #{run.error.message}\n"
 
-      # str += "  backtrace:\n"
+      # error_output += "  backtrace:\n"
       # run.error.backtrace.each do |line|
-      #   str += "    #{line}\n"
+      #   error_output += "    #{line}\n"
       # end
 
-      puts str.indent(5).red
-      puts
+      output += error_output.indent(5).red
+      output += "\n\n"
     end
 
     if run.failure
       expected, failure = run.failure
-
-      puts "     Expected #{expected} but it failed with:\n     #{failure}\n".red
+      output += "     Expected #{expected} but it failed with:\n     #{failure}\n\n".red
     end
   end
+
+  puts output
 end
 
 if action == 'show'
