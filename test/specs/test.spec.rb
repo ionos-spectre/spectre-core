@@ -1,4 +1,12 @@
 describe 'Test' do
+  setup do
+    info 'do some setting up'
+  end
+
+  teardown do
+    info 'do some tearing down'
+  end
+
   before do
     info 'do something before'
   end
@@ -101,5 +109,19 @@ describe 'Mixins' do
   it 'should run a mixin' do
     info "the answer is #{@some_var}"
     also 'do additional stuff', with: ['Hello', 'World']
+  end
+end
+
+describe 'Fatal Setup' do
+  setup do
+    raise 'Oops!'
+  end
+
+  teardown do
+    info 'but this should always run'
+  end
+
+  it 'should not run' do
+    info 'this should not run'
   end
 end

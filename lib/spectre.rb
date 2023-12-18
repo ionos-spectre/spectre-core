@@ -194,6 +194,7 @@ module Spectre
       rescue Interrupt
         LOGGER.log('') { [:skipped, 'canceled by user'] }
       rescue Exception => e
+        LOGGER.log('') { [:error, e.class.name] }
         @error = e
       end
     end
@@ -270,28 +271,39 @@ module Spectre
       runs = []
 
       LOGGER.scope(@desc, self) do
+        setup_run = nil
+
         if @setups.any?
-          LOGGER.scope('setup', self) do
-            @setups.each do |block|
-              instance_eval(&block)
+          setup_run = RunContext.new(self, nil) do |run_context|
+            LOGGER.scope('setup', self) do
+              @setups.each do |block|
+                run_context.execute(&block)
+              end
             end
+          end
+
+          runs << setup_run
+        end
+
+        # Only run specs if setup was successful
+        if setup_run.nil? or setup_run.error.nil?
+          runs += specs.map do |spec|
+            spec.run
           end
         end
 
-        runs = specs.map do |spec|
-          spec.run
-        end
-
         if @teardowns.any?
-          LOGGER.scope('teardown', self) do
-            @teardowns.each do |block|
-              instance_eval(&block)
+          runs << RunContext.new(self, nil) do |run_context|
+            LOGGER.scope('teardown', self) do
+              @teardowns.each do |block|
+                run_context.execute(&block)
+              end
             end
           end
         end
 
         @children.each do |context|
-          runs = runs + context.run(spec_filter, tags)
+          runs += context.run(spec_filter, tags)
         end
       end
 
