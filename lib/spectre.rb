@@ -564,7 +564,10 @@ OptionParser.new do |opts|
   end
 
   opts.on('-p KEY=VAL', '--property KEY=VAL', "Override config option. Use `spectre show` to get list of available options") do |option|
-    key, val = option.split('=')
+    index = option.index('=')
+    key = option[0...index]
+    val = option[index+1..-1]
+
     val = val.split(',') if Spectre::CONFIG[key].is_a? Array
     val = ['true', '1'].include? val if [true, false].include?(Spectre::CONFIG[key])
     val = val.to_i if Spectre::CONFIG[key].is_a? Integer
