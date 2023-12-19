@@ -438,6 +438,7 @@ module Spectre
   CONFIG = {
     'config_file' => './spectre.yml',
     'log_file' => './logs/spectre_<date>.log',
+    'logger' => 'Spectre::ConsoleLogger',
     'specs' => [],
     'tags' => [],
     'debug' => false,
@@ -538,7 +539,7 @@ module Spectre
     end
 
     def create_logger name
-      ConsoleLogger.new(name)
+      Object.const_get(CONFIG['logger']).new(name)
     end
 
     def run
