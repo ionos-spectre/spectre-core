@@ -247,11 +247,81 @@ module Spectre
     end
   end
 
+  module ConsoleReporter
+    def self.report runs
+      errors = runs.count { |x| !x.error.nil? }
+      failed = runs.count { |x| !x.failure.nil? }
+      skipped = runs.count { |x| x.skipped }
+      succeded = runs.count - errors - failed - skipped
+
+      output = ''
+
+      output += "\n#{succeded} succeded #{failed} failures #{errors} errors #{skipped} skipped\n\n".send(errors + failed > 0 ? :red : :green)
+
+      runs.select { |x| !x.error.nil? or !x.failure.nil? }.each_with_index do |run, index|
+        output += "#{index+1}) #{run.parent.full_desc} (#{(run.finished - run.started).duration}) [#{run.parent.name}]".red
+        output += "\n"
+
+        if run.error
+          error_output = "but an unexpected error occurred during run\n"
+          file, line = get_error_info(run.error)
+
+          error_output += "  file.....: #{file}:#{line}\n"
+          error_output += "  type.....: #{run.error.class.name}\n"
+          error_output += "  message..: #{run.error.message}\n"
+
+          error_output += "  backtrace:\n"
+
+          if CONFIG['debug']
+            run.error.backtrace.each do |trace|
+              error_output += "    #{trace}\n"
+            end
+          end
+
+          output += error_output.indent(5).red
+          output += "\n\n"
+        end
+
+        if run.failure
+          expected, failure = run.failure
+          output += "     Expected #{expected} but it failed with:\n     #{failure}\n\n".red
+        end
+      end
+
+      puts output
+    end
+  end
+
+  module JsonReporter
+    def self.report runs
+      reports = runs.map do |run|
+        {
+          id: run.id,
+          parent: {
+            id: run.parent.id,
+            name: run.parent.name,
+            desc: run.parent.desc,
+            parent: run.parent.parent ? run.parent.parent.id : nil,
+          },
+          status: run.error ? :error : (run.failure ? :failed : (run.skipped ? :skipped : :ok)),
+          error: run.error,
+          failure: run.failure,
+          skipped: run.skipped,
+          started: run.started,
+          finished: run.finished,
+          logs: run.logs,
+        }
+      end
+
+      puts reports.to_json
+    end
+  end
+
   class SpectreFailure < Exception
   end
 
   class RunContext
-    attr_reader :id, :name, :desc, :parent, :error, :failure, :skipped, :started, :finished
+    attr_reader :id, :name, :desc, :parent, :logs, :error, :failure, :skipped, :started, :finished
 
     @@current = nil
 
@@ -510,6 +580,7 @@ module Spectre
     'config_file' => './spectre.yml',
     'log_file' => './logs/spectre_<date>.log',
     'logger' => 'Spectre::ConsoleLogger',
+    'reporter' => 'Spectre::ConsoleReporter',
     'specs' => [],
     'tags' => [],
     'debug' => false,
@@ -730,6 +801,10 @@ OptionParser.new do |opts|
     Spectre::CONFIG['logger'] = class_name
   end
 
+  opts.on('--reporter NAME', 'Use specified reporter') do |class_name|
+    Spectre::CONFIG['reporter'] = class_name
+  end
+
   opts.on('-o PATH', '--out PATH', 'Output directory path') do |path|
     Spectre::CONFIG['out_path'] = File.absolute_path(path)
   end
@@ -830,43 +905,7 @@ end
 if action == 'run'
   runs = Spectre.run
 
-  errors = runs.count { |x| !x.error.nil? }
-  failed = runs.count { |x| !x.failure.nil? }
-  skipped = runs.count { |x| x.skipped }
-  succeded = runs.count - errors - failed - skipped
-
-  output = ''
-
-  output += "\n#{succeded} succeded #{failed} failures #{errors} errors #{skipped} skipped\n\n".send(errors + failed > 0 ? :red : :green)
-
-  runs.select { |x| !x.error.nil? or !x.failure.nil? }.each_with_index do |run, index|
-    output += "#{index+1}) #{run.parent.full_desc} (#{(run.finished - run.started).duration}) [#{run.parent.name}]".red
-    output += "\n"
-
-    if run.error
-      error_output = "but an unexpected error occurred during run\n"
-      file, line = get_error_info(run.error)
-
-      error_output += "  file.....: #{file}:#{line}\n"
-      error_output += "  type.....: #{run.error.class.name}\n"
-      error_output += "  message..: #{run.error.message}\n"
-
-      # error_output += "  backtrace:\n"
-      # run.error.backtrace.each do |line|
-      #   error_output += "    #{line}\n"
-      # end
-
-      output += error_output.indent(5).red
-      output += "\n\n"
-    end
-
-    if run.failure
-      expected, failure = run.failure
-      output += "     Expected #{expected} but it failed with:\n     #{failure}\n\n".red
-    end
-  end
-
-  puts output
+  Object.const_get(Spectre::CONFIG['reporter']).report(runs)
 end
 
 if action == 'show'

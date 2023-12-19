@@ -50,7 +50,7 @@ describe 'Test' do
     info 'another thing'
 
     expect 'to fail' do
-      fail_with 'Oops!'
+      fail_with 'bad thing'
     end
   end
 
