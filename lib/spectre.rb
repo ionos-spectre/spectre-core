@@ -132,9 +132,9 @@ module Spectre
 
     def scope desc, subject, &block
       if desc
-        if subject.is_a? DefinitionContext
+        if subject.is_a? DefinitionContext or subject.parent.is_a? DefinitionContext
           colored_desc = ['setup', 'teardown'].include?(desc) ? desc.magenta : desc.blue
-        elsif subject.is_a? TestSpecification
+        elsif subject.parent.is_a? TestSpecification
           colored_desc = ['before', 'after'].include?(desc) ? desc.magenta : desc.cyan
         end
 
@@ -154,13 +154,13 @@ module Spectre
     end
 
     def log level, message, status=nil, desc=nil, &block
-      write(message, true) if @debug or level != :debug
+      write(message, true) if block_given? or @debug or level != :debug
 
       level, status, desc = super(level, message, status, desc, &block)
 
       label = status || level
 
-      return unless @debug or level != :debug
+      return unless block_given? or @debug or level != :debug
 
       status_text = "[#{label}]"
 
@@ -220,18 +220,20 @@ module Spectre
 
     def log level, message, status=nil, desc=nil, &block
       timestamp = DateTime.now
+      log_id = SecureRandom.hex(5)
 
-      write_log(timestamp, level, message, status, desc)
+      write_log(log_id, timestamp, level, message, status, desc) if block_given?
 
       level, status, desc = super(level, message, status, desc, timestamp, &block)
 
-      write_log(DateTime.now, level, message, status, desc) unless status.nil?
+      write_log(log_id, DateTime.now, level, message, status, desc) if block_given? and !status.nil?
     end
 
     private
 
-    def write_log timestamp, level, message, status, desc
+    def write_log log_id, timestamp, level, message, status, desc
       log_entry = {
+        id: log_id,
         type: 'log',
         parent: RunContext.current.id,
         timestamp: timestamp.strftime('%Y-%m-%dT%H:%M:%S.%6N%:z'),
@@ -324,6 +326,58 @@ module Spectre
       rescue Exception => e
         Spectre.logger.log(:fatal, nil, :error, e.class.name)
         @error = e
+      end
+    end
+  end
+
+  class TestSpecification
+    attr_reader :id, :name, :desc, :parent, :tags, :data
+
+    def initialize parent, desc, tags, data, block, befores, afters
+      @id = SecureRandom.hex(5)
+      @parent = parent
+      @desc = desc
+      @tags = tags
+      @data = data || [nil]
+
+      @block = block
+      @befores = befores
+      @afters = afters
+
+      root_context = parent.root
+
+      @name = "#{root_context.name}-#{root_context.all_specs.count + 1}"
+    end
+
+    def full_desc
+      @parent.full_desc + ' ' + @desc
+    end
+
+    def run
+      @data.map do |data|
+        RunContext.new(self, data) do |run_context|
+          Spectre.logger.scope('it ' + @desc, run_context) do
+            begin
+              if @befores.any?
+                Spectre.logger.scope('before', run_context) do
+                  @befores.each do |block|
+                    run_context.execute(&block)
+                  end
+                end
+              end
+
+              run_context.execute(&@block)
+            ensure
+              if @afters.any?
+                Spectre.logger.scope('after', run_context) do
+                  @afters.each do |block|
+                    run_context.execute(&block)
+                  end
+                end
+              end
+            end
+          end
+        end
       end
     end
   end
@@ -438,57 +492,15 @@ module Spectre
 
       runs
     end
-  end
 
-  class TestSpecification
-    attr_reader :id, :name, :desc, :parent, :tags, :data
+    private
 
-    def initialize parent, desc, tags, data, block, befores, afters
-      @id = SecureRandom.hex(5)
-      @parent = parent
-      @desc = desc
-      @tags = tags
-      @data = data || [nil]
-
-      @block = block
-      @befores = befores
-      @afters = afters
-
-      root_context = parent.root
-
-      @name = "#{root_context.name}-#{root_context.all_specs.count + 1}"
-    end
-
-    def full_desc
-      @parent.full_desc + ' ' + @desc
-    end
-
-    def run
-      @data.map do |data|
-        RunContext.new(self, data) do |run_context|
-          Spectre.logger.scope('it ' + @desc, self) do
-            begin
-              if @befores.any?
-                Spectre.logger.scope('before', self) do
-                  @befores.each do |block|
-                    run_context.execute(&block)
-                  end
-                end
-              end
-
-              run_context.execute(&@block)
-            ensure
-              if @afters.any?
-                Spectre.logger.scope('after', self) do
-                  @afters.each do |block|
-                    run_context.execute(&block)
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
+    def tag? tags, tag_exp
+      tags = tags.map { |x| x.to_s }
+      all_tags = tag_exp.split('+')
+      included_tags = all_tags.select { |x| !x.start_with? '!' }
+      excluded_tags = all_tags.select { |x| x.start_with? '!' }.map { |x| x[1..-1] }
+      included_tags & tags == included_tags and excluded_tags & tags == []
     end
   end
 

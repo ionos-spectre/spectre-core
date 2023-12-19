@@ -46,7 +46,7 @@ describe 'Test' do
     info "running with '#{data}'"
   end
 
-  it 'should do another thing' do
+  it 'should do another thing', tags: [:fail] do
     info 'another thing'
 
     expect 'to fail' do
