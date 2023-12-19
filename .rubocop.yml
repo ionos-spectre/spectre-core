@@ -3414,7 +3414,7 @@ Style/ZeroLengthPredicate:
   VersionChanged: '0.39'
 
 Naming/BlockForwarding: # new in 1.24
-  Enabled: true
+  Enabled: false
 Security/CompoundHash: # new in 1.28
   Enabled: true
 Style/FetchEnvVar: # new in 1.28

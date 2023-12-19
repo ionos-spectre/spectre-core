@@ -1,6 +1,10 @@
+class TestError < Exception
+end
+
 describe 'Test' do
   setup do
     info 'do some setting up'
+    bag.foo = 'bar'
   end
 
   teardown do
@@ -22,10 +26,20 @@ describe 'Test' do
 
     expect 'to run successfully' do
     end
+
+    expect 'to run with a short delay' do
+      sleep 0.5
+    end
+
+    sleep 0.3
   end
 
   it 'reads env variables' do
     info "env.foo = #{env.foo}"
+  end
+
+  it 'accesses the bag' do
+    info "bag.foo = #{bag.foo}"
   end
 
   it 'executes with multiple data', with: ['foo', 'bar'] do |data|
@@ -46,7 +60,7 @@ describe 'Test' do
     end
 
     it 'fails in a sub context' do
-      raise 'Oops!'
+      raise TestError.new('Oops!')
     end
   end
 end
@@ -67,12 +81,12 @@ describe 'Another Test' do
 
   it 'should actually crash horribly' do
     info 'working at the moment'
-    raise 'Oops!'
+    raise TestError.new('Oops!')
   end
 
   it 'should expect something and crash' do
     expect 'something' do
-      raise 'Oops!'
+      raise TestError.new('Oops!')
     end
   end
 
@@ -114,7 +128,7 @@ end
 
 describe 'Fatal Setup' do
   setup do
-    raise 'Oops!'
+    raise TestError.new('Oops!')
   end
 
   teardown do
