@@ -1,9 +1,11 @@
 require 'ostruct'
 require 'yaml'
+require 'json'
 require 'optparse'
 require 'ectoplasm'
 require 'date'
 require 'fileutils'
+require 'securerandom'
 
 require_relative 'spectre/version'
 
@@ -57,7 +59,7 @@ class String
 end
 
 module Spectre
-  class Logger
+  class FileLogger
     def initialize name
       @name = name
       @log_file = nil
@@ -85,12 +87,12 @@ module Spectre
       write_to_file(DateTime.now, :debug, "# END [#{subject.name}] #{desc}", nil, nil)
     end
 
-    def log level, message, status=nil, desc=nil
-      timestamp = DateTime.now
-
+    def log level, message, status=nil, desc=nil, timestamp=nil
       if block_given?
         level, status, desc = yield
       end
+
+      timestamp = timestamp || DateTime.now
 
       write_to_file(timestamp, level, message, status, desc)
 
@@ -119,7 +121,7 @@ module Spectre
     end
   end
 
-  class ConsoleLogger < Logger
+  class ConsoleLogger < FileLogger
     def initialize name
       super(name)
 
@@ -192,11 +194,62 @@ module Spectre
     end
   end
 
+  class JsonLogger < FileLogger
+    def initialize name
+      super(name)
+      $stdout.sync = true
+    end
+
+    def scope desc, subject, &block
+      log_entry = {
+        type: 'scope',
+        subject: {
+          id: subject.id,
+          name: subject.name,
+          desc: subject.desc,
+          type: subject.class.name,
+          parent: subject.parent ? subject.parent.id : nil,
+        },
+        desc: desc,
+      }
+
+      puts log_entry.to_json
+
+      super(desc, subject, &block)
+    end
+
+    def log level, message, status=nil, desc=nil, &block
+      timestamp = DateTime.now
+
+      write_log(timestamp, level, message, status, desc)
+
+      level, status, desc = super(level, message, status, desc, timestamp, &block)
+
+      write_log(DateTime.now, level, message, status, desc) unless status.nil?
+    end
+
+    private
+
+    def write_log timestamp, level, message, status, desc
+      log_entry = {
+        type: 'log',
+        parent: RunContext.current.id,
+        timestamp: timestamp.strftime('%Y-%m-%dT%H:%M:%S.%6N%:z'),
+        level: level,
+        message: message,
+        status: status,
+        desc: desc,
+      }
+
+      puts log_entry.to_json
+    end
+  end
+
   class SpectreFailure < Exception
   end
 
   class RunContext
-    attr_reader :spec, :error, :failure, :skipped, :started, :finished
+    attr_reader :id, :name, :desc, :parent, :error, :failure, :skipped, :started, :finished
 
     @@current = nil
 
@@ -204,8 +257,12 @@ module Spectre
       @@current
     end
 
-    def initialize spec, data
-      @spec = spec
+    def initialize parent, data
+      @id = SecureRandom.hex(5)
+      @name = "#{parent.name}.0"
+      @desc = parent.desc
+
+      @parent = parent
       @data = data
       @logs = []
 
@@ -272,9 +329,10 @@ module Spectre
   end
 
   class DefinitionContext
-    attr_reader :parent, :name, :desc, :full_desc, :children, :specs
+    attr_reader :id, :name, :desc, :parent, :full_desc, :children, :specs
 
     def initialize desc, parent=nil
+      @id = SecureRandom.hex(5)
       @parent = parent
       @desc = desc
       @children = []
@@ -346,7 +404,7 @@ module Spectre
 
         if @setups.any?
           setup_run = RunContext.new(self, nil) do |run_context|
-            Spectre.logger.scope('setup', self) do
+            Spectre.logger.scope('setup', run_context) do
               @setups.each do |block|
                 run_context.execute(&block)
               end
@@ -365,7 +423,7 @@ module Spectre
 
         if @teardowns.any?
           runs << RunContext.new(self, nil) do |run_context|
-            Spectre.logger.scope('teardown', self) do
+            Spectre.logger.scope('teardown', run_context) do
               @teardowns.each do |block|
                 run_context.execute(&block)
               end
@@ -383,10 +441,11 @@ module Spectre
   end
 
   class TestSpecification
-    attr_reader :context, :name, :desc, :tags, :data
+    attr_reader :id, :name, :desc, :parent, :tags, :data
 
-    def initialize context, desc, tags, data, block, befores, afters
-      @context = context
+    def initialize parent, desc, tags, data, block, befores, afters
+      @id = SecureRandom.hex(5)
+      @parent = parent
       @desc = desc
       @tags = tags
       @data = data || [nil]
@@ -395,13 +454,13 @@ module Spectre
       @befores = befores
       @afters = afters
 
-      root_context = context.root
+      root_context = parent.root
 
       @name = "#{root_context.name}-#{root_context.all_specs.count + 1}"
     end
 
     def full_desc
-      @context.full_desc + ' ' + @desc
+      @parent.full_desc + ' ' + @desc
     end
 
     def run
@@ -655,6 +714,10 @@ OptionParser.new do |opts|
     Spectre::CONFIG['ignore_failure'] = true
   end
 
+  opts.on('--logger NAME', 'Use specified logger') do |class_name|
+    Spectre::CONFIG['logger'] = class_name
+  end
+
   opts.on('-o PATH', '--out PATH', 'Output directory path') do |path|
     Spectre::CONFIG['out_path'] = File.absolute_path(path)
   end
@@ -721,7 +784,7 @@ if action == 'list'
   counter = 0
 
   specs
-    .group_by { |x| x.context.root }
+    .group_by { |x| x.parent.root }
     .each do |_context, spec_group|
       spec_group.each do |spec|
         spec_id = "[#{spec.name}]".send(colors[counter % colors.length])
@@ -765,7 +828,7 @@ if action == 'run'
   output += "\n#{succeded} succeded #{failed} failures #{errors} errors #{skipped} skipped\n\n".send(errors + failed > 0 ? :red : :green)
 
   runs.select { |x| !x.error.nil? or !x.failure.nil? }.each_with_index do |run, index|
-    output += "#{index+1}) #{run.spec.full_desc} (#{(run.finished - run.started).duration}) [#{run.spec.name}]".red
+    output += "#{index+1}) #{run.parent.full_desc} (#{(run.finished - run.started).duration}) [#{run.parent.name}]".red
     output += "\n"
 
     if run.error
