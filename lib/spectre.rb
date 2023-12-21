@@ -193,12 +193,16 @@ module Spectre
       @indent = 2
     end
 
-    def scope desc, subject, &block
+    def scope desc, subject, type, &block
       if desc
-        if subject.is_a? DefinitionContext
-          colored_desc = ['setup', 'teardown'].include?(desc) ? desc.magenta : desc.blue
-        elsif subject.is_a? TestSpecification
-          colored_desc = ['before', 'after'].include?(desc) ? desc.magenta : desc.cyan
+        if [:before, :after, :setup, :teardown].include?(type)
+          colored_desc = desc.magenta
+        elsif type == :group
+          colored_desc = desc.grey
+        elsif type == :spec
+          colored_desc = desc.cyan
+        elsif type == :context
+          colored_desc = desc.blue
         end
 
         write(colored_desc)
@@ -301,15 +305,15 @@ module Spectre
       $stdout.sync = true
     end
 
-    def scope desc, subject, &block
+    def scope desc, subject, type, &block
       prev_scope = @scope
       @scope = SecureRandom.hex(5)
 
       log_entry = {
-        type: 'scope',
         id: @scope,
-        desc: desc,
         scope: prev_scope,
+        type: type,
+        desc: desc,
       }
 
       puts log_entry.to_json
@@ -334,9 +338,9 @@ module Spectre
 
     def write_log log_id, timestamp, level, message, status, desc
       log_entry = {
-        type: 'log',
         id: log_id,
         scope: @scope,
+        type: :log,
         timestamp: timestamp.strftime('%Y-%m-%dT%H:%M:%S.%6N%:z'),
         level: level,
         message: message,
@@ -407,6 +411,12 @@ module Spectre
       end
     end
 
+    def group desc
+      Spectre.logger.scope(desc, @parent, :group) do
+        yield
+      end
+    end
+
     def log timestamp, name, level, message, status, desc
       @logs << [timestamp, name, level, message, status, desc]
     end
@@ -449,10 +459,10 @@ module Spectre
     def run befores, afters
       @data.map do |data|
         RunContext.new(self, data) do |run_context|
-          Spectre.logger.scope('it ' + @desc, self) do
+          Spectre.logger.scope('it ' + @desc, self, :spec) do
             begin
               if befores.any?
-                Spectre.logger.scope('before', self) do
+                Spectre.logger.scope('before', self, :before) do
                   befores.each do |block|
                     run_context.execute(&block)
                   end
@@ -462,7 +472,7 @@ module Spectre
               run_context.execute(&@block)
             ensure
               if afters.any?
-                Spectre.logger.scope('after', self) do
+                Spectre.logger.scope('after', self, :after) do
                   afters.each do |block|
                     run_context.execute(&block)
                   end
@@ -548,12 +558,12 @@ module Spectre
 
       runs = []
 
-      Spectre.logger.scope(@desc, self) do
+      Spectre.logger.scope(@desc, self, :context) do
         setup_run = nil
 
         if @setups.any?
           setup_run = RunContext.new(self, nil) do |run_context|
-            Spectre.logger.scope('setup', self) do
+            Spectre.logger.scope('setup', self, :setup) do
               @setups.each do |block|
                 run_context.execute(&block)
               end
@@ -572,7 +582,7 @@ module Spectre
 
         if @teardowns.any?
           runs << RunContext.new(self, nil) do |run_context|
-            Spectre.logger.scope('teardown', self) do
+            Spectre.logger.scope('teardown', self, :teardown) do
               @teardowns.each do |block|
                 run_context.execute(&block)
               end
