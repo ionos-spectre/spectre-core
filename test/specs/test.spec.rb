@@ -65,12 +65,18 @@ describe 'Test' do
     info "running with '#{data}'"
   end
 
-  it 'should do another thing', tags: [:fail] do
+  it 'should fail within an expecation', tags: [:fail] do
     info 'another thing'
 
-    expect 'to fail' do
+    expect 'to succeed' do
       fail_with 'bad thing'
     end
+  end
+
+  it 'should fail directly', tags: [:fail] do
+    info 'another thing'
+
+    fail_with 'bad thing'
   end
 
   context 'with a sub context' do

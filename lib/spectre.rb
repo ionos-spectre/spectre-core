@@ -394,7 +394,7 @@ module Spectre
         begin
           yield
         rescue SpectreFailure => e
-          @failure = "Expected #{desc}, but it failed with #{e.message}"
+          @failure = "Expected #{desc}, but it failed with: #{e.message}"
           result = [:error, :failed, nil]
         rescue Interrupt
           @skipped = true
@@ -429,7 +429,7 @@ module Spectre
         instance_exec(@data, &)
       rescue SpectreFailure => e
         @failure = e.message
-        Spectre.logger.log(:error, nil, :failed)
+        Spectre.logger.log(:error, e.message, :failed)
       rescue Interrupt
         Spectre.logger.log(:debug, nil, :skipped, 'canceled by user')
       rescue Exception => e
