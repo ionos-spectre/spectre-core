@@ -8,6 +8,7 @@ require 'fileutils'
 require 'securerandom'
 
 require_relative 'spectre/version'
+require_relative 'spectre/assertion'
 
 class Hash
   def deep_merge!(second)
@@ -157,8 +158,7 @@ module Spectre
         end
 
         if run.failure
-          expected, failure = run.failure
-          output += "     Expected #{expected} but it failed with:\n     #{failure}\n\n".red
+          output += "     #{run.failure.red}\n\n"
         end
       end
 
@@ -352,9 +352,6 @@ module Spectre
     end
   end
 
-  class SpectreFailure < Exception
-  end
-
   class RunContext
     attr_reader :id, :name, :parent, :logs, :error, :failure, :skipped, :started, :finished
 
@@ -397,7 +394,7 @@ module Spectre
         begin
           yield
         rescue SpectreFailure => e
-          @failure = [desc, e.message]
+          @failure = "Expected #{desc}, but it failed with #{e.message}"
           result = [:error, :failed, nil]
         rescue Interrupt
           @skipped = true
@@ -430,6 +427,9 @@ module Spectre
     def execute(&)
       begin
         instance_exec(@data, &)
+      rescue SpectreFailure => e
+        @failure = e.message
+        Spectre.logger.log(:error, nil, :failed)
       rescue Interrupt
         Spectre.logger.log(:debug, nil, :skipped, 'canceled by user')
       rescue Exception => e

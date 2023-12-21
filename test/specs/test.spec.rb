@@ -33,6 +33,16 @@ describe 'Test' do
 
     sleep 0.3
   end
+
+  it 'should assert something' do
+    some_object = OpenStruct.new(foo: 'bar')
+
+    some_object.foo.should be 'bar'
+    some_object.foo.should_not be 'baz'
+
+    some_object.foo.should be 'blubber'
+  end
+
   it 'group some processes' do
     group 'first one' do
       info 'do something'
