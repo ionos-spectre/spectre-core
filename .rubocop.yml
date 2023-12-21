@@ -5,7 +5,6 @@ AllCops:
 # Department 'Bundler' (6):
 Bundler/DuplicatedGem:
   Enabled: true
-  VersionAdded: '0.46'
   Include:
   - "**/*.gemfile"
   - "**/Gemfile"
@@ -13,8 +12,6 @@ Bundler/DuplicatedGem:
 
 Bundler/GemComment:
   Enabled: false
-  VersionAdded: '0.59'
-  VersionChanged: '0.85'
   Include:
   - "**/*.gemfile"
   - "**/Gemfile"
@@ -24,7 +21,6 @@ Bundler/GemComment:
 
 Bundler/GemFilename:
   Enabled: true
-  VersionAdded: '1.20'
   EnforcedStyle: Gemfile
   SupportedStyles:
   - Gemfile
@@ -37,7 +33,6 @@ Bundler/GemFilename:
 
 Bundler/GemVersion:
   Enabled: true
-  VersionAdded: '1.14'
   EnforcedStyle: required
   SupportedStyles:
   - required
@@ -60,8 +55,6 @@ Bundler/InsecureProtocolSource:
 # Supports --auto-correct
 Bundler/OrderedGems:
   Enabled: false
-  VersionAdded: '0.46'
-  VersionChanged: '0.47'
   TreatCommentsAsGroupSeparators: true
   ConsiderPunctuation: false
   Include:
@@ -77,7 +70,6 @@ Gemspec/DuplicatedAssignment:
 # Supports --auto-correct
 Gemspec/OrderedDependencies:
   Enabled: false
-  VersionAdded: '0.51'
   TreatCommentsAsGroupSeparators: true
   ConsiderPunctuation: false
   Include:
@@ -86,7 +78,6 @@ Gemspec/OrderedDependencies:
 # Supports --auto-correct
 Gemspec/RequireMFA:
   Enabled: false
-  VersionAdded: '1.23'
   Reference:
   - https://guides.rubygems.org/mfa-requirement-opt-in/
   Include:
@@ -100,7 +91,6 @@ Gemspec/RequiredRubyVersion:
 Gemspec/RubyVersionGlobalsUsage:
   StyleGuide: "#no-ruby-version-in-the-gemspec"
   Enabled: false
-  VersionAdded: '0.72'
   Include:
   - "**/*.gemspec"
 
@@ -109,7 +99,6 @@ Gemspec/RubyVersionGlobalsUsage:
 Layout/AccessModifierIndentation:
   StyleGuide: "#indent-public-private-protected"
   Enabled: false
-  VersionAdded: '0.49'
   EnforcedStyle: indent
   SupportedStyles:
   - outdent
@@ -119,8 +108,6 @@ Layout/AccessModifierIndentation:
 Layout/ArgumentAlignment:
   StyleGuide: "#no-double-indent"
   Enabled: false
-  VersionAdded: '0.68'
-  VersionChanged: '0.77'
   EnforcedStyle: with_first_argument
   SupportedStyles:
   - with_first_argument
@@ -137,7 +124,6 @@ Layout/AssignmentIndentation:
   Enabled: false
 Layout/BeginEndAlignment:
   Enabled: true
-  VersionAdded: '0.91'
   EnforcedStyleAlignWith: start_of_line
   SupportedStylesAlignWith:
   - start_of_line
@@ -147,7 +133,6 @@ Layout/BeginEndAlignment:
 # Supports --auto-correct
 Layout/BlockAlignment:
   Enabled: true
-  VersionAdded: '0.53'
   EnforcedStyleAlignWith: either
   SupportedStylesAlignWith:
   - either
@@ -157,14 +142,11 @@ Layout/BlockAlignment:
 # Supports --auto-correct
 Layout/BlockEndNewline:
   Enabled: true
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/CaseIndentation:
   StyleGuide: "#indent-when-to-case"
   Enabled: true
-  VersionAdded: '0.49'
-  VersionChanged: '1.16'
   EnforcedStyle: case
   SupportedStyles:
   - case
@@ -186,29 +168,23 @@ Layout/ClassStructure:
 # Supports --auto-correct
 Layout/ClosingHeredocIndentation:
   Enabled: false
-  VersionAdded: '0.57'
 
 # Supports --auto-correct
 Layout/ClosingParenthesisIndentation:
   Enabled: true
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/CommentIndentation:
   Enabled: true
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/ConditionPosition:
   StyleGuide: "#same-line-condition"
   Enabled: true
-  VersionAdded: '0.53'
-  VersionChanged: '0.83'
 
 # Supports --auto-correct
 Layout/DefEndAlignment:
   Enabled: true
-  VersionAdded: '0.53'
   EnforcedStyleAlignWith: start_of_line
   SupportedStylesAlignWith:
   - start_of_line
@@ -219,7 +195,6 @@ Layout/DefEndAlignment:
 Layout/DotPosition:
   StyleGuide: "#consistent-multi-line-chains"
   Enabled: true
-  VersionAdded: '0.49'
   EnforcedStyle: leading
   SupportedStyles:
   - leading
@@ -228,31 +203,25 @@ Layout/DotPosition:
 # Supports --auto-correct
 Layout/ElseAlignment:
   Enabled: true
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/EmptyComment:
   Enabled: true
-  VersionAdded: '0.53'
   AllowBorderComment: true
   AllowMarginComment: true
 
 # Supports --auto-correct
 Layout/EmptyLineAfterGuardClause:
   Enabled: true
-  VersionAdded: '0.56'
-  VersionChanged: '0.59'
 
 # Supports --auto-correct
 Layout/EmptyLineAfterMagicComment:
   StyleGuide: "#separate-magic-comments-from-code"
   Enabled: true
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/EmptyLineAfterMultilineCondition:
   Enabled: true
-  VersionAdded: '0.90'
   Reference:
   - https://github.com/airbnb/ruby#multiline-if-newline
 
@@ -260,8 +229,6 @@ Layout/EmptyLineAfterMultilineCondition:
 Layout/EmptyLineBetweenDefs:
   StyleGuide: "#empty-lines-between-methods"
   Enabled: true
-  VersionAdded: '0.49'
-  VersionChanged: '1.7'
   EmptyLineBetweenMethodDefs: true
   EmptyLineBetweenClassDefs: true
   EmptyLineBetweenModuleDefs: true
@@ -272,13 +239,11 @@ Layout/EmptyLineBetweenDefs:
 Layout/EmptyLines:
   StyleGuide: "#two-or-more-empty-lines"
   Enabled: false
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/EmptyLinesAroundAccessModifier:
   StyleGuide: "#empty-lines-around-access-modifier"
   Enabled: true
-  VersionAdded: '0.49'
   EnforcedStyle: around
   SupportedStyles:
   - around
@@ -289,14 +254,11 @@ Layout/EmptyLinesAroundAccessModifier:
 # Supports --auto-correct
 Layout/EmptyLinesAroundArguments:
   Enabled: true
-  VersionAdded: '0.52'
 
 # Supports --auto-correct
 Layout/EmptyLinesAroundAttributeAccessor:
   StyleGuide: "#empty-lines-around-attribute-accessor"
   Enabled: true
-  VersionAdded: '0.83'
-  VersionChanged: '0.84'
   AllowAliasSyntax: true
   AllowedMethods:
   - alias_method
@@ -308,13 +270,11 @@ Layout/EmptyLinesAroundAttributeAccessor:
 Layout/EmptyLinesAroundBeginBody:
   StyleGuide: "#empty-lines-around-bodies"
   Enabled: true
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/EmptyLinesAroundBlockBody:
   StyleGuide: "#empty-lines-around-bodies"
   Enabled: true
-  VersionAdded: '0.49'
   EnforcedStyle: no_empty_lines
   SupportedStyles:
   - empty_lines
@@ -324,8 +284,6 @@ Layout/EmptyLinesAroundBlockBody:
 Layout/EmptyLinesAroundClassBody:
   StyleGuide: "#empty-lines-around-bodies"
   Enabled: true
-  VersionAdded: '0.49'
-  VersionChanged: '0.53'
   EnforcedStyle: no_empty_lines
   SupportedStyles:
   - empty_lines
@@ -339,19 +297,16 @@ Layout/EmptyLinesAroundClassBody:
 Layout/EmptyLinesAroundExceptionHandlingKeywords:
   StyleGuide: "#empty-lines-around-bodies"
   Enabled: true
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/EmptyLinesAroundMethodBody:
   StyleGuide: "#empty-lines-around-bodies"
   Enabled: true
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/EmptyLinesAroundModuleBody:
   StyleGuide: "#empty-lines-around-bodies"
   Enabled: true
-  VersionAdded: '0.49'
   EnforcedStyle: no_empty_lines
   SupportedStyles:
   - empty_lines
@@ -362,7 +317,6 @@ Layout/EmptyLinesAroundModuleBody:
 # Supports --auto-correct
 Layout/EndAlignment:
   Enabled: true
-  VersionAdded: '0.53'
   EnforcedStyleAlignWith: keyword
   SupportedStylesAlignWith:
   - keyword
@@ -373,7 +327,6 @@ Layout/EndAlignment:
 Layout/EndOfLine:
   StyleGuide: "#crlf"
   Enabled: true
-  VersionAdded: '0.49'
   EnforcedStyle: lf
   SupportedStyles:
   - native
@@ -383,7 +336,6 @@ Layout/EndOfLine:
 # Supports --auto-correct
 Layout/ExtraSpacing:
   Enabled: true
-  VersionAdded: '0.49'
   AllowForAlignment: true
   AllowBeforeTrailingComments: false
   ForceEqualSignAlignment: false
@@ -391,8 +343,6 @@ Layout/ExtraSpacing:
 # Supports --auto-correct
 Layout/FirstArrayElementIndentation:
   Enabled: true
-  VersionAdded: '0.68'
-  VersionChanged: '0.77'
   EnforcedStyle: consistent
   SupportedStyles:
   - special_inside_parentheses
@@ -402,13 +352,10 @@ Layout/FirstArrayElementIndentation:
 # Supports --auto-correct
 Layout/FirstArrayElementLineBreak:
   Enabled: true
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/FirstHashElementIndentation:
   Enabled: true
-  VersionAdded: '0.68'
-  VersionChanged: '0.77'
   EnforcedStyle: consistent
   SupportedStyles:
   - special_inside_parentheses
@@ -418,7 +365,6 @@ Layout/FirstHashElementIndentation:
 # Supports --auto-correct
 Layout/FirstHashElementLineBreak:
   Enabled: true
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/FirstMethodArgumentLineBreak:
@@ -427,13 +373,10 @@ Layout/FirstMethodArgumentLineBreak:
 # Supports --auto-correct
 Layout/FirstMethodParameterLineBreak:
   Enabled: true
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/FirstArgumentIndentation:
   Enabled: true
-  VersionAdded: '0.49'
-  VersionChanged: '0.77'
   EnforcedStyle: consistent
   SupportedStyles:
   - consistent
@@ -443,8 +386,6 @@ Layout/FirstArgumentIndentation:
 Layout/HashAlignment:
   Enabled: true
   AllowMultipleStyles: true
-  VersionAdded: '0.49'
-  VersionChanged: '0.77'
   EnforcedHashRocketStyle: key
   SupportedHashRocketStyles:
   - key
@@ -468,14 +409,11 @@ Layout/HeredocArgumentClosingParenthesis:
 Layout/HeredocIndentation:
   StyleGuide: "#squiggly-heredocs"
   Enabled: false
-  VersionAdded: '0.49'
-  VersionChanged: '0.85'
 
 # Supports --auto-correct
 Layout/IndentationConsistency:
   StyleGuide: "#spaces-indentation"
   Enabled: true
-  VersionAdded: '0.49'
   EnforcedStyle: normal
   SupportedStyles:
   - normal
@@ -487,8 +425,6 @@ Layout/IndentationConsistency:
 Layout/IndentationStyle:
   StyleGuide: "#spaces-indentation"
   Enabled: true
-  VersionAdded: '0.49'
-  VersionChanged: '0.82'
   EnforcedStyle: spaces
   SupportedStyles:
   - spaces
@@ -498,29 +434,23 @@ Layout/IndentationStyle:
 Layout/IndentationWidth:
   StyleGuide: "#spaces-indentation"
   Enabled: true
-  VersionAdded: '0.49'
   Width: 2
   AllowedPatterns: []
 
 # Supports --auto-correct
 Layout/InitialIndentation:
   Enabled: true
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/LeadingCommentSpace:
   StyleGuide: "#hash-space"
   Enabled: false
-  VersionAdded: '0.49'
-  VersionChanged: '0.73'
   AllowDoxygenCommentStyle: false
   AllowGemfileRubyComment: false
 
 # Supports --auto-correct
 Layout/LeadingEmptyLines:
   Enabled: true
-  VersionAdded: '0.57'
-  VersionChanged: '0.77'
 
 # Supports --auto-correct
 Layout/LineEndStringConcatenationIndentation:
@@ -535,8 +465,6 @@ Layout/LineEndStringConcatenationIndentation:
 Layout/LineLength:
   StyleGuide: "#max-line-length"
   Enabled: false
-  VersionAdded: '0.25'
-  VersionChanged: '1.4'
   Max: 120
   AllowHeredoc: true
   AllowURI: true
@@ -550,7 +478,6 @@ Layout/LineLength:
 # Supports --auto-correct
 Layout/MultilineArrayBraceLayout:
   Enabled: false
-  VersionAdded: '0.49'
   EnforcedStyle: symmetrical
   SupportedStyles:
   - symmetrical
@@ -565,7 +492,6 @@ Layout/MultilineArrayLineBreaks:
 Layout/MultilineAssignmentLayout:
   StyleGuide: "#indent-conditional-assignment"
   Enabled: false
-  VersionAdded: '0.49'
   SupportedTypes:
   - block
   - case
@@ -581,7 +507,6 @@ Layout/MultilineAssignmentLayout:
 # Supports --auto-correct
 Layout/MultilineBlockLayout:
   Enabled: true
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/MultilineHashBraceLayout:
@@ -627,7 +552,6 @@ Layout/MultilineMethodDefinitionBraceLayout:
 # Supports --auto-correct
 Layout/MultilineOperationIndentation:
   Enabled: false
-  VersionAdded: '0.49'
   EnforcedStyle: aligned
   SupportedStyles:
   - aligned
@@ -647,24 +571,20 @@ Layout/RedundantLineBreak:
 # Supports --auto-correct
 Layout/RescueEnsureAlignment:
   Enabled: false
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/SingleLineBlockChain:
   Enabled: false
-  VersionAdded: '1.14'
 
 # Supports --auto-correct
 Layout/SpaceAfterColon:
   StyleGuide: "#spaces-operators"
   Enabled: false
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/SpaceAfterComma:
   StyleGuide: "#spaces-operators"
   Enabled: false
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/SpaceAfterMethodName:
@@ -673,18 +593,15 @@ Layout/SpaceAfterMethodName:
 Layout/SpaceAfterNot:
   StyleGuide: "#no-space-bang"
   Enabled: false
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/SpaceAfterSemicolon:
   StyleGuide: "#spaces-operators"
   Enabled: false
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/SpaceAroundBlockParameters:
   Enabled: false
-  VersionAdded: '0.49'
   EnforcedStyleInsidePipes: no_space
   SupportedStylesInsidePipes:
   - space
@@ -701,18 +618,15 @@ Layout/SpaceAroundEqualsInParameterDefault:
 # Supports --auto-correct
 Layout/SpaceAroundKeyword:
   Enabled: false
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/SpaceAroundMethodCallOperator:
   Enabled: false
-  VersionAdded: '0.82'
 
 # Supports --auto-correct
 Layout/SpaceAroundOperators:
   StyleGuide: "#spaces-operators"
   Enabled: false
-  VersionAdded: '0.49'
   AllowForAlignment: true
   EnforcedStyleForExponentOperator: no_space
   SupportedStylesForExponentOperator:
@@ -722,7 +636,6 @@ Layout/SpaceAroundOperators:
 # Supports --auto-correct
 Layout/SpaceBeforeBlockBraces:
   Enabled: false
-  VersionAdded: '0.49'
   EnforcedStyle: space
   SupportedStyles:
   - space
@@ -731,33 +644,27 @@ Layout/SpaceBeforeBlockBraces:
   SupportedStylesForEmptyBraces:
   - space
   - no_space
-  VersionChanged: '0.52'
 
 # Supports --auto-correct
 Layout/SpaceBeforeBrackets:
   StyleGuide: "#space-in-brackets-access"
   Enabled: false
-  VersionAdded: '1.7'
 
 # Supports --auto-correct
 Layout/SpaceBeforeComma:
   Enabled: false
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/SpaceBeforeComment:
   Enabled: false
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/SpaceBeforeFirstArg:
   Enabled: false
 Layout/SpaceBeforeSemicolon:
   Enabled: false
-  VersionAdded: '0.49'
 Layout/SpaceInLambdaLiteral:
   Enabled: false
-  VersionAdded: '0.49'
   EnforcedStyle: require_no_space
   SupportedStyles:
   - require_no_space
@@ -766,7 +673,6 @@ Layout/SpaceInLambdaLiteral:
 # Supports --auto-correct
 Layout/SpaceInsideArrayLiteralBrackets:
   Enabled: false
-  VersionAdded: '0.52'
   EnforcedStyle: no_space
   SupportedStyles:
   - space
@@ -780,7 +686,6 @@ Layout/SpaceInsideArrayLiteralBrackets:
 # Supports --auto-correct
 Layout/SpaceInsideArrayPercentLiteral:
   Enabled: false
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/SpaceInsideBlockBraces:
@@ -798,7 +703,6 @@ Layout/SpaceInsideBlockBraces:
 Layout/SpaceInsideHashLiteralBraces:
   StyleGuide: "#spaces-braces"
   Enabled: false
-  VersionAdded: '0.49'
   EnforcedStyle: space
   SupportedStyles:
   - space
@@ -813,8 +717,6 @@ Layout/SpaceInsideHashLiteralBraces:
 Layout/SpaceInsideParens:
   StyleGuide: "#spaces-braces"
   Enabled: false
-  VersionAdded: '0.49'
-  VersionChanged: '0.55'
   EnforcedStyle: no_space
   SupportedStyles:
   - space
@@ -823,19 +725,15 @@ Layout/SpaceInsideParens:
 # Supports --auto-correct
 Layout/SpaceInsidePercentLiteralDelimiters:
   Enabled: false
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/SpaceInsideRangeLiteral:
   StyleGuide: "#no-space-inside-range-literals"
   Enabled: false
-  VersionAdded: '0.49'
 
 # Supports --auto-correct
 Layout/SpaceInsideReferenceBrackets:
   Enabled: false
-  VersionAdded: '0.52'
-  VersionChanged: '0.53'
   EnforcedStyle: no_space
   SupportedStyles:
   - space
@@ -849,7 +747,6 @@ Layout/SpaceInsideReferenceBrackets:
 Layout/SpaceInsideStringInterpolation:
   StyleGuide: "#string-interpolation"
   Enabled: false
-  VersionAdded: '0.49'
   EnforcedStyle: no_space
   SupportedStyles:
   - space
@@ -859,8 +756,6 @@ Layout/SpaceInsideStringInterpolation:
 Layout/TrailingEmptyLines:
   StyleGuide: "#newline-eof"
   Enabled: true
-  VersionAdded: '0.49'
-  VersionChanged: '0.77'
   EnforcedStyle: final_newline
   SupportedStyles:
   - final_newline
@@ -884,7 +779,6 @@ Lint/AmbiguousOperatorPrecedence:
 # Supports --auto-correct
 Lint/AmbiguousRange:
   Enabled: false
-  VersionAdded: '1.19'
   SafeAutoCorrect: false
   RequireParenthesesForMethodChains: false
 
@@ -894,72 +788,53 @@ Lint/AmbiguousRegexpLiteral:
 Lint/AssignmentInCondition:
   StyleGuide: "#safe-assignment-in-condition"
   Enabled: false
-  VersionAdded: '0.9'
   AllowSafeAssignment: true
 
 # Supports --auto-correct
 Lint/BigDecimalNew:
   Enabled: false
-  VersionAdded: '0.53'
 
 Lint/BinaryOperatorWithIdenticalOperands:
   Enabled: false
-  Safe: false
-  VersionAdded: '0.89'
-  VersionChanged: '1.7'
 
 # Supports --auto-correct
 Lint/BooleanSymbol:
   Enabled: false
   SafeAutoCorrect: false
-  VersionAdded: '0.50'
-  VersionChanged: '0.83'
 
 Lint/CircularArgumentReference:
   Enabled: false
 Lint/ConstantDefinitionInBlock:
   StyleGuide: "#no-constant-definition-in-block"
   Enabled: false
-  VersionAdded: '0.91'
-  VersionChanged: '1.3'
   AllowedMethods:
   - enums
 
 Lint/ConstantResolution:
   Enabled: false
-  VersionAdded: '0.86'
   Only: []
   Ignore: []
 
 Lint/Debugger:
   Enabled: false
-  VersionAdded: '0.14'
-  VersionChanged: '1.10'
   DebuggerMethods:
 
 # Supports --auto-correct
 Lint/DeprecatedClassMethods:
   Enabled: false
-  VersionAdded: '0.19'
 
 # Supports --auto-correct
 Lint/DeprecatedConstants:
   Enabled: false
-  VersionAdded: '1.8'
-  VersionChanged: '1.22'
   DeprecatedConstants:
 
 # Supports --auto-correct
 Lint/DeprecatedOpenSSLConstant:
   Enabled: false
-  VersionAdded: '0.84'
 
 # Supports --auto-correct
 Lint/DisjunctiveAssignmentInConstructor:
   Enabled: false
-  Safe: false
-  VersionAdded: '0.62'
-  VersionChanged: '0.88'
 
 Lint/DuplicateBranch:
   Enabled: false
@@ -981,89 +856,66 @@ Lint/EachWithObjectArgument:
   Enabled: false
 Lint/ElseLayout:
   Enabled: false
-  VersionAdded: '0.17'
-  VersionChanged: '1.2'
 
 Lint/EmptyBlock:
   Enabled: false
-  VersionAdded: '1.1'
-  VersionChanged: '1.15'
   AllowComments: true
   AllowEmptyLambdas: true
 
 Lint/EmptyClass:
   Enabled: false
-  VersionAdded: '1.3'
   AllowComments: false
 
 Lint/EmptyConditionalBody:
   Enabled: false
 Lint/EmptyEnsure:
   Enabled: false
-  VersionAdded: '0.10'
-  VersionChanged: '0.48'
 
 Lint/EmptyExpression:
   Enabled: false
-  VersionAdded: '0.45'
 
 Lint/EmptyFile:
   Enabled: false
   AllowComments: true
-  VersionAdded: '0.90'
 
 Lint/EmptyInPattern:
   Enabled: false
   AllowComments: true
-  VersionAdded: '1.16'
 
 # Supports --auto-correct
 Lint/EmptyInterpolation:
   Enabled: false
-  VersionAdded: '0.20'
-  VersionChanged: '0.45'
 
 Lint/EmptyWhen:
   Enabled: false
   AllowComments: true
-  VersionAdded: '0.45'
-  VersionChanged: '0.83'
 
 # Supports --auto-correct
 Lint/EnsureReturn:
   StyleGuide: "#no-return-ensure"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.83'
 
 # Supports --auto-correct
 Lint/ErbNewArguments:
   Enabled: false
-  VersionAdded: '0.56'
 
 Lint/FlipFlop:
   StyleGuide: "#no-flip-flops"
   Enabled: false
-  VersionAdded: '0.16'
 
 Lint/FloatComparison:
   StyleGuide: "#float-comparison"
   Enabled: false
-  VersionAdded: '0.89'
 
 Lint/FloatOutOfRange:
   Enabled: false
-  VersionAdded: '0.36'
 
 Lint/FormatParameterMismatch:
   Enabled: false
-  VersionAdded: '0.33'
 
 Lint/HashCompareByIdentity:
   StyleGuide: "#identity-comparison"
   Enabled: false
-  Safe: false
-  VersionAdded: '0.93'
 
 # Supports --auto-correct
 Lint/HeredocMethodCallPosition:
@@ -1078,7 +930,6 @@ Lint/IneffectiveAccessModifier:
   Enabled: false
 Lint/InheritException:
   Enabled: false
-  VersionAdded: '0.41'
   EnforcedStyle: runtime_error
   SupportedStyles:
   - runtime_error
@@ -1091,24 +942,19 @@ Lint/InterpolationCheck:
 # Supports --auto-correct
 Lint/LambdaWithoutLiteralBlock:
   Enabled: false
-  VersionAdded: '1.8'
 
 Lint/LiteralAsCondition:
   Enabled: false
-  VersionAdded: '0.51'
 
 # Supports --auto-correct
 Lint/LiteralInInterpolation:
   Enabled: false
-  VersionAdded: '0.19'
-  VersionChanged: '0.32'
 
 # Supports --auto-correct
 Lint/Loop:
   Enabled: false
 Lint/MissingCopEnableDirective:
   Enabled: false
-  VersionAdded: '0.52'
   MaximumRangeSize: .inf
 
 Lint/MissingSuper:
@@ -1117,33 +963,25 @@ Lint/MixedRegexpCaptureTypes:
   Enabled: false
 Lint/MultipleComparison:
   Enabled: false
-  VersionAdded: '0.47'
-  VersionChanged: '1.1'
 
 Lint/NestedMethodDefinition:
   StyleGuide: "#no-nested-methods"
   Enabled: false
-  VersionAdded: '0.32'
 
 Lint/NestedPercentLiteral:
   Enabled: false
-  VersionAdded: '0.52'
 
 Lint/NextWithoutAccumulator:
   Enabled: false
 Lint/NoReturnInBeginEndBlocks:
   Enabled: false
-  VersionAdded: '1.2'
 
 # Supports --auto-correct
 Lint/NonDeterministicRequireOrder:
   Enabled: false
-  VersionAdded: '0.78'
-  Safe: false
 
 Lint/NonLocalExitFromIterator:
   Enabled: false
-  VersionAdded: '0.30'
 
 # Supports --auto-correct
 Lint/NumberConversion:
@@ -1151,7 +989,6 @@ Lint/NumberConversion:
 
 Lint/NumberedParameterAssignment:
   Enabled: false
-  VersionAdded: '1.9'
 
 # Supports --auto-correct
 Lint/OrAssignmentToConstant:
@@ -1165,24 +1002,18 @@ Lint/OutOfRangeRegexpRef:
 Lint/ParenthesesAsGroupedExpression:
   StyleGuide: "#parens-no-spaces"
   Enabled: false
-  VersionAdded: '0.12'
-  VersionChanged: '0.83'
 
 # Supports --auto-correct
 Lint/PercentStringArray:
   Enabled: false
-  Safe: false
-  VersionAdded: '0.41'
 
 # Supports --auto-correct
 Lint/PercentSymbolArray:
   Enabled: false
-  VersionAdded: '0.41'
 
 # Supports --auto-correct
 Lint/RaiseException:
   Enabled: false
-  Safe: false
   AllowedImplicitNamespaces:
   - Gem
 Lint/RandOne:
@@ -1195,12 +1026,10 @@ Lint/RedundantCopEnableDirective:
 # Supports --auto-correct
 Lint/RedundantDirGlobSort:
   Enabled: false
-  VersionAdded: '1.8'
 
 # Supports --auto-correct
 Lint/RedundantRequireStatement:
   Enabled: false
-  VersionAdded: '0.76'
 
 # Supports --auto-correct
 Lint/RedundantSafeNavigation:
@@ -1212,31 +1041,24 @@ Lint/RedundantSafeNavigation:
   - eql?
   - respond_to?
   - equal?
-  Safe: false
 
 # Supports --auto-correct
 Lint/RedundantSplatExpansion:
   Enabled: false
-  VersionAdded: '0.76'
-  VersionChanged: '1.7'
   AllowPercentLiteralArrayArgument: true
 
 # Supports --auto-correct
 Lint/RedundantStringCoercion:
   StyleGuide: "#no-to-s"
   Enabled: false
-  VersionAdded: '0.19'
-  VersionChanged: '0.77'
 
 # Supports --auto-correct
 Lint/RedundantWithIndex:
   Enabled: false
-  VersionAdded: '0.50'
 
 # Supports --auto-correct
 Lint/RedundantWithObject:
   Enabled: false
-  VersionAdded: '0.51'
 
 # Supports --auto-correct
 Lint/RegexpAsCondition:
@@ -1244,32 +1066,24 @@ Lint/RegexpAsCondition:
 
 Lint/RequireParentheses:
   Enabled: false
-  VersionAdded: '0.18'
 
 # Supports --auto-correct
 Lint/RequireRelativeSelfPath:
   Enabled: true
-  VersionAdded: '1.22'
 
 Lint/RescueException:
   StyleGuide: "#no-blind-rescues"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.27'
 
 # Supports --auto-correct
 Lint/RescueType:
   Enabled: false
-  VersionAdded: '0.49'
 
 Lint/ReturnInVoidContext:
   Enabled: false
-  VersionAdded: '0.50'
 
 Lint/SafeNavigationChain:
   Enabled: false
-  VersionAdded: '0.47'
-  VersionChanged: '0.77'
   AllowedMethods:
   - present?
   - blank?
@@ -1291,53 +1105,40 @@ Lint/SafeNavigationConsistency:
 # Supports --auto-correct
 Lint/SafeNavigationWithEmpty:
   Enabled: false
-  VersionAdded: '0.62'
-  VersionChanged: '0.87'
 
 # Supports --auto-correct
 Lint/ScriptPermission:
   Enabled: false
-  VersionAdded: '0.49'
-  VersionChanged: '0.50'
 
 Lint/SelfAssignment:
   Enabled: false
-  VersionAdded: '0.89'
 
 # Supports --auto-correct
 Lint/SendWithMixinArgument:
   Enabled: false
-  VersionAdded: '0.75'
 
 Lint/ShadowedArgument:
   Enabled: false
-  VersionAdded: '0.52'
   IgnoreImplicitReferences: false
 
 Lint/ShadowedException:
   Enabled: false
-  VersionAdded: '0.41'
 
 Lint/ShadowingOuterLocalVariable:
   Enabled: true
 
 Lint/StructNewOverride:
   Enabled: false
-  VersionAdded: '0.81'
 
 Lint/SuppressedException:
   StyleGuide: "#dont-hide-exceptions"
   Enabled: false
   AllowComments: true
   AllowNil: true
-  VersionAdded: '0.9'
-  VersionChanged: '1.12'
 
 # Supports --auto-correct
 Lint/SymbolConversion:
   Enabled: false
-  VersionAdded: '1.9'
-  VersionChanged: '1.16'
   EnforcedStyle: strict
   SupportedStyles:
   - strict
@@ -1345,7 +1146,6 @@ Lint/SymbolConversion:
 
 Lint/Syntax:
   Enabled: true
-  VersionAdded: '0.9'
 
 Lint/ToEnumArguments:
   Enabled: true
@@ -1353,25 +1153,20 @@ Lint/ToEnumArguments:
 # Supports --auto-correct
 Lint/ToJSON:
   Enabled: true
-  VersionAdded: '0.66'
 
 Lint/TopLevelReturnWithArgument:
   Enabled: true
-  VersionAdded: '0.89'
 
 # Supports --auto-correct
 Lint/TrailingCommaInAttributeDeclaration:
   Enabled: true
-  VersionAdded: '0.90'
 
 # Supports --auto-correct
 Lint/TripleQuotes:
   Enabled: true
-  VersionAdded: '1.9'
 
 Lint/UnderscorePrefixedVariableName:
   Enabled: true
-  VersionAdded: '0.21'
   AllowKeywordBlockArguments: false
 
 Lint/UnexpectedBlockArity:
@@ -1380,7 +1175,6 @@ Lint/UnexpectedBlockArity:
 # Supports --auto-correct
 Lint/UnifiedInteger:
   Enabled: true
-  VersionAdded: '0.43'
 Lint/UnmodifiedReduceAccumulator:
   Enabled: false
 Lint/UnreachableCode:
@@ -1401,52 +1195,37 @@ Lint/UriEscapeUnescape:
 # Supports --auto-correct
 Lint/UriRegexp:
   Enabled: true
-  VersionAdded: '0.50'
 
 # Supports --auto-correct
 Lint/UselessAccessModifier:
   Enabled: true
-  VersionAdded: '0.20'
-  VersionChanged: '0.83'
   ContextCreatingMethods: []
   MethodCreatingMethods: []
 
 Lint/UselessAssignment:
   StyleGuide: "#underscore-unused-vars"
   Enabled: true
-  VersionAdded: '0.11'
 
 Lint/UselessElseWithoutRescue:
   Enabled: false
-  VersionAdded: '0.17'
 
 # Supports --auto-correct
 Lint/UselessMethodDefinition:
   Enabled: true
-  VersionAdded: '0.90'
-  Safe: false
 
 Lint/UselessRuby2Keywords:
   Enabled: true
-  VersionAdded: '1.23'
 
 # Supports --auto-correct
 Lint/UselessSetterCall:
   Enabled: false
-  SafeAutoCorrect: false
-  VersionAdded: '0.13'
-  VersionChanged: '1.2'
-  Safe: false
 
 # Supports --auto-correct
 Lint/UselessTimes:
   Enabled: false
-  VersionAdded: '0.91'
-  Safe: false
 
 Lint/Void:
   Enabled: false
-  VersionAdded: '0.9'
   CheckForMethodsWithNoSideEffects: false
 
 # Department 'Metrics' (9):
@@ -1467,8 +1246,6 @@ Metrics/MethodLength:
   Enabled: false
 Metrics/ModuleLength:
   Enabled: false
-  VersionAdded: '0.31'
-  VersionChanged: '0.87'
   CountComments: false
   Max: 100
   CountAsOne: []
@@ -1476,16 +1253,12 @@ Metrics/ModuleLength:
 Metrics/ParameterLists:
   StyleGuide: "#too-many-params"
   Enabled: false
-  VersionAdded: '0.25'
-  VersionChanged: '1.5'
   Max: 5
   CountKeywordArgs: true
   MaxOptionalParameters: 3
 
 Metrics/PerceivedComplexity:
   Enabled: false
-  VersionAdded: '0.25'
-  VersionChanged: '0.81'
   Max: 8
 
 # Department 'Migration' (1):
@@ -1497,42 +1270,32 @@ Migration/DepartmentName:
 Naming/AccessorMethodName:
   StyleGuide: "#accessor_mutator_method_names"
   Enabled: false
-  VersionAdded: '0.50'
 
 Naming/AsciiIdentifiers:
   StyleGuide: "#english-identifiers"
   Enabled: true
-  VersionAdded: '0.50'
-  VersionChanged: '0.87'
   AsciiConstants: true
 
 # Supports --auto-correct
 Naming/BinaryOperatorParameterName:
   StyleGuide: "#other-arg"
   Enabled: true
-  VersionAdded: '0.50'
-  VersionChanged: '1.2'
 
 Naming/BlockParameterName:
   Enabled: true
 Naming/ClassAndModuleCamelCase:
   StyleGuide: "#camelcase-classes"
   Enabled: true
-  VersionAdded: '0.50'
-  VersionChanged: '0.85'
   AllowedNames:
   - module_parent
 
 Naming/ConstantName:
   StyleGuide: "#screaming-snake-case"
   Enabled: true
-  VersionAdded: '0.50'
 
 Naming/FileName:
   StyleGuide: "#snake-case-files"
   Enabled: true
-  VersionAdded: '0.50'
-  VersionChanged: '1.23'
   Exclude: []
   ExpectMatchingDefinition: false
   CheckDefinitionPathHierarchy: true
@@ -1588,8 +1351,6 @@ Naming/FileName:
 Naming/HeredocDelimiterCase:
   StyleGuide: "#heredoc-delimiters"
   Enabled: false
-  VersionAdded: '0.50'
-  VersionChanged: '1.2'
   EnforcedStyle: uppercase
   SupportedStyles:
   - lowercase
@@ -1625,8 +1386,6 @@ Naming/MethodParameterName:
 Naming/PredicateName:
   StyleGuide: "#bool-methods-qmark"
   Enabled: true
-  VersionAdded: '0.50'
-  VersionChanged: '0.77'
   NamePrefix:
   - is_
   - has_
@@ -1645,15 +1404,11 @@ Naming/PredicateName:
 # Supports --auto-correct
 Naming/RescuedExceptionsVariableName:
   Enabled: false
-  VersionAdded: '0.67'
-  VersionChanged: '0.68'
   PreferredName: e
 
 Naming/VariableName:
   StyleGuide: "#snake-case-symbols-methods-vars"
   Enabled: true
-  VersionAdded: '0.50'
-  VersionChanged: '1.8'
   EnforcedStyle: snake_case
   SupportedStyles:
   - snake_case
@@ -1663,8 +1418,6 @@ Naming/VariableName:
 Naming/VariableNumber:
   StyleGuide: "#snake-case-symbols-methods-vars-with-numbers"
   Enabled: false
-  VersionAdded: '0.50'
-  VersionChanged: '1.4'
   EnforcedStyle: normalcase
   SupportedStyles:
   - snake_case
@@ -1683,7 +1436,6 @@ Naming/VariableNumber:
 # Department 'Security' (6):
 Security/Eval:
   Enabled: false
-  VersionAdded: '0.47'
 
 # Supports --auto-correct
 Security/IoMethods:
@@ -1710,7 +1462,6 @@ Style/AccessModifierDeclarations:
 # Supports --auto-correct
 Style/AccessorGrouping:
   Enabled: false
-  VersionAdded: '0.87'
   EnforcedStyle: grouped
   SupportedStyles:
   - separated
@@ -1720,8 +1471,6 @@ Style/AccessorGrouping:
 Style/Alias:
   StyleGuide: "#alias-method-lexically"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.36'
   EnforcedStyle: prefer_alias
   SupportedStyles:
   - prefer_alias
@@ -1732,8 +1481,6 @@ Style/AndOr:
   StyleGuide: "#no-and-or-or"
   Enabled: false
   SafeAutoCorrect: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.25'
   EnforcedStyle: conditionals
   SupportedStyles:
   - always
@@ -1744,7 +1491,6 @@ Style/ArgumentsForwarding:
   StyleGuide: "#arguments-forwarding"
   Enabled: false
   AllowOnlyRestArgument: true
-  VersionAdded: '1.1'
 
 # Supports --auto-correct
 Style/ArrayCoercion:
@@ -1762,7 +1508,6 @@ Style/AutoResourceCleanup:
 Style/BarePercentLiterals:
   StyleGuide: "#percent-q-shorthand"
   Enabled: false
-  VersionAdded: '0.25'
   EnforcedStyle: bare_percent
   SupportedStyles:
   - percent_q
@@ -1775,8 +1520,6 @@ Style/BisectedAttrAccessor:
 Style/BlockComments:
   StyleGuide: "#no-block-comments"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.23'
 
 # Supports --auto-correct
 Style/BlockDelimiters:
@@ -1813,8 +1556,6 @@ Style/BlockDelimiters:
 Style/CaseEquality:
   StyleGuide: "#no-case-equality"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.89'
   AllowOnConstant: false
 
 # Supports --auto-correct
@@ -1834,7 +1575,6 @@ Style/ClassAndModuleChildren:
 Style/ClassCheck:
   StyleGuide: "#is-a-vs-kind-of"
   Enabled: false
-  VersionAdded: '0.24'
   EnforcedStyle: is_a?
   SupportedStyles:
   - is_a?
@@ -1848,8 +1588,6 @@ Style/ClassEqualityComparison:
 Style/ClassMethods:
   StyleGuide: "#def-self-class-methods"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.20'
 
 # Supports --auto-correct
 Style/ClassMethodsDefinitions:
@@ -1862,16 +1600,12 @@ Style/ClassMethodsDefinitions:
 Style/ClassVars:
   StyleGuide: "#no-class-vars"
   Enabled: false
-  VersionAdded: '0.13'
 
 Style/CollectionCompact:
   Enabled: false
 Style/CollectionMethods:
   StyleGuide: "#map-find-select-reduce-include-size"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '1.7'
-  Safe: false
   PreferredMethods:
   MethodsAcceptingSymbol:
   - inject
@@ -1881,20 +1615,17 @@ Style/CollectionMethods:
 Style/ColonMethodCall:
   StyleGuide: "#double-colons"
   Enabled: false
-  VersionAdded: '0.9'
 
 # Supports --auto-correct
 Style/ColonMethodDefinition:
   StyleGuide: "#colon-method-definition"
   Enabled: false
-  VersionAdded: '0.52'
 
 Style/CombinableLoops:
   Enabled: false
 Style/CommandLiteral:
   StyleGuide: "#percent-x"
   Enabled: false
-  VersionAdded: '0.30'
   EnforcedStyle: backticks
   SupportedStyles:
   - backticks
@@ -1919,14 +1650,10 @@ Style/CommentAnnotation:
 Style/CommentedKeyword:
   Enabled: false
   SafeAutoCorrect: false
-  VersionAdded: '0.51'
-  VersionChanged: '1.7'
 
 # Supports --auto-correct
 Style/ConditionalAssignment:
   Enabled: false
-  VersionAdded: '0.36'
-  VersionChanged: '0.47'
   EnforcedStyle: assign_to_condition
   SupportedStyles:
   - assign_to_condition
@@ -1936,14 +1663,11 @@ Style/ConditionalAssignment:
 
 Style/ConstantVisibility:
   Enabled: false
-  VersionAdded: '0.66'
-  VersionChanged: '1.10'
   IgnoreModules: false
 
 # Supports --auto-correct
 Style/Copyright:
   Enabled: false
-  VersionAdded: '0.30'
   Notice: "^Copyright (\\(c\\) )?2[0-9]{3} .+"
   AutocorrectNotice: ''
 
@@ -1951,8 +1675,6 @@ Style/Copyright:
 Style/DateTime:
   StyleGuide: "#date--time"
   Enabled: false
-  VersionAdded: '0.51'
-  VersionChanged: '0.92'
   SafeAutoCorrect: false
   AllowCoercion: false
 
@@ -1960,49 +1682,37 @@ Style/DateTime:
 Style/DefWithParentheses:
   StyleGuide: "#method-parens"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.12'
 
 # Supports --auto-correct
 Style/Dir:
   Enabled: false
-  VersionAdded: '0.50'
 
 # Supports --auto-correct
 Style/DisableCopsWithinSourceCodeDirective:
   Enabled: false
-  VersionAdded: '0.82'
-  VersionChanged: '1.9'
   AllowedCops: []
 
 Style/DocumentDynamicEvalDefinition:
   Enabled: false
-  VersionAdded: '1.1'
-  VersionChanged: '1.3'
 
 Style/Documentation:
   Enabled: false
-  VersionAdded: '0.9'
   AllowedConstants: []
   Exclude: []
 
 Style/DocumentationMethod:
   Enabled: false
-  VersionAdded: '0.43'
   Exclude: []
   RequireForNonPublicMethods: false
 
 # Supports --auto-correct
 Style/DoubleCopDisableDirective:
   Enabled: false
-  VersionAdded: '0.73'
 
 # Supports --auto-correct
 Style/DoubleNegation:
   StyleGuide: "#no-bang-bang"
   Enabled: false
-  VersionAdded: '0.19'
-  VersionChanged: '1.2'
   EnforcedStyle: allowed_in_returns
   SafeAutoCorrect: false
   SupportedStyles:
@@ -2012,29 +1722,22 @@ Style/DoubleNegation:
 # Supports --auto-correct
 Style/EachForSimpleLoop:
   Enabled: false
-  VersionAdded: '0.41'
 
 # Supports --auto-correct
 Style/EachWithObject:
   Enabled: false
-  VersionAdded: '0.22'
-  VersionChanged: '0.42'
 
 # Supports --auto-correct
 Style/EmptyBlockParameter:
   Enabled: false
-  VersionAdded: '0.52'
 
 # Supports --auto-correct
 Style/EmptyCaseCondition:
   Enabled: false
-  VersionAdded: '0.40'
 
 # Supports --auto-correct
 Style/EmptyElse:
   Enabled: false
-  VersionAdded: '0.28'
-  VersionChanged: '0.32'
   EnforcedStyle: both
   SupportedStyles:
   - empty
@@ -2044,20 +1747,16 @@ Style/EmptyElse:
 # Supports --auto-correct
 Style/EmptyLambdaParameter:
   Enabled: false
-  VersionAdded: '0.52'
 
 # Supports --auto-correct
 Style/EmptyLiteral:
   StyleGuide: "#literal-array-hash"
   Enabled: true
-  VersionAdded: '0.9'
-  VersionChanged: '0.12'
 
 # Supports --auto-correct
 Style/EmptyMethod:
   StyleGuide: "#no-single-line-methods"
   Enabled: false
-  VersionAdded: '0.46'
   EnforcedStyle: compact
   SupportedStyles:
   - compact
@@ -2067,21 +1766,16 @@ Style/EmptyMethod:
 Style/Encoding:
   StyleGuide: "#utf-8"
   Enabled: true
-  VersionAdded: '0.9'
-  VersionChanged: '0.50'
 
 # Supports --auto-correct
 Style/EndBlock:
   StyleGuide: "#no-END-blocks"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.81'
 
 # Supports --auto-correct
 Style/EndlessMethod:
   StyleGuide: "#endless-methods"
   Enabled: false
-  VersionAdded: '1.8'
   EnforcedStyle: allow_single_line
   SupportedStyles:
   - allow_single_line
@@ -2091,31 +1785,24 @@ Style/EndlessMethod:
 # Supports --auto-correct
 Style/EvalWithLocation:
   Enabled: false
-  VersionAdded: '0.52'
 
 # Supports --auto-correct
 Style/EvenOdd:
   StyleGuide: "#predicate-methods"
   Enabled: false
-  VersionAdded: '0.12'
-  VersionChanged: '0.29'
 
 # Supports --auto-correct
 Style/ExpandPathArguments:
   Enabled: false
-  VersionAdded: '0.53'
 
 # Supports --auto-correct
 Style/ExplicitBlockArgument:
   StyleGuide: "#block-argument"
   Enabled: false
-  VersionAdded: '0.89'
-  VersionChanged: '1.8'
 
 Style/ExponentialNotation:
   StyleGuide: "#exponential-notation"
   Enabled: false
-  VersionAdded: '0.82'
   EnforcedStyle: scientific
   SupportedStyles:
   - scientific
@@ -2127,9 +1814,6 @@ Style/FloatDivision:
   StyleGuide: "#float-division"
   Reference: https://blog.rubystyle.guide/ruby/2019/06/21/float-division.html
   Enabled: false
-  VersionAdded: '0.72'
-  VersionChanged: '1.9'
-  Safe: false
   EnforcedStyle: single_coerce
   SupportedStyles:
   - left_coerce
@@ -2141,8 +1825,6 @@ Style/FloatDivision:
 Style/For:
   StyleGuide: "#no-for-loops"
   Enabled: false
-  VersionAdded: '0.13'
-  VersionChanged: '0.59'
   EnforcedStyle: each
   SupportedStyles:
   - each
@@ -2152,8 +1834,6 @@ Style/For:
 Style/FormatString:
   StyleGuide: "#sprintf"
   Enabled: false
-  VersionAdded: '0.19'
-  VersionChanged: '0.49'
   EnforcedStyle: format
   SupportedStyles:
   - format
@@ -2168,14 +1848,10 @@ Style/FormatStringToken:
   - template
   - unannotated
   MaxUnannotatedPlaceholdersAllowed: 1
-  VersionAdded: '0.49'
-  VersionChanged: '1.0'
 
 # Supports --auto-correct
 Style/FrozenStringLiteralComment:
   Enabled: false
-  VersionAdded: '0.36'
-  VersionChanged: '0.79'
   EnforcedStyle: always
   SupportedStyles:
   - always
@@ -2187,28 +1863,23 @@ Style/FrozenStringLiteralComment:
 Style/GlobalStdStream:
   StyleGuide: "#global-stdout"
   Enabled: false
-  VersionAdded: '0.89'
   SafeAutoCorrect: false
 
 Style/GlobalVars:
   StyleGuide: "#instance-vars"
   Reference: https://www.zenspider.com/ruby/quickref.html
   Enabled: false
-  VersionAdded: '0.13'
   AllowedVariables: []
 
 Style/GuardClause:
   StyleGuide: "#no-nested-conditionals"
   Enabled: false
-  VersionAdded: '0.20'
-  VersionChanged: '0.22'
   MinBodyLength: 1
 
 # Supports --auto-correct
 Style/HashAsLastArrayItem:
   StyleGuide: "#hash-literal-as-last-array-item"
   Enabled: false
-  VersionAdded: '0.88'
   EnforcedStyle: braces
   SupportedStyles:
   - braces
@@ -2218,35 +1889,26 @@ Style/HashAsLastArrayItem:
 Style/HashConversion:
   StyleGuide: "#avoid-hash-constructor"
   Enabled: false
-  VersionAdded: '1.10'
-  VersionChanged: '1.11'
   AllowSplatArgument: true
 
 # Supports --auto-correct
 Style/HashEachMethods:
   StyleGuide: "#hash-each"
   Enabled: false
-  Safe: false
-  VersionAdded: '0.80'
-  VersionChanged: '1.16'
   AllowedReceivers: []
 
 # Supports --auto-correct
 Style/HashExcept:
   Enabled: false
-  VersionAdded: '1.7'
 
 Style/HashLikeCase:
   Enabled: false
-  VersionAdded: '0.88'
   MinBranchesCount: 3
 
 # Supports --auto-correct
 Style/HashSyntax:
   StyleGuide: "#hash-literals"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.43'
   EnforcedStyle: ruby19
   SupportedStyles:
   - ruby19
@@ -2259,48 +1921,33 @@ Style/HashSyntax:
 # Supports --auto-correct
 Style/HashTransformKeys:
   Enabled: false
-  VersionAdded: '0.80'
-  VersionChanged: '0.90'
-  Safe: false
 
 # Supports --auto-correct
 Style/HashTransformValues:
   Enabled: false
-  VersionAdded: '0.80'
-  VersionChanged: '0.90'
-  Safe: false
 
 # Supports --auto-correct
 Style/IdenticalConditionalBranches:
   Enabled: false
   SafeAutoCorrect: false
-  VersionAdded: '0.36'
-  VersionChanged: '1.19'
 
 # Supports --auto-correct
 Style/IfInsideElse:
   Enabled: false
   AllowIfModifier: false
-  VersionAdded: '0.36'
-  VersionChanged: '1.3'
 
 # Supports --auto-correct
 Style/IfUnlessModifier:
   StyleGuide: "#if-as-a-modifier"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.30'
 
 # Supports --auto-correct
 Style/IfUnlessModifierOfIfUnless:
   Enabled: false
-  VersionAdded: '0.39'
-  VersionChanged: '0.87'
 
 # Supports --auto-correct
 Style/IfWithBooleanLiteralBranches:
   Enabled: false
-  VersionAdded: '1.9'
   SafeAutoCorrect: false
   AllowedMethods:
   - nonzero?
@@ -2309,43 +1956,31 @@ Style/IfWithBooleanLiteralBranches:
 Style/IfWithSemicolon:
   StyleGuide: "#no-semicolon-ifs"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.83'
 
 Style/ImplicitRuntimeError:
   Enabled: false
-  VersionAdded: '0.41'
 
 # Supports --auto-correct
 Style/InPatternThen:
   StyleGuide: "#no-in-pattern-semicolons"
   Enabled: false
-  VersionAdded: '1.16'
 
 # Supports --auto-correct
 Style/InfiniteLoop:
-  Safe: false
   StyleGuide: "#infinite-loop"
   Enabled: false
-  VersionAdded: '0.26'
-  VersionChanged: '0.61'
 
 Style/InlineComment:
   Enabled: false
-  VersionAdded: '0.23'
 
 # Supports --auto-correct
 Style/InverseMethods:
   Enabled: false
-  Safe: false
-  VersionAdded: '0.48'
   InverseMethods:
   InverseBlocks:
 
 Style/IpAddresses:
   Enabled: false
-  VersionAdded: '0.58'
-  VersionChanged: '0.91'
   AllowedAddresses:
   - "::"
   Exclude: []
@@ -2354,15 +1989,11 @@ Style/IpAddresses:
 Style/KeywordParametersOrder:
   StyleGuide: "#keyword-parameters-order"
   Enabled: false
-  VersionAdded: '0.90'
-  VersionChanged: '1.7'
 
 # Supports --auto-correct
 Style/Lambda:
   StyleGuide: "#lambda-multi-line"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.40'
   EnforcedStyle: line_count_dependent
   SupportedStyles:
   - line_count_dependent
@@ -2373,8 +2004,6 @@ Style/Lambda:
 Style/LambdaCall:
   StyleGuide: "#proc-call"
   Enabled: false
-  VersionAdded: '0.13'
-  VersionChanged: '0.14'
   EnforcedStyle: call
   SupportedStyles:
   - call
@@ -2384,15 +2013,11 @@ Style/LambdaCall:
 Style/LineEndConcatenation:
   Enabled: false
   SafeAutoCorrect: false
-  VersionAdded: '0.18'
-  VersionChanged: '0.64'
 
 # Supports --auto-correct
 Style/MethodCallWithArgsParentheses:
   StyleGuide: "#method-invocation-parens"
   Enabled: false
-  VersionAdded: '0.47'
-  VersionChanged: '1.7'
   IgnoreMacros: true
   AllowedPatterns: []
   IncludedMacros: []
@@ -2409,20 +2034,15 @@ Style/MethodCallWithArgsParentheses:
 Style/MethodCallWithoutArgsParentheses:
   StyleGuide: "#method-invocation-parens"
   Enabled: false
-  VersionAdded: '0.47'
-  VersionChanged: '0.55'
 
 Style/MethodCalledOnDoEndBlock:
   StyleGuide: "#single-line-blocks"
   Enabled: false
-  VersionAdded: '0.14'
 
 # Supports --auto-correct
 Style/MethodDefParentheses:
   StyleGuide: "#method-parens"
   Enabled: false
-  VersionAdded: '0.16'
-  VersionChanged: '1.7'
   EnforcedStyle: require_parentheses
   SupportedStyles:
   - require_parentheses
@@ -2432,12 +2052,9 @@ Style/MethodDefParentheses:
 # Supports --auto-correct
 Style/MinMax:
   Enabled: false
-  VersionAdded: '0.50'
 
 Style/MissingElse:
   Enabled: false
-  VersionAdded: '0.30'
-  VersionChanged: '0.38'
   EnforcedStyle: both
   SupportedStyles:
   - if
@@ -2447,14 +2064,11 @@ Style/MissingElse:
 Style/MissingRespondToMissing:
   StyleGuide: "#no-method-missing"
   Enabled: false
-  VersionAdded: '0.56'
 
 # Supports --auto-correct
 Style/MixinGrouping:
   StyleGuide: "#mixin-grouping"
   Enabled: false
-  VersionAdded: '0.48'
-  VersionChanged: '0.49'
   EnforcedStyle: separated
   SupportedStyles:
   - separated
@@ -2462,14 +2076,11 @@ Style/MixinGrouping:
 
 Style/MixinUsage:
   Enabled: false
-  VersionAdded: '0.51'
 
 # Supports --auto-correct
 Style/ModuleFunction:
   StyleGuide: "#module-function"
   Enabled: false
-  VersionAdded: '0.11'
-  VersionChanged: '0.65'
   EnforcedStyle: module_function
   SupportedStyles:
   - module_function
@@ -2481,32 +2092,25 @@ Style/ModuleFunction:
 Style/MultilineBlockChain:
   StyleGuide: "#single-line-blocks"
   Enabled: false
-  VersionAdded: '0.13'
 
 # Supports --auto-correct
 Style/MultilineIfModifier:
   StyleGuide: "#no-multiline-if-modifiers"
   Enabled: false
-  VersionAdded: '0.45'
 
 # Supports --auto-correct
 Style/MultilineIfThen:
   StyleGuide: "#no-then"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.26'
 
 # Supports --auto-correct
 Style/MultilineInPatternThen:
   StyleGuide: "#no-then"
   Enabled: false
-  VersionAdded: '1.16'
 
 # Supports --auto-correct
 Style/MultilineMemoization:
   Enabled: false
-  VersionAdded: '0.44'
-  VersionChanged: '0.48'
   EnforcedStyle: keyword
   SupportedStyles:
   - keyword
@@ -2515,34 +2119,25 @@ Style/MultilineMemoization:
 # Supports --auto-correct
 Style/MultilineMethodSignature:
   Enabled: false
-  VersionAdded: '0.59'
-  VersionChanged: '1.7'
 
 # Supports --auto-correct
 Style/MultilineTernaryOperator:
   StyleGuide: "#no-multiline-ternary"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.86'
 
 # Supports --auto-correct
 Style/MultilineWhenThen:
   StyleGuide: "#no-then"
   Enabled: false
-  VersionAdded: '0.73'
 
 # Supports --auto-correct
 Style/MultipleComparison:
   Enabled: false
-  VersionAdded: '0.49'
-  VersionChanged: '1.1'
   AllowMethodComparison: true
 
 # Supports --auto-correct
 Style/MutableConstant:
   Enabled: false
-  VersionAdded: '0.34'
-  VersionChanged: '1.8'
   SafeAutoCorrect: false
   EnforcedStyle: literals
   SupportedStyles:
@@ -2553,8 +2148,6 @@ Style/MutableConstant:
 Style/NegatedIf:
   StyleGuide: "#unless-for-negatives"
   Enabled: true
-  VersionAdded: '0.20'
-  VersionChanged: '0.48'
   EnforcedStyle: both
   SupportedStyles:
   - both
@@ -2564,13 +2157,11 @@ Style/NegatedIf:
 # Supports --auto-correct
 Style/NegatedIfElseCondition:
   Enabled: false
-  VersionAdded: '1.2'
 
 # Supports --auto-correct
 Style/NegatedUnless:
   StyleGuide: "#if-for-negatives"
   Enabled: false
-  VersionAdded: '0.69'
   EnforcedStyle: both
   SupportedStyles:
   - both
@@ -2581,19 +2172,15 @@ Style/NegatedUnless:
 Style/NegatedWhile:
   StyleGuide: "#until-for-negatives"
   Enabled: false
-  VersionAdded: '0.20'
 
 # Supports --auto-correct
 Style/NestedModifier:
   StyleGuide: "#no-nested-modifiers"
   Enabled: false
-  VersionAdded: '0.35'
 
 # Supports --auto-correct
 Style/NestedParenthesizedCalls:
   Enabled: false
-  VersionAdded: '0.36'
-  VersionChanged: '0.77'
   AllowedMethods:
   - be
   - be_a
@@ -2617,15 +2204,11 @@ Style/NestedParenthesizedCalls:
 Style/NestedTernaryOperator:
   StyleGuide: "#no-nested-ternary"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.86'
 
 # Supports --auto-correct
 Style/Next:
   StyleGuide: "#no-nested-conditionals"
   Enabled: false
-  VersionAdded: '0.22'
-  VersionChanged: '0.35'
   EnforcedStyle: skip_modifier_ifs
   MinBodyLength: 3
   SupportedStyles:
@@ -2636,8 +2219,6 @@ Style/Next:
 Style/NilComparison:
   StyleGuide: "#predicate-methods"
   Enabled: false
-  VersionAdded: '0.12'
-  VersionChanged: '0.59'
   EnforcedStyle: predicate
   SupportedStyles:
   - predicate
@@ -2646,27 +2227,20 @@ Style/NilComparison:
 # Supports --auto-correct
 Style/NilLambda:
   Enabled: false
-  VersionAdded: '1.3'
-  VersionChanged: '1.15'
 
 # Supports --auto-correct
 Style/NonNilCheck:
   StyleGuide: "#no-non-nil-checks"
   Enabled: false
-  VersionAdded: '0.20'
-  VersionChanged: '0.22'
   IncludeSemanticChanges: false
 
 # Supports --auto-correct
 Style/Not:
   StyleGuide: "#bang-not-not"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.20'
 
 Style/NumberedParameters:
   Enabled: true
-  VersionAdded: '1.22'
   EnforcedStyle: allow_single_line
   SupportedStyles:
   - allow_single_line
@@ -2674,14 +2248,12 @@ Style/NumberedParameters:
 
 Style/NumberedParametersLimit:
   Enabled: true
-  VersionAdded: '1.22'
   Max: 1
 
 # Supports --auto-correct
 Style/NumericLiteralPrefix:
   StyleGuide: "#numeric-literal-prefixes"
   Enabled: false
-  VersionAdded: '0.41'
   EnforcedOctalStyle: zero_with_o
   SupportedOctalStyles:
   - zero_with_o
@@ -2691,8 +2263,6 @@ Style/NumericLiteralPrefix:
 Style/NumericLiterals:
   StyleGuide: "#underscores-in-numerics"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.48'
   MinDigits: 5
   Strict: false
 
@@ -2710,19 +2280,14 @@ Style/OneLineConditional:
   StyleGuide: "#ternary-operator"
   Enabled: false
   AlwaysCorrectToMultiline: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.90'
 
 Style/OpenStructUse:
   Reference:
   - https://docs.ruby-lang.org/en/3.0.0/OpenStruct.html#class-OpenStruct-label-Caveats
   Enabled: false
-  VersionAdded: '1.23'
 
 Style/OptionHash:
   Enabled: false
-  VersionAdded: '0.33'
-  VersionChanged: '0.34'
   SuspiciousParamNames:
   - options
   - opts
@@ -2734,15 +2299,10 @@ Style/OptionHash:
 Style/OptionalArguments:
   StyleGuide: "#optional-arguments"
   Enabled: false
-  Safe: false
-  VersionAdded: '0.33'
-  VersionChanged: '0.83'
 
 Style/OptionalBooleanParameter:
   StyleGuide: "#boolean-keyword-arguments"
   Enabled: false
-  Safe: false
-  VersionAdded: '0.89'
   AllowedMethods:
   - respond_to_missing?
 
@@ -2750,20 +2310,16 @@ Style/OptionalBooleanParameter:
 Style/OrAssignment:
   StyleGuide: "#double-pipe-for-uninit"
   Enabled: false
-  VersionAdded: '0.50'
 
 # Supports --auto-correct
 Style/ParallelAssignment:
   StyleGuide: "#parallel-assignment"
   Enabled: false
-  VersionAdded: '0.32'
 
 # Supports --auto-correct
 Style/ParenthesesAroundCondition:
   StyleGuide: "#no-parens-around-condition"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.56'
   AllowSafeAssignment: true
   AllowInMultilineConditions: false
 
@@ -2771,14 +2327,11 @@ Style/ParenthesesAroundCondition:
 Style/PercentLiteralDelimiters:
   StyleGuide: "#percent-literal-braces"
   Enabled: false
-  VersionAdded: '0.19'
   PreferredDelimiters:
-  VersionChanged: '0.48'
 
 # Supports --auto-correct
 Style/PercentQLiterals:
   Enabled: false
-  VersionAdded: '0.25'
   EnforcedStyle: lower_case_q
   SupportedStyles:
   - lower_case_q
@@ -2788,15 +2341,11 @@ Style/PercentQLiterals:
 Style/PerlBackrefs:
   StyleGuide: "#no-perl-regexp-last-matchers"
   Enabled: false
-  VersionAdded: '0.13'
 
 # Supports --auto-correct
 Style/PreferredHashMethods:
   StyleGuide: "#hash-key"
   Enabled: true
-  Safe: false
-  VersionAdded: '0.41'
-  VersionChanged: '0.70'
   EnforcedStyle: short
   SupportedStyles:
   - short
@@ -2806,13 +2355,10 @@ Style/PreferredHashMethods:
 Style/Proc:
   StyleGuide: "#proc"
   Enabled: true
-  VersionAdded: '0.9'
-  VersionChanged: '0.18'
 
 # Supports --auto-correct
 Style/QuotedSymbols:
   Enabled: false
-  VersionAdded: '1.16'
   EnforcedStyle: same_as_string_literals
   SupportedStyles:
   - same_as_string_literals
@@ -2823,8 +2369,6 @@ Style/QuotedSymbols:
 Style/RaiseArgs:
   StyleGuide: "#exception-class-messages"
   Enabled: false
-  VersionAdded: '0.14'
-  VersionChanged: '1.2'
   EnforcedStyle: exploded
   SupportedStyles:
   - compact
@@ -2835,140 +2379,105 @@ Style/RaiseArgs:
 Style/RandomWithOffset:
   StyleGuide: "#random-numbers"
   Enabled: false
-  VersionAdded: '0.52'
 
 # Supports --auto-correct
 Style/RedundantArgument:
   Enabled: false
-  Safe: false
-  VersionAdded: '1.4'
-  VersionChanged: '1.7'
   Methods:
 
 # Supports --auto-correct
 Style/RedundantAssignment:
   Enabled: false
-  VersionAdded: '0.87'
 
 # Supports --auto-correct
 Style/RedundantBegin:
   StyleGuide: "#begin-implicit"
   Enabled: false
-  VersionAdded: '0.10'
-  VersionChanged: '0.21'
 
 # Supports --auto-correct
 Style/RedundantCapitalW:
   Enabled: false
-  VersionAdded: '0.76'
 
 # Supports --auto-correct
 Style/RedundantCondition:
   Enabled: false
-  VersionAdded: '0.76'
 
 # Supports --auto-correct
 Style/RedundantConditional:
   Enabled: false
-  VersionAdded: '0.50'
 
 # Supports --auto-correct
 Style/RedundantException:
   StyleGuide: "#no-explicit-runtimeerror"
   Enabled: false
-  VersionAdded: '0.14'
-  VersionChanged: '0.29'
 
 # Supports --auto-correct
 Style/RedundantFetchBlock:
   Reference: https://github.com/JuanitoFatas/fast-ruby#hashfetch-with-argument-vs-hashfetch--block-code
   Enabled: false
-  Safe: false
   SafeForConstants: false
-  VersionAdded: '0.86'
 
 # Supports --auto-correct
 Style/RedundantFileExtensionInRequire:
   StyleGuide: "#no-explicit-rb-to-require"
   Enabled: false
-  VersionAdded: '0.88'
 
 # Supports --auto-correct
 Style/RedundantFreeze:
   Enabled: false
-  VersionAdded: '0.34'
-  VersionChanged: '0.66'
 
 # Supports --auto-correct
 Style/RedundantInterpolation:
   Enabled: false
-  VersionAdded: '0.76'
 
 # Supports --auto-correct
 Style/RedundantParentheses:
   Enabled: false
-  VersionAdded: '0.36'
 
 # Supports --auto-correct
 Style/RedundantPercentQ:
   StyleGuide: "#percent-q"
   Enabled: false
-  VersionAdded: '0.76'
 
 # Supports --auto-correct
 Style/RedundantRegexpCharacterClass:
   Enabled: false
-  VersionAdded: '0.85'
 
 # Supports --auto-correct
 Style/RedundantRegexpEscape:
   Enabled: false
-  VersionAdded: '0.85'
 
 # Supports --auto-correct
 Style/RedundantReturn:
   StyleGuide: "#no-explicit-return"
   Enabled: false
-  VersionAdded: '0.10'
-  VersionChanged: '0.14'
   AllowMultipleReturnValues: false
 
 # Supports --auto-correct
 Style/RedundantSelf:
   StyleGuide: "#no-self-unless-required"
   Enabled: false
-  VersionAdded: '0.10'
-  VersionChanged: '0.13'
 
 # Supports --auto-correct
 Style/RedundantSelfAssignment:
   Enabled: false
-  Safe: false
-  VersionAdded: '0.90'
 
 # Supports --auto-correct
 Style/RedundantSelfAssignmentBranch:
   Enabled: false
-  VersionAdded: '1.19'
 
 # Supports --auto-correct
 Style/RedundantSort:
   Enabled: false
-  VersionAdded: '0.76'
-  VersionChanged: '1.22'
-  Safe: false
 
 # Supports --auto-correct
 Style/RedundantSortBy:
   Enabled: false
-  VersionAdded: '0.36'
 
 # Supports --auto-correct
 Style/RegexpLiteral:
   StyleGuide: "#percent-r"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.30'
   EnforcedStyle: slashes
   SupportedStyles:
   - slashes
@@ -2980,13 +2489,10 @@ Style/RegexpLiteral:
 Style/RescueModifier:
   StyleGuide: "#no-rescue-modifiers"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.34'
 
 # Supports --auto-correct
 Style/RescueStandardError:
   Enabled: false
-  VersionAdded: '0.52'
   EnforcedStyle: explicit
   SupportedStyles:
   - implicit
@@ -2999,13 +2505,10 @@ Style/ReturnNil:
   SupportedStyles:
   - return
   - return_nil
-  VersionAdded: '0.50'
 
 # Supports --auto-correct
 Style/SafeNavigation:
   Enabled: false
-  VersionAdded: '0.43'
-  VersionChanged: '0.77'
   ConvertCodeThatCanStartToReturnNil: false
   AllowedMethods:
   - present?
@@ -3019,40 +2522,31 @@ Style/SafeNavigation:
 Style/Sample:
   Reference: https://github.com/JuanitoFatas/fast-ruby#arrayshufflefirst-vs-arraysample-code
   Enabled: false
-  VersionAdded: '0.30'
 
 # Supports --auto-correct
 Style/SelectByRegexp:
   Enabled: true
   SafeAutoCorrect: false
-  VersionAdded: '1.22'
 
 # Supports --auto-correct
 Style/SelfAssignment:
   StyleGuide: "#self-assignment"
   Enabled: false
-  VersionAdded: '0.19'
-  VersionChanged: '0.29'
 
 # Supports --auto-correct
 Style/Semicolon:
   StyleGuide: "#no-semicolon"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.19'
   AllowAsExpressionSeparator: false
 
 Style/Send:
   StyleGuide: "#prefer-public-send"
   Enabled: false
-  VersionAdded: '0.33'
 
 # Supports --auto-correct
 Style/SignalException:
   StyleGuide: "#prefer-raise-over-fail"
   Enabled: false
-  VersionAdded: '0.11'
-  VersionChanged: '0.37'
   EnforcedStyle: only_raise
   SupportedStyles:
   - only_raise
@@ -3062,14 +2556,10 @@ Style/SignalException:
 # Supports --auto-correct
 Style/SingleArgumentDig:
   Enabled: false
-  VersionAdded: '0.89'
-  Safe: false
 
 # Supports --auto-correct
 Style/SingleLineBlockParams:
   Enabled: false
-  VersionAdded: '0.16'
-  VersionChanged: '1.6'
   Methods:
   - reduce:
   - inject:
@@ -3078,29 +2568,21 @@ Style/SingleLineBlockParams:
 Style/SingleLineMethods:
   StyleGuide: "#no-single-line-methods"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '1.8'
   AllowIfMethodIsEmpty: true
 
 # Supports --auto-correct
 Style/SlicingWithRange:
   Enabled: false
-  VersionAdded: '0.83'
-  Safe: false
 
 # Supports --auto-correct
 Style/SoleNestedConditional:
   Enabled: false
-  VersionAdded: '0.89'
-  VersionChanged: '1.5'
   AllowModifier: false
 
 # Supports --auto-correct
 Style/SpecialGlobalVars:
   StyleGuide: "#no-cryptic-perlisms"
   Enabled: false
-  VersionAdded: '0.13'
-  VersionChanged: '0.36'
   SafeAutoCorrect: false
   RequireEnglish: true
   EnforcedStyle: use_english_names
@@ -3112,7 +2594,6 @@ Style/SpecialGlobalVars:
 Style/StabbyLambdaParentheses:
   StyleGuide: "#stabby-lambda-with-args"
   Enabled: false
-  VersionAdded: '0.35'
   EnforcedStyle: require_parentheses
   SupportedStyles:
   - require_parentheses
@@ -3121,45 +2602,32 @@ Style/StabbyLambdaParentheses:
 Style/StaticClass:
   StyleGuide: "#modules-vs-classes"
   Enabled: false
-  Safe: false
-  VersionAdded: '1.3'
 
 # Supports --auto-correct
 Style/StderrPuts:
   StyleGuide: "#warn"
   Enabled: false
-  VersionAdded: '0.51'
 
 # Supports --auto-correct
 Style/StringChars:
   StyleGuide: "#string-chars"
   Enabled: false
-  Safe: false
-  VersionAdded: '1.12'
 
 # Supports --auto-correct
 Style/StringConcatenation:
   StyleGuide: "#string-interpolation"
   Enabled: false
-  Safe: false
-  VersionAdded: '0.89'
-  VersionChanged: '1.6'
   Mode: aggressive
 
 # Supports --auto-correct
 Style/StringHashKeys:
   StyleGuide: "#symbols-as-keys"
   Enabled: false
-  VersionAdded: '0.52'
-  VersionChanged: '0.75'
-  Safe: false
 
 # Supports --auto-correct
 Style/StringLiterals:
   StyleGuide: "#consistent-string-literals"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.36'
   EnforcedStyle: single_quotes
   SupportedStyles:
   - single_quotes
@@ -3169,7 +2637,6 @@ Style/StringLiterals:
 # Supports --auto-correct
 Style/StringLiteralsInInterpolation:
   Enabled: true
-  VersionAdded: '0.27'
   EnforcedStyle: single_quotes
   SupportedStyles:
   - single_quotes
@@ -3178,36 +2645,28 @@ Style/StringLiteralsInInterpolation:
 # Supports --auto-correct
 Style/StringMethods:
   Enabled: false
-  VersionAdded: '0.34'
-  VersionChanged: '0.34'
   PreferredMethods:
 
 # Supports --auto-correct
 Style/Strip:
   Enabled: false
-  VersionAdded: '0.36'
 
 # Supports --auto-correct
 Style/StructInheritance:
   StyleGuide: "#no-extend-struct-new"
   Enabled: false
   SafeAutoCorrect: false
-  VersionAdded: '0.29'
-  VersionChanged: '0.86'
 
 # Supports --auto-correct
 Style/SwapValues:
   StyleGuide: "#values-swapping"
   Enabled: false
-  VersionAdded: '1.1'
   SafeAutoCorrect: false
 
 # Supports --auto-correct
 Style/SymbolArray:
   StyleGuide: "#percent-i"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.49'
   EnforcedStyle: percent
   MinSize: 2
   SupportedStyles:
@@ -3217,7 +2676,6 @@ Style/SymbolArray:
 # Supports --auto-correct
 Style/SymbolLiteral:
   Enabled: false
-  VersionAdded: '0.30'
 
 # Supports --auto-correct
 Style/SymbolProc:
@@ -3226,8 +2684,6 @@ Style/SymbolProc:
 # Supports --auto-correct
 Style/TernaryParentheses:
   Enabled: false
-  VersionAdded: '0.42'
-  VersionChanged: '0.46'
   EnforcedStyle: require_no_parentheses
   SupportedStyles:
   - require_parentheses
@@ -3238,28 +2694,23 @@ Style/TernaryParentheses:
 Style/TopLevelMethodDefinition:
   StyleGuide: "#top-level-methods"
   Enabled: false
-  VersionAdded: '1.15'
 
 # Supports --auto-correct
 Style/TrailingBodyOnClass:
   Enabled: false
-  VersionAdded: '0.53'
 
 # Supports --auto-correct
 Style/TrailingBodyOnMethodDefinition:
   Enabled: false
-  VersionAdded: '0.52'
 
 # Supports --auto-correct
 Style/TrailingBodyOnModule:
   Enabled: false
-  VersionAdded: '0.53'
 
 # Supports --auto-correct
 Style/TrailingCommaInArguments:
   StyleGuide: "#no-trailing-params-comma"
   Enabled: false
-  VersionAdded: '0.36'
   EnforcedStyleForMultiline: no_comma
   SupportedStylesForMultiline:
   - comma
@@ -3270,7 +2721,6 @@ Style/TrailingCommaInArguments:
 Style/TrailingCommaInArrayLiteral:
   StyleGuide: "#no-trailing-array-commas"
   Enabled: true
-  VersionAdded: '0.53'
   EnforcedStyleForMultiline: consistent_comma
   SupportedStylesForMultiline:
   - comma
@@ -3280,8 +2730,6 @@ Style/TrailingCommaInArrayLiteral:
 # Supports --auto-correct
 Style/TrailingCommaInBlockArgs:
   Enabled: true
-  Safe: false
-  VersionAdded: '0.81'
 
 # Supports --auto-correct
 Style/TrailingCommaInHashLiteral:
@@ -3291,26 +2739,20 @@ Style/TrailingCommaInHashLiteral:
   - comma
   - consistent_comma
   - no_comma
-  VersionAdded: '0.53'
 
 # Supports --auto-correct
 Style/TrailingMethodEndStatement:
   Enabled: false
-  VersionAdded: '0.52'
 
 # Supports --auto-correct
 Style/TrailingUnderscoreVariable:
   AllowNamedUnderscoreVariables: true
   Enabled: false
-  VersionAdded: '0.31'
-  VersionChanged: '0.35'
 
 # Supports --auto-correct
 Style/TrivialAccessors:
   StyleGuide: "#attr_family"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '1.15'
   ExactNameMatch: true
   AllowPredicates: true
   AllowDSLWriters: true
@@ -3338,11 +2780,9 @@ Style/TrivialAccessors:
 Style/UnlessElse:
   StyleGuide: "#no-else-with-unless"
   Enabled: false
-  VersionAdded: '0.9'
 
 Style/UnlessLogicalOperators:
   Enabled: false
-  VersionAdded: '1.11'
   EnforcedStyle: forbid_mixed_logical_operators
   SupportedStyles:
   - forbid_mixed_logical_operators
@@ -3351,40 +2791,31 @@ Style/UnlessLogicalOperators:
 # Supports --auto-correct
 Style/UnpackFirst:
   Enabled: false
-  VersionAdded: '0.54'
 
 # Supports --auto-correct
 Style/VariableInterpolation:
   StyleGuide: "#curlies-interpolate"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.20'
 
 # Supports --auto-correct
 Style/WhenThen:
   StyleGuide: "#one-line-cases"
   Enabled: false
-  VersionAdded: '0.9'
 
 # Supports --auto-correct
 Style/WhileUntilDo:
   StyleGuide: "#no-multiline-while-do"
   Enabled: false
-  VersionAdded: '0.9'
 
 # Supports --auto-correct
 Style/WhileUntilModifier:
   StyleGuide: "#while-as-a-modifier"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.30'
 
 # Supports --auto-correct
 Style/WordArray:
   StyleGuide: "#percent-w"
   Enabled: false
-  VersionAdded: '0.9'
-  VersionChanged: '0.36'
   EnforcedStyle: percent
   SupportedStyles:
   - percent
@@ -3402,16 +2833,10 @@ Style/YodaCondition:
   - forbid_for_equality_operators_only
   - require_for_all_comparison_operators
   - require_for_equality_operators_only
-  Safe: false
-  VersionAdded: '0.49'
-  VersionChanged: '0.75'
 
 # Supports --auto-correct
 Style/ZeroLengthPredicate:
   Enabled: true
-  Safe: false
-  VersionAdded: '0.37'
-  VersionChanged: '0.39'
 
 Naming/BlockForwarding: # new in 1.24
   Enabled: false
