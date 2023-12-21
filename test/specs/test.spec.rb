@@ -33,6 +33,15 @@ describe 'Test' do
 
     sleep 0.3
   end
+  it 'group some processes' do
+    group 'first one' do
+      info 'do something'
+    end
+
+    group 'second one' do
+      info 'do another thing'
+    end
+  end
 
   it 'reads env variables' do
     info "env.foo = #{env.foo}"
