@@ -145,9 +145,9 @@ module Spectre
           error_output += "  type.....: #{run.error.class.name}\n"
           error_output += "  message..: #{run.error.message}\n"
 
-          error_output += "  backtrace:\n"
-
           if CONFIG['debug']
+            error_output += "  backtrace:\n"
+
             run.error.backtrace.each do |trace|
               error_output += "    #{trace}\n"
             end
