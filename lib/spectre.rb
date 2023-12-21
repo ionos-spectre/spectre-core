@@ -765,7 +765,6 @@ end
 # Define command line arguments
 
 config_overrides = {}
-output_json = false
 
 OptionParser.new do |opts|
   opts.banner = <<~BANNER
