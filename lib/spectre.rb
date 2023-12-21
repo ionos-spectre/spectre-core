@@ -80,12 +80,12 @@ module Spectre
       end
     end
 
-    def scope desc, subject
-      write_to_file(DateTime.now, :debug, "# BEGIN [#{subject.name}] #{desc}", nil, nil)
+    def scope desc, subject, type
+      write_to_file(DateTime.now, :debug, "# BEGIN #{type} [#{subject.name}] #{desc}", nil, nil)
 
       yield
 
-      write_to_file(DateTime.now, :debug, "# END [#{subject.name}] #{desc}", nil, nil)
+      write_to_file(DateTime.now, :debug, "# END #{type} [#{subject.name}] #{desc}", nil, nil)
     end
 
     def log level, message, status=nil, desc=nil, timestamp=nil
@@ -213,7 +213,7 @@ module Spectre
         @level += 1
 
         begin
-          super(desc, subject, &block)
+          super(desc, subject, type, &block)
         ensure
           @level -= 1
         end
@@ -318,7 +318,7 @@ module Spectre
 
       puts log_entry.to_json
 
-      super(desc, subject, &block)
+      super(desc, subject, type, &block)
 
       @scope = prev_scope
     end
