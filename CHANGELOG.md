@@ -1,9 +1,9 @@
 ### vNext
 
 #### Major
- - Logger and reporter are added automatically, when corresponding module is loaded
- - Logging is refactored in `Eventing` and `Logging` (see `eventing/console` and `logging/file`)
- - Module registration and configuration is refactored. Modules do now have to implement a `configure(config)` method and register with `Spectre.register(mod)`
+ - New assertion syntax available `.should <matcher> <value>` and `.should_not <matcher> <value>`. See _Expectations_ section in `README.md` for more information.
+ - `.should [...]` can also be called outside of an `expect` block
+ - JSON formatter added. Log messages, reports and listing can be outputted to console as JSON. Use `--json` to enabled json formatting.
 
 ### v1.14.2
 
