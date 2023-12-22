@@ -8,7 +8,7 @@ require 'fileutils'
 require 'securerandom'
 
 require_relative 'spectre/version'
-require_relative 'spectre/assertion'
+require_relative 'spectre/expectation'
 
 class Hash
   def deep_merge!(second)
@@ -115,7 +115,7 @@ module Spectre
       return unless @debug or level != :debug
 
       line = "[#{timestamp.strftime('%Y-%m-%dT%H:%M:%S.%6N%:z')}] #{level.to_s.upcase.rjust(5, ' ')} -- #{@name}: #{message}"
-      line += "...[#{status}]" unless status.nil?
+      line += " [#{status}]" unless status.nil?
       line += " - #{desc}" unless desc.nil?
       line += "\n"
       File.write(@log_file, line, mode: 'a')
@@ -189,7 +189,7 @@ module Spectre
       super(name)
 
       @level = 0
-      @width = 60
+      @width = 80
       @indent = 2
     end
 
@@ -384,16 +384,16 @@ module Spectre
     end
 
     def fail_with message
-      raise SpectreFailure.new(message)
+      raise ExpectationFailure.new(message)
     end
 
     def expect desc
-      Spectre.logger.log(:debug, 'expect ' + desc) do
+      Spectre.logger.log(:debug, "expect #{desc}") do
         result = [:debug, :ok, nil]
 
         begin
           yield
-        rescue SpectreFailure => e
+        rescue ExpectationFailure => e
           @failure = "Expected #{desc}, but it failed with: #{e.message}"
           result = [:error, :failed, nil]
         rescue Interrupt
@@ -427,9 +427,9 @@ module Spectre
     def execute(&)
       begin
         instance_exec(@data, &)
-      rescue SpectreFailure => e
+      rescue ExpectationFailure => e
         @failure = e.message
-        Spectre.logger.log(:error, e.message, :failed)
+        Spectre.logger.log(:error, e.desc ? "expect #{e.desc}" : nil, :failed, e.actual ? "got #{e.actual}" : nil)
       rescue Interrupt
         Spectre.logger.log(:debug, nil, :skipped, 'canceled by user')
       rescue Exception => e
