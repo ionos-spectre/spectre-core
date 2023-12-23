@@ -201,6 +201,8 @@ module Spectre
           colored_desc = desc.grey
         elsif type == :spec
           colored_desc = desc.cyan
+        elsif type == :mixin
+          colored_desc = desc.yellow
         elsif type == :context
           colored_desc = desc.blue
         end
@@ -425,7 +427,9 @@ module Spectre
     end
 
     def run desc, with: []
-      instance_exec(*with, &MIXINS[desc])
+      Spectre.logger.scope(desc, self, :mixin) do
+        instance_exec(*with, &MIXINS[desc])
+      end
     end
 
     alias :also :run
