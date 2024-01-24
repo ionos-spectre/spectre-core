@@ -137,12 +137,6 @@ module Spectre
 
       def or other_val
         OrWrapper.new(self, other_val)
-        # first = ValueWrapper.wrap(self)
-        # second = ValueWrapper.wrap(other_val)
-
-        # MultiValue.new("#{first} or #{second}") do |matcher|
-        #   first.evaluate(matcher) or second.evaluate(matcher)
-        # end
       end
 
       def and other_val
