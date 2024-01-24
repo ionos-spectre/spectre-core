@@ -530,8 +530,8 @@ module Spectre
 
     def context(desc, &)
       context = DefinitionContext.new(desc, self)
-      @children << context
       context.instance_eval(&)
+      @children << context
     end
 
     def setup &block
@@ -564,7 +564,7 @@ module Spectre
         (tags.any? { |x| tag?(spec.tags, x) })
       end
 
-      return [] if specs.empty?
+      return [] if specs.empty? and @children.empty?
 
       runs = []
 
@@ -584,7 +584,7 @@ module Spectre
         end
 
         # Only run specs if setup was successful
-        if setup_run.nil? or setup_run.error.nil?
+        if specs.any? and (setup_run.nil? or setup_run.error.nil?)
           runs += specs.map do |spec|
             spec.run(@befores, @afters)
           end
