@@ -722,6 +722,8 @@ module Spectre
       @env = OpenStruct.new(CONFIG).freeze
 
       @logger = create_logger('spectre')
+
+      return self
     end
 
     def create_logger name

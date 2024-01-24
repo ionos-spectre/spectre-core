@@ -6,15 +6,18 @@ require_relative '../lib/spectre'
 
 Spectre::CONFIG['log_file'] = nil
 
-Spectre.describe 'Test' do
+Spectre.describe 'Logging' do
   setup do
     Spectre.logger.info 'do some setting up'
   end
 
   it 'should run successfully' do
     Spectre.logger.info 'some info'
+    Spectre.logger.info "this is a\nmultiline message"
   end
+end
 
+Spectre.describe 'Expectation' do
   it 'should expect some truthy block' do
     the_truth = 42
 
@@ -23,27 +26,107 @@ Spectre.describe 'Test' do
     end
   end
 
+  it 'should should expect not the given value' do
+    the_truth = 42
+
+    the_truth.should_not Spectre::Expectation.be 666
+  end
+
   it 'should expect some truth' do
     the_truth = 42
 
     the_truth.should Spectre::Expectation.be 42
   end
-end
 
-Spectre.setup({})
-
-RUNS = Spectre.run
-
-RSpec.describe 'Spectre' do
-  it 'should run' do
-    expect(RUNS.count).to eq(4)
+  it 'should expect two value' do
+    the_truth = [42, 666, 86]
+    the_truth.should Spectre::Expectation.contain 42.and 86
   end
 
-  it 'should run some setup' do
-    run = RUNS[0]
+  it 'should expect one or another value' do
+    the_truth = 42
+    the_truth.should Spectre::Expectation.be 42.or 86
+  end
 
+  it 'should expect one or another value in a list' do
+    the_truth = [42, 666]
+    the_truth.should Spectre::Expectation.contain 42.or 86
+  end
+
+  it 'should match a regex' do
+    the_truth = 'the truth is 42'
+    the_truth.should Spectre::Expectation.match /42/
+  end
+end
+
+Spectre.describe 'Context' do
+  context 'within a new context' do
+    it 'should also run successfully' do
+      Spectre.logger.info 'some info from wihtin a context'
+    end
+  end
+end
+
+Spectre.describe 'Tag' do
+  it 'should run with the tag', tags: [:tagged, :another_tag] do
+    Spectre.logger.info 'do something tagged'
+  end
+
+  it 'should also run with tags', tags: [:tagged] do
+    Spectre.logger.info 'do something tagged'
+  end
+
+  it 'should not run with this tag', tags: [:tagged, :special_tag] do
+    Spectre.logger.info 'do something tagged'
+  end
+end
+
+
+# Run spectre
+
+all_runs = Spectre
+  .setup({})
+  .run
+
+runs_with_tags = Spectre
+  .setup({
+    'tags' => ['tagged']
+  })
+  .run
+
+runs_with_multiple_tags = Spectre
+  .setup({
+    'tags' => ['tagged+another_tag']
+  })
+  .run
+
+runs_with_different_tags = Spectre
+  .setup({
+    'tags' => ['tagged', 'another_tag']
+  })
+  .run
+
+runs_without_tag = Spectre
+  .setup({
+    'tags' => ['tagged+!special_tag']
+  })
+  .run
+
+
+# Describe RSpec tests
+
+RSpec.describe 'General' do
+  it 'should run' do
+    expect(all_runs.count).to eq(13)
+  end
+end
+
+RSpec.describe 'Logging' do
+  it 'should run some setup' do
+    run = all_runs[0]
+
+    expect(run.parent.desc).to eq('Logging')
     expect(run.error).to eq(nil)
-    expect(run.failure).to eq(nil)
     expect(run.failure).to eq(nil)
     expect(run.skipped).to eq(false)
     expect(run.logs.count).to eq(1)
@@ -55,13 +138,15 @@ RSpec.describe 'Spectre' do
   end
 
   it 'should run a spec successfully' do
-    run = RUNS[1]
+    run = all_runs[1]
 
+    expect(run.parent.parent.desc).to eq('Logging')
+    expect(run.parent.desc).to eq('should run successfully')
     expect(run.error).to eq(nil)
     expect(run.failure).to eq(nil)
-    expect(run.failure).to eq(nil)
     expect(run.skipped).to eq(false)
-    expect(run.logs.count).to eq(1)
+    expect(run.logs.count).to eq(2)
+    expect(run.parent.desc).to eq('should run successfully')
 
     timestamp, name, level, message, status, desc = run.logs.first
 
@@ -72,12 +157,14 @@ RSpec.describe 'Spectre' do
     expect(status).to eq(nil)
     expect(desc).to eq(nil)
   end
+end
 
-  it 'should run a spec with an expectation block' do
-    run = RUNS[2]
+RSpec.describe 'Expectation' do
+  it 'evaluates within an expect block' do
+    run = all_runs[2]
 
+    expect(run.parent.parent.desc).to eq('Expectation')
     expect(run.error).to eq(nil)
-    expect(run.failure).to eq(nil)
     expect(run.failure).to eq(nil)
     expect(run.skipped).to eq(false)
     expect(run.logs.count).to eq(1)
@@ -92,11 +179,11 @@ RSpec.describe 'Spectre' do
     expect(desc).to eq(nil)
   end
 
-  it 'should run a spec with a direct expectation' do
-    run = RUNS[3]
+  it 'evaluates "should_not be"' do
+    run = all_runs[3]
 
+    expect(run.parent.parent.desc).to eq('Expectation')
     expect(run.error).to eq(nil)
-    expect(run.failure).to eq(nil)
     expect(run.failure).to eq(nil)
     expect(run.skipped).to eq(false)
     expect(run.logs.count).to eq(1)
@@ -106,8 +193,119 @@ RSpec.describe 'Spectre' do
     expect(timestamp).to be_kind_of(DateTime)
     expect(name).to eq('spectre')
     expect(level).to eq(:debug)
-    expect(message).to eq('expect the_truth to be 42')
+    expect(message).to eq('expect the_truth not to be 666')
     expect(status).to eq(:ok)
     expect(desc).to eq(nil)
   end
+
+  it 'evaluates "should be"' do
+    run = all_runs[4]
+
+    expect(run.error).to eq(nil)
+    expect(run.failure).to eq(nil)
+    expect(run.skipped).to eq(false)
+    expect(run.logs.count).to eq(1)
+
+    timestamp, name, level, message, status, desc = run.logs[0]
+
+    expect(message).to eq('expect the_truth to be 42')
+    expect(status).to eq(:ok)
+  end
+
+  it 'evaluates "contain and"' do
+    run = all_runs[5]
+
+    expect(run.error).to eq(nil)
+    expect(run.failure).to eq(nil)
+    expect(run.skipped).to eq(false)
+    expect(run.logs.count).to eq(1)
+
+    timestamp, name, level, message, status, desc = run.logs[0]
+
+    expect(message).to eq('expect the_truth to contain 42 and 86')
+    expect(status).to eq(:ok)
+  end
+
+  it 'evaluates "be or"' do
+    run = all_runs[6]
+
+    expect(run.error).to eq(nil)
+    expect(run.failure).to eq(nil)
+    expect(run.skipped).to eq(false)
+    expect(run.logs.count).to eq(1)
+
+    timestamp, name, level, message, status, desc = run.logs[0]
+
+    expect(message).to eq('expect the_truth to be 42 or 86')
+    expect(status).to eq(:ok)
+  end
+
+  it 'evaluates "contain or" on a lists' do
+    run = all_runs[7]
+
+    expect(run.error).to eq(nil)
+    expect(run.failure).to eq(nil)
+    expect(run.skipped).to eq(false)
+    expect(run.logs.count).to eq(1)
+
+    timestamp, name, level, message, status, desc = run.logs[0]
+
+    expect(message).to eq('expect the_truth to contain 42 or 86')
+    expect(status).to eq(:ok)
+  end
+
+  it 'evaluates a "match regex"' do
+    run = all_runs[8]
+
+    expect(run.error).to eq(nil)
+    expect(run.failure).to eq(nil)
+    expect(run.skipped).to eq(false)
+    expect(run.logs.count).to eq(1)
+
+    timestamp, name, level, message, status, desc = run.logs[0]
+
+    expect(message).to eq('expect the_truth to match /42/')
+    expect(status).to eq(:ok)
+  end
 end
+
+RSpec.describe 'Context' do
+  it 'runs child contexts' do
+    run = all_runs[9]
+
+    expect(run.error).to eq(nil)
+    expect(run.failure).to eq(nil)
+    expect(run.skipped).to eq(false)
+    expect(run.logs.count).to eq(1)
+    expect(run.parent.parent.desc).to eq('within a new context')
+
+    timestamp, _name, _level, message, _status, _desc = run.logs.first
+
+    expect(message).to eq('some info from wihtin a context')
+  end
+end
+
+RSpec.describe 'Tag' do
+  it 'runs with a specific tag' do
+    expect(runs_with_tags.count).to eq(3)
+    expect(runs_with_tags[0].parent.desc).to eq('should run with the tag')
+    expect(runs_with_tags[1].parent.desc).to eq('should also run with tags')
+    expect(runs_with_tags[2].parent.desc).to eq('should not run with this tag')
+  end
+  it 'runs with multiple tags' do
+    expect(runs_with_multiple_tags.count).to eq(1)
+    expect(runs_with_tags[0].parent.desc).to eq('should run with the tag')
+  end
+  it 'runs with different tags' do
+    expect(runs_with_different_tags.count).to eq(3)
+    expect(runs_with_tags[0].parent.desc).to eq('should run with the tag')
+    expect(runs_with_tags[1].parent.desc).to eq('should also run with tags')
+    expect(runs_with_tags[2].parent.desc).to eq('should not run with this tag')
+  end
+  it 'runs without a specific tag' do
+    expect(runs_without_tag.count).to eq(2)
+    expect(runs_with_tags[0].parent.desc).to eq('should run with the tag')
+    expect(runs_with_tags[1].parent.desc).to eq('should also run with tags')
+  end
+end
+
