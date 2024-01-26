@@ -122,6 +122,44 @@ module Spectre
     end
   end
 
+  class NoopFormatter
+    def self.report runs
+    end
+
+    def self.list
+    end
+
+    def initialize name
+      @name = name
+    end
+
+    %i{debug info warn}.each do |method|
+      define_method(method) do |message|
+        log(method, message)
+      end
+    end
+
+    def log level, message, status=nil, desc=nil, timestamp=nil, &block
+      return if @locked
+
+      if block_given?
+        @locked = true
+        level, status, desc = yield
+        @locked = false
+      end
+
+      timestamp = timestamp || DateTime.now
+
+      RunContext.current.log(timestamp, @name, level, message, status, desc) unless RunContext.current.nil?
+
+      [level, status, desc]
+    end
+
+    def scope desc, subject, type
+      yield
+    end
+  end
+
   class ConsoleFormatter < FileLogger
     def self.report runs
       errors = runs.count { |x| !x.error.nil? }
