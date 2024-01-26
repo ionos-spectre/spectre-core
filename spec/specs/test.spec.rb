@@ -1,5 +1,3 @@
-require_relative '../lib/spectre'
-
 # Expose spectre methods
 %i{env describe bag mixin resources}.each do |method|
   define_method(method) do |*args, &block|

@@ -1,4 +1,4 @@
-require_relative 'spectre_definitions'
+require_relative '../lib/spectre'
 
 # Spectre
 #   .setup({

@@ -1,5 +1,3 @@
-require_relative 'spectre_definitions'
-
 RSpec.describe 'Expectation' do
   before do
     @runs = Spectre

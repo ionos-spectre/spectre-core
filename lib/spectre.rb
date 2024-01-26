@@ -650,7 +650,7 @@ module Spectre
     'debug' => false,
     'env_patterns' => ['environments/**/*.env.yml'],
     'env_partial_patterns' => ['./environments/**/*.env.secret.yml'],
-    'spec_patterns' => ['spec/**/*.spec.rb'],
+    'spec_patterns' => ['specs/**/*.spec.rb'],
     'mixin_patterns' => ['mixins/**/*.mixin.rb'],
     'resource_paths' => ['../common/resources', './resources'],
     'modules' => [],

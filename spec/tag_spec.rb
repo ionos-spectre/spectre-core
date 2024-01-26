@@ -1,5 +1,3 @@
-require_relative 'spectre_definitions'
-
 RSpec.describe 'Tag' do
   it 'runs with a specific tag' do
     specs = Spectre
