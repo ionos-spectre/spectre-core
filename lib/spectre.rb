@@ -204,14 +204,11 @@ module Spectre
     end
 
     def self.list
-      specs = CONTEXTS.map do |context|
-        context.all_specs
-      end.flatten
-
       colors = [:blue, :magenta, :yellow, :green]
       counter = 0
 
-      specs
+      Spectre
+        .list 
         .group_by { |x| x.parent.root }
         .each do |_context, spec_group|
           spec_group.each do |spec|
@@ -342,7 +339,10 @@ module Spectre
         }
       end
 
-      puts CONTEXTS.map(&context_to_hash).to_json
+      puts Spectre
+        .list
+        .group_by { |x| x.parent.root }
+        .map(&context_to_hash).to_json
     end
 
     def initialize name
@@ -596,14 +596,6 @@ module Spectre
     end
 
     def run spec_filter=[], tags=[]
-      specs = @specs.select do |spec|
-        (spec_filter.empty? and tags.empty?) or
-        (spec_filter.any? { |x| spec.name.match?('^' + x.gsub('*', '.*') + '$') }) or
-        (tags.any? { |x| tag?(spec.tags, x) })
-      end
-
-      return [] if specs.empty? and @children.empty?
-
       runs = []
 
       Spectre.logger.scope(@desc, self, :context) do
@@ -644,16 +636,6 @@ module Spectre
       end
 
       runs
-    end
-
-    private
-
-    def tag? tags, tag_exp
-      tags = tags.map { |x| x.to_s }
-      all_tags = tag_exp.split('+')
-      included_tags = all_tags.select { |x| !x.start_with? '!' }
-      excluded_tags = all_tags.select { |x| x.start_with? '!' }.map { |x| x[1..-1] }
-      included_tags & tags == included_tags and excluded_tags & tags == []
     end
   end
 
@@ -768,13 +750,30 @@ module Spectre
       Object.const_get(CONFIG['formatter']).new(name)
     end
 
+    def list 
+      spec_filter = CONFIG['specs']
+      tag_filter = CONFIG['tags']
+
+      CONTEXTS
+        .map { |x| x.all_specs }
+        .flatten
+        .select do |spec|
+          (spec_filter.empty? and tag_filter.empty?) or
+          (spec_filter.empty? or spec_filter.any? { |x| spec.name.match?('^' + x.gsub('*', '.*') + '$') }) and
+          (tag_filter.empty? or tag_filter.any? { |x| tag?(spec.tags, x) })
+        end
+    end
+
     def run
-      CONTEXTS.map do |context|
-        context.run(CONFIG['specs'], CONFIG['tags'])
-      end.flatten
+      list 
+        .group_by { |x| x.parent.root }
+        .map do |context, _specs|
+          context.run
+        end.flatten
     end
 
     def describe(name, &)
+      # TODO check if context already exists and use it
       main_context = DefinitionContext.new(name)
       main_context.instance_eval(&)
       CONTEXTS << main_context
@@ -793,6 +792,14 @@ module Spectre
     end
 
     private
+
+    def tag? tags, tag_exp
+      tags = tags.map { |x| x.to_s }
+      all_tags = tag_exp.split('+')
+      included_tags = all_tags.select { |x| !x.start_with? '!' }
+      excluded_tags = all_tags.select { |x| x.start_with? '!' }.map { |x| x[1..-1] }
+      included_tags & tags == included_tags and excluded_tags & tags == []
+    end
 
     def load_files patterns
       patterns.each do |pattern|
