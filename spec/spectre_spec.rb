@@ -18,7 +18,7 @@ Spectre.describe 'Logging' do
 end
 
 Spectre.describe 'Expectation' do
-  it 'should expect some truthy block' do
+  it 'evaluates within an expect block' do
     the_truth = 42
 
     expect 'to succeed' do
@@ -26,34 +26,34 @@ Spectre.describe 'Expectation' do
     end
   end
 
-  it 'should should expect not the given value' do
+  it 'evaluates "should_not be"' do
     the_truth = 42
 
     the_truth.should_not Spectre::Expectation.be 666
   end
 
-  it 'should expect some truth' do
+  it 'evaluates "should be"' do
     the_truth = 42
 
     the_truth.should Spectre::Expectation.be 42
   end
 
-  it 'should expect two value' do
-    the_truth = [42, 666, 86]
-    the_truth.should Spectre::Expectation.contain 42.and 86
+  it 'evaluates "should contain and" with a list' do
+    the_truth_list = [42, 666, 86]
+    the_truth_list.should Spectre::Expectation.contain 42.and 86
   end
 
-  it 'should expect one or another value' do
+  it 'evaluates "should be or" with a single value' do
     the_truth = 42
     the_truth.should Spectre::Expectation.be 42.or 86
   end
 
-  it 'should expect one or another value in a list' do
-    the_truth = [42, 666]
-    the_truth.should Spectre::Expectation.contain 42.or 86
+  it 'evaluates "should contain or" with a list' do
+    the_truth_list = [42, 666]
+    the_truth_list.should Spectre::Expectation.contain 42.or 86
   end
 
-  it 'should match a regex' do
+  it 'evaluate "should match"' do
     the_truth = 'the truth is 42'
     the_truth.should Spectre::Expectation.match /42/
   end
@@ -61,7 +61,7 @@ end
 
 Spectre.describe 'Context' do
   context 'within a new context' do
-    it 'should also run successfully' do
+    it 'should run within a child context' do
       Spectre.logger.info 'some info from wihtin a context'
     end
   end
@@ -90,24 +90,28 @@ all_runs = Spectre
 
 runs_with_tags = Spectre
   .setup({
+    'formatter'=> 'Spectre::NoopFormatter',
     'tags' => ['tagged']
   })
   .run
 
 runs_with_multiple_tags = Spectre
   .setup({
+    'formatter'=> 'Spectre::NoopFormatter',
     'tags' => ['tagged+another_tag']
   })
   .run
 
 runs_with_different_tags = Spectre
   .setup({
+    'formatter'=> 'Spectre::NoopFormatter',
     'tags' => ['tagged', 'another_tag']
   })
   .run
 
 runs_without_tag = Spectre
   .setup({
+    'formatter'=> 'Spectre::NoopFormatter',
     'tags' => ['tagged+!special_tag']
   })
   .run
@@ -122,7 +126,7 @@ RSpec.describe 'General' do
 end
 
 RSpec.describe 'Logging' do
-  it 'should run some setup' do
+  it 'runs: setup' do
     run = all_runs[0]
 
     expect(run.parent.desc).to eq('Logging')
@@ -137,7 +141,7 @@ RSpec.describe 'Logging' do
     expect(message).to eq('do some setting up')
   end
 
-  it 'should run a spec successfully' do
+  it 'runs: should run successfully' do
     run = all_runs[1]
 
     expect(run.parent.parent.desc).to eq('Logging')
@@ -160,7 +164,7 @@ RSpec.describe 'Logging' do
 end
 
 RSpec.describe 'Expectation' do
-  it 'evaluates within an expect block' do
+  it 'runs: evaluates within an expect block' do
     run = all_runs[2]
 
     expect(run.parent.parent.desc).to eq('Expectation')
@@ -179,7 +183,7 @@ RSpec.describe 'Expectation' do
     expect(desc).to eq(nil)
   end
 
-  it 'evaluates "should_not be"' do
+  it 'runs: evaluates "should_not be"' do
     run = all_runs[3]
 
     expect(run.parent.parent.desc).to eq('Expectation')
@@ -198,7 +202,7 @@ RSpec.describe 'Expectation' do
     expect(desc).to eq(nil)
   end
 
-  it 'evaluates "should be"' do
+  it 'runs: evaluates "should be"' do
     run = all_runs[4]
 
     expect(run.error).to eq(nil)
@@ -212,7 +216,7 @@ RSpec.describe 'Expectation' do
     expect(status).to eq(:ok)
   end
 
-  it 'evaluates "contain and"' do
+  it 'evaluates "should contain and" with a list' do
     run = all_runs[5]
 
     expect(run.error).to eq(nil)
@@ -222,11 +226,11 @@ RSpec.describe 'Expectation' do
 
     timestamp, name, level, message, status, desc = run.logs[0]
 
-    expect(message).to eq('expect the_truth to contain 42 and 86')
+    expect(message).to eq('expect the_truth_list to contain 42 and 86')
     expect(status).to eq(:ok)
   end
 
-  it 'evaluates "be or"' do
+  it 'evaluates "should be or" with a single value' do
     run = all_runs[6]
 
     expect(run.error).to eq(nil)
@@ -240,7 +244,7 @@ RSpec.describe 'Expectation' do
     expect(status).to eq(:ok)
   end
 
-  it 'evaluates "contain or" on a lists' do
+  it 'evaluates "should contain or" with a list' do
     run = all_runs[7]
 
     expect(run.error).to eq(nil)
@@ -250,11 +254,11 @@ RSpec.describe 'Expectation' do
 
     timestamp, name, level, message, status, desc = run.logs[0]
 
-    expect(message).to eq('expect the_truth to contain 42 or 86')
+    expect(message).to eq('expect the_truth_list to contain 42 or 86')
     expect(status).to eq(:ok)
   end
 
-  it 'evaluates a "match regex"' do
+  it 'evaluate "should match"' do
     run = all_runs[8]
 
     expect(run.error).to eq(nil)
@@ -270,7 +274,7 @@ RSpec.describe 'Expectation' do
 end
 
 RSpec.describe 'Context' do
-  it 'runs child contexts' do
+  it 'should run within a child context' do
     run = all_runs[9]
 
     expect(run.error).to eq(nil)
@@ -292,16 +296,19 @@ RSpec.describe 'Tag' do
     expect(runs_with_tags[1].parent.desc).to eq('should also run with tags')
     expect(runs_with_tags[2].parent.desc).to eq('should not run with this tag')
   end
+
   it 'runs with multiple tags' do
     expect(runs_with_multiple_tags.count).to eq(1)
     expect(runs_with_tags[0].parent.desc).to eq('should run with the tag')
   end
+
   it 'runs with different tags' do
     expect(runs_with_different_tags.count).to eq(3)
     expect(runs_with_tags[0].parent.desc).to eq('should run with the tag')
     expect(runs_with_tags[1].parent.desc).to eq('should also run with tags')
     expect(runs_with_tags[2].parent.desc).to eq('should not run with this tag')
   end
+
   it 'runs without a specific tag' do
     expect(runs_without_tag.count).to eq(2)
     expect(runs_with_tags[0].parent.desc).to eq('should run with the tag')
