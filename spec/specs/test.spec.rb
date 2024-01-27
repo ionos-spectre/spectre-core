@@ -29,6 +29,12 @@ Spectre.describe 'General' do
   end
 end
 
+Spectre.describe 'General' do
+  it 'another general run defined in different block' do
+    info 'some info'
+  end
+end
+
 Spectre.describe 'Expectation' do
   it 'evaluates within an expect block' do
     the_truth = 42

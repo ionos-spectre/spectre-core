@@ -732,10 +732,13 @@ module Spectre
       end
 
       # Load specs
+      # Note that spec files are only loaded once, because of the relative require,
+      # even if the setup function is called multiple times
       load_files(CONFIG['spec_patterns'])
       CONTEXTS.freeze
 
       # Load mixins
+      # Mixins are also only loaded once
       load_files(CONFIG['mixin_patterns'])
       MIXINS.freeze
 
@@ -773,10 +776,14 @@ module Spectre
     end
 
     def describe(name, &)
-      # TODO check if context already exists and use it
-      main_context = DefinitionContext.new(name)
+      main_context = CONTEXTS.find { |x| x.desc == name }
+
+      if main_context.nil?
+        main_context = DefinitionContext.new(name) 
+        CONTEXTS << main_context
+      end
+
       main_context.instance_eval(&)
-      CONTEXTS << main_context
     end
 
     def mixin desc, &block
