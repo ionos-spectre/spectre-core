@@ -2,6 +2,7 @@ RSpec.describe 'Tag' do
   it 'runs with a specific tag' do
     specs = Spectre
       .setup({
+        'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
         'specs' => ['tag-*'],
         'formatter' => 'Spectre::NoopFormatter',
         'tags' => ['tagged']

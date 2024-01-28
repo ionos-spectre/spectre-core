@@ -2,6 +2,7 @@ RSpec.describe 'Context' do
   before do
     @runs = Spectre
       .setup({
+        'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
         'specs' => ['context-*'],
         'formatter' => 'Spectre::NoopFormatter',
       })

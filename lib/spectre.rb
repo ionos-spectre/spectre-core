@@ -681,9 +681,10 @@ module Spectre
       end
 
       # Load main spectre config
-      main_config_file = File.join(Dir.pwd, CONFIG['config_file'])
+      main_config_file = config_overrides['config_file'] || CONFIG['config_file']
 
       if File.exist? main_config_file
+        Dir.chdir(File.dirname(main_config_file))
         main_config = load_yaml(main_config_file)
         CONFIG.deep_merge!(main_config)
       end

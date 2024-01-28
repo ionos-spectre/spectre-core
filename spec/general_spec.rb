@@ -12,6 +12,7 @@ RSpec.describe 'General' do
   before do
     @runs = Spectre
       .setup({
+        'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
         'specs' => ['general-*'],
         'formatter' => 'Spectre::NoopFormatter',
       })

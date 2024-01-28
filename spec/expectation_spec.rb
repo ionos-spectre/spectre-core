@@ -2,6 +2,7 @@ RSpec.describe 'Expectation' do
   before do
     @runs = Spectre
       .setup({
+        'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
         'specs' => ['expectation-*'],
         'formatter' => 'Spectre::NoopFormatter',
       })
