@@ -466,6 +466,8 @@ module Spectre
 
     def run desc, with: []
       Spectre.logger.scope(desc, self, :mixin) do
+        with = [with.to_recursive_struct] if with.is_a? Hash
+        
         instance_exec(*with, &MIXINS[desc])
       end
     end
