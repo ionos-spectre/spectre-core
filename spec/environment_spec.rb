@@ -18,8 +18,15 @@ RSpec.describe 'Environment' do
     expect(run.failure).to eq(nil)
   end
 
-  it 'should use env variable in spec definition' do
+  it 'should access a variable from a partial environment' do
     run = @runs[1]
+
+    expect(run.error).to eq(nil)
+    expect(run.failure).to eq(nil)
+  end
+
+  it 'should use env variable in spec definition' do
+    run = @runs[2]
 
     expect(run.error).to eq(nil)
     expect(run.failure).to eq(nil)

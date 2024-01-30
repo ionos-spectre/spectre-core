@@ -651,7 +651,7 @@ module Spectre
     'tags' => [],
     'debug' => false,
     'env_patterns' => ['environments/**/*.env.yml'],
-    'env_partial_patterns' => ['./environments/**/*.env.secret.yml'],
+    'env_partial_patterns' => ['environments/**/*.env.secret.yml'],
     'spec_patterns' => ['specs/**/*.spec.rb'],
     'mixin_patterns' => ['mixins/**/*.mixin.rb'],
     'resource_paths' => ['../common/resources', './resources'],
@@ -701,7 +701,7 @@ module Spectre
         Dir.glob(pattern).each do |file_path|
           loaded_env = load_yaml(file_path)
           env_name = loaded_env['name'] || DEFAULT_ENV_NAME
-          ENVIRONMENTS[env_name].deep_merge!(loaded_env) unless ENVIRONMENTS.key?(env_name)
+          ENVIRONMENTS[env_name].deep_merge!(loaded_env) if ENVIRONMENTS.key?(env_name)
         end
       end
 
