@@ -116,3 +116,13 @@ Spectre.describe 'Mixin' do
     also 'run some mixin with hash parameters', with: { foo: 'bar' }
   end
 end
+
+Spectre.describe 'Environment' do
+  it 'should access a variable from the environment' do
+    env.foo.should be 'bar'
+  end
+
+  it 'should use env variable in spec definition', with: [env.foo] do |data|
+    data.should be 'bar'
+  end
+end

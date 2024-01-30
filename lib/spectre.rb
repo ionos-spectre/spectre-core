@@ -734,6 +734,9 @@ module Spectre
         end
       end
 
+      # Set env before loading specs in order to make it available in spec definitions
+      @env = CONFIG.to_recursive_struct.freeze
+
       # Load specs
       # Note that spec files are only loaded once, because of the relative require,
       # even if the setup function is called multiple times
@@ -744,8 +747,6 @@ module Spectre
       # Mixins are also only loaded once
       load_files(CONFIG['mixin_patterns'])
       MIXINS.freeze
-
-      @env = OpenStruct.new(CONFIG).freeze
 
       @logger = create_logger('spectre')
 
