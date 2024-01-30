@@ -1,13 +1,5 @@
 require_relative '../lib/spectre'
 
-# Spectre
-#   .setup({
-#     'specs' => [],
-#     'tags' => [],
-#     'formatter' => 'Spectre::ConsoleFormatter',
-#   })
-#   .run
-
 RSpec.describe 'General' do
   before do
     @runs = Spectre
@@ -15,6 +7,18 @@ RSpec.describe 'General' do
         'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
         'specs' => ['general-*'],
         'formatter' => 'Spectre::NoopFormatter',
+      })
+      .run
+  end
+
+  it 'should have a pretty output' do
+    puts
+
+    Spectre
+      .setup({
+        'specs' => [],
+        'tags' => [],
+        'formatter' => 'Spectre::ConsoleFormatter',
       })
       .run
   end
