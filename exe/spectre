@@ -43,10 +43,6 @@ OptionParser.new do |opts|
     Spectre::CONFIG['env_patterns'] = env_patterns
   end
 
-  opts.on('--no-color', 'Disable colored output') do
-    Spectre::CONFIG['colored'] = false
-  end
-
   opts.on('--ignore-failure', 'Always exit with code 0') do
     Spectre::CONFIG['ignore_failure'] = true
   end
@@ -130,9 +126,6 @@ end
 
 # Setup spectre
 Spectre.setup(config_overrides)
-
-# Set colored output
-String.colored! if Spectre::CONFIG['colored']
 
 # Determine action
 action = ARGV[0] || 'run'
