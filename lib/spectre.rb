@@ -656,7 +656,6 @@ module Spectre
     'mixin_patterns' => ['mixins/**/*.mixin.rb'],
     'resource_paths' => ['../common/resources', './resources'],
     'modules' => [],
-    'colored' => true,
   }
 
   CONTEXTS = []
