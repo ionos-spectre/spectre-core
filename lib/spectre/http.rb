@@ -282,7 +282,7 @@ module Spectre
           net_http.use_ssl = true
 
           if req['cert']
-            raise HttpError.new("Certificate '#{req['cert']}' does not exist") unless File.exists? req['cert']
+            raise HttpError.new("Certificate '#{req['cert']}' does not exist") unless File.exist? req['cert']
 
             net_http.verify_mode = OpenSSL::SSL::VERIFY_PEER
             net_http.ca_file = req['cert']

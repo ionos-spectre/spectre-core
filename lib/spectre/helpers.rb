@@ -52,7 +52,7 @@ class ::String
   # File helpers
 
   def content with: nil
-    fail "'#{self}' is not a file path, or the file does not exist." unless File.exists? self
+    fail "'#{self}' is not a file path, or the file does not exist." unless File.exist? self
 
     file_content = File.read(self)
 
@@ -64,17 +64,17 @@ class ::String
   end
 
   def file_size
-    fail "'#{self}' is not a file path, or the file does not exist." unless File.exists? self
+    fail "'#{self}' is not a file path, or the file does not exist." unless File.exist? self
 
     File.size(self)
   end
 
   def exists?
-    File.exists? self
+    File.exist? self
   end
 
   def remove!
-    fail "'#{self}' is not a file path, or the file does not exist." unless File.exists? self
+    fail "'#{self}' is not a file path, or the file does not exist." unless File.exist? self
 
     File.delete self
   end

@@ -187,7 +187,7 @@ cfg.deep_merge! DEFAULT_CONFIG
 # Load global config file first
 global_config_file = File.join File.expand_path('~'), '.spectre'
 
-if File.exists? global_config_file
+if File.exist? global_config_file
   global_options = load_yaml(global_config_file)
   cfg.deep_merge! global_options if global_options
 end
@@ -195,7 +195,7 @@ end
 # Then load local config file
 config_file = cmd_options['config_file'] || cfg['config_file']
 
-if File.exists? config_file
+if File.exist? config_file
   file_options = load_yaml(config_file)
   cfg.deep_merge! file_options
   Dir.chdir File.dirname(config_file)
@@ -332,10 +332,10 @@ if ['list', 'run'].include? action
           mod_file = mod + '.rb'
           spectre_lib_mod = File.join(File.dirname(__dir__), 'lib', mod_file)
 
-          if File.exists? mod_file
+          if File.exist? mod_file
             require_relative mod_file
 
-          elsif File.exists? spectre_lib_mod
+          elsif File.exist? spectre_lib_mod
             require_relative spectre_lib_mod
 
           else
@@ -550,7 +550,7 @@ if 'init' == action
   end
 
   DEFAULT_FILES.each do |file, content|
-    unless File.exists? file
+    unless File.exist? file
       File.write(file, content)
     end
   end
