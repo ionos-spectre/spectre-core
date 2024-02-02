@@ -399,7 +399,7 @@ module Spectre
   end
 
   class RunContext
-    attr_reader :id, :name, :parent, :logs, :error, :failure, :skipped, :started, :finished
+    attr_reader :id, :name, :parent, :data, :type, :logs, :error, :failure, :skipped, :started, :finished
 
     @@current = nil
 
@@ -407,11 +407,12 @@ module Spectre
       @@current
     end
 
-    def initialize parent, data
+    def initialize parent, data, type
       @id = SecureRandom.hex(5)
 
       @parent = parent
       @data = data
+      @type = type
       @logs = []
 
       @error = nil
@@ -508,7 +509,7 @@ module Spectre
 
     def run befores, afters
       @data.map do |data|
-        RunContext.new(self, data) do |run_context|
+        RunContext.new(self, data, :spec) do |run_context|
           Spectre.logger.scope('it ' + @desc, self, :spec) do
             begin
               if befores.any?
@@ -604,7 +605,7 @@ module Spectre
         setup_run = nil
 
         if @setups.any?
-          setup_run = RunContext.new(self, nil) do |run_context|
+          setup_run = RunContext.new(self, nil, :setup) do |run_context|
             Spectre.logger.scope('setup', self, :setup) do
               @setups.each do |block|
                 run_context.execute(&block)
@@ -623,7 +624,7 @@ module Spectre
         end
 
         if @teardowns.any?
-          runs << RunContext.new(self, nil) do |run_context|
+          runs << RunContext.new(self, nil, :teardown) do |run_context|
             Spectre.logger.scope('teardown', self, :teardown) do
               @teardowns.each do |block|
                 run_context.execute(&block)

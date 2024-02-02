@@ -10,17 +10,31 @@ RSpec.describe 'Context' do
   end
 
   it 'should run within a child context' do
-    run = @runs[0]
+    expect(@runs[0].type).to eq(:setup)
+    expect(@runs[0].logs[0][3]).to eq('do some setting up')
 
-    expect(run.error).to eq(nil)
-    expect(run.failure).to eq(nil)
-    expect(run.skipped).to eq(false)
-    expect(run.logs.count).to eq(1)
-    expect(run.parent.parent.desc).to eq('within a new context')
+    expect(@runs[1].type).to eq(:spec)
+    expect(@runs[1].logs.count).to eq(3)
+    expect(@runs[1].parent.desc).to eq('should run within a main context')
+    expect(@runs[1].parent.parent.desc).to eq('Context')
+    expect(@runs[1].logs[0][3]).to eq('some info from before in main context')
+    expect(@runs[1].logs[1][3]).to eq('some info')
+    expect(@runs[1].logs[2][3]).to eq('some info from after in main context')
 
-    timestamp, _name, _level, message, _status, _desc = run.logs.first
+    expect(@runs[2].type).to eq(:teardown)
+    expect(@runs[2].logs[0][3]).to eq('do some tearing down')
 
-    expect(message).to eq('some info from wihtin a context')
+    expect(@runs[3].type).to eq(:setup)
+    expect(@runs[3].logs[0][3]).to eq('do some setting up in child context')
+
+    expect(@runs[4].logs.count).to eq(3)
+    expect(@runs[4].parent.desc).to eq('should run within a child context')
+    expect(@runs[4].parent.parent.desc).to eq('within a child context')
+    expect(@runs[4].logs[0][3]).to eq('some info from before in child context')
+    expect(@runs[4].logs[1][3]).to eq('some info from wihtin a context')
+    expect(@runs[4].logs[2][3]).to eq('some info from after in child context')
+
+    expect(@runs[5].logs[0][3]).to eq('do some tearing down in child context')
   end
 end
 
