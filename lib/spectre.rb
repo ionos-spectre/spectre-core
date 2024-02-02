@@ -139,7 +139,7 @@ module Spectre
       end
     end
 
-    def log level, message, status=nil, desc=nil, timestamp=nil, &block
+    def log level, message, status=nil, desc=nil, timestamp=nil
       return if @locked
 
       if block_given?
@@ -155,7 +155,7 @@ module Spectre
       [level, status, desc]
     end
 
-    def scope desc, subject, type
+    def scope _desc, _subject, _type
       yield
     end
   end
@@ -208,7 +208,7 @@ module Spectre
       counter = 0
 
       Spectre
-        .list 
+        .list
         .group_by { |x| x.parent.root }
         .each do |_context, spec_group|
           spec_group.each do |spec|
@@ -468,7 +468,7 @@ module Spectre
     def run desc, with: []
       Spectre.logger.scope(desc, self, :mixin) do
         with = [with.to_recursive_struct] if with.is_a? Hash
-        
+
         instance_exec(*with, &MIXINS[desc])
       end
     end
@@ -757,7 +757,7 @@ module Spectre
       Object.const_get(CONFIG['formatter']).new(name)
     end
 
-    def list 
+    def list
       spec_filter = CONFIG['specs']
       tag_filter = CONFIG['tags']
 
@@ -772,7 +772,7 @@ module Spectre
     end
 
     def run
-      list 
+      list
         .group_by { |x| x.parent.root }
         .map do |context, _specs|
           context.run
@@ -783,7 +783,7 @@ module Spectre
       main_context = CONTEXTS.find { |x| x.desc == name }
 
       if main_context.nil?
-        main_context = DefinitionContext.new(name) 
+        main_context = DefinitionContext.new(name)
         CONTEXTS << main_context
       end
 

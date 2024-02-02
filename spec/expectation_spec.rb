@@ -55,7 +55,7 @@ RSpec.describe 'Expectation' do
     expect(run.skipped).to eq(false)
     expect(run.logs.count).to eq(1)
 
-    timestamp, name, level, message, status, desc = run.logs[0]
+    _, _, _, message, status, _ = run.logs[0]
 
     expect(message).to eq('expect the_truth to be 42')
     expect(status).to eq(:ok)
@@ -69,7 +69,7 @@ RSpec.describe 'Expectation' do
     expect(run.skipped).to eq(false)
     expect(run.logs.count).to eq(1)
 
-    timestamp, name, level, message, status, desc = run.logs[0]
+    _, _, _, message, status, _ = run.logs[0]
 
     expect(message).to eq('expect the_truth_list to contain 42 and 86')
     expect(status).to eq(:ok)
@@ -83,7 +83,7 @@ RSpec.describe 'Expectation' do
     expect(run.skipped).to eq(false)
     expect(run.logs.count).to eq(1)
 
-    timestamp, name, level, message, status, desc = run.logs[0]
+    _, _, _, message, status, _ = run.logs[0]
 
     expect(message).to eq('expect the_truth to be 42 or 86')
     expect(status).to eq(:ok)
@@ -97,7 +97,7 @@ RSpec.describe 'Expectation' do
     expect(run.skipped).to eq(false)
     expect(run.logs.count).to eq(1)
 
-    timestamp, name, level, message, status, desc = run.logs[0]
+    _, _, _, message, status, _ = run.logs[0]
 
     expect(message).to eq('expect the_truth_list to contain 42 or 86')
     expect(status).to eq(:ok)
@@ -111,7 +111,7 @@ RSpec.describe 'Expectation' do
     expect(run.skipped).to eq(false)
     expect(run.logs.count).to eq(1)
 
-    timestamp, name, level, message, status, desc = run.logs[0]
+    _, _, _, message, status, _ = run.logs[0]
 
     expect(message).to eq('expect the_truth to match /42/')
     expect(status).to eq(:ok)

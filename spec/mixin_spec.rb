@@ -19,7 +19,7 @@ RSpec.describe 'Mixin' do
     expect(run.parent.desc).to eq('executes a mixin')
     expect(run.logs.count).to eq(1)
 
-    timestamp, name, level, message, status, desc = run.logs.first
+    _, name, level, message, _, _ = run.logs.first
 
     expect(name).to eq('spectre')
     expect(level).to eq(:info)
@@ -28,7 +28,7 @@ RSpec.describe 'Mixin' do
 
   it 'runs some mixin with list parameters' do
     run = @runs[1]
-    
+
     expect(run.failure).to be_nil
     expect(run.error).to be_nil
     expect(run.logs.count).to eq(2)
@@ -36,7 +36,7 @@ RSpec.describe 'Mixin' do
 
   it 'runs some mixin with hash parameters' do
     run = @runs[2]
-    
+
     expect(run.failure).to be_nil
     expect(run.error).to be_nil
     expect(run.logs.count).to eq(1)

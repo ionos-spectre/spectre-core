@@ -5,7 +5,7 @@ RSpec.describe 'Tag' do
         'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
         'specs' => ['tag-*'],
         'formatter' => 'Spectre::NoopFormatter',
-        'tags' => ['tagged']
+        'tags' => ['tagged'],
       })
       .list
 
@@ -20,7 +20,7 @@ RSpec.describe 'Tag' do
       .setup({
         'specs' => ['tag-*'],
         'formatter' => 'Spectre::NoopFormatter',
-        'tags' => ['tagged+another_tag']
+        'tags' => ['tagged+another_tag'],
       })
       .list
 
@@ -33,7 +33,7 @@ RSpec.describe 'Tag' do
       .setup({
         'specs' => ['tag-*'],
         'formatter' => 'Spectre::NoopFormatter',
-        'tags' => ['tagged', 'another_tag']
+        'tags' => ['tagged', 'another_tag'],
       })
       .list
 
@@ -48,7 +48,7 @@ RSpec.describe 'Tag' do
       .setup({
         'specs' => ['tag-*'],
         'formatter' => 'Spectre::NoopFormatter',
-        'tags' => ['tagged+!special_tag']
+        'tags' => ['tagged+!special_tag'],
       })
       .list
 
@@ -57,4 +57,3 @@ RSpec.describe 'Tag' do
     expect(specs[1].desc).to eq('should also run with tags')
   end
 end
-

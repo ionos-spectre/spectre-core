@@ -45,4 +45,3 @@ Spectre.describe 'Expectation' do
     the_truth.should match /42/
   end
 end
-

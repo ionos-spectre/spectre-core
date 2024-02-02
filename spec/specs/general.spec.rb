@@ -20,4 +20,3 @@ Spectre.describe 'General' do
     info 'some info'
   end
 end
-

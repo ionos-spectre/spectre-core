@@ -10,7 +10,7 @@ Spectre.describe 'Tag' do
   it 'should not run with this tag', tags: [:tagged, :special_tag] do
     info 'do something tagged'
   end
-  
+
   it 'has no tags' do
     info 'do something without any tags'
   end

@@ -37,4 +37,3 @@ RSpec.describe 'Context' do
     expect(@runs[5].logs[0][3]).to eq('do some tearing down in child context')
   end
 end
-
