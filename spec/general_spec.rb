@@ -12,20 +12,19 @@ RSpec.describe 'General' do
   end
 
   it 'should have a pretty output' do
-    puts
-
     Spectre
       .setup({
         'specs' => [],
         'tags' => [],
         'formatter' => 'Spectre::ConsoleFormatter',
+        # 'debug' => true,
       })
       .run
   end
 
   it 'should run' do
     expect(Spectre::CONTEXTS.select { |x| x.desc == 'General' }.count).to eq(1)
-    expect(@runs.count).to eq(3)
+    expect(@runs.count).to eq(6)
   end
 
   it 'runs: setup' do
@@ -51,7 +50,7 @@ RSpec.describe 'General' do
     expect(run.error).to eq(nil)
     expect(run.failure).to eq(nil)
     expect(run.skipped).to eq(false)
-    expect(run.logs.count).to eq(2)
+    expect(run.logs.count).to eq(3)
     expect(run.parent.desc).to eq('should run successfully')
 
     timestamp, name, level, message, status, desc = run.logs.first
@@ -62,5 +61,65 @@ RSpec.describe 'General' do
     expect(message).to eq('some info')
     expect(status).to eq(nil)
     expect(desc).to eq(nil)
+  end
+
+  it 'runs: should run with an error' do
+    run = @runs[3]
+
+    expect(run.error).to be_kind_of(RuntimeError)
+    expect(run.error.message).to eq('Oops!')
+    expect(run.failure).to eq(nil)
+    expect(run.logs.count).to eq(1)
+
+    timestamp, name, level, message, status, desc = run.logs.first
+
+    expect(name).to eq('spectre')
+    expect(level).to eq(:fatal)
+    expect(message).to eq('Oops!')
+    expect(status).to eq(:error)
+    expect(desc).to eq('RuntimeError')
+  end
+
+  it 'runs: should run with a failure' do
+    run = @runs[4]
+
+    expect(run.error).to eq(nil)
+
+    expect(run.failure).to be_kind_of(Spectre::Expectation::ExpectationFailure)
+    expect(run.failure.message).to eq('fail for fun')
+    expect(run.failure.desc).to eq(nil)
+
+    expect(run.logs.count).to eq(1)
+
+    timestamp, name, level, message, status, desc, exception = run.logs.first
+
+    expect(name).to eq('spectre')
+    expect(level).to eq(:error)
+    expect(message).to eq('fail for fun')
+    expect(status).to eq(:failed)
+    expect(desc).to eq(nil)
+    expect(exception).to be(nil)
+  end
+
+  it 'runs: should run with an expectation failure' do
+    run = @runs[5]
+
+    expect(run.error).to eq(nil)
+
+    expect(run.failure).to be_kind_of(Spectre::Expectation::ExpectationFailure)
+    expect(run.failure.message).to eq('expected to succeed, but it failed with "fail for fun"')
+    expect(run.failure.desc).to eq(nil)
+
+    expect(run.logs.count).to eq(1)
+
+    timestamp, name, level, message, status, desc, exception = run.logs.first
+
+    expect(name).to eq('spectre')
+    expect(level).to eq(:error)
+    expect(message).to eq('expect to succeed')
+    expect(status).to eq(:failed)
+    expect(desc).to eq(nil)
+    expect(exception).to be_kind_of(Spectre::Expectation::ExpectationFailure)
+    expect(exception.message).to eq('expected to succeed, but it failed with "fail for fun"')
   end
 end

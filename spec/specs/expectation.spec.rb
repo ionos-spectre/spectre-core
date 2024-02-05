@@ -11,6 +11,8 @@ Spectre.describe 'Expectation' do
     expect 'to succeed' do
       the_truth.should be 42
     end
+
+    info 'this message is never logged'
   end
 
   it 'evaluates "should_not be"' do
@@ -20,9 +22,9 @@ Spectre.describe 'Expectation' do
   end
 
   it 'evaluates "should be"' do
-    the_truth = 42
+    the_truth = OpenStruct.new(value: 42)
 
-    the_truth.should be 42
+    the_truth.value.should be 42
   end
 
   it 'evaluates "should contain and" with a list' do
@@ -43,5 +45,11 @@ Spectre.describe 'Expectation' do
   it 'evaluate "should match"' do
     the_truth = 'the truth is 42'
     the_truth.should match /42/
+  end
+
+  it 'fails "should be"' do
+    the_truth = 666
+
+    the_truth.should be 42
   end
 end

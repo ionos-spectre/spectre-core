@@ -60,6 +60,9 @@ class String
 end
 
 module Spectre
+  class CancelException < Exception
+  end
+
   class FileLogger
     def initialize name
       @name = name
@@ -81,25 +84,25 @@ module Spectre
     end
 
     def scope desc, subject, type
-      write_to_file(DateTime.now, :debug, "# BEGIN #{type} [#{subject.name}] #{desc}", nil, nil)
+      write_to_file(DateTime.now, :debug, "# BEGIN #{type} [#{subject.name}] #{desc}", nil, nil, nil)
 
       yield
 
-      write_to_file(DateTime.now, :debug, "# END #{type} [#{subject.name}] #{desc}", nil, nil)
+      write_to_file(DateTime.now, :debug, "# END #{type} [#{subject.name}] #{desc}", nil, nil, nil)
     end
 
-    def log level, message, status=nil, desc=nil, timestamp=nil
+    def log level, message, status=nil, desc=nil, exception=nil, timestamp=nil
       if block_given?
-        level, status, desc = yield
+        level, status, desc, exception = yield
       end
 
       timestamp = timestamp || DateTime.now
 
-      write_to_file(timestamp, level, message, status, desc)
+      write_to_file(timestamp, level, message, status, desc, exception)
 
-      RunContext.current.log(timestamp, @name, level, message, status, desc) unless RunContext.current.nil?
+      RunContext.current.log(timestamp, @name, level, message, status, desc, exception) unless RunContext.current.nil?
 
-      [level, status, desc]
+      [level, status, desc, exception]
     end
 
     %i{debug info warn}.each do |method|
@@ -110,13 +113,14 @@ module Spectre
 
     private
 
-    def write_to_file timestamp, level, message, status, desc
+    def write_to_file timestamp, level, message, status, desc, exception
       return if @log_file.nil?
       return unless @debug or level != :debug
 
       line = "[#{timestamp.strftime('%Y-%m-%dT%H:%M:%S.%6N%:z')}] #{level.to_s.upcase.rjust(5, ' ')} -- #{@name}: #{message}"
       line += " [#{status}]" unless status.nil?
       line += " - #{desc}" unless desc.nil?
+      line += "\n#{exception.backtrace.join("\n")}" unless exception.nil? or exception.backtrace.nil?
       line += "\n"
       File.write(@log_file, line, mode: 'a')
     end
@@ -139,20 +143,20 @@ module Spectre
       end
     end
 
-    def log level, message, status=nil, desc=nil, timestamp=nil
+    def log level, message, status=nil, desc=nil, exception=nil, timestamp=nil
       return if @locked
 
       if block_given?
         @locked = true
-        level, status, desc = yield
+        level, status, desc, exception = yield
         @locked = false
       end
 
       timestamp = timestamp || DateTime.now
 
-      RunContext.current.log(timestamp, @name, level, message, status, desc) unless RunContext.current.nil?
+      RunContext.current.log(timestamp, @name, level, message, status, desc, exception) unless RunContext.current.nil?
 
-      [level, status, desc]
+      [level, status, desc, exception]
     end
 
     def scope _desc, _subject, _type
@@ -257,14 +261,14 @@ module Spectre
       end
     end
 
-    def log level, message, status=nil, desc=nil, &block
+    def log level, message, status=nil, desc=nil, exception=nil, &block
       return if @locked
 
       write(message, true) if block_given? or @debug or level != :debug
 
       @locked = true if block_given?
 
-      level, status, desc = super(level, message, status, desc, &block)
+      level, status, desc, exception = super(level, message, status, desc, exception, &block)
 
       @locked = false if block_given?
 
@@ -369,13 +373,13 @@ module Spectre
       @scope = prev_scope
     end
 
-    def log level, message, status=nil, desc=nil, &block
+    def log level, message, status=nil, desc=nil, exception=nil, &block
       timestamp = DateTime.now
       log_id = SecureRandom.hex(5)
 
       write_log(log_id, timestamp, level, message, status, desc)
 
-      level, status, desc = super(level, message, status, desc, timestamp, &block)
+      level, status, desc, exception = super(level, message, status, desc, exception, timestamp, &block)
 
       write_log(log_id, DateTime.now, level, message, status, desc) if block_given? and !status.nil?
     end
@@ -441,18 +445,21 @@ module Spectre
         begin
           yield
         rescue Expectation::ExpectationFailure => e
-          @failure = "Expected #{desc}, but it failed with: #{e.message}"
-          result = [:error, :failed, nil]
+          fail_message = "expected #{desc}, but it failed with \"#{e.message}\""
+          @failure = Expectation::ExpectationFailure.new(fail_message)
+          result = [:error, :failed, nil, @failure]
         rescue Interrupt
           @skipped = true
           result = [:debug, :skipped, 'canceled by user']
         rescue Exception => e
           @error = e
-          result = [:fatal, :error, e.class.name]
+          result = [:fatal, :error, e.class.name, e]
         end
-
+        
         result
       end
+
+      raise CancelException if @skipped or @error or @failure
     end
 
     def group desc
@@ -461,8 +468,8 @@ module Spectre
       end
     end
 
-    def log timestamp, name, level, message, status, desc
-      @logs << [timestamp, name, level, message, status, desc]
+    def log timestamp, name, level, message, status, desc, exception
+      @logs << [timestamp, name, level, message, status, desc, exception]
     end
 
     def run desc, with: []
@@ -478,13 +485,15 @@ module Spectre
     def execute(&)
       begin
         instance_exec(@data, &)
+      rescue CancelException
+        # Do nothing. The run will be ended here
       rescue Expectation::ExpectationFailure => e
-        @failure = e.message
-        Spectre.logger.log(:error, e.desc ? "expect #{e.desc}" : nil, :failed, e.actual ? "got #{e.actual}" : nil)
+        @failure = e
+        Spectre.logger.log(:error, e.message, :failed, e.desc, nil)
       rescue Interrupt
-        Spectre.logger.log(:debug, nil, :skipped, 'canceled by user')
+        Spectre.logger.log(:debug, nil, :skipped, 'canceled by user', nil)
       rescue Exception => e
-        Spectre.logger.log(:fatal, nil, :error, e.class.name)
+        Spectre.logger.log(:fatal, e.message, :error, e.class.name, e)
         @error = e
       end
     end

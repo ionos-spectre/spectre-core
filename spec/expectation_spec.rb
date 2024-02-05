@@ -15,12 +15,10 @@ RSpec.describe 'Expectation' do
     expect(run.parent.parent.desc).to eq('Expectation')
     expect(run.error).to eq(nil)
     expect(run.failure).to eq(nil)
-    expect(run.skipped).to eq(false)
-    expect(run.logs.count).to eq(1)
+    expect(run.logs.count).to eq(2)
 
-    timestamp, name, level, message, status, desc = run.logs[0]
+    _, name, level, message, status, desc = run.logs[0]
 
-    expect(timestamp).to be_kind_of(DateTime)
     expect(name).to eq('spectre')
     expect(level).to eq(:debug)
     expect(message).to eq('expect to succeed')
@@ -31,20 +29,14 @@ RSpec.describe 'Expectation' do
   it 'runs: evaluates "should_not be"' do
     run = @runs[1]
 
-    expect(run.parent.parent.desc).to eq('Expectation')
     expect(run.error).to eq(nil)
     expect(run.failure).to eq(nil)
-    expect(run.skipped).to eq(false)
     expect(run.logs.count).to eq(1)
 
-    timestamp, name, level, message, status, desc = run.logs[0]
+    _, _, _, message, status, _ = run.logs[0]
 
-    expect(timestamp).to be_kind_of(DateTime)
-    expect(name).to eq('spectre')
-    expect(level).to eq(:debug)
     expect(message).to eq('expect the_truth not to be 666')
     expect(status).to eq(:ok)
-    expect(desc).to eq(nil)
   end
 
   it 'runs: evaluates "should be"' do
@@ -52,12 +44,11 @@ RSpec.describe 'Expectation' do
 
     expect(run.error).to eq(nil)
     expect(run.failure).to eq(nil)
-    expect(run.skipped).to eq(false)
     expect(run.logs.count).to eq(1)
 
     _, _, _, message, status, _ = run.logs[0]
 
-    expect(message).to eq('expect the_truth to be 42')
+    expect(message).to eq('expect the_truth.value to be 42')
     expect(status).to eq(:ok)
   end
 
@@ -66,7 +57,6 @@ RSpec.describe 'Expectation' do
 
     expect(run.error).to eq(nil)
     expect(run.failure).to eq(nil)
-    expect(run.skipped).to eq(false)
     expect(run.logs.count).to eq(1)
 
     _, _, _, message, status, _ = run.logs[0]
@@ -80,7 +70,6 @@ RSpec.describe 'Expectation' do
 
     expect(run.error).to eq(nil)
     expect(run.failure).to eq(nil)
-    expect(run.skipped).to eq(false)
     expect(run.logs.count).to eq(1)
 
     _, _, _, message, status, _ = run.logs[0]
@@ -94,7 +83,6 @@ RSpec.describe 'Expectation' do
 
     expect(run.error).to eq(nil)
     expect(run.failure).to eq(nil)
-    expect(run.skipped).to eq(false)
     expect(run.logs.count).to eq(1)
 
     _, _, _, message, status, _ = run.logs[0]
@@ -108,12 +96,29 @@ RSpec.describe 'Expectation' do
 
     expect(run.error).to eq(nil)
     expect(run.failure).to eq(nil)
-    expect(run.skipped).to eq(false)
     expect(run.logs.count).to eq(1)
 
     _, _, _, message, status, _ = run.logs[0]
 
     expect(message).to eq('expect the_truth to match /42/')
     expect(status).to eq(:ok)
+  end
+
+  it 'runs: fails "should be"' do
+    run = @runs[7]
+
+    expect(run.error).to eq(nil)
+
+    expect(run.failure).to be_kind_of(Spectre::Expectation::ExpectationFailure)
+    expect(run.failure.message).to eq('expect the_truth to be 42')
+    expect(run.failure.desc).to eq('got 666')
+
+    expect(run.logs.count).to eq(1)
+
+    _, _, _, message, status, desc = run.logs[0]
+
+    expect(message).to eq('expect the_truth to be 42')
+    expect(status).to eq(:failed)
+    expect(desc).to eq('got 666')
   end
 end

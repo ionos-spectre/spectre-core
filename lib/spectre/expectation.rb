@@ -3,12 +3,11 @@ require 'ostruct'
 module Spectre
   module Expectation
     class ExpectationFailure < Exception
-      attr_reader :desc, :actual
+      attr_reader :desc
 
-      def initialize message, desc=nil, actual=nil
+      def initialize message, desc=nil
         super(message)
         @desc = desc
-        @actual = actual
       end
     end
 
@@ -124,10 +123,10 @@ module Spectre
         desc = "#{var_name}#{negate ? ' not' : ''} #{matcher}"
 
         if matcher.execute(self, negate)
-          Spectre.logger.log(:debug, "expect #{desc}") { [:debug, :ok, nil] }
+          Spectre.logger.log(:info, "expect #{desc}", :ok, nil)
         else
           actual = self.is_a?(String) ? "\"#{self}\"" : self
-          raise ExpectationFailure.new("Expected #{desc}, but got #{actual}", desc, actual)
+          raise ExpectationFailure.new("expect #{desc}", "got #{actual}")
         end
       end
 
