@@ -12,7 +12,7 @@ RSpec.describe 'General' do
   end
 
   it 'should have a pretty output' do
-    Spectre
+    runs = Spectre
       .setup({
         'specs' => [],
         'tags' => [],
@@ -20,6 +20,8 @@ RSpec.describe 'General' do
         # 'debug' => true,
       })
       .run
+
+    Spectre.report(runs)
   end
 
   it 'should run' do

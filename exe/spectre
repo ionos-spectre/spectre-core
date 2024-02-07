@@ -135,30 +135,10 @@ if action == 'list'
   Spectre.logger.class.list
 end
 
-def get_error_info error
-  non_spectre_files = error.backtrace.select { |x| !x.include? 'lib/spectre' }
-
-  if non_spectre_files.count > 0
-    causing_file = non_spectre_files.first
-  else
-    causing_file = error.backtrace[0]
-  end
-
-  matches = causing_file.match(/(.*\.rb):(\d+)/)
-
-  return unless matches
-
-  file, line = matches.captures
-  file.slice!(Dir.pwd + '/')
-
-  return file, line
-end
-
 # Run specs
 if action == 'run'
   runs = Spectre.run
-
-  Spectre.logger.class.report(runs)
+  Spectre.report(runs)
 end
 
 if action == 'show'

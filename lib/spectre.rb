@@ -165,7 +165,16 @@ module Spectre
   end
 
   class ConsoleFormatter < FileLogger
-    def self.report runs
+    def initialize name
+      super(name)
+      @out = CONFIG['stdout'] || $stdout
+
+      @level = 0
+      @width = 80
+      @indent = 2
+    end
+
+    def report runs
       errors = runs.count { |x| !x.error.nil? }
       failed = runs.count { |x| !x.failure.nil? }
       skipped = runs.count { |x| x.skipped }
@@ -200,14 +209,14 @@ module Spectre
         end
 
         if run.failure
-          output += "     #{run.failure.red}\n\n"
+          output += "     #{run.failure.message.red}\n\n"
         end
       end
 
-      puts output
+      @out.puts output
     end
 
-    def self.list
+    def list
       colors = [:blue, :magenta, :yellow, :green]
       counter = 0
 
@@ -217,19 +226,30 @@ module Spectre
         .each do |_context, spec_group|
           spec_group.each do |spec|
             spec_id = "[#{spec.name}]".send(colors[counter % colors.length])
-            puts "#{spec_id} #{spec.full_desc} #{spec.tags.map { |x| "##{x}" }.join(' ').cyan }"
+            @out.puts "#{spec_id} #{spec.full_desc} #{spec.tags.map { |x| "##{x}" }.join(' ').cyan }"
           end
 
           counter += 1
         end
     end
 
-    def initialize name
-      super(name)
+    def get_error_info error
+      non_spectre_files = error.backtrace.select { |x| !x.include? 'lib/spectre' }
 
-      @level = 0
-      @width = 80
-      @indent = 2
+      if non_spectre_files.count > 0
+        causing_file = non_spectre_files.first
+      else
+        causing_file = error.backtrace[0]
+      end
+
+      matches = causing_file.match(/(.*\.rb):(\d+)/)
+
+      return unless matches
+
+      file, line = matches.captures
+      file.slice!(Dir.pwd + '/')
+
+      return file, line
     end
 
     def scope desc, subject, type, &block
@@ -247,7 +267,7 @@ module Spectre
         end
 
         write(colored_desc)
-        puts
+        @out.puts
       end
 
       if block_given?
@@ -279,9 +299,9 @@ module Spectre
       status_text = "[#{label}]"
 
       if desc.nil?
-        puts status_text.send(label)
+        @out.puts status_text.send(label)
       else
-        puts "#{status_text} - #{desc}".send(label)
+        @out.puts "#{status_text} - #{desc}".send(label)
       end
     end
 
@@ -309,7 +329,14 @@ module Spectre
   end
 
   class JsonFormatter < FileLogger
-    def self.report runs
+    def initialize name
+      super(name)
+      @scope = nil
+      @out = CONFIG['stdout'] || $stdout
+      @out.sync = true
+    end
+
+    def report runs
       reports = runs.map do |run|
         {
           id: run.id,
@@ -324,10 +351,10 @@ module Spectre
         }
       end
 
-      puts reports.to_json
+      @out.puts reports.to_json
     end
 
-    def self.list
+    def list
       context_to_hash = proc do |context|
         {
           name: context.name,
@@ -343,16 +370,10 @@ module Spectre
         }
       end
 
-      puts Spectre
+      @out.puts Spectre
         .list
         .group_by { |x| x.parent.root }
         .map(&context_to_hash).to_json
-    end
-
-    def initialize name
-      super(name)
-      @scope = nil
-      $stdout.sync = true
     end
 
     def scope desc, subject, type, &block
@@ -366,7 +387,7 @@ module Spectre
         desc: desc,
       }
 
-      puts log_entry.to_json
+      @out.puts log_entry.to_json
 
       super(desc, subject, type, &block)
 
@@ -398,7 +419,7 @@ module Spectre
         desc: desc,
       }
 
-      puts log_entry.to_json
+      @out.puts log_entry.to_json
     end
   end
 
@@ -786,6 +807,10 @@ module Spectre
         .map do |context, _specs|
           context.run
         end.flatten
+    end
+
+    def report runs
+      @logger.report(runs)
     end
 
     def describe(name, &)
