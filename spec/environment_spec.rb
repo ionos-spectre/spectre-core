@@ -6,7 +6,7 @@ RSpec.describe 'Environment' do
       .setup({
         'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
         'specs' => ['environment-*'],
-        'formatter' => 'Spectre::NoopFormatter',
+        'stdout' => StringIO.new,
       })
       .run
   end

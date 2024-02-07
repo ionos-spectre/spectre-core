@@ -6,7 +6,7 @@ RSpec.describe 'Mixin' do
       .setup({
         'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
         'specs' => ['mixin-*'],
-        'formatter' => 'Spectre::NoopFormatter',
+        'stdout' => StringIO.new,
       })
       .run
   end

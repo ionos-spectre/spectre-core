@@ -1,20 +1,13 @@
 require_relative '../lib/spectre'
 
 RSpec.describe 'Reporter' do
-  before do
-    $stdout = StringIO.new
-  end
-
-  after do
-    $stdout = STDOUT
-  end
-
   it 'does generate a console report' do
     runs = Spectre
       .setup({
         'specs' => [],
         'tags' => [],
         'formatter' => 'Spectre::ConsoleFormatter',
+        'stdout' => StringIO.new,
         # 'debug' => true,
       })
       .run
@@ -28,6 +21,7 @@ RSpec.describe 'Reporter' do
         'specs' => [],
         'tags' => [],
         'formatter' => 'Spectre::JsonFormatter',
+        'stdout' => StringIO.new,
         # 'debug' => true,
       })
       .run

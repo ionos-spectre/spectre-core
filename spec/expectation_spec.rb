@@ -4,7 +4,7 @@ RSpec.describe 'Expectation' do
       .setup({
         'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
         'specs' => ['expectation-*'],
-        'formatter' => 'Spectre::NoopFormatter',
+        'stdout' => StringIO.new,
       })
       .run
   end

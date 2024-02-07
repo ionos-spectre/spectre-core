@@ -4,8 +4,8 @@ RSpec.describe 'Tag' do
       .setup({
         'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
         'specs' => ['tag-*'],
-        'formatter' => 'Spectre::NoopFormatter',
         'tags' => ['tagged'],
+        'stdout' => StringIO.new,
       })
       .list
 
@@ -19,8 +19,8 @@ RSpec.describe 'Tag' do
     specs = Spectre
       .setup({
         'specs' => ['tag-*'],
-        'formatter' => 'Spectre::NoopFormatter',
         'tags' => ['tagged+another_tag'],
+        'stdout' => StringIO.new,
       })
       .list
 
@@ -32,8 +32,8 @@ RSpec.describe 'Tag' do
     specs = Spectre
       .setup({
         'specs' => ['tag-*'],
-        'formatter' => 'Spectre::NoopFormatter',
         'tags' => ['tagged', 'another_tag'],
+        'stdout' => StringIO.new,
       })
       .list
 
@@ -47,8 +47,8 @@ RSpec.describe 'Tag' do
     specs = Spectre
       .setup({
         'specs' => ['tag-*'],
-        'formatter' => 'Spectre::NoopFormatter',
         'tags' => ['tagged+!special_tag'],
+        'stdout' => StringIO.new,
       })
       .list
 

@@ -1,27 +1,30 @@
 require_relative '../lib/spectre'
 
-RSpec.describe 'General' do
-  before do
-    @runs = Spectre
-      .setup({
-        'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
-        'specs' => ['general-*'],
-        'formatter' => 'Spectre::NoopFormatter',
-      })
-      .run
-  end
-
+RSpec.describe 'Output' do
   it 'should have a pretty output' do
     runs = Spectre
       .setup({
         'specs' => [],
         'tags' => [],
         'formatter' => 'Spectre::ConsoleFormatter',
+        'stdout' => $stdout
         # 'debug' => true,
       })
       .run
 
     Spectre.report(runs)
+  end
+end
+
+RSpec.describe 'General' do
+  before do
+    @runs = Spectre
+      .setup({
+        'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
+        'specs' => ['general-*'],
+        'stdout' => StringIO.new,
+      })
+      .run
   end
 
   it 'should run' do

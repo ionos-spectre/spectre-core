@@ -126,47 +126,10 @@ module Spectre
     end
   end
 
-  class NoopFormatter
-    def self.report runs
-    end
-
-    def self.list
-    end
-
-    def initialize name
-      @name = name
-    end
-
-    %i{debug info warn}.each do |method|
-      define_method(method) do |message|
-        log(method, message)
-      end
-    end
-
-    def log level, message, status=nil, desc=nil, exception=nil, timestamp=nil
-      return if @locked
-
-      if block_given?
-        @locked = true
-        level, status, desc, exception = yield
-        @locked = false
-      end
-
-      timestamp = timestamp || DateTime.now
-
-      RunContext.current.log(timestamp, @name, level, message, status, desc, exception) unless RunContext.current.nil?
-
-      [level, status, desc, exception]
-    end
-
-    def scope _desc, _subject, _type
-      yield
-    end
-  end
-
   class ConsoleFormatter < FileLogger
     def initialize name
       super(name)
+
       @out = CONFIG['stdout'] || $stdout
 
       @level = 0
@@ -267,7 +230,7 @@ module Spectre
         end
 
         write(colored_desc)
-        @out.puts
+        @out.puts "\n"
       end
 
       if block_given?
@@ -316,15 +279,15 @@ module Spectre
 
       if message.nil? or message.empty?
         output = indent
-        print output
+        @out.print output
       else
         message.lines.each do |line|
           output = indent + line
-          print output
+          @out.print output
         end
       end
 
-      print '.' * (@width - output.length) if fill
+      @out.print '.' * (@width - output.length) if fill
     end
   end
 

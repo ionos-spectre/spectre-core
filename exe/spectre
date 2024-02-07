@@ -132,7 +132,7 @@ action = ARGV[0] || 'run'
 
 # List specs
 if action == 'list'
-  Spectre.logger.class.list
+  Spectre.logger.list
 end
 
 # Run specs
