@@ -680,6 +680,7 @@ module Spectre
         Dir.chdir(File.dirname(main_config_file))
         main_config = load_yaml(main_config_file)
         CONFIG.deep_merge!(main_config)
+        Dir.chdir(File.dirname(main_config_file))
       end
 
       # Load environments
