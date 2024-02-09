@@ -1,5 +1,5 @@
 RSpec.describe 'Filter' do
-  it 'runs only specific specs' do
+  it 'list only specific specs' do
     specs = Spectre
       .setup({
         'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
@@ -9,7 +9,18 @@ RSpec.describe 'Filter' do
       })
       .list
 
-    puts specs.map { |x| "#{x.name} #{x.desc}" }
+    expect(specs.count).to eq(2)
+  end
+
+  it 'runs only specific specs' do
+    specs = Spectre
+      .setup({
+        'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
+        'specs' => ['general-1', 'general-2'],
+        'tags' => [],
+        'stdout' => StringIO.new,
+      })
+      .run
 
     expect(specs.count).to eq(2)
   end
