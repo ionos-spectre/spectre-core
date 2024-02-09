@@ -27,6 +27,10 @@ OptionParser.new do |opts|
     Spectre::CONFIG['tags'] = tags
   end
 
+  opts.on('--data-range RANGE', 'A data range to use for execution') do |range|
+    Spectre::CONFIG['data_range'] = Range.new(*range.split("..").map(&:to_i))
+  end
+
   opts.on('-e NAME', '--env NAME', 'Name of the environment to load') do |env_name|
     Spectre::CONFIG['selected_env'] = env_name
   end

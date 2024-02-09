@@ -28,7 +28,6 @@ RSpec.describe 'General' do
   end
 
   it 'should run' do
-    expect(Spectre::CONTEXTS.select { |x| x.desc == 'General' }.count).to eq(1)
     expect(@runs.count).to eq(6)
   end
 

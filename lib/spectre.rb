@@ -484,11 +484,12 @@ module Spectre
   end
 
   class TestSpecification
-    attr_reader :id, :name, :desc, :parent, :tags, :data
+    attr_reader :id, :name, :desc, :parent, :root, :tags, :data
 
     def initialize parent, name, desc, tags, data, block
       @id = SecureRandom.hex(5)
       @parent = parent
+      @root = parent.root
       @name = name
       @desc = desc
       @tags = tags
@@ -500,8 +501,8 @@ module Spectre
       @parent.full_desc + ' ' + @desc
     end
 
-    def run befores, afters
-      @data.map do |data|
+    def run befores, afters, data_range
+      @data[data_range].map do |data|
         RunContext.new(self, data, :spec) do |run_context|
           Spectre.logger.scope('it ' + @desc, self, :spec) do
             begin
@@ -591,7 +592,9 @@ module Spectre
       @specs << spec
     end
 
-    def run spec_filter=[], tags=[]
+    def run specs, data_range=0..-1
+      specs = @specs.select { |x| specs.include? x.name }
+
       runs = []
 
       Spectre.logger.scope(@desc, self, :context) do
@@ -610,9 +613,9 @@ module Spectre
         end
 
         # Only run specs if setup was successful
-        if specs.any? and (setup_run.nil? or setup_run.error.nil?)
-          runs += specs.map do |spec|
-            spec.run(@befores, @afters)
+        if @specs.any? and (setup_run.nil? or setup_run.error.nil?)
+          runs += @specs.map do |spec|
+            spec.run(@befores, @afters, data_range)
           end
         end
 
@@ -627,11 +630,21 @@ module Spectre
         end
 
         @children.each do |context|
-          runs += context.run(spec_filter, tags)
+          runs += context.run(data_range)
         end
       end
 
       runs
+    end
+
+    private
+
+    def tag? tags, tag_exp
+      tags = tags.map { |x| x.to_s }
+      all_tags = tag_exp.split('+')
+      included_tags = all_tags.select { |x| !x.start_with? '!' }
+      excluded_tags = all_tags.select { |x| x.start_with? '!' }.map { |x| x[1..-1] }
+      included_tags & tags == included_tags and excluded_tags & tags == []
     end
   end
 
@@ -643,6 +656,7 @@ module Spectre
     'formatter' => 'Spectre::ConsoleFormatter',
     'specs' => [],
     'tags' => [],
+    'data_range' => 0..-1,
     'debug' => false,
     'env_patterns' => ['environments/**/*.env.yml'],
     'env_partial_patterns' => ['environments/**/*.env.secret.yml'],
@@ -677,7 +691,6 @@ module Spectre
       main_config_file = config_overrides['config_file'] || CONFIG['config_file']
 
       if File.exist? main_config_file
-        Dir.chdir(File.dirname(main_config_file))
         main_config = load_yaml(main_config_file)
         CONFIG.deep_merge!(main_config)
         Dir.chdir(File.dirname(main_config_file))
@@ -769,7 +782,7 @@ module Spectre
       list
         .group_by { |x| x.parent.root }
         .map do |context, _specs|
-          context.run
+          context.run(CONFIG['data_range'])
         end.flatten
     end
 

@@ -1,4 +1,33 @@
-RSpec.describe 'Tag' do
+RSpec.describe 'Filter' do
+  it 'runs only specific specs' do
+    specs = Spectre
+      .setup({
+        'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
+        'specs' => ['general-1', 'general-2'],
+        'tags' => [],
+        'stdout' => StringIO.new,
+      })
+      .list
+
+    puts specs.map { |x| "#{x.name} #{x.desc}" }
+
+    expect(specs.count).to eq(2)
+  end
+
+  it 'runs specs of a specific subject' do
+    runs = Spectre
+      .setup({
+        'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
+        'specs' => ['general-*'],
+        'tags' => [],
+        'stdout' => StringIO.new,
+      })
+      .run
+
+    expect(runs.count).to eq(6)
+    expect(runs.all? { |x| x.parent.root.desc == 'General' }).to eq(true)
+  end
+
   it 'runs with a specific tag' do
     specs = Spectre
       .setup({
