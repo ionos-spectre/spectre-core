@@ -601,43 +601,43 @@ module Spectre
       selected = @specs.select { |x| specs.include? x }
       runs = []
 
-      return runs if selected.empty?
+      if selected.any?
+        Spectre.logger.scope(@desc, self, :context) do
+          setup_run = nil
 
-      Spectre.logger.scope(@desc, self, :context) do
-        setup_run = nil
-
-        if @setups.any?
-          setup_run = RunContext.new(self, :setup) do |run_context|
-            Spectre.logger.scope('setup', self, :setup) do
-              @setups.each do |block|
-                run_context.execute(nil, &block)
+          if @setups.any?
+            setup_run = RunContext.new(self, :setup) do |run_context|
+              Spectre.logger.scope('setup', self, :setup) do
+                @setups.each do |block|
+                  run_context.execute(nil, &block)
+                end
               end
+            end
+
+            runs << setup_run
+          end
+
+          # Only run specs if setup was successful
+          if selected.any? and (setup_run.nil? or setup_run.error.nil?)
+            runs += selected.map do |spec|
+              spec.run(@befores, @afters)
             end
           end
 
-          runs << setup_run
-        end
-
-        # Only run specs if setup was successful
-        if selected.any? and (setup_run.nil? or setup_run.error.nil?)
-          runs += selected.map do |spec|
-            spec.run(@befores, @afters)
-          end
-        end
-
-        if @teardowns.any?
-          runs << RunContext.new(self, :teardown) do |run_context|
-            Spectre.logger.scope('teardown', self, :teardown) do
-              @teardowns.each do |block|
-                run_context.execute(nil, &block)
+          if @teardowns.any?
+            runs << RunContext.new(self, :teardown) do |run_context|
+              Spectre.logger.scope('teardown', self, :teardown) do
+                @teardowns.each do |block|
+                  run_context.execute(nil, &block)
+                end
               end
             end
           end
         end
+      end
 
-        @children.each do |context|
-          runs += context.run(specs)
-        end
+      @children.each do |context|
+        runs += context.run(specs)
       end
 
       runs

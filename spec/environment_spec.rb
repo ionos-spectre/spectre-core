@@ -6,6 +6,7 @@ RSpec.describe 'Environment' do
       .setup({
         'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
         'specs' => ['environment-*'],
+        'tags' => [],
         'stdout' => StringIO.new,
       })
       .run

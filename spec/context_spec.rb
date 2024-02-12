@@ -38,4 +38,17 @@ RSpec.describe 'Context' do
 
     expect(@runs[5].logs[0][3]).to eq('do some tearing down in child context')
   end
+
+  it 'should run the child context without running main' do
+    runs = Spectre
+      .setup({
+        'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
+        'specs' => ['context-*'],
+        'tags' => ['child'],
+        'stdout' => StringIO.new,
+      })
+      .run
+
+    expect(runs.count).to eq(3)
+  end
 end

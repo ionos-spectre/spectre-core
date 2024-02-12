@@ -4,6 +4,7 @@ RSpec.describe 'Expectation' do
       .setup({
         'config_file' => File.join(File.dirname(__FILE__), 'spectre.yml'),
         'specs' => ['expectation-*'],
+        'tags' => [],
         'stdout' => StringIO.new,
       })
       .run
