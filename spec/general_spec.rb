@@ -28,7 +28,7 @@ RSpec.describe 'General' do
   end
 
   it 'should run' do
-    expect(@runs.count).to eq(6)
+    expect(@runs.count).to eq(8)
   end
 
   it 'runs: setup' do
@@ -125,5 +125,10 @@ RSpec.describe 'General' do
     expect(desc).to eq(nil)
     expect(exception).to be_kind_of(Spectre::Expectation::ExpectationFailure)
     expect(exception.message).to eq('expected to succeed, but it failed with "fail for fun"')
+  end
+
+  it 'runs: should run with multiple data' do
+    expect(@runs[6].parent.name).to eq('general-6.0')
+    expect(@runs[7].parent.name).to eq('general-6.1')
   end
 end

@@ -387,7 +387,7 @@ module Spectre
   end
 
   class RunContext
-    attr_reader :id, :name, :parent, :data, :type, :logs, :error, :failure, :skipped, :started, :finished
+    attr_reader :id, :name, :parent, :type, :logs, :error, :failure, :skipped, :started, :finished
 
     @@current = nil
 
@@ -395,11 +395,10 @@ module Spectre
       @@current
     end
 
-    def initialize parent, data, type
+    def initialize parent, type
       @id = SecureRandom.hex(5)
 
       @parent = parent
-      @data = data
       @type = type
       @logs = []
 
@@ -466,9 +465,9 @@ module Spectre
 
     alias :also :run
 
-    def execute(&)
+    def execute(data, &)
       begin
-        instance_exec(@data, &)
+        instance_exec(data, &)
       rescue CancelException
         # Do nothing. The run will be ended here
       rescue Expectation::ExpectationFailure => e
@@ -493,7 +492,7 @@ module Spectre
       @name = name
       @desc = desc
       @tags = tags
-      @data = data || [nil]
+      @data = data
       @block = block
     end
 
@@ -501,26 +500,24 @@ module Spectre
       @parent.full_desc + ' ' + @desc
     end
 
-    def run befores, afters, data_range
-      @data[data_range].map do |data|
-        RunContext.new(self, data, :spec) do |run_context|
-          Spectre.logger.scope('it ' + @desc, self, :spec) do
-            begin
-              if befores.any?
-                Spectre.logger.scope('before', self, :before) do
-                  befores.each do |block|
-                    run_context.execute(&block)
-                  end
+    def run befores, afters
+      RunContext.new(self, :spec) do |run_context|
+        Spectre.logger.scope('it ' + @desc, self, :spec) do
+          begin
+            if befores.any?
+              Spectre.logger.scope('before', self, :before) do
+                befores.each do |block|
+                  run_context.execute(@data, &block)
                 end
               end
+            end
 
-              run_context.execute(&@block)
-            ensure
-              if afters.any?
-                Spectre.logger.scope('after', self, :after) do
-                  afters.each do |block|
-                    run_context.execute(&block)
-                  end
+            run_context.execute(@data, &@block)
+          ensure
+            if afters.any?
+              Spectre.logger.scope('after', self, :after) do
+                afters.each do |block|
+                  run_context.execute(@data, &block)
                 end
               end
             end
@@ -587,24 +584,33 @@ module Spectre
 
     def it desc, tags: [], with: nil, &block
       root_context = root
-      name = "#{root_context.name}-#{root_context.all_specs.count + 1}"
-      spec = TestSpecification.new(self, name, desc, tags, with, block)
-      @specs << spec
+      with = with || [nil]
+      spec_index = root_context.all_specs.count + 1
+
+      with.each_with_index do |data, index|
+        name = "#{root_context.name}-#{spec_index}"
+        name += ".#{index}" if with.count > 1
+
+        spec = TestSpecification.new(self, name, desc, tags, data, block)
+
+        @specs << spec
+      end
     end
 
-    def run specs, data_range=0..-1
-      specs = @specs.select { |x| specs.include? x.name }
-
+    def run specs
+      selected = @specs.select { |x| specs.include? x }
       runs = []
+
+      return runs if selected.empty?
 
       Spectre.logger.scope(@desc, self, :context) do
         setup_run = nil
 
         if @setups.any?
-          setup_run = RunContext.new(self, nil, :setup) do |run_context|
+          setup_run = RunContext.new(self, :setup) do |run_context|
             Spectre.logger.scope('setup', self, :setup) do
               @setups.each do |block|
-                run_context.execute(&block)
+                run_context.execute(nil, &block)
               end
             end
           end
@@ -613,24 +619,24 @@ module Spectre
         end
 
         # Only run specs if setup was successful
-        if @specs.any? and (setup_run.nil? or setup_run.error.nil?)
-          runs += @specs.map do |spec|
-            spec.run(@befores, @afters, data_range)
+        if selected.any? and (setup_run.nil? or setup_run.error.nil?)
+          runs += selected.map do |spec|
+            spec.run(@befores, @afters)
           end
         end
 
         if @teardowns.any?
-          runs << RunContext.new(self, nil, :teardown) do |run_context|
+          runs << RunContext.new(self, :teardown) do |run_context|
             Spectre.logger.scope('teardown', self, :teardown) do
               @teardowns.each do |block|
-                run_context.execute(&block)
+                run_context.execute(nil, &block)
               end
             end
           end
         end
 
         @children.each do |context|
-          runs += context.run(data_range)
+          runs += context.run(specs)
         end
       end
 
@@ -656,7 +662,6 @@ module Spectre
     'formatter' => 'Spectre::ConsoleFormatter',
     'specs' => [],
     'tags' => [],
-    'data_range' => 0..-1,
     'debug' => false,
     'env_patterns' => ['environments/**/*.env.yml'],
     'env_partial_patterns' => ['environments/**/*.env.secret.yml'],
@@ -781,8 +786,8 @@ module Spectre
     def run
       list
         .group_by { |x| x.parent.root }
-        .map do |context, _specs|
-          context.run(CONFIG['data_range'])
+        .map do |context, specs|
+          context.run(specs)
         end.flatten
     end
 

@@ -10,6 +10,8 @@ RSpec.describe 'Context' do
   end
 
   it 'should run within a child context' do
+    expect(@runs.count).to eq(6)
+
     expect(@runs[0].type).to eq(:setup)
     expect(@runs[0].logs[0][3]).to eq('do some setting up')
 

@@ -22,7 +22,7 @@ RSpec.describe 'Filter' do
       })
       .run
 
-    expect(specs.count).to eq(2)
+    expect(specs.count).to eq(3)
   end
 
   it 'runs specs of a specific subject' do
@@ -35,7 +35,7 @@ RSpec.describe 'Filter' do
       })
       .run
 
-    expect(runs.count).to eq(6)
+    expect(runs.count).to eq(8)
     expect(runs.all? { |x| x.parent.root.desc == 'General' }).to eq(true)
   end
 

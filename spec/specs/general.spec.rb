@@ -40,5 +40,9 @@ Spectre.describe 'General' do
 
     info 'some info, which will never be logged'
   end
+
+  it 'should run with multiple data', with: ['foo', 'bar'] do |data|
+    info "running with data: #{data}"
+  end
 end
 
