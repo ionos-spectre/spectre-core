@@ -63,75 +63,9 @@ module Spectre
   class CancelException < Exception
   end
 
-  class FileLogger
-    def initialize name
-      @name = name
-      @log_file = nil
-      @debug = CONFIG['debug']
-
-      now = DateTime.now
-
-      if CONFIG['log_file']
-        @log_file = CONFIG['log_file'].frmt({
-          shortdate: now.strftime('%Y-%m-%d'),
-          date: now.strftime('%Y-%m-%d_%H%M%S'),
-          timestamp: now.strftime('%s'),
-        })
-
-        log_dir = File.dirname(@log_file)
-        FileUtils.makedirs(log_dir)
-      end
-    end
-
-    def scope desc, subject, type
-      write_to_file(DateTime.now, :debug, "# BEGIN #{type} [#{subject.name}] #{desc}", nil, nil, nil)
-
-      yield
-
-      write_to_file(DateTime.now, :debug, "# END #{type} [#{subject.name}] #{desc}", nil, nil, nil)
-    end
-
-    def log level, message, status=nil, desc=nil, exception=nil, timestamp=nil
-      if block_given?
-        level, status, desc, exception = yield
-      end
-
-      timestamp = timestamp || DateTime.now
-
-      write_to_file(timestamp, level, message, status, desc, exception)
-
-      RunContext.current.log(timestamp, @name, level, message, status, desc, exception) unless RunContext.current.nil?
-
-      [level, status, desc, exception]
-    end
-
-    %i{debug info warn}.each do |method|
-      define_method(method) do |message|
-        log(method, message)
-      end
-    end
-
-    private
-
-    def write_to_file timestamp, level, message, status, desc, exception
-      return if @log_file.nil?
-      return unless @debug or level != :debug
-
-      line = "[#{timestamp.strftime('%Y-%m-%dT%H:%M:%S.%6N%:z')}] #{level.to_s.upcase.rjust(5, ' ')} -- #{@name}: #{message}"
-      line += " [#{status}]" unless status.nil?
-      line += " - #{desc}" unless desc.nil?
-      line += "\n#{exception.backtrace.join("\n")}" unless exception.nil? or exception.backtrace.nil?
-      line += "\n"
-      File.write(@log_file, line, mode: 'a')
-    end
-  end
-
-  class ConsoleFormatter < FileLogger
-    def initialize name
-      super(name)
-
+  class ConsoleFormatter
+    def initialize
       @out = CONFIG['stdout'] || $stdout
-
       @level = 0
       @width = 80
       @indent = 2
@@ -155,11 +89,11 @@ module Spectre
           error_output = "but an unexpected error occurred during run\n"
           file, line = get_error_info(run.error)
 
-          error_output += "  file.....: #{file}:#{line}\n"
+          error_output += "  file.....: #{file}:#{line}\n" if file
           error_output += "  type.....: #{run.error.class.name}\n"
           error_output += "  message..: #{run.error.message}\n"
 
-          if CONFIG['debug']
+          if CONFIG['debug'] and run.error.backtrace
             error_output += "  backtrace:\n"
 
             run.error.backtrace.each do |trace|
@@ -197,6 +131,8 @@ module Spectre
     end
 
     def get_error_info error
+      return unless error.backtrace
+
       non_spectre_files = error.backtrace.select { |x| !x.include? 'lib/spectre' }
 
       if non_spectre_files.count > 0
@@ -215,7 +151,7 @@ module Spectre
       return file, line
     end
 
-    def scope desc, subject, type, &block
+    def scope desc, subject, type
       if desc
         if [:before, :after, :setup, :teardown].include?(type)
           colored_desc = desc.magenta
@@ -237,25 +173,27 @@ module Spectre
         @level += 1
 
         begin
-          super(desc, subject, type, &block)
+          yield
         ensure
           @level -= 1
         end
       end
     end
 
-    def log level, message, status=nil, desc=nil, exception=nil, &block
+    def log level, message, status=nil, desc=nil, exception=nil
       return if @locked
 
       write(message, true) if block_given? or @debug or level != :debug
 
-      @locked = true if block_given?
-
-      level, status, desc, exception = super(level, message, status, desc, exception, &block)
-
-      @locked = false if block_given?
+      if block_given?
+        @locked = true
+        level, status, desc, exception = yield
+        @locked = false
+      end
 
       label = status || level
+
+      RunContext.current.log(DateTime.now, 'spectre' , level, message, status, desc, exception) unless RunContext.current.nil?
 
       return unless block_given? or @debug or level != :debug
 
@@ -265,6 +203,12 @@ module Spectre
         @out.puts status_text.send(label)
       else
         @out.puts "#{status_text} - #{desc}".send(label)
+      end
+    end
+
+    %i{debug info warn}.each do |method|
+      define_method(method) do |message|
+        log(method, message)
       end
     end
 
@@ -291,9 +235,8 @@ module Spectre
     end
   end
 
-  class JsonFormatter < FileLogger
-    def initialize name
-      super(name)
+  class JsonFormatter
+    def initialize
       @scope = nil
       @out = CONFIG['stdout'] || $stdout
       @out.sync = true
@@ -339,7 +282,7 @@ module Spectre
         .map(&context_to_hash).to_json
     end
 
-    def scope desc, subject, type, &block
+    def scope desc, subject, type
       prev_scope = @scope
       @scope = SecureRandom.hex(5)
 
@@ -352,20 +295,28 @@ module Spectre
 
       @out.puts log_entry.to_json
 
-      super(desc, subject, type, &block)
+      yield
 
       @scope = prev_scope
     end
 
-    def log level, message, status=nil, desc=nil, exception=nil, &block
+    def log level, message, status=nil, desc=nil, exception=nil
       timestamp = DateTime.now
       log_id = SecureRandom.hex(5)
 
       write_log(log_id, timestamp, level, message, status, desc)
 
-      level, status, desc, exception = super(level, message, status, desc, exception, timestamp, &block)
+      level, status, desc, exception = yield if block_given?
+      
+      RunContext.current.log(DateTime.now, 'spectre' , level, message, status, desc, exception) unless RunContext.current.nil?
 
       write_log(log_id, DateTime.now, level, message, status, desc) if block_given? and !status.nil?
+    end
+
+    %i{debug info warn}.each do |method|
+      define_method(method) do |message|
+        log(method, message)
+      end
     end
 
     private
@@ -760,13 +711,13 @@ module Spectre
       load_files(CONFIG['mixin_patterns'])
       MIXINS.freeze
 
-      @logger = create_logger('spectre')
+      @logger = create_logger()
 
       return self
     end
 
-    def create_logger name
-      Object.const_get(CONFIG['formatter']).new(name)
+    def create_logger
+      Object.const_get(CONFIG['formatter']).new
     end
 
     def list
