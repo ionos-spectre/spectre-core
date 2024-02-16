@@ -18,13 +18,8 @@ RSpec.describe 'Expectation' do
     expect(run.failure).to eq(nil)
     expect(run.logs.count).to eq(2)
 
-    _, name, level, message, status, desc = run.logs[0]
-
-    expect(name).to eq('spectre')
-    expect(level).to eq(:debug)
-    expect(message).to eq('expect to succeed')
-    expect(status).to eq(:ok)
-    expect(desc).to eq(nil)
+    expect(run.logs[0][3]).to eq('expect the_truth to be 42 - ok')
+    expect(run.logs[1][3]).to eq('this is a message')
   end
 
   it 'runs: evaluates "should_not be"' do
@@ -34,10 +29,7 @@ RSpec.describe 'Expectation' do
     expect(run.failure).to eq(nil)
     expect(run.logs.count).to eq(1)
 
-    _, _, _, message, status, _ = run.logs[0]
-
-    expect(message).to eq('expect the_truth not to be 666')
-    expect(status).to eq(:ok)
+    expect(run.logs.first[3]).to eq('expect the_truth not to be 666 - ok')
   end
 
   it 'runs: evaluates "should be"' do
@@ -47,10 +39,7 @@ RSpec.describe 'Expectation' do
     expect(run.failure).to eq(nil)
     expect(run.logs.count).to eq(1)
 
-    _, _, _, message, status, _ = run.logs[0]
-
-    expect(message).to eq('expect the_truth.value to be 42')
-    expect(status).to eq(:ok)
+    expect(run.logs.first[3]).to eq('expect the_truth.value to be 42 - ok')
   end
 
   it 'evaluates "should contain and" with a list' do
@@ -60,10 +49,7 @@ RSpec.describe 'Expectation' do
     expect(run.failure).to eq(nil)
     expect(run.logs.count).to eq(1)
 
-    _, _, _, message, status, _ = run.logs[0]
-
-    expect(message).to eq('expect the_truth_list to contain 42 and 86')
-    expect(status).to eq(:ok)
+    expect(run.logs.first[3]).to eq('expect the_truth_list to contain 42 and 86 - ok')
   end
 
   it 'evaluates "should be or" with a single value' do
@@ -73,10 +59,7 @@ RSpec.describe 'Expectation' do
     expect(run.failure).to eq(nil)
     expect(run.logs.count).to eq(1)
 
-    _, _, _, message, status, _ = run.logs[0]
-
-    expect(message).to eq('expect the_truth to be 42 or 86')
-    expect(status).to eq(:ok)
+    expect(run.logs.first[3]).to eq('expect the_truth to be 42 or 86 - ok')
   end
 
   it 'evaluates "should contain or" with a list' do
@@ -86,10 +69,7 @@ RSpec.describe 'Expectation' do
     expect(run.failure).to eq(nil)
     expect(run.logs.count).to eq(1)
 
-    _, _, _, message, status, _ = run.logs[0]
-
-    expect(message).to eq('expect the_truth_list to contain 42 or 86')
-    expect(status).to eq(:ok)
+    expect(run.logs.first[3]).to eq('expect the_truth_list to contain 42 or 86 - ok')
   end
 
   it 'evaluate "should match"' do
@@ -99,10 +79,7 @@ RSpec.describe 'Expectation' do
     expect(run.failure).to eq(nil)
     expect(run.logs.count).to eq(1)
 
-    _, _, _, message, status, _ = run.logs[0]
-
-    expect(message).to eq('expect the_truth to match /42/')
-    expect(status).to eq(:ok)
+    expect(run.logs.first[3]).to eq('expect the_truth to match /42/ - ok')
   end
 
   it 'runs: fails "should be"' do
@@ -116,10 +93,6 @@ RSpec.describe 'Expectation' do
 
     expect(run.logs.count).to eq(1)
 
-    _, _, _, message, status, desc = run.logs[0]
-
-    expect(message).to eq('expect the_truth to be 42')
-    expect(status).to eq(:failed)
-    expect(desc).to eq('got 666')
+    expect(run.logs.first[3]).to eq('expect the_truth to be 42 - in specs/expectation.spec.rb:53')
   end
 end

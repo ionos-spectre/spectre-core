@@ -118,7 +118,7 @@ end
 
 %i{debug info warn}.each do |method|
   define_method(method) do |*args, &block|
-    Spectre.logger.send(method, *args, &block)
+    Spectre.formatter.send(method, *args, &block)
   end
 end
 
@@ -136,7 +136,7 @@ action = ARGV[0] || 'run'
 
 # List specs
 if action == 'list'
-  Spectre.logger.list
+  Spectre.formatter.list
 end
 
 # Run specs

@@ -40,9 +40,8 @@ RSpec.describe 'General' do
     expect(run.skipped).to eq(false)
     expect(run.logs.count).to eq(1)
 
-    timestamp, _name, _level, message, _status, _desc = run.logs.first
+    _timestamp, _severity, _progname, message = run.logs.first
 
-    expect(timestamp).to be_kind_of(DateTime)
     expect(message).to eq('do some setting up')
   end
 
@@ -57,14 +56,11 @@ RSpec.describe 'General' do
     expect(run.logs.count).to eq(3)
     expect(run.parent.desc).to eq('should run successfully')
 
-    timestamp, name, level, message, status, desc = run.logs.first
+    timestamp, severity, progname, message = run.logs.first
 
-    expect(timestamp).to be_kind_of(DateTime)
-    expect(name).to eq('spectre')
-    expect(level).to eq(:info)
+    expect(progname).to eq('spectre')
+    expect(severity).to eq('INFO')
     expect(message).to eq('some info')
-    expect(status).to eq(nil)
-    expect(desc).to eq(nil)
   end
 
   it 'runs: should run with an error' do
@@ -75,13 +71,11 @@ RSpec.describe 'General' do
     expect(run.failure).to eq(nil)
     expect(run.logs.count).to eq(1)
 
-    timestamp, name, level, message, status, desc = run.logs.first
+    timestamp, severity, progname, message = run.logs.first
 
-    expect(name).to eq('spectre')
-    expect(level).to eq(:fatal)
-    expect(message).to eq('Oops!')
-    expect(status).to eq(:error)
-    expect(desc).to eq('RuntimeError')
+    expect(progname).to eq('spectre')
+    expect(severity).to eq('FATAL')
+    expect(message).to start_with('Oops!')
   end
 
   it 'runs: should run with a failure' do
@@ -95,14 +89,11 @@ RSpec.describe 'General' do
 
     expect(run.logs.count).to eq(1)
 
-    timestamp, name, level, message, status, desc, exception = run.logs.first
+    timestamp, severity, progname, message = run.logs.first
 
-    expect(name).to eq('spectre')
-    expect(level).to eq(:error)
-    expect(message).to eq('fail for fun')
-    expect(status).to eq(:failed)
-    expect(desc).to eq(nil)
-    expect(exception).to be(nil)
+    expect(progname).to eq('spectre')
+    expect(severity).to eq('ERROR')
+    expect(message).to eq('fail for fun - in specs/general.spec.rb:31')
   end
 
   it 'runs: should run with an expectation failure' do
@@ -116,15 +107,11 @@ RSpec.describe 'General' do
 
     expect(run.logs.count).to eq(1)
 
-    timestamp, name, level, message, status, desc, exception = run.logs.first
+    timestamp, severity, progname, message = run.logs.first
 
-    expect(name).to eq('spectre')
-    expect(level).to eq(:error)
-    expect(message).to eq('expect to succeed')
-    expect(status).to eq(:failed)
-    expect(desc).to eq(nil)
-    expect(exception).to be_kind_of(Spectre::Expectation::ExpectationFailure)
-    expect(exception.message).to eq('expected to succeed, but it failed with "fail for fun"')
+    expect(progname).to eq('spectre')
+    expect(severity).to eq('ERROR')
+    expect(message).to eq('expected to succeed, but it failed with "fail for fun"')
   end
 
   it 'runs: should run with multiple data' do

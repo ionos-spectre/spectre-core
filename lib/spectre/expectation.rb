@@ -123,7 +123,8 @@ module Spectre
         desc = "#{var_name}#{negate ? ' not' : ''} #{matcher}"
 
         if matcher.execute(self, negate)
-          Spectre.logger.log(:info, "expect #{desc}", :ok, nil)
+          Spectre.formatter.log(:info, "expect #{desc}", :ok, nil)
+          Spectre.logger.info("expect #{desc} - ok")
         else
           actual = self.is_a?(String) ? "\"#{self}\"" : self
           raise ExpectationFailure.new("expect #{desc}", "got #{actual}")
