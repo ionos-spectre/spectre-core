@@ -152,7 +152,7 @@ module Spectre
         end
     end
 
-    def scope desc, subject, type
+    def scope desc, _subject, type
       if desc
         if [:before, :after, :setup, :teardown].include?(type)
           colored_desc = desc.magenta
@@ -193,7 +193,7 @@ module Spectre
       end
 
       label = status || level
-      
+
       return unless block_given? or @debug or level != :debug
 
       status_text = "[#{label}]"
@@ -282,7 +282,7 @@ module Spectre
         .map(&context_to_hash).to_json
     end
 
-    def scope desc, subject, type
+    def scope desc, _subject, type
       prev_scope = @scope
       @scope = SecureRandom.hex(5)
 
@@ -391,7 +391,7 @@ module Spectre
           result = [:fatal, :error, e.class.name, e]
           Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
         end
-        
+
         result
       end
 
@@ -616,10 +616,10 @@ module Spectre
 
   CONFIG = {
     'config_file' => './spectre.yml',
-    'log_file' => './logs/spectre_<date>.log',
+    # 'log_file' => './logs/spectre_<date>.log',
+    'log_file' => StringIO.new,
     'log_date_format' => '%Y-%m-%d %H:%M:%S.%3N',
     'log_message_format' => "[%s] %5s -- [%s] %s: %s\n",
-    'stdout' => StringIO.new,
     'formatter' => 'Spectre::ConsoleFormatter',
     'specs' => [],
     'tags' => [],
@@ -723,14 +723,15 @@ module Spectre
 
       @formatter = Object.const_get(CONFIG['formatter']).new
 
-      log_file = CONFIG['log_file'].gsub('<date>', DateTime.now.strftime('%Y-%m-%d_%H%M%S%3N'))
+      log_file = CONFIG['log_file']
+      log_file = log_file.gsub('<date>', DateTime.now.strftime('%Y-%m-%d_%H%M%S%3N')) if log_file.is_a? String
       @logger = Logger.new(log_file)
       @logger.formatter = proc do |severity, datetime, progname, message|
         date_fromatted = datetime.strftime(CONFIG['log_date_format'])
         progname = progname || 'spectre'
-        
+
         unless RunContext.current.nil?
-          RunContext.current.log(date_fromatted, severity, progname, message) 
+          RunContext.current.log(date_fromatted, severity, progname, message)
           context_name = RunContext.current.parent.name
         else
           context_name = 'spectre'

@@ -7,7 +7,7 @@ RSpec.describe 'Output' do
         'specs' => [],
         'tags' => [],
         'formatter' => 'Spectre::ConsoleFormatter',
-        'stdout' => $stdout
+        'stdout' => $stdout,
         # 'debug' => true,
       })
       .run
@@ -56,7 +56,7 @@ RSpec.describe 'General' do
     expect(run.logs.count).to eq(3)
     expect(run.parent.desc).to eq('should run successfully')
 
-    timestamp, severity, progname, message = run.logs.first
+    _, severity, progname, message = run.logs.first
 
     expect(progname).to eq('spectre')
     expect(severity).to eq('INFO')
@@ -71,7 +71,7 @@ RSpec.describe 'General' do
     expect(run.failure).to eq(nil)
     expect(run.logs.count).to eq(1)
 
-    timestamp, severity, progname, message = run.logs.first
+    _, severity, progname, message = run.logs.first
 
     expect(progname).to eq('spectre')
     expect(severity).to eq('FATAL')
@@ -89,11 +89,11 @@ RSpec.describe 'General' do
 
     expect(run.logs.count).to eq(1)
 
-    timestamp, severity, progname, message = run.logs.first
+    _, severity, progname, message = run.logs.first
 
     expect(progname).to eq('spectre')
     expect(severity).to eq('ERROR')
-    expect(message).to eq('fail for fun - in specs/general.spec.rb:31')
+    expect(message).to eq('fail for fun - in specs/general.spec.rb:29')
   end
 
   it 'runs: should run with an expectation failure' do
@@ -107,7 +107,7 @@ RSpec.describe 'General' do
 
     expect(run.logs.count).to eq(1)
 
-    timestamp, severity, progname, message = run.logs.first
+    _, severity, progname, message = run.logs.first
 
     expect(progname).to eq('spectre')
     expect(severity).to eq('ERROR')

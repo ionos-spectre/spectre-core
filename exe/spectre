@@ -1,6 +1,8 @@
 require_relative '../lib/spectre'
 
-config_overrides = {}
+config_overrides = {
+  'log_file' => './logs/spectre_<date>.log',
+}
 
 OptionParser.new do |opts|
   opts.banner = <<~BANNER
@@ -57,6 +59,10 @@ OptionParser.new do |opts|
 
   opts.on('--json', 'Use JSON formatter') do
     Spectre::CONFIG['formatter'] = 'Spectre::JsonFormatter'
+  end
+  
+  opts.on('--no-log', 'Disable file logging') do
+    config_overrides['log_file'] = StringIO.new
   end
 
   opts.on('-o PATH', '--out PATH', 'Output directory path') do |path|

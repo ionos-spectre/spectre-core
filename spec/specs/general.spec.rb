@@ -23,8 +23,6 @@ Spectre.describe 'General' do
 
   it 'should run with an error' do
     raise 'Oops!'
-
-    info 'some info, which will never be logged'
   end
 
   it 'should run with a failure' do
@@ -45,4 +43,3 @@ Spectre.describe 'General' do
     info "running with data: #{data}"
   end
 end
-

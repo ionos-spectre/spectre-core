@@ -12,7 +12,7 @@ RSpec.describe 'Reporter' do
       })
       .run
 
-    Spectre.report(runs) 
+    Spectre.report(runs)
   end
 
   it 'does generate a json report' do
@@ -26,6 +26,6 @@ RSpec.describe 'Reporter' do
       })
       .run
 
-    Spectre.report(runs) 
+    Spectre.report(runs)
   end
 end
