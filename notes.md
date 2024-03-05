@@ -1,5 +1,5 @@
 Feature list
- - nested context
+ - nested contexts
  - setup/teardown
  - before/after
  - expecations
@@ -12,9 +12,13 @@ Feature list
  - mixin
  - resources
  - logs
+    - log level
+    - file log
  - formatter
  - reports
  - environments
     - access in spec definition
     - access in spec runs
-
+ - filter
+    - by spec name
+    - by tag
