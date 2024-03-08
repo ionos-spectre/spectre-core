@@ -142,7 +142,7 @@ action = ARGV[0] || 'run'
 
 # List specs
 if action == 'list'
-  Spectre.formatter.list
+  Spectre.formatter.list(Spectre.list)
 end
 
 # Run specs

@@ -85,12 +85,9 @@ module Spectre
   class CancelException < Exception
   end
 
-  class ConsoleFormatter
-    def initialize
-      @out = CONFIG['stdout'] || $stdout
-      @level = 0
-      @width = 80
-      @indent = 2
+  class SimpleReporter
+    def initialize config
+      @out = config['stdout'] || $stdout
     end
 
     def report runs
@@ -134,13 +131,21 @@ module Spectre
 
       @out.puts output
     end
+  end
 
-    def list
+  class ConsoleFormatter
+    def initialize
+      @out = CONFIG['stdout'] || $stdout
+      @level = 0
+      @width = 80
+      @indent = 2
+    end
+
+    def list specs
       colors = [:blue, :magenta, :yellow, :green]
       counter = 0
 
-      Spectre
-        .list
+      specs
         .group_by { |x| x.parent.root }
         .each do |_context, spec_group|
           spec_group.each do |spec|
@@ -626,6 +631,7 @@ module Spectre
     'log_date_format' => '%Y-%m-%d %H:%M:%S.%3N',
     'log_message_format' => "[%s] %5s -- [%s] %s: %s\n",
     'formatter' => 'Spectre::ConsoleFormatter',
+    'reporter' => 'Spectre::SimpleReporter',
     'specs' => [],
     'tags' => [],
     'debug' => false,
@@ -769,7 +775,9 @@ module Spectre
     end
 
     def report runs
-      @formatter.report(runs)
+      Object.const_get(CONFIG['reporter'])
+        .new(CONFIG)
+        .report(runs)
     end
 
     def describe(name, &)
