@@ -7,12 +7,22 @@ end
 Spectre.describe 'General' do
   setup do
     info 'do some setting up'
+    @foo = 'bar'
   end
 
   it 'should run successfully' do
     info 'some info'
     info "this is a\nmultiline message"
     debug 'this is a debug message'
+  end
+
+  it 'accesses a variable from setup' do
+    @foo.should be 'bar'
+    @bar = 'baz'
+  end
+
+  it 'does not access a variable from previous spec' do
+    @bar.should be nil
   end
 end
 

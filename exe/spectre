@@ -115,7 +115,7 @@ OptionParser.new do |opts|
 end.parse!
 
 # Expose spectre methods
-%i{env describe bag mixin resources}.each do |method|
+%i{env describe mixin resources}.each do |method|
   define_method(method) do |*args, &block|
     Spectre.send(method, *args, &block)
   end

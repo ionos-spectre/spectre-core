@@ -337,7 +337,7 @@ module Spectre
   end
 
   class RunContext
-    attr_reader :id, :name, :parent, :type, :logs, :error, :failure, :skipped, :started, :finished
+    attr_reader :id, :name, :parent, :type, :logs, :bag, :error, :failure, :skipped, :started, :finished
 
     @@current = nil
 
@@ -345,12 +345,14 @@ module Spectre
       @@current
     end
 
-    def initialize parent, type
+    def initialize parent, type, bag=nil
       @id = SecureRandom.hex(5)
 
       @parent = parent
       @type = type
       @logs = []
+
+      @bag = OpenStruct.new(bag)
 
       @error = nil
       @failure = nil
@@ -458,8 +460,8 @@ module Spectre
       @parent.full_desc + ' ' + @desc
     end
 
-    def run befores, afters
-      RunContext.new(self, :spec) do |run_context|
+    def run befores, afters, bag
+      RunContext.new(self, :spec, bag) do |run_context|
         Spectre.formatter.scope(@desc, self, :spec) do
           begin
             if befores.any?
@@ -562,6 +564,7 @@ module Spectre
       if selected.any?
         Spectre.formatter.scope(@desc, self, :context) do
           setup_run = nil
+          setup_bag = nil
 
           if @setups.any?
             setup_run = RunContext.new(self, :setup) do |run_context|
@@ -572,18 +575,20 @@ module Spectre
               end
             end
 
+            setup_bag = setup_run.bag
+
             runs << setup_run
           end
 
           # Only run specs if setup was successful
-          if selected.any? and (setup_run.nil? or setup_run.error.nil?)
+          if setup_run.nil? or setup_run.error.nil?
             runs += selected.map do |spec|
-              spec.run(@befores, @afters)
+              spec.run(@befores, @afters, setup_bag)
             end
           end
 
           if @teardowns.any?
-            runs << RunContext.new(self, :teardown) do |run_context|
+            runs << RunContext.new(self, :teardown, setup_bag) do |run_context|
               Spectre.formatter.scope('teardown', self, :teardown) do
                 @teardowns.each do |block|
                   run_context.execute(nil, &block)
@@ -636,8 +641,6 @@ module Spectre
   MIXINS = {}
   RESOURCES = {}
   ENVIRONMENTS = {}
-
-  BAG = OpenStruct.new
 
   DEFAULT_ENV_NAME = 'default'
 
@@ -786,10 +789,6 @@ module Spectre
 
     def resources path
       RESOURCES[path]
-    end
-
-    def bag
-      BAG
     end
 
     private
