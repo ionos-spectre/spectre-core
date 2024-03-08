@@ -83,7 +83,7 @@ module Spectre
         @expected_val = ValueWrapper.wrap(expected_val)
 
         @repr = 'to ' + method.to_s.gsub('_', ' ')
-        @repr += ' ' + @expected_val.to_s unless expected_val.nil?
+        @repr += expected_val.nil? ? ' nil' : ' ' + @expected_val.to_s
       end
 
       def execute val, negate
