@@ -460,7 +460,7 @@ module Spectre
 
     def run befores, afters
       RunContext.new(self, :spec) do |run_context|
-        Spectre.formatter.scope('it ' + @desc, self, :spec) do
+        Spectre.formatter.scope(@desc, self, :spec) do
           begin
             if befores.any?
               Spectre.formatter.scope('before', self, :before) do
