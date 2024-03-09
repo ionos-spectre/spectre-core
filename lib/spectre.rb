@@ -240,9 +240,8 @@ module Spectre
     end
   end
 
-  class JsonFormatter
+  class JsonReporter
     def initialize
-      @scope = nil
       @out = CONFIG['stdout'] || $stdout
       @out.sync = true
     end
@@ -263,6 +262,14 @@ module Spectre
       end
 
       @out.puts reports.to_json
+    end
+  end
+
+  class JsonFormatter
+    def initialize
+      @scope = nil
+      @out = CONFIG['stdout'] || $stdout
+      @out.sync = true
     end
 
     def list

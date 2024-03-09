@@ -53,10 +53,14 @@ OptionParser.new do |opts|
     Spectre::CONFIG['formatter'] = class_name
   end
 
+  opts.on('--reporter NAME', 'Use specified reporter') do |class_name|
+    Spectre::CONFIG['reporter'] = class_name
+  end
+
   opts.on('--json', 'Use JSON formatter') do
     Spectre::CONFIG['formatter'] = 'Spectre::JsonFormatter'
   end
-  
+
   opts.on('--no-log', 'Disable file logging') do
     config_overrides['log_file'] = StringIO.new
   end
