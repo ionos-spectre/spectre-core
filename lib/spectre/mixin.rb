@@ -35,6 +35,9 @@ module Spectre
         Spectre::Logging.log_debug "running mixin '#{desc}'"
 
         params = with || {}
+        if params.empty?
+          params = {}
+        end
 
         ctx = MixinContext.new(desc)
 
