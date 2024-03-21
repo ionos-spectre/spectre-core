@@ -422,9 +422,12 @@ module Spectre
       @logs << [timestamp, severity, progname, message]
     end
 
-    def run desc, with: []
+    def run desc, with: nil
       Spectre.formatter.scope(desc, self, :mixin) do
+        with = with || [OpenStruct.new]
         with = [with.to_recursive_struct] if with.is_a? Hash
+
+        raise "mixin '#{desc}' not found" unless MIXINS.key? desc
 
         instance_exec(*with, &MIXINS[desc])
       end
