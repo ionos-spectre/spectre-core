@@ -155,6 +155,10 @@ if action == 'show'
   puts Spectre::CONFIG.pretty
 end
 
+if action == 'mixins'
+  puts Spectre::MIXINS.keys
+end
+
 
 DEFAULT_SPECTRE_CFG = %{log_file: ./logs/spectre_<date>.log
 env_patterns:
