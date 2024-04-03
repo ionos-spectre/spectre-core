@@ -15,7 +15,7 @@ module Spectre
 
     class ModuleLogger
       attr_reader :logger
-      
+
       def initialize config, name
         @name = name
         @debug = config['debug']
