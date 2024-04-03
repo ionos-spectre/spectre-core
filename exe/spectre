@@ -8,6 +8,7 @@ require 'fileutils'
 require 'ectoplasm'
 
 require_relative '../lib/spectre'
+require_relative '../lib/spectre/reporter'
 
 def load_yaml file_path
   yaml = File.read(file_path)
