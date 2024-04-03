@@ -24,5 +24,5 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'ectoplasm', '~> 1.2.3'
-  spec.add_runtime_dependency 'jsonpath', '>= 1.1.0'
+  spec.add_runtime_dependency 'jsonpath', '~> 1.1'
 end
