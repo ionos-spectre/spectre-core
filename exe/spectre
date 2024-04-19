@@ -182,14 +182,7 @@ http:
     base_url: http://localhost:5000/api/v1/
     # basic_auth:
       # username: <username>
-      # password: <password>
-    # keystone:
-      # url: https://<keystone_url>/main/v3/
-      # username: <username>
-      # password: <password>
-      # project: <project>
-      # domain: <domain>
-      # cert: *cert
+      # password:
 # ssh:
   # <ssh_client_name>:
     # host: <hostname>
@@ -202,13 +195,6 @@ DEFAULT_ENV_SECRET_CFG = %{http:
     # basic_auth:
       # username: <username>
       # password: <password>
-    # keystone:
-      # username: <username>
-      # password: <password>
-# ssh:
-  # <ssh_client_name>:
-    # username: <username>
-    # password: <password>
 }
 
 SAMPLE_SPEC = %[describe '<subject>' do
@@ -249,6 +235,7 @@ reports/
 DEFAULT_GEMFILE = %[source 'https://rubygems.org'
 
 gem 'spectre-core', '>= #{Spectre::VERSION}'
+gem 'spectre-http', '>= 2.0.0'
 # gem 'spectre-mysql', '>= 2.0.0'
 # gem 'spectre-ssh', '>= 2.0.0'
 # gem 'spectre-ftp', '>= 2.0.0'
