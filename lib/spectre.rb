@@ -272,7 +272,7 @@ module Spectre
       @out.sync = true
     end
 
-    def list
+    def list specs
       context_to_hash = proc do |context|
         {
           name: context.name,
@@ -283,15 +283,15 @@ module Spectre
               name: spec.name,
               desc: spec.desc,
               tags: spec.tags,
+              file: spec.file,
             }
           end,
         }
       end
 
-      @out.puts Spectre
-        .list
+      @out.puts specs
         .group_by { |x| x.parent.root }
-        .map(&context_to_hash).to_json
+        .map { |x| context_to_hash.call(x.first) }.to_json
     end
 
     def scope desc, _subject, type
