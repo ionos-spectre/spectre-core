@@ -458,9 +458,9 @@ module Spectre
   end
 
   class TestSpecification
-    attr_reader :id, :name, :desc, :parent, :root, :tags, :data
+    attr_reader :id, :name, :desc, :parent, :root, :tags, :data, :file
 
-    def initialize parent, name, desc, tags, data, block
+    def initialize parent, name, desc, tags, data, file, block
       @id = SecureRandom.hex(5)
       @parent = parent
       @root = parent.root
@@ -468,6 +468,7 @@ module Spectre
       @desc = desc
       @tags = tags
       @data = data
+      @file = file
       @block = block
     end
 
@@ -558,6 +559,7 @@ module Spectre
     end
 
     def it desc, tags: [], with: nil, &block
+      file = caller.first.gsub(":in `block in <top (required)>'", "")
       root_context = root
       with = with || [nil]
       spec_index = root_context.all_specs.count + 1
@@ -566,7 +568,7 @@ module Spectre
         name = "#{root_context.name}-#{spec_index}"
         name += ".#{index}" if with.count > 1
 
-        spec = TestSpecification.new(self, name, desc, tags, data, block)
+        spec = TestSpecification.new(self, name, desc, tags, data, file, block)
 
         @specs << spec
       end

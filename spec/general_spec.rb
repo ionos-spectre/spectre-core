@@ -48,6 +48,7 @@ RSpec.describe 'General' do
   it 'runs: should run successfully' do
     run = @runs.find { |x| x.parent.desc == 'should run successfully' }
 
+    expect(run.parent.file).to end_with('spec/specs/general.spec.rb:13')
     expect(run.parent.parent.desc).to eq('General')
     expect(run.parent.desc).to eq('should run successfully')
     expect(run.error).to eq(nil)
