@@ -559,7 +559,7 @@ module Spectre
     end
 
     def it desc, tags: [], with: nil, &block
-      file = caller.first.gsub(":in `block in <top (required)>'", "")
+      file = caller.first.gsub(/:in .*/, '')
       root_context = root
       with = with || [nil]
       spec_index = root_context.all_specs.count + 1
