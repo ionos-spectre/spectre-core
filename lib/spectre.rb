@@ -547,11 +547,13 @@ module Spectre
 
     def full_desc
       return @desc unless @parent
+
       @parent.full_desc + ' ' + @desc
     end
 
     def full_name
       return @name unless @parent
+
       @parent.full_name + '-' + @name
     end
 
@@ -593,7 +595,7 @@ module Spectre
 
       with = with || [nil]
 
-      with.each_with_index do |data, index|
+      with.each_with_index do |data, _index|
         spec_index = @specs.count + 1
         name = "#{full_name}-#{spec_index}"
 

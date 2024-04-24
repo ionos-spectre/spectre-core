@@ -26,7 +26,7 @@ Spectre.describe 'Bag' do
     end
   end
 
-  it 'uses bag in definition and spec' do |data|
+  it 'uses bag in definition and spec' do
     bag.setup_data.should be 'bla'
     bag.data.should be 'foo'
 
