@@ -13,6 +13,7 @@ OptionParser.new do |opts|
       Commands:
         run         Run specs (default)
         list        List specs
+        info        Print detailed info about specs, like file location
         show        Print current environment settings
         dump        Dumps the given environment in YAML format to console
         cleanup     Will remove all generated files (e.g. logs and reports)
@@ -143,6 +144,12 @@ action = ARGV[0] || 'run'
 # List specs
 if action == 'list'
   Spectre.formatter.list(Spectre.list)
+end
+
+# List specs details
+if action == 'info'
+  Spectre.formatter.details(Spectre.list)
+  exit
 end
 
 # Run specs

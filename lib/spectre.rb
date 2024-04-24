@@ -157,6 +157,29 @@ module Spectre
         end
     end
 
+    def details specs
+      colors = [:blue, :magenta, :yellow, :green]
+      counter = 0
+
+      specs
+        .group_by { |x| x.parent.root }
+        .each do |_context, spec_group|
+          spec_group.each do |spec|
+            spec_id = "[#{spec.name}]".send(colors[counter % colors.length])
+            spec_detail  = "#{spec_id}\n"
+            spec_detail += "  subject..: #{spec.parent.desc}\n"
+            spec_detail += "  desc.....: #{spec.desc}\n"
+            spec_detail += "  tags.....: #{spec.tags.join(', ')}\n" if spec.tags.any?
+            spec_detail += "  data.....: #{spec.data.to_json}\n" if spec.data
+            spec_detail += "  file.....: #{spec.file}\n"
+
+            @out.puts("#{spec_detail}\n")
+          end
+
+          counter += 1
+        end
+    end
+
     def scope desc, _subject, type
       if desc
         if [:before, :after, :setup, :teardown].include?(type)
