@@ -683,22 +683,22 @@ module Spectre
   # Define default config
 
   CONFIG = {
-    'config_file'          => './spectre.yml',
+    'config_file' => './spectre.yml',
     # 'log_file'             => './logs/spectre_<date>.log',
-    'log_file'             => StringIO.new,
-    'log_date_format'      => '%Y-%m-%d %H:%M:%S.%3N',
-    'log_message_format'   => "[%s] %5s -- [%s] %s: %s\n",
-    'formatter'            => 'Spectre::ConsoleFormatter',
-    'reporter'             => 'Spectre::SimpleReporter',
-    'specs'                => [],
-    'tags'                 => [],
-    'debug'                => false,
-    'env_patterns'         => ['environments/**/*.env.yml'],
+    'log_file' => StringIO.new,
+    'log_date_format' => '%Y-%m-%d %H:%M:%S.%3N',
+    'log_message_format' => "[%s] %5s -- [%s] %s: %s\n",
+    'formatter' => 'Spectre::ConsoleFormatter',
+    'reporter' => 'Spectre::SimpleReporter',
+    'specs' => [],
+    'tags' => [],
+    'debug' => false,
+    'env_patterns' => ['environments/**/*.env.yml'],
     'env_partial_patterns' => ['environments/**/*.env.secret.yml'],
-    'spec_patterns'        => ['specs/**/*.spec.rb'],
-    'mixin_patterns'       => ['mixins/**/*.mixin.rb'],
-    'resource_paths'       => ['../common/resources', './resources'],
-    'modules'              => [],
+    'spec_patterns' => ['specs/**/*.spec.rb'],
+    'mixin_patterns' => ['mixins/**/*.mixin.rb'],
+    'resource_paths' => ['../common/resources', './resources'],
+    'modules' => [],
   }
 
   CONTEXTS = []
@@ -807,6 +807,7 @@ module Spectre
         date_fromatted = datetime.strftime(CONFIG['log_date_format'])
         progname = progname || 'spectre'
 
+        # Add log message also to the current executing run context
         unless RunContext.current.nil?
           RunContext.current.log(date_fromatted, severity, progname, message)
           context_name = RunContext.current.parent.name
