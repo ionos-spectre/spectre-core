@@ -794,6 +794,7 @@ module Spectre
 
       if log_file.is_a? String
         log_file = log_file.gsub('<date>', DateTime.now.strftime('%Y-%m-%d_%H%M%S%3N'))
+        FileUtils.mkdir_p(File.dirname(log_file))
       end
 
       @logger = Logger.new(log_file)
