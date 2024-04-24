@@ -547,8 +547,12 @@ module Spectre
 
     def full_desc
       return @desc unless @parent
-
       @parent.full_desc + ' ' + @desc
+    end
+
+    def full_name
+      return @name unless @parent
+      @parent.full_name + '-' + @name
     end
 
     def root
@@ -585,11 +589,10 @@ module Spectre
       file = caller.first.gsub(/:in .*/, '')
       root_context = root
       with = with || [nil]
-      spec_index = root_context.all_specs.count + 1
 
       with.each_with_index do |data, index|
-        name = "#{root_context.name}-#{spec_index}"
-        name += ".#{index}" if with.count > 1
+        spec_index = @specs.count + 1
+        name = "#{full_name}-#{spec_index}"
 
         spec = TestSpecification.new(self, name, desc, tags, data, file, block)
 
