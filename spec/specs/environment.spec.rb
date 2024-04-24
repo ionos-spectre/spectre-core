@@ -9,7 +9,7 @@ Spectre.describe 'Environment' do
     env.foo.should be 'bar'
   end
 
-  it 'should access a  variable from a partial environment' do
+  it 'should access a variable from a partial environment' do
     env.some_secret.should be 'some_secret_value'
   end
 
