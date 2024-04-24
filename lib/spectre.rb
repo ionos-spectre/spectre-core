@@ -738,6 +738,7 @@ module Spectre
         end
       end
 
+      # Load and merge partial environment files
       CONFIG['env_partial_patterns'].each do |pattern|
         Dir.glob(pattern).each do |file_path|
           loaded_env = load_yaml(file_path)
@@ -751,6 +752,20 @@ module Spectre
 
       # Merge property overrides
       CONFIG.deep_merge!(config_overrides)
+
+      # Set env before loading specs in order to make it available in spec definitions
+      @env = CONFIG.to_recursive_struct.freeze
+
+      # Load specs
+      # Note that spec files are only loaded once, because of the relative require,
+      # even if the setup function is called multiple times
+      require_files(CONFIG['spec_patterns'])
+      CONTEXTS.freeze
+
+      # Load mixins
+      # Mixins are also only loaded once
+      require_files(CONFIG['mixin_patterns'])
+      MIXINS.freeze
 
       # Load resources
       CONFIG['resource_paths'].each do |resource_path|
@@ -774,22 +789,12 @@ module Spectre
         end
       end
 
-      # Set env before loading specs in order to make it available in spec definitions
-      @env = CONFIG.to_recursive_struct.freeze
-
-      # Load specs
-      # Note that spec files are only loaded once, because of the relative require,
-      # even if the setup function is called multiple times
-      load_files(CONFIG['spec_patterns'])
-      CONTEXTS.freeze
-
-      # Load mixins
-      # Mixins are also only loaded once
-      load_files(CONFIG['mixin_patterns'])
-      MIXINS.freeze
-
       @formatter = Object.const_get(CONFIG['formatter']).new
 
+      self
+    end
+
+    def init_logger
       log_file = CONFIG['log_file']
 
       if log_file.is_a? String
@@ -812,7 +817,7 @@ module Spectre
         CONFIG['log_message_format'] % [date_fromatted, severity, context_name, progname, message]
       end
 
-      return self
+      self
     end
 
     def list
@@ -830,6 +835,8 @@ module Spectre
     end
 
     def run
+      init_logger()
+
       list
         .group_by { |x| x.parent.root }
         .map do |context, specs|
@@ -865,7 +872,7 @@ module Spectre
 
     private
 
-    def load_files patterns
+    def require_files patterns
       patterns.each do |pattern|
         Dir.glob(pattern).each do |file|
           require_relative File.join(Dir.pwd, file)

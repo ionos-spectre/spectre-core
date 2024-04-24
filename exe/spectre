@@ -144,6 +144,7 @@ action = ARGV[0] || 'run'
 # List specs
 if action == 'list'
   Spectre.formatter.list(Spectre.list)
+  exit
 end
 
 # List specs details
@@ -156,14 +157,19 @@ end
 if action == 'run'
   runs = Spectre.run
   Spectre.report(runs)
+  exit
 end
 
+# Show config
 if action == 'show'
   puts Spectre::CONFIG.pretty
+  exit
 end
 
+# List mixins
 if action == 'mixins'
   puts Spectre::MIXINS.keys
+  exit
 end
 
 
