@@ -32,6 +32,19 @@ def get_error_info error
   return file, line
 end
 
+def tag? tags, tag_exp
+  tags = tags.map { |x| x.to_s }
+  all_tags = tag_exp.split('+')
+
+  included_tags = all_tags.select { |x| !x.start_with? '!' }
+
+  excluded_tags = all_tags
+    .select { |x| x.start_with? '!' }
+    .map { |x| x[1..-1] }
+
+  included_tags & tags == included_tags and excluded_tags & tags == []
+end
+
 class Hash
   def deep_merge!(second)
     return unless second.is_a?(Hash)
@@ -72,12 +85,12 @@ class Object
 end
 
 class String
-  alias :error :red
-  alias :failed :red
-  alias :warn :yellow
-  alias :ok :green
-  alias :info :blue
-  alias :debug :grey
+  alias :error   :red
+  alias :failed  :red
+  alias :warn    :yellow
+  alias :ok      :green
+  alias :info    :blue
+  alias :debug   :grey
   alias :skipped :grey
 end
 
@@ -91,43 +104,55 @@ module Spectre
     end
 
     def report runs
-      errors = runs.count { |x| !x.error.nil? }
-      failed = runs.count { |x| !x.failure.nil? }
-      skipped = runs.count { |x| x.skipped }
+      errors   = runs.count { |x| !x.error.nil? }
+      failed   = runs.count { |x| !x.failure.nil? }
+      skipped  = runs.count { |x| x.skipped }
       succeded = runs.count - errors - failed - skipped
 
-      output = ''
+      summary  = "#{succeded} succeded"
+      summary += " #{failed} failures"
+      summary += " #{errors} errors"
+      summary += " #{skipped} skipped"
+      summary += "\n\n"
 
-      output += "\n#{succeded} succeded #{failed} failures #{errors} errors #{skipped} skipped\n\n".send(errors + failed > 0 ? :red : :green)
+      output  = "\n"
+      output += summary.send(errors + failed > 0 ? :red : :green)
 
-      runs.select { |x| !x.error.nil? or !x.failure.nil? }.each_with_index do |run, index|
-        output += "#{index+1}) #{run.parent.full_desc} (#{(run.finished - run.started).duration}) [#{run.parent.name}]".red
-        output += "\n"
+      runs
+        .select { |x| !x.error.nil? or !x.failure.nil? }
+        .each_with_index do |run, index|
+          title  = "#{index+1})"
+          title += " #{run.parent.full_desc}"
+          title += " (#{(run.finished - run.started).duration})"
+          title += " [#{run.parent.name}]"
 
-        if run.error
-          error_output = "but an unexpected error occurred during run\n"
-          file, line = get_error_info(run.error)
+          output += title.red
+          output += "\n"
 
-          error_output += "  file.....: #{file}:#{line}\n" if file
-          error_output += "  type.....: #{run.error.class.name}\n"
-          error_output += "  message..: #{run.error.message}\n"
+          if run.error
+            file, line = get_error_info(run.error)
 
-          if CONFIG['debug'] and run.error.backtrace
-            error_output += "  backtrace:\n"
+            error_output  = "but an unexpected error occurred during run\n"
+            error_output += "  file.....: #{file}:#{line}\n" if file
+            error_output += "  type.....: #{run.error.class.name}\n"
+            error_output += "  message..: #{run.error.message}\n"
 
-            run.error.backtrace.each do |trace|
-              error_output += "    #{trace}\n"
+            if CONFIG['debug'] and run.error.backtrace
+              error_output += "  backtrace:\n"
+
+              run.error.backtrace.each do |trace|
+                error_output += "    #{trace}\n"
+              end
             end
+
+            output += error_output.indent(5).red
+            output += "\n\n"
           end
 
-          output += error_output.indent(5).red
-          output += "\n\n"
+          if run.failure
+            output += "     #{run.failure.message.red}\n\n"
+          end
         end
-
-        if run.failure
-          output += "     #{run.failure.message.red}\n\n"
-        end
-      end
 
       @out.puts output
     end
@@ -653,37 +678,27 @@ module Spectre
 
       runs
     end
-
-    private
-
-    def tag? tags, tag_exp
-      tags = tags.map { |x| x.to_s }
-      all_tags = tag_exp.split('+')
-      included_tags = all_tags.select { |x| !x.start_with? '!' }
-      excluded_tags = all_tags.select { |x| x.start_with? '!' }.map { |x| x[1..-1] }
-      included_tags & tags == included_tags and excluded_tags & tags == []
-    end
   end
 
   # Define default config
 
   CONFIG = {
-    'config_file' => './spectre.yml',
-    # 'log_file' => './logs/spectre_<date>.log',
-    'log_file' => StringIO.new,
-    'log_date_format' => '%Y-%m-%d %H:%M:%S.%3N',
-    'log_message_format' => "[%s] %5s -- [%s] %s: %s\n",
-    'formatter' => 'Spectre::ConsoleFormatter',
-    'reporter' => 'Spectre::SimpleReporter',
-    'specs' => [],
-    'tags' => [],
-    'debug' => false,
-    'env_patterns' => ['environments/**/*.env.yml'],
+    'config_file'          => './spectre.yml',
+    # 'log_file'             => './logs/spectre_<date>.log',
+    'log_file'             => StringIO.new,
+    'log_date_format'      => '%Y-%m-%d %H:%M:%S.%3N',
+    'log_message_format'   => "[%s] %5s -- [%s] %s: %s\n",
+    'formatter'            => 'Spectre::ConsoleFormatter',
+    'reporter'             => 'Spectre::SimpleReporter',
+    'specs'                => [],
+    'tags'                 => [],
+    'debug'                => false,
+    'env_patterns'         => ['environments/**/*.env.yml'],
     'env_partial_patterns' => ['environments/**/*.env.secret.yml'],
-    'spec_patterns' => ['specs/**/*.spec.rb'],
-    'mixin_patterns' => ['mixins/**/*.mixin.rb'],
-    'resource_paths' => ['../common/resources', './resources'],
-    'modules' => [],
+    'spec_patterns'        => ['specs/**/*.spec.rb'],
+    'mixin_patterns'       => ['mixins/**/*.mixin.rb'],
+    'resource_paths'       => ['../common/resources', './resources'],
+    'modules'              => [],
   }
 
   CONTEXTS = []
@@ -776,7 +791,11 @@ module Spectre
       @formatter = Object.const_get(CONFIG['formatter']).new
 
       log_file = CONFIG['log_file']
-      log_file = log_file.gsub('<date>', DateTime.now.strftime('%Y-%m-%d_%H%M%S%3N')) if log_file.is_a? String
+
+      if log_file.is_a? String
+        log_file = log_file.gsub('<date>', DateTime.now.strftime('%Y-%m-%d_%H%M%S%3N'))
+      end
+
       @logger = Logger.new(log_file)
       @logger.formatter = proc do |severity, datetime, progname, message|
         date_fromatted = datetime.strftime(CONFIG['log_date_format'])
@@ -814,7 +833,8 @@ module Spectre
         .group_by { |x| x.parent.root }
         .map do |context, specs|
           context.run(specs)
-        end.flatten
+        end
+        .flatten
     end
 
     def report runs
@@ -843,14 +863,6 @@ module Spectre
     end
 
     private
-
-    def tag? tags, tag_exp
-      tags = tags.map { |x| x.to_s }
-      all_tags = tag_exp.split('+')
-      included_tags = all_tags.select { |x| !x.start_with? '!' }
-      excluded_tags = all_tags.select { |x| x.start_with? '!' }.map { |x| x[1..-1] }
-      included_tags & tags == included_tags and excluded_tags & tags == []
-    end
 
     def load_files patterns
       patterns.each do |pattern|
