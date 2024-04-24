@@ -586,8 +586,11 @@ module Spectre
     end
 
     def it desc, tags: [], with: nil, &block
-      file = caller.first.gsub(/:in .*/, '')
-      root_context = root
+      file = caller
+        .first
+        .gsub(/:in .*/, '')
+        .gsub(Dir.getwd, '.')
+
       with = with || [nil]
 
       with.each_with_index do |data, index|

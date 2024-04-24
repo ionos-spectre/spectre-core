@@ -48,7 +48,7 @@ RSpec.describe 'General' do
   it 'runs: should run successfully' do
     run = @runs.find { |x| x.parent.desc == 'should run successfully' }
 
-    expect(run.parent.file).to end_with('spec/specs/general.spec.rb:13')
+    expect(run.parent.file).to end_with('specs/general.spec.rb:13')
     expect(run.parent.parent.desc).to eq('General')
     expect(run.parent.desc).to eq('should run successfully')
     expect(run.error).to eq(nil)
@@ -116,7 +116,7 @@ RSpec.describe 'General' do
   end
 
   it 'runs: should run with multiple data' do
-    expect(@runs[8].parent.name).to eq('general-8.0')
-    expect(@runs[9].parent.name).to eq('general-8.1')
+    expect(@runs[8].parent.name).to eq('general-8')
+    expect(@runs[9].parent.name).to eq('general-9')
   end
 end
