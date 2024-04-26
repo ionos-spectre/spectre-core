@@ -2,6 +2,7 @@ Feature list
  - nested contexts
  - setup/teardown
  - before/after
+ - bag
  - expecations
     - should be
     - should contain
@@ -9,6 +10,7 @@ Feature list
     - should_not
     - fail_with
  - expect block
+ - observe
  - mixin
  - resources
  - logs
