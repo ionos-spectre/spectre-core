@@ -15,6 +15,16 @@ Spectre.describe 'Expectation' do
     info 'this is a message'
   end
 
+  it 'fails within an expect block' do
+    the_truth = 666
+
+    expect 'to succeed' do
+      the_truth.should be 42
+    end
+
+    info 'this is a message'
+  end
+
   it 'evaluates "should_not be"' do
     the_truth = 42
 
