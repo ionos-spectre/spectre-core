@@ -480,12 +480,15 @@ module Spectre
 
     def run desc, with: nil
       Spectre.formatter.scope(desc, self, :mixin) do
-        with = with || [OpenStruct.new]
+        with ||= [OpenStruct.new]
         with = [with.to_recursive_struct] if with.is_a? Hash
+        with = with.map { |x| x.is_a?(Hash) ? x.to_recursive_struct : x }
 
         raise "mixin '#{desc}' not found" unless MIXINS.key? desc
 
-        instance_exec(*with, &MIXINS[desc])
+        result = instance_exec(*with, &MIXINS[desc])
+
+        result.is_a?(Hash) ? OpenStruct.new(result) : result
       end
     end
 
