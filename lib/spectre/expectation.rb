@@ -2,10 +2,10 @@ require 'ostruct'
 
 module Spectre
   module Expectation
-    class ExpectationFailure < Exception
+    class ExpectationFailure < StandardError
       attr_reader :desc
 
-      def initialize message, desc=nil
+      def initialize message, desc = nil
         super(message)
         @desc = desc
       end
@@ -28,12 +28,13 @@ module Spectre
         return "\"#{@val}\"" if @val.is_a?(String)
         return @val.inspect if @val.is_a?(Regexp)
 
-        return @val.to_s
+        @val.to_s
       end
     end
 
     class OrWrapper < ValueWrapper
       def initialize first, second
+        super(first)
         @first = ValueWrapper.wrap(first)
         @second = ValueWrapper.wrap(second)
       end
@@ -49,6 +50,7 @@ module Spectre
 
     class AndWrapper < ValueWrapper
       def initialize first, second
+        super(first)
         @first = ValueWrapper.wrap(first)
         @second = ValueWrapper.wrap(second)
       end
@@ -82,8 +84,8 @@ module Spectre
         @block = block
         @expected_val = ValueWrapper.wrap(expected_val)
 
-        @repr = 'to ' + method.to_s.gsub('_', ' ')
-        @repr += expected_val.nil? ? ' nil' : ' ' + @expected_val.to_s
+        @repr = "to #{method.to_s.gsub('_', ' ')}"
+        @repr += expected_val.nil? ? ' nil' : " #{@expected_val}"
       end
 
       def execute val, negate
@@ -98,7 +100,7 @@ module Spectre
     class ::Object
       @@location_cache = {}
 
-      def should matcher, negate=false
+      def should matcher, negate: false
         # Maybe not the most elegant way, but it works for now
         # as long as the `should` statement is on the same line as the variable
         loc = caller_locations
@@ -126,7 +128,7 @@ module Spectre
           Spectre.formatter.log(:info, "expect #{desc}", :ok, nil)
           Spectre.logger.info("expect #{desc} - ok")
         else
-          actual = self.is_a?(String) ? "\"#{self}\"" : self
+          actual = is_a?(String) ? "\"#{self}\"" : self
           raise ExpectationFailure.new(
             "expected #{desc}, but got #{actual || 'nothing'}",
             "got #{actual}"
@@ -135,7 +137,7 @@ module Spectre
       end
 
       def should_not matcher
-        should(matcher, true)
+        should(matcher, negate: true)
       end
 
       def or other_val

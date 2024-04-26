@@ -18,7 +18,7 @@ class ::String
   end
 
   def with mapping
-    return self unless mapping and mapping.is_a? Hash
+    return self unless mapping.is_a? Hash
 
     new_string = self
 
@@ -36,7 +36,7 @@ class ::String
   end
 
   def pick path
-    raise ArgumentError.new("`path' must not be nil or empty") if path.nil? or path.empty?
+    raise ArgumentError, "`path' must not be nil or empty" if path.nil? or path.empty?
 
     begin
       JsonPath.on(self, path)
@@ -48,7 +48,7 @@ class ::String
   # File helpers
 
   def content with: nil
-    fail "'#{self}' is not a file path, or the file does not exist." unless File.exist? self
+    raise "'#{self}' is not a file path, or the file does not exist." unless File.exist? self
 
     file_content = File.read(self)
 
@@ -60,7 +60,7 @@ class ::String
   end
 
   def file_size
-    fail "'#{self}' is not a file path, or the file does not exist." unless File.exist? self
+    raise "'#{self}' is not a file path, or the file does not exist." unless File.exist? self
 
     File.size(self)
   end
@@ -70,7 +70,7 @@ class ::String
   end
 
   def remove!
-    fail "'#{self}' is not a file path, or the file does not exist." unless File.exist? self
+    raise "'#{self}' is not a file path, or the file does not exist." unless File.exist? self
 
     File.delete self
   end
@@ -84,7 +84,7 @@ class ::OpenStruct
   end
 
   def pick path
-    raise ArgumentError.new("`path' must not be nil or empty") if path.nil? or path.empty?
+    raise ArgumentError, "`path' must not be nil or empty" if path.nil? or path.empty?
 
     JsonPath.on(self, path)
   end
