@@ -128,7 +128,7 @@ module Spectre
         else
           actual = self.is_a?(String) ? "\"#{self}\"" : self
           raise ExpectationFailure.new(
-            "expected #{desc}, but got #{actual}",
+            "expected #{desc}, but got #{actual || 'nothing'}",
             "got #{actual}"
           )
         end
