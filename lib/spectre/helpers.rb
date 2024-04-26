@@ -79,7 +79,7 @@ end
 class ::OpenStruct
   def to_json *args, **kwargs
     to_h
-      .each_with_object({}) { |memo, (k, v)| memo[k] = v.is_a?(OpenStruct) ? v.to_h : v; memo }
+      .transform_values { |x| x.is_a?(OpenStruct) ? x.to_h : x }
       .to_json(*args, **kwargs)
   end
 
