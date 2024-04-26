@@ -277,7 +277,7 @@ module Spectre
         end
       end
 
-      @out.print '.' * (@width - output.length) if fill
+      @out.print '.' * (@width > output.length ? @width - output.length : 0) if fill
     end
   end
 
@@ -429,7 +429,7 @@ module Spectre
           fail_message = "expected #{desc}, but it failed with \"#{e.message}\""
           @failure = Expectation::ExpectationFailure.new(fail_message)
           result = [:error, :failed, nil, @failure]
-          Spectre.logger.error("#{fail_message}")
+          Spectre.logger.error(fail_message)
         rescue Interrupt
           @skipped = true
           result = [:debug, :skipped, 'canceled by user']
@@ -457,7 +457,7 @@ module Spectre
     end
 
     def observe desc
-      Spectre.formatter.log(:info, desc) do
+      Spectre.formatter.log(:info, desc.cyan) do
         begin
           yield
           @success = true
@@ -546,9 +546,9 @@ module Spectre
                 end
               end
             end
-
+            
             if run_context.error.nil? and run_context.failure.nil?
-            run_context.execute(@data, &@block)
+              run_context.execute(@data, &@block)
             end
           ensure
             if afters.any?
