@@ -452,7 +452,7 @@ module Spectre
       end
     end
 
-    def log timestamp, severity, progname, message
+    def add_log timestamp, severity, progname, message
       @logs << [timestamp, severity, progname, message]
     end
 
@@ -817,7 +817,7 @@ module Spectre
 
         # Add log message also to the current executing run context
         unless RunContext.current.nil?
-          RunContext.current.log(date_fromatted, severity, progname, message)
+          RunContext.current.add_log(date_fromatted, severity, progname, message)
           context_name = RunContext.current.parent.name
         else
           context_name = 'spectre'
