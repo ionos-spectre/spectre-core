@@ -1161,7 +1161,7 @@ module Spectre
     class << self
       # Load a specific config section, when used with Spectre
       # otherwise initialize an empty `Hash`
-      @@config = defined?(Spectre::CONFIG) ? Spectre::CONFIG['my_module'] : {}
+      @@config = defined?(Spectre::CONFIG) ? Spectre::CONFIG['my_module'] || {} : {}
 
       # Implement a logger with lazy loading, as the `Spectre.logger`
       # will be initialized *after* the module is loaded
