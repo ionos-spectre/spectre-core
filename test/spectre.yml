@@ -1,5 +1,0 @@
-spec_patterns: ['specs/**/*.spec.rb']
-mixin_patterns: ['mixins/**/*.mixin.rb']
-env_patterns: ['environments/**/*.env.yml']
-modules:
-  - modules/spectre_http.rb
