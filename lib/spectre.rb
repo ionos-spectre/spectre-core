@@ -456,6 +456,28 @@ module Spectre
       @logs << [timestamp, severity, progname, message]
     end
 
+    def observe desc
+      Spectre.formatter.log(:info, desc) do
+        begin
+          yield
+          @success = true
+          [:info, :ok, nil]
+        rescue Expectation::ExpectationFailure => e
+          @success = false
+          Spectre.logger.error(e)
+          [:error, :failed, nil]
+        rescue => e
+          @success = false
+          Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
+          [:fatal, :error, e.message]
+        end
+      end
+    end
+
+    def success?
+      @success
+    end
+
     def run desc, with: nil
       Spectre.formatter.scope(desc, self, :mixin) do
         with = with || [OpenStruct.new]
