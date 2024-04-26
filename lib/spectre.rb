@@ -589,12 +589,6 @@ module Spectre
       @parent.full_desc + ' ' + @desc
     end
 
-    def full_name
-      return @name unless @parent
-
-      @parent.full_name + '-' + @name
-    end
-
     def root
       @parent ? @parent.root : self
     end
@@ -605,8 +599,8 @@ module Spectre
 
     def context(desc, &)
       context = DefinitionContext.new(desc, self)
-      context.instance_eval(&)
       @children << context
+      context.instance_eval(&)
     end
 
     def setup &block
@@ -634,8 +628,8 @@ module Spectre
       with = with || [nil]
 
       with.each_with_index do |data, _index|
-        spec_index = @specs.count + 1
-        name = "#{full_name}-#{spec_index}"
+        spec_index = root.all_specs.count + 1
+        name = "#{root.name}-#{spec_index}"
 
         spec = Specification.new(self, name, desc, tags, data, file, block)
 
