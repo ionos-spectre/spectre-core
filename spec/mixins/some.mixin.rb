@@ -10,3 +10,7 @@ end
 Spectre.mixin 'run some mixin with hash parameters' do |param|
   param.foo.should be 'bar'
 end
+
+Spectre.mixin 'run some mixin with bag access' do |param|
+  bag.foo.should be 'bar'
+end
