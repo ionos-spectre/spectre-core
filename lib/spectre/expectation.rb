@@ -145,6 +145,18 @@ module Spectre
       def and other_val
         AndWrapper.new(self, other_val)
       end
+
+      def should_be other
+        to_s.should be other.to_s
+      end
+
+      def should_contain element
+        should contain element
+      end
+
+      def should_not_be_empty
+        should_not be_empty
+      end
     end
 
     class << self
