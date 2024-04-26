@@ -258,13 +258,6 @@ module Spectre
       end
     end
 
-    %i{debug info warn}.each do |method|
-      define_method(method) do |message|
-        Spectre.logger.send(method, message)
-        log(method, message)
-      end
-    end
-
     private
 
     def indent
@@ -369,13 +362,6 @@ module Spectre
       level, status, desc = yield if block_given?
 
       write_log(log_id, DateTime.now, level, message, status, desc) if block_given? and !status.nil?
-    end
-
-    %i{debug info warn}.each do |method|
-      define_method(method) do |message|
-        Spectre.logger.send(method, message)
-        log(method, message)
-      end
     end
 
     private
@@ -870,6 +856,12 @@ module Spectre
     def resources
       RESOURCES
     end
+
+    %i{debug info warn}.each do |method|
+      define_method(method) do |message|
+        Spectre.logger.send(method, message)
+        Spectre.formatter.log(method, message)
+      end
     end
 
     private
