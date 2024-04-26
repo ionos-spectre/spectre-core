@@ -9,8 +9,35 @@ RSpec.describe 'Context' do
       .run
   end
 
+  it 'should have correct names' do
+    # This is the setup from main context
+    expect(@runs[0].parent.name).to eq('context')
+    expect(@runs[0].parent.desc).to eq('Context')
+
+    expect(@runs[1].parent.name).to eq('context-1')
+    expect(@runs[1].parent.desc).to eq('should run within a main context')
+
+    # This is the teardown from main context
+    expect(@runs[2].parent.name).to eq('context')
+    expect(@runs[2].parent.desc).to eq('Context')
+
+    # This is the setup from child context
+    expect(@runs[3].parent.name).to eq('within_a_child_context')
+    expect(@runs[3].parent.desc).to eq('within a child context')
+
+    expect(@runs[4].parent.name).to eq('context-2')
+    expect(@runs[4].parent.desc).to eq('should run within a child context')
+
+    expect(@runs[5].parent.name).to eq('context-3')
+    expect(@runs[5].parent.desc).to eq('should run another spec within child context')
+
+    # This is the teardown from child context
+    expect(@runs[6].parent.name).to eq('within_a_child_context')
+    expect(@runs[6].parent.desc).to eq('within a child context')
+  end
+
   it 'should run within a child context' do
-    expect(@runs.count).to eq(6)
+    expect(@runs.count).to eq(7)
 
     expect(@runs[0].type).to eq(:setup)
     expect(@runs[0].logs[0][3]).to eq('do some setting up')
@@ -36,7 +63,7 @@ RSpec.describe 'Context' do
     expect(@runs[4].logs[1][3]).to eq('some info from wihtin a context')
     expect(@runs[4].logs[2][3]).to eq('some info from after in child context')
 
-    expect(@runs[5].logs[0][3]).to eq('do some tearing down in child context')
+    expect(@runs[6].logs[0][3]).to eq('do some tearing down in child context')
   end
 
   it 'should run the child context without running main' do
@@ -49,6 +76,6 @@ RSpec.describe 'Context' do
       })
       .run
 
-    expect(runs.count).to eq(3)
+    expect(runs.count).to eq(4)
   end
 end

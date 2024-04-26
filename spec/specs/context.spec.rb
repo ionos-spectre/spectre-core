@@ -15,7 +15,7 @@ Spectre.describe 'Context' do
     info 'some info from after in main context'
   end
 
-  it 'should run within a main context' do
+  it 'should run within a main context', tags: [:success] do
     info 'some info'
   end
 
@@ -36,7 +36,11 @@ Spectre.describe 'Context' do
       info 'some info from after in child context'
     end
 
-    it 'should run within a child context', tags: [:child] do
+    it 'should run within a child context', tags: [:success, :child] do
+      info 'some info from wihtin a context'
+    end
+
+    it 'should run another spec within child context', tags: [:success, :child] do
       info 'some info from wihtin a context'
     end
   end

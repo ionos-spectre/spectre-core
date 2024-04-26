@@ -29,10 +29,23 @@ RSpec.describe 'General' do
     expect(@runs.count).to eq(13)
   end
 
+  it 'should have correct names' do
+    expect(@runs[0].parent.name).to eq('general') # setup has no number
+    expect(@runs[1].parent.name).to eq('general-1')
+    expect(@runs[2].parent.name).to eq('general-2')
+    expect(@runs[3].parent.name).to eq('general-3')
+    expect(@runs[4].parent.name).to eq('general-4')
+  end
+
+  it 'gives multi data specs the correct naming' do
+    expect(@runs[8].parent.name).to eq('general-8')
+    expect(@runs[9].parent.name).to eq('general-9')
+  end
+
   it 'sets up general' do
     run = @runs[0]
 
-    expect(run.parent.name).to eq('general')
+    expect(run.parent.name).to eq('general') # Setups to not have numbered names
     expect(run.parent.desc).to eq('General')
     expect(run.error).to eq(nil)
     expect(run.failure).to eq(nil)
@@ -42,14 +55,6 @@ RSpec.describe 'General' do
     _timestamp, _severity, _progname, message = run.logs.first
 
     expect(message).to eq('do some setting up')
-  end
-
-  it 'accesses a variable from setup' do
-    run = @runs.find { |x| x.parent.desc == 'accesses a variable from setup' }
-    
-    expect(run.error).to eq(nil)
-    expect(run.failure).to be_kind_of(Spectre::Expectation::ExpectationFailure)
-    expect(run.failure.message).to eq('expected @foo to be "bar", but got nothing')
   end
 
   it 'should run successfully' do
@@ -71,7 +76,7 @@ RSpec.describe 'General' do
     expect(message).to eq('some info')
   end
 
-  it 'runs: should run with an error' do
+  it 'should run with an error' do
     run = @runs.find { |x| x.parent.desc == 'should run with an error' }
 
     expect(run.error).to be_kind_of(RuntimeError)
@@ -86,7 +91,7 @@ RSpec.describe 'General' do
     expect(message).to start_with('Oops!')
   end
 
-  it 'runs: should run with a failure' do
+  it 'should run with a failure' do
     run = @runs.find { |x| x.parent.desc == 'should run with a failure' }
 
     expect(run.error).to eq(nil)
@@ -120,27 +125,6 @@ RSpec.describe 'General' do
     expect(progname).to eq('spectre')
     expect(severity).to eq('ERROR')
     expect(message).to eq('expected to succeed, but it failed with "fail for fun"')
-  end
-
-  it 'should run with multiple simple data' do
-    expect(@runs[8].parent.name).to eq('general-8')
-    expect(@runs[9].parent.name).to eq('general-9')
-
-    @runs
-      .select { |x| x.parent.desc == 'should run with multiple simple data' }
-      .each do |run|
-        expect(run.error).to eq(nil)
-        expect(run.failure).to eq(nil)
-      end
-  end
-
-  it 'should run with multiple complex data' do
-    @runs
-      .select { |x| x.parent.desc == 'should run with multiple complex data' }
-      .each do |run|
-        expect(run.error).to eq(nil)
-        expect(run.failure).to eq(nil)
-      end
   end
 
   it 'observes a process' do

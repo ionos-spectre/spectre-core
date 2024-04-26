@@ -20,14 +20,14 @@ Spectre.describe 'Bag' do
     end
   end
 
-  it 'uses bag in definition and spec' do
+  it 'uses bag in definition and spec', tags: [:success] do
     bag.setup_data.should be 'bla'
     bag.data.should be 'foo'
 
     bag.data = 'baz'
   end
 
-  it 'does reset bag on every spec run' do
+  it 'does reset bag on every spec run', tags: [:success] do
     bag.data.should be 'foo'
   end
 end
