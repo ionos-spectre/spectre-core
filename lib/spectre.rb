@@ -867,8 +867,9 @@ module Spectre
       MIXINS[desc] = block
     end
 
-    def resources path
-      RESOURCES[path]
+    def resources
+      RESOURCES
+    end
     end
 
     private
