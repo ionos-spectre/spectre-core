@@ -1165,14 +1165,8 @@ module Spectre
 
       # Implement a logger with lazy loading, as the `Spectre.logger`
       # will be initialized *after* the module is loaded
-      @@logger = nil
-
       def logger
-        if @@logger.nil?
-          @@logger = defined?(Spectre.logger) ? Spectre.logger : Logger.new(STDOUT)
-        end
-
-        @@logger
+        @@logger ||= defined?(Spectre.logger) ? Spectre.logger : Logger.new(STDOUT)
       end
 
       def greetings name, &block
