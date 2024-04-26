@@ -544,7 +544,9 @@ module Spectre
               end
             end
 
+            if run_context.error.nil? and run_context.failure.nil?
             run_context.execute(@data, &@block)
+            end
           ensure
             if afters.any?
               Spectre.formatter.scope('after', self, :after) do
@@ -662,7 +664,7 @@ module Spectre
           end
 
           # Only run specs if setup was successful
-          if setup_run.nil? or setup_run.error.nil?
+          if setup_run.nil? or (setup_run.error.nil? and setup_run.failure.nil?)
             runs += selected.map do |spec|
               spec.run(@befores, @afters, setup_bag)
             end
