@@ -20,6 +20,8 @@ Gem::Specification.new do |spec|
 
   spec.files = Dir['lib/**/*']
   spec.require_paths = ['lib']
+  spec.bindir = 'exe'
+  spec.executables = 'spectre'
 
   spec.add_runtime_dependency 'ectoplasm', '~> 1.4.0'
 end
