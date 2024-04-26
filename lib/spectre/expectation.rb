@@ -127,7 +127,10 @@ module Spectre
           Spectre.logger.info("expect #{desc} - ok")
         else
           actual = self.is_a?(String) ? "\"#{self}\"" : self
-          raise ExpectationFailure.new("expect #{desc}", "got #{actual}")
+          raise ExpectationFailure.new(
+            "expected #{desc}, but got #{actual}",
+            "got #{actual}"
+          )
         end
       end
 
