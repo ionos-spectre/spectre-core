@@ -35,6 +35,7 @@ RSpec.describe 'Self Test' do
       it run.parent.desc do
         expect(run.failure).to eq(nil)
         expect(run.error).not_to eq(nil)
+        expect(run.error.message).to eq('Oops!')
       end
     end
 end
