@@ -16,4 +16,10 @@ Spectre.describe 'Environment' do
   it 'should use env variable in spec definition', with: [env.foo] do |data|
     data.should be 'bar'
   end
+
+  env.some_data.each do |data|
+    it 'should use env variable in spec definition' do
+      data.should be 'foo'.or 'bar'
+    end
+  end
 end
