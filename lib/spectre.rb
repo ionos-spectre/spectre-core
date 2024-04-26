@@ -516,7 +516,7 @@ module Spectre
     end
   end
 
-  class TestSpecification
+  class Specification
     attr_reader :id, :name, :desc, :parent, :root, :tags, :data, :file
 
     def initialize parent, name, desc, tags, data, file, block
@@ -637,7 +637,7 @@ module Spectre
         spec_index = @specs.count + 1
         name = "#{full_name}-#{spec_index}"
 
-        spec = TestSpecification.new(self, name, desc, tags, data, file, block)
+        spec = Specification.new(self, name, desc, tags, data, file, block)
 
         @specs << spec
       end
