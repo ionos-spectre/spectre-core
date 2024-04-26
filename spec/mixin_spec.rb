@@ -1,5 +1,3 @@
-require_relative '../lib/spectre'
-
 RSpec.describe 'Mixin' do
   before do
     @runs = Spectre

@@ -1,5 +1,3 @@
-require_relative '../lib/spectre'
-
 RSpec.describe 'Reporter' do
   it 'does generate a console report' do
     runs = Spectre

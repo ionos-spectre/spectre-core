@@ -1,5 +1,3 @@
-require_relative '../lib/spectre'
-
 RSpec.describe 'Output' do
   it 'should have a pretty output' do
     runs = Spectre
@@ -28,12 +26,13 @@ RSpec.describe 'General' do
   end
 
   it 'should run' do
-    expect(@runs.count).to eq(12)
+    expect(@runs.count).to eq(13)
   end
 
-  it 'runs: setup' do
+  it 'sets up general' do
     run = @runs[0]
 
+    expect(run.parent.name).to eq('general')
     expect(run.parent.desc).to eq('General')
     expect(run.error).to eq(nil)
     expect(run.failure).to eq(nil)
@@ -45,10 +44,18 @@ RSpec.describe 'General' do
     expect(message).to eq('do some setting up')
   end
 
-  it 'runs: should run successfully' do
+  it 'accesses a variable from setup' do
+    run = @runs.find { |x| x.parent.desc == 'accesses a variable from setup' }
+    
+    expect(run.error).to eq(nil)
+    expect(run.failure).to be_kind_of(Spectre::Expectation::ExpectationFailure)
+    expect(run.failure.message).to eq('expected @foo to be "bar", but got nothing')
+  end
+
+  it 'should run successfully' do
     run = @runs.find { |x| x.parent.desc == 'should run successfully' }
 
-    expect(run.parent.file).to end_with('specs/general.spec.rb:13')
+    expect(run.parent.file).to end_with('specs/general.spec.rb:7')
     expect(run.parent.parent.desc).to eq('General')
     expect(run.parent.desc).to eq('should run successfully')
     expect(run.error).to eq(nil)
@@ -94,7 +101,7 @@ RSpec.describe 'General' do
 
     expect(progname).to eq('spectre')
     expect(severity).to eq('ERROR')
-    expect(message).to eq('fail for fun - in specs/general.spec.rb:39')
+    expect(message).to eq('fail for fun - in specs/general.spec.rb:33')
   end
 
   it 'runs: should run with an expectation failure' do
@@ -134,5 +141,17 @@ RSpec.describe 'General' do
         expect(run.error).to eq(nil)
         expect(run.failure).to eq(nil)
       end
+  end
+
+  it 'observes a process' do
+    run = @runs.find { |x| x.parent.desc == 'observes a process' }
+
+    expect(run.error).to eq(nil)
+    expect(run.failure).to eq(nil)
+
+    expect(run.logs.count).to eq(2)
+
+    expect(run.logs[0][3]).to eq('expected 666 to be 42, but got 666')
+    expect(run.logs[1][3]).to eq('continues to run')
   end
 end

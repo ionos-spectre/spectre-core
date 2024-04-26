@@ -1,9 +1,3 @@
-%i{info}.each do |method|
-  define_method(method) do |*args, &block|
-    Spectre.formatter.send(method, *args, &block)
-  end
-end
-
 Spectre.describe 'Bag' do
   setup do
     info 'set some data for this context'

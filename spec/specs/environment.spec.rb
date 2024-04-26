@@ -1,9 +1,3 @@
-%i{env}.each do |method|
-  define_method(method) do |*args, &block|
-    Spectre.send(method, *args, &block)
-  end
-end
-
 Spectre.describe 'Environment' do
   it 'should access a variable from the environment' do
     env.foo.should be 'bar'

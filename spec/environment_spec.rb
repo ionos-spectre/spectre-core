@@ -1,5 +1,3 @@
-require_relative '../lib/spectre'
-
 RSpec.describe 'Environment' do
   before do
     @runs = Spectre
@@ -12,24 +10,16 @@ RSpec.describe 'Environment' do
       .run
   end
 
-  it 'should access a variable from the environment' do
-    run = @runs[0]
-
-    expect(run.error).to eq(nil)
-    expect(run.failure).to eq(nil)
-  end
-
-  it 'should access a variable from a partial environment' do
-    run = @runs[1]
-
-    expect(run.error).to eq(nil)
-    expect(run.failure).to eq(nil)
-  end
-
-  it 'should use env variable in spec definition' do
-    run = @runs[2]
-
-    expect(run.error).to eq(nil)
-    expect(run.failure).to eq(nil)
+  [
+    'should access a variable from the environment',
+    'should access a variable from a partial environment',
+    'should use env variable in spec definition',
+  ].each do |desc|
+    it desc do
+      run = @runs.find { |x| x.parent.desc == desc }
+  
+      expect(run.error).to eq(nil)
+      expect(run.failure).to eq(nil)
+    end
   end
 end

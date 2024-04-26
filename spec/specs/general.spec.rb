@@ -1,9 +1,3 @@
-%i{debug info warn}.each do |method|
-  define_method(method) do |*args, &block|
-    Spectre.send(method, *args, &block)
-  end
-end
-
 Spectre.describe 'General' do
   setup do
     info 'do some setting up'
@@ -58,5 +52,13 @@ Spectre.describe 'General' do
     info "running with data: #{data.foo}"
 
     data.foo.should be 'bar'.or 'baz'
+  end
+
+  it 'observes a process' do |data|
+    observe 'some expectation' do
+      666.should be 42
+    end
+
+    info 'continues to run'
   end
 end

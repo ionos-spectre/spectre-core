@@ -1,9 +1,3 @@
-%i{be be_empty contain match}.each do |method|
-  define_method(method) do |*args, &block|
-    Spectre::Expectation.send(method, *args, &block)
-  end
-end
-
 Spectre.describe 'Expectation' do
   it 'evaluates within an expect block' do
     the_truth = 42
