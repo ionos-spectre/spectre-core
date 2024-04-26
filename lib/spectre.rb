@@ -457,19 +457,19 @@ module Spectre
     end
 
     def observe desc
-      Spectre.formatter.log(:info, desc.cyan) do
+      Spectre.formatter.log(:info, "observe #{desc}".cyan) do
         begin
           yield
           @success = true
           [:info, :ok, nil]
         rescue Expectation::ExpectationFailure => e
           @success = false
-          Spectre.logger.error(e)
-          [:error, :failed, nil]
+          Spectre.logger.debug(e.message)
+          [:warn, :warn, e.message]
         rescue => e
           @success = false
-          Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
-          [:fatal, :error, e.message]
+          Spectre.logger.debug("#{e.message}\n#{e.backtrace.join("\n")}")
+          [:info, :ok, e.message]
         end
       end
     end
