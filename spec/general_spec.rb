@@ -28,7 +28,7 @@ RSpec.describe 'General' do
   end
 
   it 'should run' do
-    expect(@runs.count).to eq(10)
+    expect(@runs.count).to eq(12)
   end
 
   it 'runs: setup' do
@@ -115,8 +115,24 @@ RSpec.describe 'General' do
     expect(message).to eq('expected to succeed, but it failed with "fail for fun"')
   end
 
-  it 'runs: should run with multiple data' do
+  it 'should run with multiple simple data' do
     expect(@runs[8].parent.name).to eq('general-8')
     expect(@runs[9].parent.name).to eq('general-9')
+
+    @runs
+      .select { |x| x.parent.desc == 'should run with multiple simple data' }
+      .each do |run|
+        expect(run.error).to eq(nil)
+        expect(run.failure).to eq(nil)
+      end
+  end
+
+  it 'should run with multiple complex data' do
+    @runs
+      .select { |x| x.parent.desc == 'should run with multiple complex data' }
+      .each do |run|
+        expect(run.error).to eq(nil)
+        expect(run.failure).to eq(nil)
+      end
   end
 end

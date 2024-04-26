@@ -49,7 +49,14 @@ Spectre.describe 'General' do
     info 'some info, which will never be logged'
   end
 
-  it 'should run with multiple data', with: ['foo', 'bar'] do |data|
+  it 'should run with multiple simple data', with: ['foo', 'bar'] do |data|
     info "running with data: #{data}"
+    data.should be 'foo'.or 'bar'
+  end
+
+  it 'should run with multiple complex data', with: [{foo: 'bar'}, {foo: 'baz'}] do |data|
+    info "running with data: #{data.foo}"
+
+    data.foo.should be 'bar'.or 'baz'
   end
 end

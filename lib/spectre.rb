@@ -496,7 +496,7 @@ module Spectre
 
     def execute(data, &)
       begin
-        instance_exec(data, &)
+        instance_exec(data.is_a?(Hash) ? OpenStruct.new(data) : data, &)
       rescue CancelException
         # Do nothing. The run will be ended here
       rescue Expectation::ExpectationFailure => e

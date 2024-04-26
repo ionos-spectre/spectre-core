@@ -35,7 +35,7 @@ RSpec.describe 'Filter' do
       })
       .run
 
-    expect(runs.count).to eq(10)
+    expect(runs.count).to eq(12)
     expect(runs.all? { |x| x.parent.root.desc == 'General' }).to eq(true)
   end
 
