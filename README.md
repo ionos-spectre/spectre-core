@@ -11,7 +11,8 @@
 
 Spectre is a DSL and command line tool for test automation.
 
-It is written in [Ruby](https://www.ruby-lang.org/de/) and inspired by the Unit-Test framework [rspec](https://rspec.info/).
+It is written in [Ruby](https://www.ruby-lang.org/de/) 
+and inspired by the Unit-Test framework [rspec](https://rspec.info/).
 
 This framework focuses on API behavior testing, rapid and flexible test development.
 
@@ -20,7 +21,8 @@ This framework focuses on API behavior testing, rapid and flexible test developm
 
 > Code is documentation
 
-The framework is designed for non-developers and to provide easy to read tests. When writing and reading tests, you should immediately understand what is going on.
+The framework is designed for non-developers and to provide easy to read tests. 
+When writing and reading tests, you should immediately understand what is going on.
 This helps to debug test subjects and to better understand what and how it is tested.
 
 
@@ -40,7 +42,8 @@ This helps to debug test subjects and to better understand what and how it is te
 
 ## Docker
 
-`spectre` is available as a docker image. Just run your *specs* in a Docker container with
+`spectre` is available as a docker image. Just run your *specs* 
+in a Docker container with
 
 ```bash
 $ docker run -t --rm -v "path/to/specs" cneubauer/spectre [command] [options]
@@ -49,7 +52,8 @@ $ docker run -t --rm -v "path/to/specs" cneubauer/spectre [command] [options]
 
 ## Installation
 
-To use the command line tool, Ruby has to be installed on your system. To install Ruby on Debian or Ubuntu run:
+To use the command line tool, Ruby has to be installed on your system. 
+To install Ruby on Debian or Ubuntu run:
 
 ```bash
 $ sudo apt install ruby-full
@@ -57,7 +61,8 @@ $ sudo apt install ruby-full
 
 For other linux distributions see [ruby-lang.org](https://www.ruby-lang.org/en/documentation/installation/).
 
-To install Ruby on windows, download an installer from [rubyinstaller.org](https://rubyinstaller.org/) or use a package manager like Chocolatey
+To install Ruby on windows, download an installer from [rubyinstaller.org](https://rubyinstaller.org/) 
+or use a package manager like Chocolatey
 
 ```powershell
 choco install ruby
@@ -79,7 +84,8 @@ $ spectre --version
 
 ### Troubleshoot
 
-When getting an error message, like the one below, you have to install `bundler` first by running `sudo gem install bundler`.
+When getting an error message, like the one below, 
+you have to install `bundler` first by running `sudo gem install bundler`.
 
 ```
 $ sudo rake install --trace
@@ -134,7 +140,8 @@ This will create multiple empty directories and a `spectre.yml` config file.
 
 ### Spectre Config
 
-The following properties can be set in your `spectre.yml`. Shown values are set by default.
+The following properties can be set in your `spectre.yml`. 
+Shown values are set by default.
 
 ```yml
 config_file: "./spectre.yml"
@@ -187,13 +194,18 @@ All options can also be overridden with the command line argument `-p` or `--pro
 $ spectre -p config_file=my_custom_spectre.yml -p "log_file=/var/log/spectre/spectre-<date>.log"
 ```
 
-You can also create a global spectre config file with the options above. Create a file `.spectre` in your users home directory (`~/.spectre`) and set the options you like.
+You can also create a global spectre config file with the options above. 
+Create a file `.spectre` in your users home directory (`~/.spectre`) 
+and set the options you like.
 
 
 ## Writing specs
 
-To write automated tests, just open an editor of your choice and create a file named, for example `spooky.spec.rb` in the `specs` folder.
-Specs are structured in three levels. The *subject* defined by the keyword `describe`, the actual *specification* defined by the `it` keyword and one or more *expectations* described by the `expect` keyword. A *subject* can contain one or more *specs*.
+To write automated tests, just open an editor of your choice and create a file named, 
+for example `spooky.spec.rb` in the `specs` folder. Specs are structured in three levels. 
+The *subject* defined by the keyword `describe`, the actual *specification* defined 
+by the `it` keyword and one or more *expectations* described by the `expect` keyword. 
+A *subject* can contain one or more *specs*.
 
 Copy the following code into the file and save it
 
@@ -251,7 +263,9 @@ end
 
 ### Subject
 
-A *subject* is the top level description block of a test suite. A *subject* can be anything that groups functionality, e.g. some REST API, or an abstract business domain/process like *Order Process*.
+A *subject* is the top level description block of a test suite. 
+A *subject* can be anything that groups functionality, e.g. some REST API, 
+or an abstract business domain/process like *Order Process*.
 
 A *subject* is described by the `describe` function, and can contain many `context`
 
@@ -261,7 +275,9 @@ describe 'Hollow API' do
 end
 ```
 
-> One *subject* can be split into multiple files. Note hat every `describe` call creates a new `context` and can contain its own `setup` and `teardown` blocks (more about `setup` and `teardown` see below).
+> One *subject* can be split into multiple files. Note hat every `describe` call 
+> creates a new `context` and can contain its own `setup` and `teardown` 
+> blocks (more about `setup` and `teardown` see below).
 
 
 ### Context
@@ -311,7 +327,9 @@ describe 'Hollow API' do
 end
 ```
 
-The *description* is optional. If omitted, all blocks in this context will be added to the main *context*. Blocks in the main context can also be defined in the *subject* directly.
+The *description* is optional. If omitted, all blocks in this context will 
+be added to the main *context*. Blocks in the main context can also 
+be defined in the *subject* directly.
 
 ```ruby
 describe 'Hollow API' do
@@ -329,12 +347,14 @@ describe 'Hollow API' do
 end
 ```
 
-> `setup`, `teardown`, `before` and `after` can be used multiple times within a context. These block will be executed in the provided order.
+> `setup`, `teardown`, `before` and `after` can be used multiple times within a context.
+> These block will be executed in the provided order.
 
 
 ### Specification
 
-*Specifications* or *specs* define the actual tests and will be executed, when a test run is started. These blocks will be defined within a *context* block.
+*Specifications* or *specs* define the actual tests and will be executed, 
+when a test run is started. These blocks will be defined within a *context* block.
 
 ```
 it <description> do
@@ -361,11 +381,15 @@ end
 
 ### Expectation
 
-*Expectations* are defined within a *spec*. These blocks are description blocks like `describe`, `context` and `it`, but will be evaluated at runtime.
+*Expectations* are defined within a *spec*. These blocks are description blocks 
+like `describe`, `context` and `it`, but will be evaluated at runtime.
 
-*Expectation* are fulfilled, when the code in this block runs without any errors. Unexpected runtime exceptions will generate an `error` status and will end the *spec* run and continue with the next *spec*.
+*Expectation* are fulfilled, when the code in this block runs without any errors. 
+Unexpected runtime exceptions will generate an `error` status and will end 
+the *spec* run and continue with the next *spec*.
 
-Raising an `ExpectationFailure` exception in this block, will end up in a `failed` status and also end the *spec* run.
+Raising an `ExpectationFailure` exception in this block, will end up in 
+a `failed` status and also end the *spec* run.
 
 
 ```ruby
@@ -386,7 +410,9 @@ describe 'Hollow API' do
 end
 ```
 
-You don't have to raise an `ExpectationFailure` exception manually. Within an `expect` block, there is the `fail_with <message>` function available. This function raises an `ExpectationFailure` with the given message.
+You don't have to raise an `ExpectationFailure` exception manually. 
+Within an `expect` block, there is the `fail_with <message>` function available. 
+This function raises an `ExpectationFailure` with the given message.
 
 ```ruby
 describe 'Hollow API' do
@@ -400,8 +426,10 @@ end
 
 The status of an `expect` can be either `failed` or `error`.
 
-If you don't want the run to end, when an error or failure occurs, wrap the code with `observe`.
-The result is available with `success?`. The value is `true`, if no exception occurred within the block.
+If you don't want the run to end, when an error or failure occurs, 
+wrap the code with `observe`.
+The result is available with `success?`. The value is `true`, 
+if no exception occurred within the block.
 
 ```ruby
 describe 'Hollow API' do
@@ -417,7 +445,8 @@ describe 'Hollow API' do
 end
 ```
 
-Additional helper functions are available when using the `spectre/assertion` module, which is loaded automatically by default.
+Additional helper functions are available when using the `spectre/assertion` module, 
+which is loaded automatically by default.
 
 
 ### Assertion `spectre/assertion`
@@ -482,7 +511,8 @@ end
 
 ## Environments
 
-Environment files provide a variable structure and module configuration, which can be accessed in any place of your *spec* definitions.
+Environment files provide a variable structure and module configuration, 
+which can be accessed in any place of your *spec* definitions.
 In the environment folder, create a plain yaml file with some variables.
 
 `default.env.yml`
@@ -518,9 +548,12 @@ and use the environment by running `spectre` with the `-e NAME` parameter
 $ spectre -e development
 ```
 
-When no `-e` is given, the `default` environment is used. Any env yaml file without a specified `name` property, will be used as the default environment.
+When no `-e` is given, the `default` environment is used. 
+Any env yaml file without a specified `name` property, 
+will be used as the default environment.
 
-The environment file is merged with the `spectre.yml`, so you can override any property of your spectre config in each environment.
+The environment file is merged with the `spectre.yml`, 
+so you can override any property of your spectre config in each environment.
 To show all variables of an environment, execute
 
 ```bash
@@ -528,7 +561,8 @@ $ spectre show
 $ spectre show -e development
 ```
 
-You can also override any of those variables with the command line parameter `-p` or `--property`
+You can also override any of those variables with 
+the command line parameter `-p` or `--property`
 
 ```bash
 $ spectre -p foo=bla
@@ -548,8 +582,9 @@ env_patterns:
 
 #### Partial environment files
 
-Environment files can be split into separate files. By default environment files with name `*.env.secret.yml` will be merged
-with the corresponding environment defined by the `name` property.
+Environment files can be split into separate files. 
+By default environment files with name `*.env.secret.yml` 
+will be merged with the corresponding environment defined by the `name` property.
 
 `environments/development.env.yml`
 
@@ -577,9 +612,11 @@ spooky_house:
   secret: supersecret
 ```
 
-With this approach you can check-in your common environment files into your Version Control and store secrets separately.
+With this approach you can check-in your common environment files into your 
+Version Control and store secrets separately.
 
-You can change the partial environment pattern, by adding the `env_partial_patterns` in your `spectre.yml`
+You can change the partial environment pattern, 
+by adding the `env_partial_patterns` in your `spectre.yml`
 
 ```yml
 env_partial_patterns:
@@ -695,7 +732,8 @@ Spooky
 
 ## Filtering specs
 
-When listing or running specs, you might want to run only one or a specific set of specs. This can be done either by providing specific spec IDs, which can be listed by `spectre list`
+When listing or running specs, you might want to run only one or a specific set of specs. 
+This can be done either by providing specific spec IDs, which can be listed by `spectre list`
 
 ```
 $ spectre list
@@ -745,13 +783,19 @@ $ spectre --spec-pattern path/to/some.spec.rb
 
 ## Advanced writing specs
 
-Your project could consist of hundreds and thousand of *specs*. In order to easier maintain your project, it is recommended to place *specs* of a *subject* in different `*.spec.rb` files and folders, grouped by a specific context. A *subject* can be described in multiple files.
+Your project could consist of hundreds and thousand of *specs*. 
+In order to easier maintain your project, it is recommended to 
+place *specs* of a *subject* in different `*.spec.rb` files and folders, 
+grouped by a specific context. A *subject* can be described in multiple files.
 
-For example, when writing *specs* for a REST API, the *specs* could be grouped by the APIs *resources* in different folders, and their *operations* in different files.
+For example, when writing *specs* for a REST API, the *specs* could be grouped 
+by the APIs *resources* in different folders, and their *operations* in different files.
 
 Specs of a RPC API can be grouped by its functions.
 
-Our *Hollow API* has two resources *ghosts* and *monsters*. Each resource can be *created*, *read*, *updated* and *deleted*. The project structure could then look something like this:
+Our *Hollow API* has two resources *ghosts* and *monsters*. 
+Each resource can be *created*, *read*, *updated* and *deleted*. 
+The project structure could then look something like this:
 
 ```
 hollow_webapi
@@ -780,7 +824,8 @@ hollow_webapi
 With the core framework you can run any tests you like, by writing plain Ruby code.
 However, there are additional helper modules, you can use, to make your *specs* more readable.
 
-All `spectre/*` modules are automatically loaded, if no modules are defined in the `spectre.yml` explicitly.
+All `spectre/*` modules are automatically loaded, if no modules 
+are defined in the `spectre.yml` explicitly.
 
 
 ### Helpers `spectre/helpers`
@@ -834,7 +879,8 @@ hollow_webapi
 +-- spectre.yaml
 ```
 
-The paths of these files are provided by the `resources` function. The files are accessed relative to the resources path.
+The paths of these files are provided by the `resources` function. 
+The files are accessed relative to the resources path.
 
 ```ruby
 describe 'Hollow API' do
@@ -857,7 +903,8 @@ resource_paths:
 
 ### Mixins `spectre/mixin`
 
-You can define reusable specs by using mixins. Create a `.mixin.rb` file in the mixin directory (default: `mixins`)
+You can define reusable specs by using mixins. Create a `.mixin.rb` file 
+in the mixin directory (default: `mixins`)
 
 ```ruby
 mixin 'check health' do |http_name| # the mixin can be parameterized
@@ -914,7 +961,8 @@ describe 'Hollow API' do
 end
 ```
 
-You can pass one or more parameters to a mixin run. When passing one `Hash` to the mixin, it will be converted to an `OpenStruct` for easier access.
+You can pass one or more parameters to a mixin run. When passing one `Hash` to the mixin, 
+it will be converted to an `OpenStruct` for easier access.
 
 ```ruby
 mixin 'spook around' do |params|
@@ -925,7 +973,8 @@ mixin 'spook around' do |params|
 end
 ```
 
-When required keys are missing, an `ArgumentError` will be raised. `optional` will only log the optional keys to the spectre log for debugging purposes.
+When required keys are missing, an `ArgumentError` will be raised.
+`optional` will only log the optional keys to the spectre log for debugging purposes.
 
 
 ### Diagnostic `spectre/diagnostic`
@@ -975,7 +1024,8 @@ The following reporters are available with `spectre-core`
 
 The reporter module provides some functions to add additional information to the report.
 
-`property` lets you set a key-value pair which is included in the reports. Use this to add generated values to the report.
+`property` lets you set a key-value pair which is included in the reports.
+Use this to add generated values to the report.
 
 
 ```ruby
@@ -991,7 +1041,8 @@ end
 
 ### Async `spectre/async`
 
-You might want to execute some code in parallel or asynchronous within a test run. To do so, wrap the code with `async` and `await` the result
+You might want to execute some code in parallel or asynchronous within a test run.
+To do so, wrap the code with `async` and `await` the result
 
 ```ruby
 describe 'Hollow API' do
@@ -1041,7 +1092,8 @@ describe 'Hollow API' do
 end
 ```
 
-When calling `async` multiple times with the same (or no) name, `await` will wait for all threads to finish with this name
+When calling `async` multiple times with the same (or no) name, 
+`await` will wait for all threads to finish with this name
 
 ```ruby
 describe 'Hollow API' do
@@ -1079,44 +1131,119 @@ describe 'Hollow API' do
 end
 ```
 
-Be careful, when using `async` in conjunction with `http`. Do not use the global `response` helper, when checking response properties, as the `response` could be overriden by the `async` HTTP calls. Use the explicit returned response from the `http` module.
+
+## Development
+
+### Modules
 
 ```ruby
-describe 'Hollow API' do
-  it 'creates ghost' do
-    async 'haunt' do
-      http 'hollow' do
-        method 'POST' # produces 201 for example
-        path 'haunt'
+module Spectre
+  module MyModule
+    # Define a default config for your module to operate on
+    DEFAULT_CONFIG = {
+      'message' => 'Hello',
+    }
+
+    # Create a class to provide some function
+    # for manipulating the config at runtime
+    # in scope of your module
+    class Greetings
+      def initialize config
+        @config = config
       end
 
-      # response will be returned directly by the `http` call
+      # Provide some function to manipulate the config ad runtime
+      def message text
+        @config['message'] = text
+      end
     end
 
-    async 'spooky' do
-      http 'hollow' do
-        method 'DELETE' # produces 204 for example
-        path 'spooky'
+    class << self
+      # Load a specific config section, when used with Spectre
+      # otherwise initialize an empty `Hash`
+      @@config = defined?(Spectre::CONFIG) ? Spectre::CONFIG['my_module'] : {}
+
+      # Implement a logger with lazy loading, as the `Spectre.logger`
+      # will be initialized *after* the module is loaded
+      @@logger = nil
+
+      def logger
+        if @@logger.nil?
+          @@logger = defined?(Spectre.logger) ? Spectre.logger : Logger.new(STDOUT)
+        end
+
+        @@logger
       end
 
-      # response will be returned directly by the `http` call
+      def greetings name, &block
+        # Get the specific options with given name
+        # from the config hash, if the given name is present
+        # This takes effect when the module is used with Spectre
+        if @@config.key? name
+          config = @@config[name]
+        else
+          # Otherwise use an empty hash, when module is used as standalone
+          # or there is no config present for this name
+          config = {}
+        end
+
+        # Instanciate you configuration class
+        # and call `instance_eval` to "expose" those function
+        Greetings.new(config).instance_eval(&block)
+
+        # Merge the default config with the given one
+        # in order to ensure all required values are present
+        config = DEFAULT_CONFIG.merge(config)
+
+        # Do your logic with the config
+        puts "#{config['message']} #{config['name']}!"
+      end
     end
+  end
+end
 
-    main_response = http 'hollow' do
-      method 'GET' # produces 200 for example
-      path 'spooky'
+# Expose you module function to the wild, so it can be used anywhere
+# without prefixing the name of you module
+# Be aware that this can override existing functions
+%i{greetings}.each do |method|
+  Kernel.define_method(method) do |*args, &block|
+    Spectre::MyModule.send(method, *args, &block)
+  end
+end
+```
+
+The module can then be used standalone
+
+```ruby
+greetings 'World' do
+  message 'Konnichiwa'
+end
+# Konnichiwa World!
+
+greetings 'World'
+# Hello World!
+```
+
+or as an Spectre module
+
+`default.env.yml`
+```yml
+my_module:
+  first_greeting:
+    name: World
+```
+
+`greeting.spec.rb`
+```ruby
+describe 'Greeting' do
+  it 'greets with a name' do
+    greetings 'first_greeting' do
+      message 'Ohayo'
     end
+    # Ohayo World!
 
-    haunt_result = await 'haunt'
-    spooky_result = await 'spooky'
-
-    expect 'the response codes to be 200' do
-      main_response.code.should be 200
-      haunt_result.code.should be 201
-      spooky_result.code.should be 204
-    end
-
-    response.code # could be different for each run, depending on which request finishes last
+    greetings 'first_greeting'
+    # Hello World!
   end
 end
 ```
