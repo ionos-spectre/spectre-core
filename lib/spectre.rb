@@ -102,6 +102,7 @@ module Spectre
   class SimpleReporter
     def initialize config
       @out = config['stdout'] || $stdout
+      @debug = config['debug']
     end
 
     def report runs
@@ -140,7 +141,7 @@ module Spectre
             error_output += "  type.....: #{run.error.class.name}\n"
             error_output += "  message..: #{run.error.message}\n"
 
-            if CONFIG['debug'] and run.error.backtrace
+            if @debug and run.error.backtrace
               error_output += "  backtrace:\n"
 
               run.error.backtrace.each do |trace|
