@@ -691,6 +691,7 @@ module Spectre
     'log_message_format' => "[%s] %5s -- [%s] %s: %s\n",
     'formatter' => 'Spectre::ConsoleFormatter',
     'reporter' => 'Spectre::SimpleReporter',
+    'out_path' => 'reports',
     'specs' => [],
     'tags' => [],
     'debug' => false,
