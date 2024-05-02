@@ -320,6 +320,7 @@ module Spectre
       @scope = nil
       @out = CONFIG['stdout'] || $stdout
       @out.sync = true
+      @date_format = CONFIG['log_date_format']
     end
 
     def list specs
@@ -380,7 +381,7 @@ module Spectre
         id: log_id,
         scope: @scope,
         type: :log,
-        timestamp: timestamp.strftime('%Y-%m-%dT%H:%M:%S.%6N%:z'),
+        timestamp: timestamp.strftime(@date_format),
         level:,
         message:,
         status:,
@@ -685,7 +686,7 @@ module Spectre
     'config_file' => './spectre.yml',
     # 'log_file'             => './logs/spectre_<date>.log',
     'log_file' => StringIO.new,
-    'log_date_format' => '%Y-%m-%d %H:%M:%S.%3N',
+    'log_date_format' => '%F %T.%L%:z',
     'log_message_format' => "[%s] %5s -- [%s] %s: %s\n",
     'formatter' => 'Spectre::ConsoleFormatter',
     'reporter' => 'Spectre::SimpleReporter',
