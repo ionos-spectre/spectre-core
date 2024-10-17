@@ -26,7 +26,8 @@ RSpec.describe 'Expectation' do
     run = @runs.find { |x| x.parent.desc == 'fails within an expect block' }
 
     expect(run.failure).to be_kind_of(Spectre::Expectation::ExpectationFailure)
-    expect(run.failure.message).to eq('expected to succeed, but it failed with "expected the_truth to be 42, but got 666"')
+    expect(run.failure.message).to eq('expected to succeed, but it failed with ' \
+                                      '"expected the_truth to be 42, but got 666"')
     expect(run.failure.desc).to eq(nil)
 
     expect(run.logs[0][3]).to eq('expected to succeed, but it failed with "expected the_truth to be 42, but got 666"')
