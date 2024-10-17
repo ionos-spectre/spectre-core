@@ -48,7 +48,7 @@ Spectre.describe 'Expectation' do
 
   it 'evaluate "should match"', tags: [:success] do
     the_truth = 'the truth is 42'
-    the_truth.should match /42/
+    the_truth.should match /truth.*\s\d+$/
   end
 
   it 'fails "should be"', tags: [:fail] do

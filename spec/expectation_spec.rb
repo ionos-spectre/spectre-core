@@ -89,7 +89,7 @@ RSpec.describe 'Expectation' do
     expect(run.failure).to eq(nil)
     expect(run.logs.count).to eq(1)
 
-    expect(run.logs.first[3]).to eq('expect the_truth to match /42/ - ok')
+    expect(run.logs.first[3]).to eq('expect the_truth to match /truth.*\\s\\d+$/ - ok')
   end
 
   it 'fails "should be"' do
