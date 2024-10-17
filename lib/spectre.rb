@@ -110,7 +110,7 @@ module Spectre
 
       errors   = runs.count { |x| !x.error.nil? }
       failed   = runs.count { |x| !x.failure.nil? }
-      skipped  = runs.count(&:skipped)
+      skipped  = runs.count(&:skipped?)
       succeded = runs.count - errors - failed - skipped
 
       summary  = "#{succeded} succeded"
@@ -300,7 +300,7 @@ module Spectre
                     (if run.failure
                        :failed
                      else
-                       (run.skipped ? :skipped : :ok)
+                       (run.skipped? ? :skipped : :ok)
                      end)
                   end,
           error: run.error,
@@ -394,7 +394,7 @@ module Spectre
   end
 
   class RunContext
-    attr_reader :id, :name, :parent, :type, :logs, :bag, :error, :failure, :skipped, :started, :finished
+    attr_reader :id, :name, :parent, :type, :logs, :bag, :error, :failure, :started, :finished
 
     @@current = nil
 
@@ -424,6 +424,22 @@ module Spectre
         @finished = Time.now
         @@current = nil
       end
+    end
+
+    def skipped?
+      @skipped
+    end
+
+    def duration
+      @finished - @started
+    end
+
+    def status
+      return :error if @error
+      return :failed if @failure
+      return :skipped if @skipped
+
+      :success
     end
 
     def fail_with message
@@ -463,26 +479,6 @@ module Spectre
 
     def add_log timestamp, severity, progname, message
       @logs << [timestamp, severity, progname, message]
-    end
-
-    def observe desc
-      Spectre.formatter.log(:info, "observe #{desc}".cyan) do
-        yield
-        @success = true
-        [:info, :ok, nil]
-      rescue Expectation::ExpectationFailure => e
-        @success = false
-        Spectre.logger.debug(e.message)
-        [:warn, :warn, e.message]
-      rescue StandardError => e
-        @success = false
-        Spectre.logger.debug("#{e.message}\n#{e.backtrace.join("\n")}")
-        [:info, :ok, e.message]
-      end
-    end
-
-    def success?
-      @success
     end
 
     def run desc, with: nil
@@ -865,6 +861,10 @@ module Spectre
       main_context.instance_eval(&)
     end
 
+    def expect(desc, &)
+      RunContext.current.expect(desc, &)
+    end
+
     def mixin desc, &block
       MIXINS[desc] = block
     end
@@ -873,11 +873,36 @@ module Spectre
       RESOURCES
     end
 
+    def observe desc
+      Spectre.formatter.log(:info, "observe #{desc}".cyan) do
+        yield
+        @success = true
+        [:info, :ok, nil]
+      rescue Expectation::ExpectationFailure => e
+        @success = false
+        Spectre.logger.debug(e.message)
+        [:warn, :warn, e.message]
+      rescue StandardError => e
+        @success = false
+        Spectre.logger.debug("#{e.message}\n#{e.backtrace.join("\n")}")
+        [:info, :ok, e.message]
+      end
+    end
+
+    def success?
+      @success.nil? ? true : @success
+    end
+
     %i[debug info warn].each do |method|
       define_method(method) do |message|
         Spectre.logger.send(method, message)
         Spectre.formatter.log(method, message)
       end
+    end
+
+    def log message
+      Spectre.logger.info(message)
+      Spectre.formatter.log('info', message)
     end
 
     private

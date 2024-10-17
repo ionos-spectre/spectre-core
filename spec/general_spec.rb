@@ -49,7 +49,7 @@ RSpec.describe 'General' do
     expect(run.parent.desc).to eq('General')
     expect(run.error).to eq(nil)
     expect(run.failure).to eq(nil)
-    expect(run.skipped).to eq(false)
+    expect(run.skipped?).to eq(false)
     expect(run.logs.count).to eq(1)
 
     _timestamp, _severity, _progname, message = run.logs.first
@@ -65,7 +65,7 @@ RSpec.describe 'General' do
     expect(run.parent.desc).to eq('should run successfully')
     expect(run.error).to eq(nil)
     expect(run.failure).to eq(nil)
-    expect(run.skipped).to eq(false)
+    expect(run.skipped?).to eq(false)
     expect(run.logs.count).to eq(3)
     expect(run.parent.desc).to eq('should run successfully')
 

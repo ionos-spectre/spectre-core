@@ -55,7 +55,7 @@ Spectre.describe 'General' do
   end
 
   it 'observes a process', tags: [:success] do |_data|
-    observe 'some expectation' do
+    Spectre.observe 'some expectation' do
       666.should be 42
     end
 

@@ -116,14 +116,14 @@ OptionParser.new do |opts|
 end.parse!
 
 # Expose spectre methods
-%i{env describe mixin resources}.each do |method|
+%i{env describe expect mixin resources observe success?}.each do |method|
   Kernel.define_method(method) do |*args, &block|
     Spectre.send(method, *args, &block)
   end
 end
 
 # Expose logging methods
-%i{debug info warn}.each do |method|
+%i{debug info warn log}.each do |method|
   Kernel.define_method(method) do |*args, &block|
     Spectre.send(method, *args, &block)
   end
