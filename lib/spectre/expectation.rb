@@ -128,9 +128,9 @@ module Spectre
           Spectre.formatter.log(:info, "expect #{desc}", :ok, nil)
           Spectre.logger.info("expect #{desc} - ok")
         else
-          actual = is_a?(String) ? "\"#{self}\"" : self
+          actual = (is_a?(String) ? "\"#{self}\"" : self) || 'nothing'
           raise ExpectationFailure.new(
-            "expected #{desc}, but got #{actual || 'nothing'}",
+            "expected #{desc}, but got #{actual}",
             "got #{actual}"
           )
         end
@@ -154,6 +154,10 @@ module Spectre
 
       def should_contain element
         should contain element
+      end
+
+      def should_be_empty
+        should be_empty
       end
 
       def should_not_be_empty

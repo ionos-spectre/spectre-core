@@ -116,7 +116,7 @@ OptionParser.new do |opts|
 end.parse!
 
 # Expose spectre methods
-%i{env describe expect mixin resources observe success?}.each do |method|
+%i{env describe expect mixin bag resources observe success?}.each do |method|
   Kernel.define_method(method) do |*args, &block|
     Spectre.send(method, *args, &block)
   end

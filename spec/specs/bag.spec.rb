@@ -1,3 +1,9 @@
+class SomeModule
+  def test_method(&)
+    instance_eval(&)
+  end
+end
+
 Spectre.describe 'Bag' do
   setup do
     info 'set some data for this context'
@@ -29,5 +35,11 @@ Spectre.describe 'Bag' do
 
   it 'does reset bag on every spec run', tags: [:success] do
     bag.data.should be 'foo'
+  end
+
+  it 'can be used within a submodule', tags: [:success] do
+    SomeModule.new.test_method do
+      info bag.setup_data
+    end
   end
 end

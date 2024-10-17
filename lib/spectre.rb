@@ -865,6 +865,10 @@ module Spectre
       RunContext.current.expect(desc, &)
     end
 
+    def bag
+      RunContext.current.bag
+    end
+
     def mixin desc, &block
       MIXINS[desc] = block
     end

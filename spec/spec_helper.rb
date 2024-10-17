@@ -1,6 +1,6 @@
 require_relative '../lib/spectre'
 
-%i[debug info warn env].each do |method|
+%i[debug info warn env bag].each do |method|
   define_method(method) do |*args, &block|
     Spectre.send(method, *args, &block)
   end
