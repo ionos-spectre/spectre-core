@@ -1,6 +1,6 @@
 class SomeModule
-  def test_method(&)
-    instance_eval(&)
+  def foo
+    info 'log within module'
   end
 end
 
@@ -38,8 +38,9 @@ Spectre.describe 'Bag' do
   end
 
   it 'can be used within a submodule', tags: [:success] do
-    SomeModule.new.test_method do
+    SomeModule.new.instance_eval do
       info bag.setup_data
+      foo
     end
   end
 end
