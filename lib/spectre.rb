@@ -318,7 +318,7 @@ module Spectre
 
   class JsonFormatter
     def initialize
-      @scope = nil
+      @scope_id = nil
       @out = CONFIG['stdout'] || $stdout
       @out.sync = true
       @date_format = CONFIG['log_date_format']
@@ -347,11 +347,11 @@ module Spectre
     end
 
     def scope desc, _subject, type
-      prev_scope = @scope
-      @scope = SecureRandom.hex(5)
+      prev_scope = @scope_id
+      @scope_id = SecureRandom.hex(5)
 
       log_entry = {
-        id: @scope,
+        id: @scope_id,
         scope: prev_scope,
         type:,
         desc:,
@@ -359,9 +359,11 @@ module Spectre
 
       @out.puts log_entry.to_json
 
-      yield
-
-      @scope = prev_scope
+      begin
+        yield
+      ensure
+        @scope_id = prev_scope
+      end
     end
 
     def log level, message, status = nil, desc = nil
@@ -380,7 +382,7 @@ module Spectre
     def write_log log_id, timestamp, level, message, status, desc
       log_entry = {
         id: log_id,
-        scope: @scope,
+        scope: @scope_id,
         type: :log,
         timestamp: timestamp.strftime(@date_format),
         level:,
@@ -491,7 +493,7 @@ module Spectre
 
         result = instance_exec(*with, &MIXINS[desc])
 
-        result.is_a?(Hash) ? OpenStruct.new(result) : result
+        return result.is_a?(Hash) ? OpenStruct.new(result) : result
       end
     end
 
