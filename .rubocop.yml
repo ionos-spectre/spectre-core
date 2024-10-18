@@ -16,6 +16,9 @@ Style/FrozenStringLiteralComment:
 Style/AndOr:
   Enabled: false
 
+Style/TrailingCommaInArrayLiteral:
+  Enabled: false
+
 Style/TrailingCommaInHashLiteral:
   Enabled: false
 

@@ -70,18 +70,20 @@ OptionParser.new do |opts|
     Spectre::CONFIG['out_path'] = File.absolute_path(path)
   end
 
-  opts.on('-m MODULE,MODULE', '--modules MODULE,MODULE', Array, "Load the given modules") do |modules|
+  opts.on('-m MODULE,MODULE', '--modules MODULE,MODULE', Array, 'Load the given modules') do |modules|
     Spectre::CONFIG['modules'] += modules
   end
 
-  opts.on('-d', '--debug', "Run in debug mode. Do not use in production!") do
+  opts.on('-d', '--debug', 'Run in debug mode. Do not use in production!') do
     Spectre::CONFIG['debug'] = true
   end
 
-  opts.on('-p KEY=VAL', '--property KEY=VAL', "Override config option. Use `spectre show` to get list of available options") do |option|
+  opts.on('-p KEY=VAL',
+          '--property KEY=VAL',
+          'Override config option. Use `spectre show` to get list of available options') do |option|
     index = option.index('=')
     key = option[0...index]
-    val = option[index+1..-1]
+    val = option[index + 1..]
 
     val = val.split(',') if Spectre::CONFIG[key].is_a? Array
     val = ['true', '1'].include? val if [true, false].include?(Spectre::CONFIG[key])
@@ -92,7 +94,7 @@ OptionParser.new do |opts|
     curr_opt = config_overrides
 
     opt_path.each_with_index do |part, i|
-      if i == opt_path.count-1
+      if i == opt_path.count - 1
         curr_opt[part] = val
         break
       end
@@ -116,21 +118,21 @@ OptionParser.new do |opts|
 end.parse!
 
 # Expose spectre methods
-%i{env describe expect mixin bag resources observe success?}.each do |method|
+%i[env describe expect mixin bag resources observe success?].each do |method|
   Kernel.define_method(method) do |*args, &block|
     Spectre.send(method, *args, &block)
   end
 end
 
 # Expose logging methods
-%i{debug info warn log}.each do |method|
+%i[debug info warn log].each do |method|
   Kernel.define_method(method) do |*args, &block|
     Spectre.send(method, *args, &block)
   end
 end
 
 # Expose expectation methods
-%i{be be_empty contain match}.each do |method|
+%i[be be_empty contain match].each do |method|
   Kernel.define_method(method) do |*args, &block|
     Spectre::Expectation.send(method, *args, &block)
   end
@@ -173,8 +175,7 @@ if action == 'mixins'
   exit
 end
 
-
-DEFAULT_SPECTRE_CFG = %{log_file: ./logs/spectre_<date>.log
+DEFAULT_SPECTRE_CFG = %(log_file: ./logs/spectre_<date>.log
 env_patterns:
   - './environments/**/*.env.yml'
 env_partial_patterns:
@@ -187,10 +188,9 @@ mixin_patterns:
 resource_paths:
   - '../common/resources'
   - './resources'
-}
+)
 
-
-DEFAULT_ENV_CFG = %{cert: &cert ./resources/<root_cert>.cer
+DEFAULT_ENV_CFG = %(cert: &cert ./resources/<root_cert>.cer
 http:
   <http_client_name>:
     base_url: http://localhost:5000/api/v1/
@@ -202,14 +202,14 @@ http:
     # host: <hostname>
     # username: <username>
     # password: <password>
-}
+)
 
-DEFAULT_ENV_SECRET_CFG = %{http:
+DEFAULT_ENV_SECRET_CFG = %(http:
   <http_client_name>:
     # basic_auth:
       # username: <username>
       # password: <password>
-}
+)
 
 SAMPLE_SPEC = %[describe '<subject>' do
   it 'does some http requests', tags: [:sample] do
@@ -240,13 +240,13 @@ SAMPLE_SPEC = %[describe '<subject>' do
 end
 ]
 
-DEFAULT_GITIGNORE = %[*.code-workspace
+DEFAULT_GITIGNORE = %(*.code-workspace
 logs/
 reports/
 **/environments/*.env.secret.yml
-]
+)
 
-DEFAULT_GEMFILE = %[source 'https://rubygems.org'
+DEFAULT_GEMFILE = %(source 'https://rubygems.org'
 
 gem 'spectre-core', '>= #{Spectre::VERSION}'
 gem 'spectre-http', '>= 2.0.0'
@@ -259,9 +259,9 @@ gem 'spectre-http', '>= 2.0.0'
 # gem 'spectre-reporter-junit', '>= 2.0.0'
 # gem 'spectre-reporter-vstest', '>= 2.0.0'
 # gem 'spectre-reporter-html', '>= 2.0.0'
-]
+)
 
-if 'init' == action
+if action == 'init'
   DEFAULT_FILES = [
     ['./environments/default.env.yml', DEFAULT_ENV_CFG],
     ['./environments/default.env.secret.yml', DEFAULT_ENV_SECRET_CFG],
@@ -271,13 +271,11 @@ if 'init' == action
     ['./Gemfile', DEFAULT_GEMFILE],
   ]
 
-  %w(environments logs specs).each do |dir_name|
+  %w[environments logs specs].each do |dir_name|
     Dir.mkdir(dir_name) unless File.directory? dir_name
   end
 
   DEFAULT_FILES.each do |file, content|
-    unless File.exist? file
-      File.write(file, content)
-    end
+    File.write(file, content) unless File.exist? file
   end
 end
