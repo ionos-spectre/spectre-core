@@ -104,6 +104,6 @@ RSpec.describe 'Expectation' do
 
     expect(run.logs.count).to eq(1)
 
-    expect(run.logs.first[3]).to eq('expected the_truth to be 42, but got 666 - in specs/expectation.spec.rb:57')
+    expect(run.logs.first[3]).to eq('expected the_truth to be 42, but got 666 - in specs/expectation.spec.rb:62')
   end
 end

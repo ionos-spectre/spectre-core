@@ -149,7 +149,7 @@ module Spectre
       end
 
       def should_be other
-        to_s.should be other.to_s
+        should be other
       end
 
       def should_contain element
@@ -168,7 +168,7 @@ module Spectre
     class << self
       def be expected_val
         Matcher.new(expected_val, __method__) do |val, negate, expected|
-          expected.evaluate(proc { |x| negate ? x != val : x == val })
+          expected.evaluate(proc { |x| negate ? x.to_s != val.to_s : x.to_s == val.to_s })
         end
       end
 

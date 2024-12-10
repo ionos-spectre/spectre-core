@@ -38,6 +38,11 @@ Spectre.describe 'Expectation' do
 
   it 'evaluates "should be or" with a single value', tags: [:success] do
     the_truth = 42
+    the_truth.should_be 42.or 86
+  end
+
+  it 'evaluates "should be or" with a single value as string', tags: [:success] do
+    the_truth = '42'
     the_truth.should be 42.or 86
   end
 
