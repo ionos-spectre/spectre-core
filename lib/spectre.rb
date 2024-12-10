@@ -777,7 +777,7 @@ module Spectre
       end
 
       # Load modules
-      if CONFIG.key? 'modules'
+      if CONFIG['modules'].is_a? Array
         CONFIG['modules'].each do |module_name|
           module_path = File.join(Dir.pwd, module_name)
 
