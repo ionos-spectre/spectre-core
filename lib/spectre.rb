@@ -267,8 +267,6 @@ module Spectre
     end
 
     def write message, fill: false
-      output = ''
-
       if message.nil? or message.empty?
         output = indent
         @out.print output
