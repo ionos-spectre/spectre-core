@@ -779,13 +779,15 @@ module Spectre
       end
 
       # Load modules
-      CONFIG['modules'].each do |module_name|
-        module_path = File.join(Dir.pwd, module_name)
+      if CONFIG.key? 'modules'
+        CONFIG['modules'].each do |module_name|
+          module_path = File.join(Dir.pwd, module_name)
 
-        if File.exist? module_path
-          require_relative module_path
-        else
-          require module_name
+          if File.exist? module_path
+            require_relative module_path
+          else
+            require module_name
+          end
         end
       end
 
