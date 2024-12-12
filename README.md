@@ -46,7 +46,7 @@ This helps to debug test subjects and to better understand what and how it is te
 in a Docker container with
 
 ```bash
-$ docker run -t --rm -v "path/to/specs" cneubauer/spectre [command] [options]
+$ docker run -t --rm -v "path/to/specs:/spectre" cneubauer/spectre [command] [options]
 ```
 
 
@@ -61,17 +61,32 @@ $ sudo apt install ruby-full
 
 For other linux distributions see [ruby-lang.org](https://www.ruby-lang.org/en/documentation/installation/).
 
-To install Ruby on windows, download an installer from [rubyinstaller.org](https://rubyinstaller.org/) 
-or use a package manager like Chocolatey
+To install Ruby on windows, just use `winget`
 
 ```powershell
-choco install ruby
+# Search for available Ruby versions
+winget search ruby
+
+# Install Ruby with dev kit
+winget instal RubyInstallerTeam.RubyWithDevKit.3.2
 ```
 
 Spectre is available as a Ruby *gem* from https://rubygems.org/
 
 ```bash
 $ sudo gem install spectre-core
+```
+
+or clone this repository and run
+
+```bash
+rake install
+```
+
+or just clone this repository and create a symlink to `exe/spectre`
+
+```bash
+ln -s /path/to/spectre-core/exe/spectre /home/some_user/.local/bin/spectre # or some other location in your PATH
 ```
 
 To test, if the tool is working, try one of the following commands.
