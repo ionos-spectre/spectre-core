@@ -31,10 +31,12 @@ Spectre.describe 'Bag' do
     bag.data.should be 'foo'
 
     bag.data = 'baz'
+    bag.setup_data = 'bar'
   end
 
   it 'does reset bag on every spec run', tags: [:success] do
     bag.data.should be 'foo'
+    bag.setup_data.should be 'bla'
   end
 
   it 'can be used within a submodule', tags: [:success] do
