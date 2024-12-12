@@ -804,18 +804,18 @@ module Spectre
 
       @logger = Logger.new(log_file)
       @logger.formatter = proc do |severity, datetime, progname, message|
-        date_fromatted = datetime.strftime(CONFIG['log_date_format'])
+        date_formatted = datetime.strftime(CONFIG['log_date_format'])
         progname ||= 'spectre'
 
         # Add log message also to the current executing run context
         if RunContext.current.nil?
           context_name = 'spectre'
         else
-          RunContext.current.add_log(date_fromatted, severity, progname, message)
+          RunContext.current.add_log(date_formatted, severity, progname, message)
           context_name = RunContext.current.parent.name
         end
 
-        format(CONFIG['log_message_format'], date_fromatted, severity, context_name, progname, message)
+        format(CONFIG['log_message_format'], date_formatted, severity, context_name, progname, message)
       end
 
       self
