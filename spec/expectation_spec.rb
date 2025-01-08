@@ -26,11 +26,16 @@ RSpec.describe 'Expectation' do
     run = @runs.find { |x| x.parent.desc == 'fails within an expect block' }
 
     expect(run.failure).to be_kind_of(Spectre::Expectation::ExpectationFailure)
-    expect(run.failure.message).to eq('expected to succeed, but it failed with ' \
-                                      '"expected the_truth to be 42, but got 666"')
+
+    expect(run.failure.message).to start_with('expected to succeed, but it failed with ' \
+                                              '"expected the_truth to be 42, but got 666" ')
+    expect(run.failure.message).to match(%r{- in specs/expectation.spec.rb:\d+})
+
     expect(run.failure.desc).to eq(nil)
 
-    expect(run.logs[0][3]).to eq('expected to succeed, but it failed with "expected the_truth to be 42, but got 666"')
+    expect(run.logs[0][3]).to start_with('expected to succeed, but it failed with ' \
+                                         '"expected the_truth to be 42, but got 666" ')
+    expect(run.logs[0][3]).to match(%r{- in specs/expectation.spec.rb:\d+})
   end
 
   it 'evaluates "should_not be"' do

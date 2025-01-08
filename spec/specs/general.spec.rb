@@ -7,6 +7,7 @@ Spectre.describe 'General' do
   it 'should run successfully', tags: [:success] do
     info 'some info'
     info "this is a\nmultiline message"
+    log 'this is also a info log message'
     debug 'this is a debug message'
   end
 
@@ -17,6 +18,14 @@ Spectre.describe 'General' do
 
   it 'does not access a variable from previous spec', tags: [:success] do
     @bar.should be nil
+  end
+
+  it 'runs code wihtin a group', tags: [:success] do
+    info 'outside of group'
+
+    group 'some group' do
+      info 'within the group'
+    end
   end
 end
 

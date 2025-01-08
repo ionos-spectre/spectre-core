@@ -26,7 +26,7 @@ RSpec.describe 'General' do
   end
 
   it 'should run' do
-    expect(@runs.count).to eq(13)
+    expect(@runs.count).to eq(14)
   end
 
   it 'should have correct names' do
@@ -50,23 +50,22 @@ RSpec.describe 'General' do
     expect(run.error).to eq(nil)
     expect(run.failure).to eq(nil)
     expect(run.skipped?).to eq(false)
-    expect(run.logs.count).to eq(1)
+    expect(run.logs.count).to eq(2)
 
-    _timestamp, _severity, _progname, message = run.logs.first
-
-    expect(message).to eq('do some setting up')
+    expect(run.logs[0][3]).to eq('setup "General"')
+    expect(run.logs[1][3]).to eq('do some setting up')
   end
 
   it 'should run successfully' do
     run = @runs.find { |x| x.parent.desc == 'should run successfully' }
 
-    expect(run.parent.file).to end_with('specs/general.spec.rb:7')
+    expect(run.parent.file).to match(%r{specs/general.spec.rb:\d+})
     expect(run.parent.parent.desc).to eq('General')
     expect(run.parent.desc).to eq('should run successfully')
     expect(run.error).to eq(nil)
     expect(run.failure).to eq(nil)
     expect(run.skipped?).to eq(false)
-    expect(run.logs.count).to eq(3)
+    expect(run.logs.count).to eq(4)
     expect(run.parent.desc).to eq('should run successfully')
 
     _, severity, progname, message = run.logs.first
@@ -106,7 +105,8 @@ RSpec.describe 'General' do
 
     expect(progname).to eq('spectre')
     expect(severity).to eq('ERROR')
-    expect(message).to eq('fail for fun - in specs/general.spec.rb:33')
+    expect(message).to start_with('fail for fun')
+    expect(message).to match(%r{- in specs/general.spec.rb:\d+})
   end
 
   it 'runs: should run with an expectation failure' do
@@ -115,7 +115,8 @@ RSpec.describe 'General' do
     expect(run.error).to eq(nil)
 
     expect(run.failure).to be_kind_of(Spectre::Expectation::ExpectationFailure)
-    expect(run.failure.message).to eq('expected to succeed, but it failed with "fail for fun"')
+    expect(run.failure.message).to start_with('expected to succeed, but it failed with "fail for fun" - ')
+    expect(run.failure.message).to match(%r{in specs/general.spec.rb:\d+})
     expect(run.failure.desc).to eq(nil)
 
     expect(run.logs.count).to eq(1)
@@ -124,7 +125,8 @@ RSpec.describe 'General' do
 
     expect(progname).to eq('spectre')
     expect(severity).to eq('ERROR')
-    expect(message).to eq('expected to succeed, but it failed with "fail for fun"')
+    expect(message).to start_with('expected to succeed, but it failed with "fail for fun" - ')
+    expect(message).to match(%r{in specs/general.spec.rb:\d+})
   end
 
   it 'observes a process' do

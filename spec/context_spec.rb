@@ -11,19 +11,24 @@ RSpec.describe 'Context' do
 
   it 'should have correct names' do
     # This is the setup from main context
+    expect(@runs[0].name).to eq('context-setup')
     expect(@runs[0].parent.name).to eq('context')
     expect(@runs[0].parent.desc).to eq('Context')
 
+    expect(@runs[1].name).to eq('context-1')
     expect(@runs[1].parent.name).to eq('context-1')
     expect(@runs[1].parent.desc).to eq('should run within a main context')
 
     # This is the teardown from main context
+    expect(@runs[2].name).to eq('context-teardown')
     expect(@runs[2].parent.name).to eq('context')
     expect(@runs[2].parent.desc).to eq('Context')
 
     # This is the setup from child context
-    expect(@runs[3].parent.name).to eq('within_a_child_context')
+    expect(@runs[3].name).to eq('context-within_a_child_context-setup')
+    expect(@runs[3].parent.name).to eq('context-within_a_child_context')
     expect(@runs[3].parent.desc).to eq('within a child context')
+    expect(@runs[3].logs[0][3]).to eq('setup "within a child context"')
 
     expect(@runs[4].parent.name).to eq('context-2')
     expect(@runs[4].parent.desc).to eq('should run within a child context')
@@ -32,7 +37,7 @@ RSpec.describe 'Context' do
     expect(@runs[5].parent.desc).to eq('should run another spec within child context')
 
     # This is the teardown from child context
-    expect(@runs[6].parent.name).to eq('within_a_child_context')
+    expect(@runs[6].name).to eq('context-within_a_child_context-teardown')
     expect(@runs[6].parent.desc).to eq('within a child context')
   end
 
@@ -40,7 +45,8 @@ RSpec.describe 'Context' do
     expect(@runs.count).to eq(7)
 
     expect(@runs[0].type).to eq(:setup)
-    expect(@runs[0].logs[0][3]).to eq('do some setting up')
+    expect(@runs[0].logs[0][3]).to eq('setup "Context"')
+    expect(@runs[0].logs[1][3]).to eq('do some setting up')
 
     expect(@runs[1].type).to eq(:spec)
     expect(@runs[1].logs.count).to eq(3)
@@ -51,10 +57,12 @@ RSpec.describe 'Context' do
     expect(@runs[1].logs[2][3]).to eq('some info from after in main context')
 
     expect(@runs[2].type).to eq(:teardown)
-    expect(@runs[2].logs[0][3]).to eq('do some tearing down')
+    expect(@runs[2].logs[0][3]).to eq('teardown "Context"')
+    expect(@runs[2].logs[1][3]).to eq('do some tearing down')
 
     expect(@runs[3].type).to eq(:setup)
-    expect(@runs[3].logs[0][3]).to eq('do some setting up in child context')
+    expect(@runs[3].logs[0][3]).to eq('setup "within a child context"')
+    expect(@runs[3].logs[1][3]).to eq('do some setting up in child context')
 
     expect(@runs[4].logs.count).to eq(3)
     expect(@runs[4].parent.desc).to eq('should run within a child context')
@@ -63,7 +71,8 @@ RSpec.describe 'Context' do
     expect(@runs[4].logs[1][3]).to eq('some info from wihtin a context')
     expect(@runs[4].logs[2][3]).to eq('some info from after in child context')
 
-    expect(@runs[6].logs[0][3]).to eq('do some tearing down in child context')
+    expect(@runs[6].logs[0][3]).to eq('teardown "within a child context"')
+    expect(@runs[6].logs[1][3]).to eq('do some tearing down in child context')
   end
 
   it 'should run the child context without running main' do

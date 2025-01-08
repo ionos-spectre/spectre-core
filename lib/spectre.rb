@@ -99,6 +99,54 @@ module Spectre
   class CancelException < StandardError
   end
 
+  class Logger < ::Logger
+    def initialize log_file
+      if log_file.is_a? String
+        log_file = log_file.gsub('<date>', DateTime.now.strftime('%Y-%m-%d_%H%M%S%3N'))
+        FileUtils.mkdir_p(File.dirname(log_file))
+      end
+
+      super
+
+      @corr_ids = []
+
+      @formatter = proc do |severity, datetime, progname, message|
+        date_formatted = datetime.strftime(CONFIG['log_date_format'])
+        progname ||= 'spectre'
+
+        # Add log message also to the current executing run context
+        if RunContext.current.nil?
+          context_name = 'spectre'
+        else
+          RunContext.current.add_log(date_formatted, severity, progname, message)
+          context_name = RunContext.current.name
+        end
+
+        format(CONFIG['log_message_format'],
+               date_formatted,
+               severity,
+               progname,
+               context_name,
+               @corr_ids.join,
+               message)
+      end
+    end
+
+    def correlation_id
+      @corr_ids.join
+    end
+
+    def correlate
+      @corr_ids.append(rand(36**4).to_s(36))
+
+      begin
+        yield
+      ensure
+        @corr_ids.pop
+      end
+    end
+  end
+
   class SimpleReporter
     def initialize config
       @out = config['stdout'] || $stdout
@@ -409,6 +457,9 @@ module Spectre
       @type = type
       @logs = []
 
+      @name = parent.name
+      @name += "-#{type}" unless type == :spec
+
       @bag = OpenStruct.new(bag)
 
       @error = nil
@@ -453,7 +504,8 @@ module Spectre
         begin
           yield
         rescue Expectation::ExpectationFailure => e
-          fail_message = "expected #{desc}, but it failed with \"#{e.message}\""
+          file, line = get_error_info(e)
+          fail_message = "expected #{desc}, but it failed with \"#{e.message}\" - in #{file}:#{line}"
           @failure = Expectation::ExpectationFailure.new(fail_message)
           result = [:error, :failed, nil, @failure]
           Spectre.logger.error(fail_message)
@@ -474,7 +526,10 @@ module Spectre
     end
 
     def group(desc, &)
-      Spectre.formatter.scope(desc, @parent, :group, &)
+      Spectre.logger.correlate do
+        Spectre.logger.debug("group \"#{desc}\"")
+        Spectre.formatter.scope(desc, @parent, :group, &)
+      end
     end
 
     def add_log timestamp, severity, progname, message
@@ -487,11 +542,13 @@ module Spectre
         with = [with.to_recursive_struct] if with.is_a? Hash
         with = with.map { |x| x.is_a?(Hash) ? x.to_recursive_struct : x }
 
-        raise "mixin '#{desc}' not found" unless MIXINS.key? desc
+        raise "mixin \"#{desc}\" not found" unless MIXINS.key? desc
 
-        result = instance_exec(*with, &MIXINS[desc])
-
-        return result.is_a?(Hash) ? OpenStruct.new(result) : result
+        Spectre.logger.correlate do
+          Spectre.logger.debug("execute mixin \"#{desc}\"")
+          result = instance_exec(*with, &MIXINS[desc])
+          return result.is_a?(Hash) ? OpenStruct.new(result) : result
+        end
       end
     end
 
@@ -536,9 +593,9 @@ module Spectre
     def run befores, afters, bag
       RunContext.new(self, :spec, bag) do |run_context|
         Spectre.formatter.scope(@desc, self, :spec) do
-          if befores.any?
+          befores.each do |block|
             Spectre.formatter.scope('before', self, :before) do
-              befores.each do |block|
+              Spectre.logger.correlate do
                 run_context.execute(@data, &block)
               end
             end
@@ -546,9 +603,9 @@ module Spectre
 
           run_context.execute(@data, &@block) if run_context.error.nil? and run_context.failure.nil?
         ensure
-          if afters.any?
+          afters.each do |block|
             Spectre.formatter.scope('after', self, :after) do
-              afters.each do |block|
+              Spectre.logger.correlate do
                 run_context.execute(@data, &block)
               end
             end
@@ -575,6 +632,7 @@ module Spectre
       @afters = []
 
       @name = @desc.downcase.gsub(/[^a-z0-9]+/, '_')
+      @name = @parent.name + '-' + @name unless @parent.nil?
 
       @full_desc = @parent.nil? ? @desc : "#{@parent.full_desc} #{@desc}"
     end
@@ -638,9 +696,12 @@ module Spectre
 
           if @setups.any?
             setup_run = RunContext.new(self, :setup) do |run_context|
-              Spectre.formatter.scope('setup', self, :setup) do
-                @setups.each do |block|
-                  run_context.execute(nil, &block)
+              @setups.each do |block|
+                Spectre.formatter.scope('setup', self, :setup) do
+                  Spectre.logger.correlate do
+                    Spectre.logger.debug("setup \"#{@desc}\"")
+                    run_context.execute(nil, &block)
+                  end
                 end
               end
             end
@@ -653,15 +714,20 @@ module Spectre
           # Only run specs if setup was successful
           if setup_run.nil? or (setup_run.error.nil? and setup_run.failure.nil?)
             runs += selected.map do |spec|
-              spec.run(@befores, @afters, setup_bag)
+              Spectre.logger.correlate do
+                spec.run(@befores, @afters, setup_bag)
+              end
             end
           end
 
           if @teardowns.any?
             runs << RunContext.new(self, :teardown, setup_bag) do |run_context|
-              Spectre.formatter.scope('teardown', self, :teardown) do
-                @teardowns.each do |block|
-                  run_context.execute(nil, &block)
+              @teardowns.each do |block|
+                Spectre.formatter.scope('teardown', self, :teardown) do
+                  Spectre.logger.correlate do
+                    Spectre.logger.debug("teardown \"#{@desc}\"")
+                    run_context.execute(nil, &block)
+                  end
                 end
               end
             end
@@ -684,7 +750,8 @@ module Spectre
     # 'log_file'             => './logs/spectre_<date>.log',
     'log_file' => StringIO.new,
     'log_date_format' => '%F %T.%L%:z',
-    'log_message_format' => "[%s] %5s -- [%s] %s: %s\n",
+    # [timestamp] LEVEL -- module_name: [spec-id] correlation_id log_message
+    'log_message_format' => "[%s] %5s -- %s: [%s] [%s] %s\n",
     'formatter' => 'Spectre::ConsoleFormatter',
     'reporter' => 'Spectre::SimpleReporter',
     'out_path' => 'reports',
@@ -794,33 +861,6 @@ module Spectre
       self
     end
 
-    def init_logger
-      log_file = CONFIG['log_file']
-
-      if log_file.is_a? String
-        log_file = log_file.gsub('<date>', DateTime.now.strftime('%Y-%m-%d_%H%M%S%3N'))
-        FileUtils.mkdir_p(File.dirname(log_file))
-      end
-
-      @logger = Logger.new(log_file)
-      @logger.formatter = proc do |severity, datetime, progname, message|
-        date_formatted = datetime.strftime(CONFIG['log_date_format'])
-        progname ||= 'spectre'
-
-        # Add log message also to the current executing run context
-        if RunContext.current.nil?
-          context_name = 'spectre'
-        else
-          RunContext.current.add_log(date_formatted, severity, progname, message)
-          context_name = RunContext.current.parent.name
-        end
-
-        format(CONFIG['log_message_format'], date_formatted, severity, context_name, progname, message)
-      end
-
-      self
-    end
-
     def list
       spec_filter = CONFIG['specs']
       tag_filter = CONFIG['tags']
@@ -836,7 +876,7 @@ module Spectre
     end
 
     def run
-      init_logger
+      @logger = Logger.new(CONFIG['log_file'])
 
       list
         .group_by { |x| x.parent.root }
