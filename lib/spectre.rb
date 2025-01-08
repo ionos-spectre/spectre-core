@@ -9,6 +9,7 @@ require 'date'
 require 'fileutils'
 require 'securerandom'
 require 'logger'
+require 'stringio'
 
 require_relative 'spectre/version'
 require_relative 'spectre/expectation'

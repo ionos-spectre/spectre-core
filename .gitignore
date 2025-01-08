@@ -1,8 +1,9 @@
 .vscode/
+.bundle/
 **/logs
 **/reports
 tmp/
 pkg/
 temp/
-Gemfile.lock
+vendor/
 *.code-workspace
