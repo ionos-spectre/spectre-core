@@ -42,11 +42,17 @@ This helps to debug test subjects and to better understand what and how it is te
 
 ## Docker
 
-`spectre` is available as a docker image. Just run your *specs* 
-in a Docker container with
+There is a `Dockerfile` to build `spectre` Docker images.
+To build a Docker image run
 
 ```bash
-$ docker run -t --rm -v "path/to/specs:/spectre" cneubauer/spectre [command] [options]
+$ docker build -t spectre .
+```
+
+and then run with
+
+```bash
+$ docker run -t --rm -v "path/to/specs:/spectre" spectre [command] [options]
 ```
 
 
