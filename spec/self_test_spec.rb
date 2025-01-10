@@ -13,7 +13,7 @@ RSpec.describe 'Self Test' do
     .each do |run|
       it run.parent.desc do
         expect(run.error).to eq(nil)
-        expect(run.failure).to eq(nil)
+        expect(run.failures.count).to eq(0)
       end
     end
 
@@ -23,8 +23,8 @@ RSpec.describe 'Self Test' do
     .each do |run|
       it run.parent.desc do
         expect(run.error).to eq(nil)
-        expect(run.failure).not_to eq(nil)
-        expect(run.failure).to be_kind_of(Spectre::Expectation::ExpectationFailure)
+        expect(run.failures.count).not_to eq(0)
+        expect(run.failures.all? { |x| x.is_a? Spectre::Failure }).to be_truthy
       end
     end
 
@@ -33,7 +33,7 @@ RSpec.describe 'Self Test' do
     .select { |run| run.parent.tags.include?(:error) }
     .each do |run|
       it run.parent.desc do
-        expect(run.failure).to eq(nil)
+        expect(run.failures.count).to eq(0)
         expect(run.error).not_to eq(nil)
         expect(run.error.message).to eq('Oops!')
       end

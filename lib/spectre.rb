@@ -100,6 +100,17 @@ module Spectre
   class CancelException < StandardError
   end
 
+  class Failure
+    attr_reader :message, :file, :line, :inner
+
+    def initialize message, file, line, inner
+      @message = message
+      @file = file
+      @line = line
+      @inner = inner
+    end
+  end
+
   class Logger < ::Logger
     def initialize log_file
       if log_file.is_a? String
@@ -158,7 +169,7 @@ module Spectre
       runs = runs.select { |x| x.parent.is_a? Specification }
 
       errors   = runs.count { |x| !x.error.nil? }
-      failed   = runs.count { |x| !x.failure.nil? }
+      failed   = runs.count { |x| x.failures.any? }
       skipped  = runs.count(&:skipped?)
       succeded = runs.count - errors - failed - skipped
 
@@ -168,18 +179,18 @@ module Spectre
       summary += " #{skipped} skipped"
       summary += "\n\n"
 
-      output  = "\n"
-      output += summary.send((errors + failed).positive? ? :red : :green)
+      @out.puts(summary.send((errors + failed).positive? ? :red : :green))
+
+      output = "\n"
 
       runs
-        .select { |x| !x.error.nil? or !x.failure.nil? }
+        .select { |x| !x.error.nil? or x.failures.any? }
         .each_with_index do |run, index|
-          title  = "#{index + 1})"
-          title += " #{run.parent.full_desc}"
-          title += " (#{(run.finished - run.started).duration})"
-          title += " [#{run.parent.name}]"
+          output += "#{index + 1})"
+          output += " #{run.parent.full_desc}"
+          output += " (#{(run.finished - run.started).duration})"
+          output += " [#{run.parent.name}]"
 
-          output += title.red
           output += "\n"
 
           if run.error
@@ -198,14 +209,27 @@ module Spectre
               end
             end
 
-            output += error_output.indent(5).red
+            output += error_output.indent(5)
             output += "\n\n"
           end
 
-          output += "     #{run.failure.message.red}\n\n" if run.failure
+          if run.failures.any?
+            if run.failures.count > 1
+              output += "     #{run.failures.count} failures occured\n"
+
+              run.failures.each_with_index do |x, i|
+                output += "       #{index + 1}.#{i+1}) #{x.message}\n"
+              end
+            else
+              output += "     #{run.failures.first.message}\n"
+            end
+
+            output += "\n"
+          end
+
         end
 
-      @out.puts output
+      @out.puts output.red
     end
   end
 
@@ -351,7 +375,7 @@ module Spectre
                      end)
                   end,
           error: run.error,
-          failure: run.failure,
+          failures: run.failures,
           skipped: run.skipped,
           started: run.started,
           finished: run.finished,
@@ -443,7 +467,7 @@ module Spectre
   end
 
   class RunContext
-    attr_reader :id, :name, :parent, :type, :logs, :bag, :error, :failure, :started, :finished
+    attr_reader :id, :name, :parent, :type, :logs, :bag, :error, :failures, :started, :finished
 
     @@current = nil
 
@@ -464,7 +488,7 @@ module Spectre
       @bag = OpenStruct.new(bag)
 
       @error = nil
-      @failure = nil
+      @failures = []
       @skipped = false
 
       @started = Time.now
@@ -488,7 +512,7 @@ module Spectre
 
     def status
       return :error if @error
-      return :failed if @failure
+      return :failed if @failures.any?
       return :skipped if @skipped
 
       :success
@@ -498,32 +522,12 @@ module Spectre
       raise Expectation::ExpectationFailure, message
     end
 
-    def expect desc
-      Spectre.formatter.log(:debug, "expect #{desc}") do
-        result = [:debug, :ok, nil]
+    def assert(desc, &)
+      capture_failures('assert', desc, false, &)
+    end
 
-        begin
-          yield
-        rescue Expectation::ExpectationFailure => e
-          file, line = get_error_info(e)
-          fail_message = "expected #{desc}, but it failed with \"#{e.message}\" - in #{file}:#{line}"
-          @failure = Expectation::ExpectationFailure.new(fail_message)
-          result = [:error, :failed, nil, @failure]
-          Spectre.logger.error(fail_message)
-        rescue Interrupt
-          @skipped = true
-          result = [:debug, :skipped, 'canceled by user']
-          Spectre.logger.info("expecting #{desc} - canceled by user")
-        rescue StandardError => e
-          @error = e
-          result = [:fatal, :error, e.class.name, e]
-          Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
-        end
-
-        result
-      end
-
-      raise CancelException if @skipped or @error or @failure
+    def expect(desc, &)
+      capture_failures('expect', desc, true, &)
     end
 
     def group(desc, &)
@@ -560,9 +564,9 @@ module Spectre
     rescue CancelException
       # Do nothing. The run will be ended here
     rescue Expectation::ExpectationFailure => e
-      @failure = e
-      Spectre.formatter.log(:error, e.message, :failed, e.desc)
       file, line = get_error_info(e)
+      @failures << Failure.new(e.message, file, line, e)
+      Spectre.formatter.log(:error, e.message, :failed, e.desc)
       Spectre.logger.error("#{e.message} - in #{file}:#{line}")
     rescue Interrupt
       @skipped = true
@@ -572,6 +576,39 @@ module Spectre
       Spectre.formatter.log(:fatal, e.message, :error, e.class.name)
       @error = e
       Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
+    end
+    
+    private 
+
+    def capture_failures verb, desc, stop_on_fail
+      stop = false
+
+      Spectre.formatter.log(:debug, "#{verb} #{desc}") do
+        result = [:debug, :ok, nil]
+
+        begin
+          yield
+        rescue Expectation::ExpectationFailure => e
+          file, line = get_error_info(e)
+          fail_message = "#{verb}ed #{desc}, but it failed with \"#{e.message}\""
+          @failures << Failure.new(fail_message, file, line, e)
+          Spectre.logger.error("#{fail_message} - in #{file}:#{line}")
+          stop = stop_on_fail
+          result = [:error, :failed, nil]
+        rescue Interrupt
+          @skipped = true
+          Spectre.logger.info("#{verb}ting #{desc} - canceled by user")
+          result = [:debug, :skipped, 'canceled by user']
+        rescue StandardError => e
+          @error = e
+          Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
+          result = [:fatal, :error, e.class.name]
+        end
+
+        result
+      end
+
+      raise CancelException if @skipped or @error or stop
     end
   end
 
@@ -602,7 +639,7 @@ module Spectre
             end
           end
 
-          run_context.execute(@data, &@block) if run_context.error.nil? and run_context.failure.nil?
+          run_context.execute(@data, &@block) if run_context.error.nil? and !run_context.failures.any?
         ensure
           afters.each do |block|
             Spectre.formatter.scope('after', self, :after) do
@@ -713,7 +750,7 @@ module Spectre
           end
 
           # Only run specs if setup was successful
-          if setup_run.nil? or (setup_run.error.nil? and setup_run.failure.nil?)
+          if setup_run.nil? or (setup_run.error.nil? and !setup_run.failures.any?)
             runs += selected.map do |spec|
               Spectre.logger.correlate do
                 spec.run(@befores, @afters, setup_bag)

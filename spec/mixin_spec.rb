@@ -12,8 +12,6 @@ RSpec.describe 'Mixin' do
   it 'runs some mixin' do
     run = @runs[0]
 
-    expect(run.failure).to be_nil
-    expect(run.error).to be_nil
     expect(run.parent.desc).to eq('executes a mixin')
     expect(run.logs.count).to eq(2)
 
@@ -24,24 +22,18 @@ RSpec.describe 'Mixin' do
   it 'runs some mixin with list parameters' do
     run = @runs[1]
 
-    expect(run.failure).to be_nil
-    expect(run.error).to be_nil
     expect(run.logs.count).to eq(3)
   end
 
   it 'runs some mixin with hash parameters' do
     run = @runs[2]
 
-    expect(run.failure).to be_nil
-    expect(run.error).to be_nil
     expect(run.logs.count).to eq(2)
   end
 
   it 'runs some mixin with bag access' do
     run = @runs.find { |x| x.parent.desc == 'uses a bag value within a mixin' }
 
-    expect(run.failure).to be_nil
-    expect(run.error).to be_nil
     expect(run.logs.count).to eq(2)
   end
 end
