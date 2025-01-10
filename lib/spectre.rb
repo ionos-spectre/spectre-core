@@ -168,12 +168,12 @@ module Spectre
     def report runs
       runs = runs.select { |x| x.parent.is_a? Specification }
 
-      errors   = runs.count { |x| !x.error.nil? }
-      failed   = runs.count { |x| x.failures.any? }
-      skipped  = runs.count(&:skipped?)
-      succeded = runs.count - errors - failed - skipped
+      errors    = runs.count { |x| !x.error.nil? }
+      failed    = runs.count { |x| x.failures.any? }
+      skipped   = runs.count(&:skipped?)
+      succeeded = runs.count - errors - failed - skipped
 
-      summary  = "#{succeded} succeded"
+      summary  = "#{succeeded} succeeded"
       summary += " #{failed} failures"
       summary += " #{errors} errors"
       summary += " #{skipped} skipped"
