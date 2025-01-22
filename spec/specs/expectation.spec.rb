@@ -61,7 +61,7 @@ Spectre.describe 'Expectation' do
 
     the_truth.should be 42
   end
-  
+
   it 'continues after fail', tags: [:fail] do
     info 'this message is written'
 

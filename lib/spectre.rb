@@ -213,20 +213,19 @@ module Spectre
             output += "\n\n"
           end
 
-          if run.failures.any?
-            if run.failures.count > 1
-              output += "     #{run.failures.count} failures occured\n"
+          next unless run.failures.any?
 
-              run.failures.each_with_index do |x, i|
-                output += "       #{index + 1}.#{i+1}) #{x.message}\n"
-              end
-            else
-              output += "     #{run.failures.first.message}\n"
+          if run.failures.count > 1
+            output += "     #{run.failures.count} failures occured\n"
+
+            run.failures.each_with_index do |x, i|
+              output += "       #{index + 1}.#{i + 1}) #{x.message}\n"
             end
-
-            output += "\n"
+          else
+            output += "     #{run.failures.first.message}\n"
           end
 
+          output += "\n"
         end
 
       @out.puts output.red
@@ -577,8 +576,8 @@ module Spectre
       @error = e
       Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
     end
-    
-    private 
+
+    private
 
     def capture_failures verb, desc, stop_on_fail
       stop = false
@@ -639,7 +638,7 @@ module Spectre
             end
           end
 
-          run_context.execute(@data, &@block) if run_context.error.nil? and !run_context.failures.any?
+          run_context.execute(@data, &@block) if run_context.error.nil? and run_context.failures.none?
         ensure
           afters.each do |block|
             Spectre.formatter.scope('after', self, :after) do
@@ -750,7 +749,7 @@ module Spectre
           end
 
           # Only run specs if setup was successful
-          if setup_run.nil? or (setup_run.error.nil? and !setup_run.failures.any?)
+          if setup_run.nil? or (setup_run.error.nil? and setup_run.failures.none?)
             runs += selected.map do |spec|
               Spectre.logger.correlate do
                 spec.run(@befores, @afters, setup_bag)

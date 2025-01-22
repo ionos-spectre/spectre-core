@@ -180,6 +180,7 @@ end
 # Cleanup temporary files
 if action == 'cleanup'
   FileUtils.rm_rf(Dir.glob('./logs/*'), secure: true)
+  exit
 end
 
 DEFAULT_SPECTRE_CFG = %(log_file: ./logs/spectre_<date>.log
