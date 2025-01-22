@@ -23,5 +23,7 @@ Gem::Specification.new do |spec|
   spec.bindir = 'exe'
   spec.executables = 'spectre'
 
-  spec.add_dependency 'ectoplasm', '~> 1.4.0'
+  spec.add_dependency 'ectoplasm'
+  spec.add_dependency 'ostruct'
+  spec.add_dependency 'stringio'
 end
