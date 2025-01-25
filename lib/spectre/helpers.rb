@@ -77,10 +77,10 @@ class ::String
 end
 
 class ::OpenStruct
-  def to_json *args, **kwargs
+  def to_json(*, **)
     to_h
       .transform_values { |x| x.is_a?(OpenStruct) ? x.to_h : x }
-      .to_json(*args, **kwargs)
+      .to_json(*, **)
   end
 
   def pick path

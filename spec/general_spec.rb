@@ -26,7 +26,7 @@ RSpec.describe 'General' do
   end
 
   it 'should run' do
-    expect(@runs.count).to eq(14)
+    expect(@runs.count).to eq(15)
   end
 
   it 'should have correct names' do
@@ -103,8 +103,7 @@ RSpec.describe 'General' do
     run = @runs.find { |x| x.parent.desc == 'should run with an expectation failure' }
 
     expect(run.failures.first.message).to eq('expected to succeed, but it failed with "fail for fun"')
-    expect(run.failures.first.inner.desc).to eq(nil)
-
+    puts run.logs.inspect
     expect(run.logs.count).to eq(1)
 
     _, severity, progname, message = run.logs.first

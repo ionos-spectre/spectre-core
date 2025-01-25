@@ -97,7 +97,7 @@ class String
 end
 
 module Spectre
-  class CancelException < StandardError
+  class AbortException < StandardError
   end
 
   class Failure
@@ -108,6 +108,23 @@ module Spectre
       @file = file
       @line = line
       @inner = inner
+    end
+
+    def to_s
+      "#{@message} - in #{@file}:#{@line}"
+    end
+  end
+
+  class FailureContext
+    attr_reader :desc, :failures
+
+    def initialize desc
+      @desc = desc
+      @failures = []
+    end
+
+    def add failure
+      @failures << failure
     end
   end
 
@@ -517,18 +534,6 @@ module Spectre
       :success
     end
 
-    def fail_with message
-      raise Expectation::ExpectationFailure, message
-    end
-
-    def assert(desc, &)
-      capture_failures('assert', desc, false, &)
-    end
-
-    def expect(desc, &)
-      capture_failures('expect', desc, true, &)
-    end
-
     def group(desc, &)
       Spectre.logger.correlate do
         Spectre.logger.debug("group \"#{desc}\"")
@@ -560,7 +565,7 @@ module Spectre
 
     def execute(data, &)
       instance_exec(data.is_a?(Hash) ? OpenStruct.new(data) : data, &)
-    rescue CancelException
+    rescue AbortException
       # Do nothing. The run will be ended here
     rescue Expectation::ExpectationFailure => e
       file, line = get_error_info(e)
@@ -572,42 +577,84 @@ module Spectre
       Spectre.formatter.log(:debug, nil, :skipped, 'canceled by user')
       Spectre.logger.info("#{@parent.desc} - canceled by user")
     rescue StandardError => e
-      Spectre.formatter.log(:fatal, e.message, :error, e.class.name)
       @error = e
+      Spectre.formatter.log(:fatal, e.message, :error, e.class.name)
       Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
     end
 
-    private
+    def fail_with message
+      raise Expectation::ExpectationFailure, message
+    end
 
-    def capture_failures verb, desc, stop_on_fail
-      stop = false
+    def failure message
+      location = caller_locations
+        .select { |x| ['<main>', '<top (required)>'].include? x.base_label }
+        .first
 
-      Spectre.formatter.log(:debug, "#{verb} #{desc}") do
-        result = [:debug, :ok, nil]
+      Failure.new(message, location.path, location.lineno, nil)
+    end
 
-        begin
-          yield
-        rescue Expectation::ExpectationFailure => e
-          file, line = get_error_info(e)
-          fail_message = "#{verb}ed #{desc}, but it failed with \"#{e.message}\""
-          @failures << Failure.new(fail_message, file, line, e)
-          Spectre.logger.error("#{fail_message} - in #{file}:#{line}")
-          stop = stop_on_fail
-          result = [:error, :failed, nil]
-        rescue Interrupt
-          @skipped = true
-          Spectre.logger.info("#{verb}ting #{desc} - canceled by user")
-          result = [:debug, :skipped, 'canceled by user']
-        rescue StandardError => e
-          @error = e
-          Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
-          result = [:fatal, :error, e.class.name]
+    alias with failure
+
+    def report status
+      case status
+      when Failure
+        Spectre.formatter.log(:error, status.message, :failed, nil)
+        Spectre.logger.error(status.to_s)
+        @failures << status
+      when StandardError
+        @error = status
+        Spectre.logger.fatal("#{status.message}\n#{status.backtrace.join("\n")}")
+      end
+    end
+
+    def skip message
+      @skipped = true
+      Spectre.logger.info("#{message} - canceled by user")
+    end
+
+    def abort(*)
+      raise AbortException
+    end
+
+    def assert desc
+      context = FailureContext.new(desc)
+
+      Spectre.formatter.log(:debug, "assert #{desc}") do
+        yield
+
+        if context.failures.any?
+          [:error, :failed, nil]
+        else
+          [:info, :ok, nil]
         end
-
-        result
+      rescue StandardError => e
+        report(e)
+        [:fatal, :error, e.class.name]
       end
 
-      raise CancelException if @skipped or @error or stop
+      abort if context.failures.any? or @error or @skipped
+    end
+
+    def expect(desc, &)
+      context = FailureContext.new(desc)
+
+      Spectre.formatter.log(:debug, "expect #{desc}") do
+        yield
+      rescue Expectation::ExpectationFailure => e
+        report failure("expected #{desc}, but it failed with \"#{e.message}\"")
+        [:error, :failed, nil]
+      rescue Interrupt
+        skip("expected #{desc}")
+        [:debug, :skipped, 'canceled by user']
+      rescue StandardError => e
+        report(e)
+        [:fatal, :error, e.class.name]
+      else
+        [:info, :ok, nil]
+      end
+
+      abort if context.failures.any? or @error or @skipped
     end
   end
 

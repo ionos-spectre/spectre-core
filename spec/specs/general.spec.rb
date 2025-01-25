@@ -70,4 +70,42 @@ Spectre.describe 'General' do
 
     info 'continues to run'
   end
+
+  # it 'continues after fail', tags: [:fail] do
+  #   info 'this message is written'
+  #
+  #   assert 'to continue aftes this' do
+  #     fail_with 'an error'
+  #   end
+  #
+  #   assert 'to still continue aftes this' do
+  #     fail_with 'an error'
+  #   end
+  #
+  #   info 'run failed overall but continued'
+  #
+  #   expect 'to stop after this' do
+  #     fail_with 'an error'
+  #   end
+  #
+  #   info 'this will never be executed'
+  # end
+
+  it 'continues after fail', tags: [:fail] do
+    report failure 'bad behavior'
+    report failure 'another fail'
+
+    assert 'doing stuff' do
+      report failure 'not was it meant to be'
+      report failure 'how bad could it go'
+    end
+
+    # abort with 'another bad message'
+  end
+
+  it 'should stop on error', tags: [:error] do
+    assert 'doing stuff' do
+      raise StandardError, 'Oops!'
+    end
+  end
 end
