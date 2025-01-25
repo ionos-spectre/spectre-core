@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'A DSL and command line tool to describe and run automated tests'
   spec.homepage      = 'https://github.com/ionos-spectre/spectre-core'
   spec.license       = 'GPL-3.0-or-later'
-  spec.required_ruby_version = '>= 3.1.0'
+  spec.required_ruby_version = '>= 3.4'
 
   spec.metadata['homepage_uri']    = spec.homepage
   spec.metadata['source_code_uri'] = 'https://github.com/ionos-spectre/spectre-core'
