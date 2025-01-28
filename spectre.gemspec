@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   spec.executables = 'spectre'
 
   spec.add_dependency 'ectoplasm'
+  spec.add_dependency 'logger'
   spec.add_dependency 'ostruct'
   spec.add_dependency 'stringio'
 end

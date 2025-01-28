@@ -1,8 +1,14 @@
 require_relative '../lib/spectre'
 
-%i[log debug info warn env bag success?].each do |method|
+%i[log debug info warn env].each do |method|
   define_method(method) do |*args, &block|
     Spectre.send(method, *args, &block)
+  end
+end
+
+%i[observe expect bag success?].each do |method|
+  Kernel.define_method(method) do |*args, &block|
+    Spectre::RunContext.current.send(method, *args, &block)
   end
 end
 

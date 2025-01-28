@@ -120,14 +120,7 @@ OptionParser.new do |opts|
 end.parse!
 
 # Expose spectre methods
-%i[env describe expect mixin bag resources observe success?].each do |method|
-  Kernel.define_method(method) do |*args, &block|
-    Spectre.send(method, *args, &block)
-  end
-end
-
-# Expose logging methods
-%i[debug info warn log].each do |method|
+%i[env describe expect mixin resources observe debug info warn log].each do |method|
   Kernel.define_method(method) do |*args, &block|
     Spectre.send(method, *args, &block)
   end
@@ -137,6 +130,13 @@ end
 %i[be be_empty contain match].each do |method|
   Kernel.define_method(method) do |*args, &block|
     Spectre::Expectation.send(method, *args, &block)
+  end
+end
+
+# Expose run context methods
+%i[expect bag success?].each do |method|
+  Kernel.define_method(method) do |*args, &block|
+    Spectre::RunContext.current.send(method, *args, &block)
   end
 end
 

@@ -101,13 +101,12 @@ module Spectre
   end
 
   class Failure
-    attr_reader :message, :file, :line, :inner
+    attr_reader :message, :file, :line
 
-    def initialize message, file, line, inner
+    def initialize message, file, line
       @message = message
       @file = file
       @line = line
-      @inner = inner
     end
 
     def to_s
@@ -115,7 +114,7 @@ module Spectre
     end
   end
 
-  class FailureContext
+  class EvaluationContext
     attr_reader :desc, :failures
 
     def initialize desc
@@ -123,7 +122,7 @@ module Spectre
       @failures = []
     end
 
-    def add failure
+    def report failure
       @failures << failure
     end
   end
@@ -541,6 +540,26 @@ module Spectre
       end
     end
 
+    def observe desc
+      Spectre.formatter.log(:info, "observe #{desc}".cyan) do
+        yield
+        @success = true
+        [:info, :ok, nil]
+      rescue Expectation::ExpectationFailure => e
+        @success = false
+        Spectre.logger.debug(e.message)
+        [:warn, :warn, e.message]
+      rescue StandardError => e
+        @success = false
+        Spectre.logger.debug("#{e.message}\n#{e.backtrace.join("\n")}")
+        [:info, :ok, e.message]
+      end
+    end
+
+    def success?
+      @success.nil? ? true : @success
+    end
+
     def add_log timestamp, severity, progname, message
       @logs << [timestamp, severity, progname, message]
     end
@@ -569,7 +588,7 @@ module Spectre
       # Do nothing. The run will be ended here
     rescue Expectation::ExpectationFailure => e
       file, line = get_error_info(e)
-      @failures << Failure.new(e.message, file, line, e)
+      @failures << Failure.new(e.message, file, line)
       Spectre.formatter.log(:error, e.message, :failed, e.desc)
       Spectre.logger.error("#{e.message} - in #{file}:#{line}")
     rescue Interrupt
@@ -591,7 +610,9 @@ module Spectre
         .select { |x| ['<main>', '<top (required)>'].include? x.base_label }
         .first
 
-      Failure.new(message, location.path, location.lineno, nil)
+      file_path = location.absolute_path.dup.sub(Dir.pwd, '.')
+
+      Failure.new(message, file_path, location.lineno)
     end
 
     alias with failure
@@ -611,6 +632,7 @@ module Spectre
     def skip message
       @skipped = true
       Spectre.logger.info("#{message} - canceled by user")
+      raise AbortException
     end
 
     def abort(*)
@@ -618,7 +640,7 @@ module Spectre
     end
 
     def assert desc
-      context = FailureContext.new(desc)
+      context = EvaluationContext.new(desc)
 
       Spectre.formatter.log(:debug, "assert #{desc}") do
         yield
@@ -637,7 +659,7 @@ module Spectre
     end
 
     def expect(desc, &)
-      context = FailureContext.new(desc)
+      context = EvaluationContext.new(desc)
 
       Spectre.formatter.log(:debug, "expect #{desc}") do
         yield
@@ -987,14 +1009,6 @@ module Spectre
       main_context.instance_eval(&)
     end
 
-    def expect(desc, &)
-      RunContext.current.expect(desc, &)
-    end
-
-    def bag
-      RunContext.current.bag
-    end
-
     def mixin desc, &block
       MIXINS[desc] = block
     end
@@ -1003,36 +1017,11 @@ module Spectre
       RESOURCES
     end
 
-    def observe desc
-      Spectre.formatter.log(:info, "observe #{desc}".cyan) do
-        yield
-        @success = true
-        [:info, :ok, nil]
-      rescue Expectation::ExpectationFailure => e
-        @success = false
-        Spectre.logger.debug(e.message)
-        [:warn, :warn, e.message]
-      rescue StandardError => e
-        @success = false
-        Spectre.logger.debug("#{e.message}\n#{e.backtrace.join("\n")}")
-        [:info, :ok, e.message]
-      end
-    end
-
-    def success?
-      @success.nil? ? true : @success
-    end
-
-    %i[debug info warn].each do |method|
+    %i[debug info warn log].each do |method|
       define_method(method) do |message|
         Spectre.logger.send(method, message)
         Spectre.formatter.log(method, message)
       end
-    end
-
-    def log message
-      Spectre.logger.info(message)
-      Spectre.formatter.log('info', message)
     end
 
     private

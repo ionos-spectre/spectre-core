@@ -11,8 +11,8 @@ module Spectre
         @val = val
       end
 
-      def evaluate matcher
-        matcher.call(@val)
+      def evaluate predicate, actual, negate
+        !(!negate ^ predicate.call(@val, actual))
       end
 
       def to_s
@@ -30,8 +30,8 @@ module Spectre
         @second = ValueWrapper.wrap(second)
       end
 
-      def evaluate matcher
-        @first.evaluate(matcher) or @second.evaluate(matcher)
+      def evaluate predicate, actual, negate
+        @first.evaluate(predicate, actual, negate) or @second.evaluate(predicate, actual, negate)
       end
 
       def to_s
@@ -46,8 +46,8 @@ module Spectre
         @second = ValueWrapper.wrap(second)
       end
 
-      def evaluate matcher
-        @first.evaluate(matcher) and @second.evaluate(matcher)
+      def evaluate predicate, actual, negate
+        @first.evaluate(predicate, actual, negate) and @second.evaluate(predicate, actual, negate)
       end
 
       def to_s
@@ -55,18 +55,23 @@ module Spectre
       end
     end
 
-    class Matcher
-      def initialize actual, expected, predicate, method
+    class Evaluation
+      attr_reader :actual, :expected, :method, :negate
+
+      def initialize actual, expected, method, predicate, negate: false
         @actual = actual
         @expected = ValueWrapper.wrap(expected)
         @predicate = predicate
+        @negate = negate
 
-        @repr = "to #{method.to_s.gsub('_', ' ')}"
-        @repr += expected.nil? ? ' not set' : " #{@expected}"
+        @repr = ''
+        @repr += 'not ' if @negate
+        @repr += "to #{method}"
+        @repr += expected.nil? ? ' empty' : " #{@expected}"
       end
 
-      def evaluate
-        @expected.evaluate(@predicate, @expected)
+      def run
+        @expected.evaluate(@predicate, @actual, @negate)
       end
 
       def to_s
@@ -78,33 +83,94 @@ module Spectre
       @@location_cache = {}
 
       def not params
-        Matcher.new(self, *params)
+        Evaluation.new(self, *params, negate: true)
       end
 
       def to params
-        Matcher.new(self, *params)
+        Evaluation.new(self, *params)
+      end
+
+      def or other_val
+        OrWrapper.new(self, other_val)
+      end
+
+      def and other_val
+        AndWrapper.new(self, other_val)
       end
     end
 
     class << self
+      @@location_cache = {}
+
+      def assert evaluation
+        # Maybe not the most elegant way, but it works for now
+        # as long as the `should` statement is on the same line as the variable
+        loc = caller_locations
+          .select { |x| ['<main>', '<top (required)>'].include? x.base_label }
+          .first
+
+        if @@location_cache.key?(loc.absolute_path)
+          loc_file_content = @@location_cache[loc.absolute_path]
+        else
+          loc_file_content = File.read(loc.absolute_path)
+          @@location_cache[loc.absolute_path] = loc_file_content
+        end
+
+        var_name = loc_file_content
+          .lines[loc.lineno - 1]
+          .strip
+          .match(/assert\(?(.*)\.(to|not)/)
+          .captures
+          .first
+          .strip
+
+        success = evaluation.run
+        context = EvaluationContext.new("assert #{var_name} #{evaluation}")
+
+        unless success
+          message = "expected #{var_name} #{evaluation}, but got #{evaluation.actual.inspect}"
+          file_path = loc.absolute_path.dup.sub(Dir.pwd, '.')
+          failure = Failure.new(message, file_path, loc.lineno)
+          context.report(failure)
+        end
+
+        context
+      end
+
+      def to params
+        params
+      end
+
       def be expected_val
         [
-          __method__,
           expected_val,
-          proc { |x| x.to_s == val.to_s },
+          __method__,
+          proc { |expected, actual| expected.inspect == actual.inspect },
         ]
       end
 
       def be_empty
-        prox { |_| val.nil? or val.empty? }
+        [
+          nil,
+          'be',
+          proc { |_, actual| actual.nil? or (actual.respond_to?(:empty?) and actual.empty?) }
+        ]
       end
 
       def contain expected_val
-        proc { |x| val.include?(x) }
+        [
+          expected_val,
+          __method__,
+          proc { |expected, actual| actual.include?(expected) }
+        ]
       end
 
       def match regex
-        proc { |_| val.match?(regex) }
+        [
+          regex,
+          __method__,
+          proc { |expected, actual| actual.match?(expected) }
+        ]
       end
     end
   end
