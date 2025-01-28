@@ -99,11 +99,10 @@ RSpec.describe 'General' do
     expect(message).to match(%r{- in specs/general.spec.rb:\d+})
   end
 
-  it 'runs: should run with an expectation failure' do
+  it 'should run with an expectation failure' do
     run = @runs.find { |x| x.parent.desc == 'should run with an expectation failure' }
 
     expect(run.failures.first.message).to eq('expected to succeed, but it failed with "fail for fun"')
-    puts run.logs.inspect
     expect(run.logs.count).to eq(1)
 
     _, severity, progname, message = run.logs.first

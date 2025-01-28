@@ -69,6 +69,8 @@ Spectre.describe 'General' do
     end
 
     info 'continues to run'
+
+    fail_with 'success was not correct' if success?
   end
 
   # it 'continues after fail', tags: [:fail] do
@@ -99,6 +101,9 @@ Spectre.describe 'General' do
       report failure 'not was it meant to be'
       report failure 'how bad could it go'
     end
+
+    assert 42.to be 666
+    assert 42.not to be 666
 
     # abort with 'another bad message'
   end

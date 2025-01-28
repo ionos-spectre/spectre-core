@@ -80,16 +80,16 @@ module Spectre
     end
 
     class Matcher
-      def initialize expected_val, method, &block
+      def initialize expected, method, &block
         @block = block
-        @expected_val = ValueWrapper.wrap(expected_val)
+        @expected = ValueWrapper.wrap(expected)
 
         @repr = "to #{method.to_s.gsub('_', ' ')}"
-        @repr += expected_val.nil? ? ' nil' : " #{@expected_val}"
+        @repr += expected.nil? ? ' nil' : " #{@expected}"
       end
 
-      def execute val, negate
-        @block.call(val, negate, @expected_val)
+      def execute actual, negate
+        @block.call(actual, negate, @expected)
       end
 
       def to_s
