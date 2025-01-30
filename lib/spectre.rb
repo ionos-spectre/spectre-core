@@ -117,12 +117,26 @@ module Spectre
   class EvaluationContext
     attr_reader :desc, :failures
 
-    def initialize desc
+    def initialize(desc, &)
       @desc = desc
       @failures = []
+
+      Spectre.formatter.log(:info, desc) do
+        instance_eval(&) if block_given?
+
+        if @failures.any?
+          Spectre.logger.error("#{desc} - failed")
+          [:erros, :failed, nil]
+        else
+          Spectre.logger.info("#{desc} - ok")
+          [:info, :ok, nil]
+        end
+      end
     end
 
-    def report failure
+    def report message, location
+      file_path = location.absolute_path.dup.sub(Dir.pwd, '.')
+      failure = Failure.new(message, file_path, location.lineno)
       @failures << failure
     end
   end
@@ -380,15 +394,7 @@ module Spectre
         {
           id: run.id,
           parent: run.parent.id,
-          status: if run.error
-                    :error
-                  else
-                    (if run.failure
-                       :failed
-                     else
-                       (run.skipped? ? :skipped : :ok)
-                     end)
-                  end,
+          status: run.status,
           error: run.error,
           failures: run.failures,
           skipped: run.skipped,
@@ -517,8 +523,31 @@ module Spectre
       end
     end
 
-    def skipped?
-      @skipped
+    def execute(data, &)
+      instance_exec(data.is_a?(Hash) ? OpenStruct.new(data) : data, &)
+    rescue AbortException
+      # Do nothing. The run will be ended here
+    rescue Expectation::ExpectationFailure => e
+      file, line = get_error_info(e)
+      @failures << Failure.new(e.message, file, line)
+      Spectre.formatter.log(:error, e.message, :failed, e.desc)
+      Spectre.logger.error("#{e.message} - in #{file}:#{line}")
+    rescue Interrupt
+      @skipped = true
+      Spectre.formatter.log(:debug, nil, :skipped, 'canceled by user')
+      Spectre.logger.info("#{@parent.desc} - canceled by user")
+    rescue StandardError => e
+      @error = e
+      Spectre.formatter.log(:fatal, e.message, :error, e.class.name)
+      Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
+    end
+
+    def fail_with message
+      raise Expectation::ExpectationFailure, message
+    end
+
+    def add_log timestamp, severity, progname, message
+      @logs << [timestamp, severity, progname, message]
     end
 
     def duration
@@ -560,10 +589,6 @@ module Spectre
       @success.nil? ? true : @success
     end
 
-    def add_log timestamp, severity, progname, message
-      @logs << [timestamp, severity, progname, message]
-    end
-
     def run desc, with: nil
       Spectre.formatter.scope(desc, self, :mixin) do
         with ||= [OpenStruct.new]
@@ -581,29 +606,6 @@ module Spectre
     end
 
     alias also run
-
-    def execute(data, &)
-      instance_exec(data.is_a?(Hash) ? OpenStruct.new(data) : data, &)
-    rescue AbortException
-      # Do nothing. The run will be ended here
-    rescue Expectation::ExpectationFailure => e
-      file, line = get_error_info(e)
-      @failures << Failure.new(e.message, file, line)
-      Spectre.formatter.log(:error, e.message, :failed, e.desc)
-      Spectre.logger.error("#{e.message} - in #{file}:#{line}")
-    rescue Interrupt
-      @skipped = true
-      Spectre.formatter.log(:debug, nil, :skipped, 'canceled by user')
-      Spectre.logger.info("#{@parent.desc} - canceled by user")
-    rescue StandardError => e
-      @error = e
-      Spectre.formatter.log(:fatal, e.message, :error, e.class.name)
-      Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
-    end
-
-    def fail_with message
-      raise Expectation::ExpectationFailure, message
-    end
 
     def failure message
       location = caller_locations
@@ -707,7 +709,8 @@ module Spectre
             end
           end
 
-          run_context.execute(@data, &@block) if run_context.error.nil? and run_context.failures.none?
+          run_context.execute(@data, &@block) if run_context.error.nil? and
+                                                 run_context.failures.none?
         ensure
           afters.each do |block|
             Spectre.formatter.scope('after', self, :after) do
@@ -894,7 +897,7 @@ module Spectre
       # Load main spectre config
       main_config_file = config_overrides['config_file'] || CONFIG['config_file']
 
-      if File.exist? main_config_file
+      unless main_config_file.nil? or !File.exist? main_config_file
         main_config = load_yaml(main_config_file)
         CONFIG.deep_merge!(main_config)
         Dir.chdir(File.dirname(main_config_file))
@@ -964,6 +967,13 @@ module Spectre
 
       @formatter = Object.const_get(CONFIG['formatter']).new
 
+      log_file = CONFIG['log_file']
+
+      # If log file is an actual file path do not initilize the logger yet
+      # as it will create the file immediatly, even the specs are just listed
+      # Initialize it for testing purposes
+      @logger = Logger.new(log_file) unless log_file.is_a? String
+
       self
     end
 
@@ -982,7 +992,7 @@ module Spectre
     end
 
     def run
-      @logger = Logger.new(CONFIG['log_file'])
+      @logger = Logger.new(CONFIG['log_file']) if @logger.nil?
 
       list
         .group_by { |x| x.parent.root }

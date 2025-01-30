@@ -1,6 +1,17 @@
 require_relative '../lib/assertion'
 
 RSpec.describe 'Assertion' do
+  before do
+    @console_out = StringIO.new
+    @log_out = StringIO.new
+
+    Spectre
+      .setup({
+        'log_file' => @log_out,
+        'stdout' => @console_out,
+      })
+  end
+
   context 'equal check' do
     [
       [42, 42],
@@ -244,7 +255,17 @@ RSpec.describe 'Assertion' do
     expect(failure.message).to eq('expected value to be 42, but got 666')
     expected_filepath = __FILE__.sub(Dir.pwd, '.')
     expect(failure.file).to eq(expected_filepath)
-    expect(failure.line).to eq(237)
-    expect(failure.to_s).to eq("expected value to be 42, but got 666 - in #{expected_filepath}:237")
+    expect(failure.line).not_to eq(nil)
+    expect(failure.to_s).to start_with('expected value to be 42, but got 666')
+    expect(failure.to_s).to match(" - in #{expected_filepath}:\\d+")
+
+    @console_out.rewind
+    output = @console_out.read
+    expect(output).to eq("assert value to be 42#{'.' * 59}#{'[failed]'.red}\n")
+
+    @log_out.rewind
+    log = @log_out.readlines
+    expect(log.count).to eq(1)
+    expect(log.first).to end_with("assert value to be 42 - failed\n")
   end
 end

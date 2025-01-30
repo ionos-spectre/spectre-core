@@ -124,17 +124,14 @@ module Spectre
           .first
           .strip
 
-        success = evaluation.run
-        context = EvaluationContext.new("assert #{var_name} #{evaluation}")
+        EvaluationContext.new("assert #{var_name} #{evaluation}") do
+          success = evaluation.run
 
-        unless success
-          message = "expected #{var_name} #{evaluation}, but got #{evaluation.actual.inspect}"
-          file_path = loc.absolute_path.dup.sub(Dir.pwd, '.')
-          failure = Failure.new(message, file_path, loc.lineno)
-          context.report(failure)
+          unless success
+            message = "expected #{var_name} #{evaluation}, but got #{evaluation.actual.inspect}"
+            report(message, loc)
+          end
         end
-
-        context
       end
 
       def to params
