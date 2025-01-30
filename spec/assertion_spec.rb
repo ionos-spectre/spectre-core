@@ -243,11 +243,27 @@ RSpec.describe 'Assertion' do
     end
   end
 
+  it 'creates a positive evaluation context' do
+    value = 42
+    context = Spectre::Assertion.assert value.to Spectre::Assertion.be 42
+
+    expect(context.desc).to eq('assert value to be 42')
+    expect(context.failures.count).to eq(0)
+
+    @console_out.rewind
+    output = @console_out.read
+    expect(output).to eq("assert value to be 42#{'.' * 59}#{'[ok]'.green}\n")
+
+    @log_out.rewind
+    log = @log_out.readlines
+    expect(log.count).to eq(1)
+    expect(log.first).to end_with("assert value to be 42 - ok\n")
+  end
+
   it 'creates an assertion failure' do
     value = 666
     context = Spectre::Assertion.assert value.to Spectre::Assertion.be 42
 
-    expect(context.desc).to eq('assert value to be 42')
     expect(context.failures.count).to eq(1)
 
     failure = context.failures.first

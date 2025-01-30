@@ -126,7 +126,7 @@ module Spectre
 
         if @failures.any?
           Spectre.logger.error("#{desc} - failed")
-          [:erros, :failed, nil]
+          [:error, :failed, nil]
         else
           Spectre.logger.info("#{desc} - ok")
           [:info, :ok, nil]
