@@ -242,8 +242,9 @@ RSpec.describe 'Assertion' do
     failure = context.failures.first
 
     expect(failure.message).to eq('expected value to be 42, but got 666')
-    expect(failure.file).to eq('./spec/assertion_spec.rb')
+    expected_filepath = __FILE__.sub(Dir.pwd, '.')
+    expect(failure.file).to eq(expected_filepath)
     expect(failure.line).to eq(237)
-    expect(failure.to_s).to eq('expected value to be 42, but got 666 - in ./spec/assertion_spec.rb:237')
+    expect(failure.to_s).to eq("expected value to be 42, but got 666 - in #{expected_filepath}:237")
   end
 end
