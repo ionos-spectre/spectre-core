@@ -57,7 +57,7 @@ RSpec.describe Spectre::RunContext do
     expect(run_context.name).to eq(@spec.name)
     expect(run_context.type).to eq(:spec)
 
-    expect(run_context.failures.count).to eq(0)
+    expect(run_context.evaluations.count).to eq(0)
     expect(run_context.error).to eq(nil)
     expect(run_context.status).to eq(:success)
 
@@ -150,5 +150,64 @@ RSpec.describe Spectre::RunContext do
     expect(run_context.status).to eq(:success)
     expect(run_context.logs.count).to eq(1)
     expect(run_context.logs.first[3]).to eq('data is foo')
+  end
+
+  context 'evaluation' do
+    it 'creates a positive evaluation context' do
+      run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+        context.execute(nil) do
+          assert OpenStruct.new({repr: 'something'})
+        end
+      end
+
+      expect(run_context.status).to eq(:success)
+      expect(run_context.evaluations.count).to eq(1)
+
+      @console_out.rewind
+      output = @console_out.read
+      expect(output).to eq("assert something#{'.' * 64}#{'[ok]'.green}\n")
+
+      @log_out.rewind
+      log = @log_out.readlines
+      expect(log.count).to eq(1)
+      expect(log.first).to end_with("assert something - ok\n")
+    end
+
+    it 'creates an assertion failure' do
+      run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+        context.execute(nil) do
+          assert OpenStruct.new({
+            failure: 'oops',
+            repr: 'something',
+            file: __FILE__,
+            line: 42,
+          })
+        end
+      end
+
+      puts run_context.error
+
+      expect(run_context.status).to eq(:failed)
+      failures = run_context.evaluations.map(&:failures).flatten
+      expect(failures.count).to eq(1)
+
+      failure = failures.first
+
+      expect(failure.message).to eq('oops')
+      expected_filepath = __FILE__.sub(Dir.pwd, '.')
+      expect(failure.file).to eq(expected_filepath)
+      expect(failure.line).not_to eq(nil)
+      expect(failure.to_s).to start_with('oops')
+      expect(failure.to_s).to match(" - in #{expected_filepath}:\\d+")
+
+      @console_out.rewind
+      output = @console_out.read
+      expect(output).to eq("assert something#{'.' * 64}#{'[failed]'.red}\n")
+
+      @log_out.rewind
+      log = @log_out.readlines
+      expect(log.count).to eq(1)
+      expect(log.first).to end_with("assert something - failed\n")
+    end
   end
 end

@@ -56,22 +56,52 @@ module Spectre
     end
 
     class Evaluation
-      attr_reader :actual, :expected, :method, :negate
+      attr_reader :actual, :expected, :method, :negate, :desc, :failure, :file, :line, :repr
 
-      def initialize actual, expected, method, predicate, negate: false
+      def initialize call_location, actual, expected, method, predicate, negate: false
         @actual = actual
         @expected = ValueWrapper.wrap(expected)
         @predicate = predicate
         @negate = negate
+        @failure = nil
 
-        @repr = ''
-        @repr += 'not ' if @negate
-        @repr += "to #{method}"
+        # Maybe not the most elegant way, but it works for now
+        # as long as the `.to` call is on the same line as the variable
+        location = call_location
+          .select { |x| ['<main>', '<top (required)>'].include? x.base_label }
+          .first
+
+        @file = location.absolute_path.dup
+        @line = location.lineno
+
+        if @@location_cache.key?(@file)
+          file_content = @@location_cache[@file]
+        else
+          file_content = File.read(@file)
+          @@location_cache[@file] = file_content
+        end
+
+        @var_name = file_content
+          .lines
+          .slice(@line - 2, 2)
+          .map(&:strip)
+          .join
+          .match(/[\s\(]([^\s]+|\[.*\]|{.*})\.(to|not)[\s\(]/)
+          .captures
+          .first
+          .strip
+
+        @repr = @var_name
+        @repr += ' not' if @negate
+        @repr += " to #{method}"
         @repr += expected.nil? ? ' empty' : " #{@expected}"
-      end
 
-      def run
-        @expected.evaluate(@predicate, @actual, @negate)
+        success = @expected.evaluate(@predicate, @actual, @negate)
+
+        return if success
+
+        @failure = "expected #{@repr}"
+        @failure += ", but got #{@actual.inspect}" unless @negate
       end
 
       def to_s
@@ -83,11 +113,11 @@ module Spectre
       @@location_cache = {}
 
       def not params
-        Evaluation.new(self, *params, negate: true)
+        Evaluation.new(caller_locations, self, *params, negate: true)
       end
 
       def to params
-        Evaluation.new(self, *params)
+        Evaluation.new(caller_locations, self, *params)
       end
 
       def or other_val
@@ -100,40 +130,6 @@ module Spectre
     end
 
     class << self
-      @@location_cache = {}
-
-      def assert evaluation
-        # Maybe not the most elegant way, but it works for now
-        # as long as the `should` statement is on the same line as the variable
-        loc = caller_locations
-          .select { |x| ['<main>', '<top (required)>'].include? x.base_label }
-          .first
-
-        if @@location_cache.key?(loc.absolute_path)
-          loc_file_content = @@location_cache[loc.absolute_path]
-        else
-          loc_file_content = File.read(loc.absolute_path)
-          @@location_cache[loc.absolute_path] = loc_file_content
-        end
-
-        var_name = loc_file_content
-          .lines[loc.lineno - 1]
-          .strip
-          .match(/assert\(?(.*)\.(to|not)/)
-          .captures
-          .first
-          .strip
-
-        EvaluationContext.new("assert #{var_name} #{evaluation}") do
-          success = evaluation.run
-
-          unless success
-            message = "expected #{var_name} #{evaluation}, but got #{evaluation.actual.inspect}"
-            report(message, loc)
-          end
-        end
-      end
-
       def to params
         params
       end
