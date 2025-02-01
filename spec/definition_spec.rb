@@ -101,7 +101,9 @@ RSpec.describe Spectre::Specification do
       subject.setup(&block)
 
       subject.it 'does something' do
+        # :nocov:
         Spectre.info 'a message'
+        # :nocov:
       end
 
       subject.teardown do

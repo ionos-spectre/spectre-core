@@ -76,7 +76,9 @@ RSpec.describe Spectre::Specification do
 
   it 'does not run main block if before fails but always runs after blocks' do
     block = proc do
+      # :nocov:
       info 'message from main block'
+      # :nocov:
     end
 
     spec = Spectre::Specification.new(

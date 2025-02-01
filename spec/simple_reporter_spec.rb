@@ -87,7 +87,7 @@ RSpec.describe Spectre::SimpleReporter do
     expect(lines[3]).to eq("     assert some truth, but a bad thing happened\n")
     expect(lines[14]).to match('3\) Some subject does another bad thing \(.*\) \[some_subject-4\]')
     expect(lines[15]).to eq("     but an unexpected error occurred during run\n")
-    expect(lines[16]).to match('       file\.+: spec/simple_reporter_spec\.rb:\d+')
+    expect(lines[16]).to match('       file\.+: ./spec/simple_reporter_spec\.rb:\d+')
     expect(lines[17]).to eq("       type.....: StandardError\n")
     expect(lines[18]).to eq("       message..: Oops!\n")
   end

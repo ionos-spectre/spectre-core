@@ -29,22 +29,8 @@ def get_error_info error
   return unless matches
 
   file, line = matches.captures
-  file.slice!("#{Dir.pwd}/")
 
-  [file, line]
-end
-
-def tag? tags, tag_exp
-  tags = tags.map(&:to_s)
-  all_tags = tag_exp.split('+')
-
-  included_tags = all_tags.reject { |x| x.start_with? '!' }
-
-  excluded_tags = all_tags
-    .select { |x| x.start_with? '!' }
-    .map { |x| x[1..] }
-
-  included_tags & tags == included_tags and excluded_tags & tags == []
+  [file.sub!(Dir.pwd, '.'), line]
 end
 
 class Hash
@@ -1021,6 +1007,19 @@ module Spectre
     def load_yaml file_path
       file_content = File.read(file_path)
       YAML.safe_load(file_content, aliases: true) || {}
+    end
+
+    def tag? tags, tag_exp
+      tags = tags.map(&:to_s)
+      all_tags = tag_exp.split('+')
+
+      included_tags = all_tags.reject { |x| x.start_with? '!' }
+
+      excluded_tags = all_tags
+        .select { |x| x.start_with? '!' }
+        .map { |x| x[1..] }
+
+      included_tags & tags == included_tags and excluded_tags & tags == []
     end
   end
 end

@@ -96,9 +96,11 @@ RSpec.describe Spectre::RunContext do
 
         raise Spectre::AbortException
 
+        # :nocov:
         # rubocop:disable Lint/UnreachableCode
         Spectre.info 'this will never be logged'
         # rubocop:enable Lint/UnreachableCode
+        # :nocov:
       end
     end
 
@@ -113,9 +115,11 @@ RSpec.describe Spectre::RunContext do
 
         raise Interrupt
 
+        # :nocov:
         # rubocop:disable Lint/UnreachableCode
         Spectre.info 'this will never be logged'
         # rubocop:enable Lint/UnreachableCode
+        # :nocov:
       end
     end
 
