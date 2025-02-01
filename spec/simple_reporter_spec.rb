@@ -1,24 +1,18 @@
 RSpec.describe Spectre::SimpleReporter do
   it 'reports a successful run' do
-    Spectre.describe 'Some subject' do
-      it 'does something' do
-        Spectre.info 'a message'
-      end
-    end
-
     Spectre
       .setup({
         'log_file' => StringIO.new,
         'stdout' => StringIO.new,
-        'spec_patterns' => [
-          File.join(File.dirname(__FILE__), 'specs', '**/*.spec.rb').sub(Dir.pwd, '')
-        ]
       })
 
-    specs = Spectre.list
-    expect(specs.count).to eq(1)
+    subject = Spectre::DefinitionContext.new('Some subject')
 
-    runs = Spectre.run
+    subject.it 'does something' do
+      Spectre.info 'a message'
+    end
+
+    runs = subject.run(subject.specs)
 
     report_output = StringIO.new
 
@@ -33,57 +27,49 @@ RSpec.describe Spectre::SimpleReporter do
   end
 
   it 'reports a failed run' do
-    Spectre::CONTEXTS.clear
+    subject = Spectre::DefinitionContext.new('Some subject')
 
-    Spectre.describe 'Some subject' do
-      it 'does something' do
-        Spectre.info 'a message'
+    subject.it 'does something' do
+      Spectre.info 'a message'
+    end
+
+    subject.it 'does something stupid' do
+      assert 'some truth' do
+        report failure 'a bad thing happened'
+      end
+    end
+
+    subject.it 'does mupltile stupid things' do
+      expect 'nothing to happen' do
+        # do nothing here
       end
 
-      it 'does something stupid' do
-        assert 'some truth' do
-          report failure 'a bad thing happened'
-        end
+      expect 'some truth' do
+        report failure 'a bad thing happened'
       end
 
-      it 'does mupltile stupid things' do
-        expect 'nothing to happen' do
-          # do nothing here
-        end
-
-        expect 'some truth' do
-          report failure 'a bad thing happened'
-        end
-
-        expect 'some truth' do
-          report failure 'a bad thing happened'
-          report failure 'and another bad thing'
-        end
-
-        assert 'another truth' do
-          report failure 'a bad thing happened'
-          report failure 'and another bad one'
-        end
+      expect 'some truth' do
+        report failure 'a bad thing happened'
+        report failure 'and another bad thing'
       end
 
-      it 'does another bad thing' do
-        raise StandardError, 'Oops!'
+      assert 'another truth' do
+        report failure 'a bad thing happened'
+        report failure 'and another bad one'
       end
+    end
+
+    subject.it 'does another bad thing' do
+      raise StandardError, 'Oops!'
     end
 
     Spectre
       .setup({
         'log_file' => StringIO.new,
         'stdout' => StringIO.new,
-        'spec_patterns' => [
-          File.join(File.dirname(__FILE__), 'specs', '**/*.spec.rb').sub(Dir.pwd, '')
-        ]
       })
 
-    specs = Spectre.list
-    expect(specs.count).to eq(4)
-
-    runs = Spectre.run
+    runs = subject.run(subject.specs)
 
     report_output = StringIO.new
 

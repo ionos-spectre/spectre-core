@@ -1,3 +1,6 @@
+require 'simplecov'
+SimpleCov.start
+
 require_relative '../lib/spectre'
 
 # %i[log debug info warn env].each do |method|

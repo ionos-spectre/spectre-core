@@ -12,7 +12,6 @@ require 'logger'
 require 'stringio'
 
 require_relative 'spectre/version'
-require_relative 'spectre/expectation'
 
 def get_error_info error
   return unless error.backtrace
@@ -148,18 +147,20 @@ module Spectre
   end
 
   class Logger < ::Logger
-    def initialize log_file
+    def initialize config
+      log_file = config['log_file']
+
       if log_file.is_a? String
         log_file = log_file.gsub('<date>', DateTime.now.strftime('%Y-%m-%d_%H%M%S%3N'))
         FileUtils.mkdir_p(File.dirname(log_file))
       end
 
-      super
+      super(log_file)
 
       @corr_ids = []
 
       @formatter = proc do |severity, datetime, progname, message|
-        date_formatted = datetime.strftime(CONFIG['log_date_format'])
+        date_formatted = datetime.strftime(config['log_date_format'])
         progname ||= 'spectre'
 
         # Add log message also to the current executing run context
@@ -170,7 +171,7 @@ module Spectre
           context_name = RunContext.current.name
         end
 
-        format(CONFIG['log_message_format'],
+        format(config['log_message_format'],
                date_formatted,
                severity,
                progname,
@@ -285,8 +286,8 @@ module Spectre
   end
 
   class ConsoleFormatter
-    def initialize
-      @out = CONFIG['stdout'] || $stdout
+    def initialize config
+      @out = config['stdout'] || $stdout
       @level = 0
       @width = 80
       @indent = 2
@@ -406,8 +407,8 @@ module Spectre
   end
 
   class JsonReporter
-    def initialize
-      @out = CONFIG['stdout'] || $stdout
+    def initialize config
+      @out = config['stdout'] || $stdout
       @out.sync = true
     end
 
@@ -418,8 +419,16 @@ module Spectre
           parent: run.parent.id,
           status: run.status,
           error: run.error,
-          failures: run.failures,
-          skipped: run.skipped,
+          evaluations: run.evaluations.map do |eval|
+            {
+              desc: eval.desc,
+              failures: eval.failures.map do |fail|
+                {
+                  message: fail.message,
+                }
+              end,
+            }
+          end,
           started: run.started,
           finished: run.finished,
           logs: run.logs,
@@ -431,11 +440,11 @@ module Spectre
   end
 
   class JsonFormatter
-    def initialize
+    def initialize config
       @scope_id = nil
-      @out = CONFIG['stdout'] || $stdout
+      @out = config['stdout'] || $stdout
       @out.sync = true
-      @date_format = CONFIG['log_date_format']
+      @date_format = config['log_date_format']
     end
 
     def list specs
@@ -609,14 +618,10 @@ module Spectre
         yield
         @success = true
         [:info, :ok, nil]
-      rescue Expectation::ExpectationFailure => e
-        @success = false
-        Spectre.logger.debug(e.message)
-        [:warn, :warn, e.message]
       rescue StandardError => e
         @success = false
         Spectre.logger.debug("#{e.message}\n#{e.backtrace.join("\n")}")
-        [:info, :ok, e.message]
+        [:info, :warn, e.message]
       end
     end
 
@@ -824,7 +829,7 @@ module Spectre
 
   CONFIG = {
     'config_file' => './spectre.yml',
-    # 'log_file'             => './logs/spectre_<date>.log',
+    # 'log_file' => './logs/spectre_<date>.log',
     'log_file' => StringIO.new,
     'log_date_format' => '%F %T.%L%:z',
     # [timestamp] LEVEL -- module_name: [spec-id] correlation_id log_message
@@ -902,12 +907,12 @@ module Spectre
       # Note that spec files are only loaded once, because of the relative require,
       # even if the setup function is called multiple times
       require_files(CONFIG['spec_patterns'])
-      # CONTEXTS.freeze
+      CONTEXTS.freeze
 
       # Load mixins
       # Mixins are also only loaded once
       require_files(CONFIG['mixin_patterns'])
-      # MIXINS.freeze
+      MIXINS.freeze
 
       # Load resources
       CONFIG['resource_paths'].each do |resource_path|
@@ -933,14 +938,14 @@ module Spectre
         end
       end
 
-      @formatter = Object.const_get(CONFIG['formatter']).new
+      @formatter = Object.const_get(CONFIG['formatter']).new(CONFIG)
 
       log_file = CONFIG['log_file']
 
       # If log file is an actual file path do not initilize the logger yet
       # as it will create the file immediatly, even the specs are just listed
       # Initialize it for testing purposes
-      @logger = Logger.new(log_file) unless log_file.is_a? String
+      @logger = Logger.new(CONFIG) unless log_file.is_a? String
 
       self
     end

@@ -6,5 +6,6 @@ tmp/
 pkg/
 temp/
 vendor/
+coverage/
 *.code-workspace
 Gemfile.lock

@@ -1,4 +1,4 @@
-require_relative '../lib/assertion'
+require_relative '../lib/spectre/assertion'
 
 RSpec.describe 'Assertion' do
   before do
@@ -220,46 +220,4 @@ RSpec.describe 'Assertion' do
       end
     end
   end
-
-  # it 'creates a positive evaluation context' do
-  #   value = 42
-  #   context = Spectre::Assertion.assert value.to Spectre::Assertion.be 42
-  #
-  #   expect(context.desc).to eq('assert value to be 42')
-  #   expect(context.failures.count).to eq(0)
-  #
-  #   @console_out.rewind
-  #   output = @console_out.read
-  #   expect(output).to eq("assert value to be 42#{'.' * 59}#{'[ok]'.green}\n")
-  #
-  #   @log_out.rewind
-  #   log = @log_out.readlines
-  #   expect(log.count).to eq(1)
-  #   expect(log.first).to end_with("assert value to be 42 - ok\n")
-  # end
-  #
-  # it 'creates an assertion failure' do
-  #   value = 666
-  #   context = Spectre::Assertion.assert value.to Spectre::Assertion.be 42
-  #
-  #   expect(context.failures.count).to eq(1)
-  #
-  #   failure = context.failures.first
-  #
-  #   expect(failure.message).to eq('expected value to be 42, but got 666')
-  #   expected_filepath = __FILE__.sub(Dir.pwd, '.')
-  #   expect(failure.file).to eq(expected_filepath)
-  #   expect(failure.line).not_to eq(nil)
-  #   expect(failure.to_s).to start_with('expected value to be 42, but got 666')
-  #   expect(failure.to_s).to match(" - in #{expected_filepath}:\\d+")
-  #
-  #   @console_out.rewind
-  #   output = @console_out.read
-  #   expect(output).to eq("assert value to be 42#{'.' * 59}#{'[failed]'.red}\n")
-  #
-  #   @log_out.rewind
-  #   log = @log_out.readlines
-  #   expect(log.count).to eq(1)
-  #   expect(log.first).to end_with("assert value to be 42 - failed\n")
-  # end
 end
