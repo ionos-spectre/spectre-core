@@ -98,8 +98,11 @@ module Spectre
 
         return if success
 
-        @failure = "expected #{@repr}"
-        @failure += ", but got #{@actual.inspect}" unless @negate
+        @failure = if @negate
+                     'it does not'
+                   else
+                     "got #{@actual.inspect}"
+                   end
       end
 
       def to_s

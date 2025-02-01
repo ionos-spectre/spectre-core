@@ -204,25 +204,26 @@ module Spectre
     def report runs
       runs = runs.select { |x| x.parent.is_a? Specification }
 
-      errors    = runs.count { |x| !x.error.nil? }
-      failed    = runs.count { |x| x.failures.any? }
-      skipped   = runs.count(&:skipped?)
+      errors    = runs.count { |x| x.status == :error }
+      failed    = runs.count { |x| x.status == :failed }
+      skipped   = runs.count { |x| x.status == :skipped }
       succeeded = runs.count - errors - failed - skipped
 
       summary  = "#{succeeded} succeeded"
       summary += " #{failed} failures"
       summary += " #{errors} errors"
       summary += " #{skipped} skipped"
-      summary += "\n\n"
 
       @out.puts(summary.send((errors + failed).positive? ? :red : :green))
 
       output = "\n"
 
       runs
-        .select { |x| !x.error.nil? or x.failures.any? }
+        .select { |x| [:error, :failed].include? x.status }
         .each_with_index do |run, index|
-          output += "#{index + 1})"
+          index += 1
+
+          output += "#{index})"
           output += " #{run.parent.full_desc}"
           output += " (#{(run.finished - run.started).duration})"
           output += " [#{run.parent.name}]"
@@ -249,16 +250,31 @@ module Spectre
             output += "\n\n"
           end
 
-          next unless run.failures.any?
+          next unless run.status == :failed
 
-          if run.failures.count > 1
-            output += "     #{run.failures.count} failures occured\n"
+          failed = run.evaluations
+            .select { |x| x.failures.any? }
 
-            run.failures.each_with_index do |x, i|
-              output += "       #{index + 1}.#{i + 1}) #{x.message}\n"
+          failed.each_with_index do |eval, eval_idx|
+            output += if failed.count == 1
+                        "     #{eval.desc}, but"
+                      else
+                        "     #{index}.#{eval_idx + 1}) #{eval.desc}, but"
+                      end
+
+            if eval.failures.count == 1
+              output += " #{eval.failures.first.message}\n"
+            else
+              output += " #{eval.failures.count} failures occured\n"
+
+              eval.failures.each_with_index do |fail, fail_idx|
+                output += if failed.count == 1
+                            "       #{index}.#{fail_idx + 1}) #{fail.message}\n"
+                          else
+                            "       #{index}.#{eval_idx + 1}.#{fail_idx + 1}) #{fail.message}\n"
+                          end
+              end
             end
-          else
-            output += "     #{run.failures.first.message}\n"
           end
 
           output += "\n"
@@ -886,12 +902,12 @@ module Spectre
       # Note that spec files are only loaded once, because of the relative require,
       # even if the setup function is called multiple times
       require_files(CONFIG['spec_patterns'])
-      CONTEXTS.freeze
+      # CONTEXTS.freeze
 
       # Load mixins
       # Mixins are also only loaded once
       require_files(CONFIG['mixin_patterns'])
-      MIXINS.freeze
+      # MIXINS.freeze
 
       # Load resources
       CONFIG['resource_paths'].each do |resource_path|

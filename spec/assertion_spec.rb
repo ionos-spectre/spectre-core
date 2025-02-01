@@ -33,7 +33,7 @@ RSpec.describe 'Assertion' do
         .to Spectre::Assertion
         .be 42
 
-      expect(evaluation.failure).to eq('expected value to be 42, but got 666')
+      expect(evaluation.failure).to eq('got 666')
       expect(evaluation.to_s).to eq('value to be 42')
     end
 
@@ -55,7 +55,7 @@ RSpec.describe 'Assertion' do
         .to Spectre::Assertion
         .be 666
 
-      expect(evaluation.failure).to eq('expected value not to be 666')
+      expect(evaluation.failure).to eq('it does not')
       expect(evaluation.to_s).to eq('value not to be 666')
     end
 
@@ -87,7 +87,7 @@ RSpec.describe 'Assertion' do
         .to Spectre::Assertion
         .contain 666
 
-      expect(evaluation.failure).to eq('expected value to contain 666, but got [42, "foo"]')
+      expect(evaluation.failure).to eq('got [42, "foo"]')
       expect(evaluation.to_s).to eq('value to contain 666')
     end
 
@@ -171,7 +171,7 @@ RSpec.describe 'Assertion' do
           .to Spectre::Assertion
           .match(/not this .*/)
 
-        expect(evaluation.failure).to eq("expected value to match /not this .*/, but got #{value.inspect}")
+        expect(evaluation.failure).to eq("got #{value.inspect}")
         expect(evaluation.to_s).to eq('value to match /not this .*/')
       end
 
@@ -215,7 +215,7 @@ RSpec.describe 'Assertion' do
           .to Spectre::Assertion
           .be_empty
 
-        expect(evaluation.failure).to eq("expected actual to be empty, but got #{actual.inspect}")
+        expect(evaluation.failure).to eq("got #{actual.inspect}")
         expect(evaluation.to_s).to eq('actual to be empty')
       end
     end
