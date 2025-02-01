@@ -153,61 +153,127 @@ RSpec.describe Spectre::RunContext do
   end
 
   context 'evaluation' do
-    it 'creates a positive evaluation context' do
-      run_context = Spectre::RunContext.new(@spec, :spec) do |context|
-        context.execute(nil) do
-          assert OpenStruct.new({repr: 'something'})
+    %i[assert expect].each do |method|
+      expected_log_count = method == :assert ? 1 : 2
+
+      context method do
+        it 'a positive evaluation' do
+          run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+            context.execute(nil) do
+              send(method, OpenStruct.new({to_s: 'something'}))
+
+              Spectre.info 'another log message'
+            end
+          end
+
+          expect(run_context.logs.count).to eq(expected_log_count)
+          expect(run_context.status).to eq(:success)
+          expect(run_context.evaluations.count).to eq(1)
+
+          @console_out.rewind
+          lines = @console_out.read.lines
+          expect(lines.first).to eq("#{method} something#{'.' * 64}#{'[ok]'.green}\n")
+
+          @log_out.rewind
+          log = @log_out.readlines
+          expect(log.count).to eq(expected_log_count)
+          expect(log.first).to end_with("#{method} something - ok\n")
+        end
+
+        it 'a failure' do
+          run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+            context.execute(nil) do
+              send(method, OpenStruct.new({
+                failure: 'oops',
+                to_s: 'something',
+                call_location: caller_locations,
+              }))
+
+              Spectre.info 'another log line'
+            end
+          end
+
+          expect(run_context.status).to eq(:failed)
+          failures = run_context.evaluations.map(&:failures).flatten
+          expect(failures.count).to eq(1)
+
+          failure = failures.first
+
+          expect(failure.message).to eq('oops')
+          expected_filepath = __FILE__.sub(Dir.pwd, '.')
+          expect(failure.file).to eq(expected_filepath)
+          expect(failure.line).not_to eq(nil)
+          expect(failure.to_s).to start_with('oops')
+          expect(failure.to_s).to match(" - in #{expected_filepath}:\\d+")
+
+          @console_out.rewind
+          lines = @console_out.read.lines
+          expect(lines.first).to eq("#{method} something#{'.' * 64}#{'[failed]'.red}\n")
+
+          @log_out.rewind
+          log = @log_out.readlines
+          expect(log.count).to eq(expected_log_count)
+          expect(log.first).to end_with("#{method} something - failed\n")
+        end
+
+        it 'a block' do
+          desc = 'a block to be executed'
+          message = 'another log message'
+
+          run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+            context.execute(nil) do
+              send(method, desc) do
+                # do nothing here
+                # the evaluation should end with ok status
+              end
+
+              Spectre.info message
+            end
+          end
+
+          log_count = method == :assert ? 1 : 2
+
+          expect(run_context.logs.count).to eq(log_count)
+          expect(run_context.status).to eq(:success)
+          expect(run_context.evaluations.count).to eq(1)
+
+          @console_out.rewind
+          lines = @console_out.read.lines
+
+          expect(lines[0]).to eq("#{method} #{desc}#{'.' * 51}#{'[ok]'.green}\n")
+          expect(lines[1]).to eq("#{message}#{'.' * 61}#{'[info]'.blue}\n") unless method == :assert
+
+          @log_out.rewind
+          log = @log_out.readlines
+
+          expect(log.count).to eq(log_count)
+          expect(log[0]).to end_with("#{method} #{desc} - ok\n")
+          expect(log[1]).to end_with("#{message}\n") unless method == :assert
+        end
+
+        it 'a block reporting a failure' do
+          desc = 'a block to be executed'
+          run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+            context.execute(nil) do
+              send(method, desc) do
+                report failure 'oops'
+              end
+
+              Spectre.info 'another message'
+            end
+          end
+
+          expect(run_context.logs.count).to eq(method == :assert ? 1 : 2)
+          expect(run_context.status).to eq(:failed)
+          expect(run_context.evaluations.first.failures.count).to eq(1)
+          expect(run_context.evaluations.first.failures.first.message).to eq('oops')
+
+          @console_out.rewind
+          lines = @console_out.read.lines
+
+          expect(lines[0]).to eq("#{method} #{desc}#{'.' * 51}#{'[failed]'.red}\n")
         end
       end
-
-      expect(run_context.status).to eq(:success)
-      expect(run_context.evaluations.count).to eq(1)
-
-      @console_out.rewind
-      output = @console_out.read
-      expect(output).to eq("assert something#{'.' * 64}#{'[ok]'.green}\n")
-
-      @log_out.rewind
-      log = @log_out.readlines
-      expect(log.count).to eq(1)
-      expect(log.first).to end_with("assert something - ok\n")
-    end
-
-    it 'creates an assertion failure' do
-      run_context = Spectre::RunContext.new(@spec, :spec) do |context|
-        context.execute(nil) do
-          assert OpenStruct.new({
-            failure: 'oops',
-            repr: 'something',
-            file: __FILE__,
-            line: 42,
-          })
-        end
-      end
-
-      puts run_context.error
-
-      expect(run_context.status).to eq(:failed)
-      failures = run_context.evaluations.map(&:failures).flatten
-      expect(failures.count).to eq(1)
-
-      failure = failures.first
-
-      expect(failure.message).to eq('oops')
-      expected_filepath = __FILE__.sub(Dir.pwd, '.')
-      expect(failure.file).to eq(expected_filepath)
-      expect(failure.line).not_to eq(nil)
-      expect(failure.to_s).to start_with('oops')
-      expect(failure.to_s).to match(" - in #{expected_filepath}:\\d+")
-
-      @console_out.rewind
-      output = @console_out.read
-      expect(output).to eq("assert something#{'.' * 64}#{'[failed]'.red}\n")
-
-      @log_out.rewind
-      log = @log_out.readlines
-      expect(log.count).to eq(1)
-      expect(log.first).to end_with("assert something - failed\n")
     end
   end
 end

@@ -56,9 +56,10 @@ module Spectre
     end
 
     class Evaluation
-      attr_reader :actual, :expected, :method, :negate, :desc, :failure, :file, :line, :repr
+      attr_reader :actual, :expected, :method, :negate, :desc, :failure, :call_location
 
       def initialize call_location, actual, expected, method, predicate, negate: false
+        @call_location = call_location
         @actual = actual
         @expected = ValueWrapper.wrap(expected)
         @predicate = predicate
@@ -71,19 +72,16 @@ module Spectre
           .select { |x| ['<main>', '<top (required)>'].include? x.base_label }
           .first
 
-        @file = location.absolute_path.dup
-        @line = location.lineno
-
-        if @@location_cache.key?(@file)
-          file_content = @@location_cache[@file]
+        if @@location_cache.key?(location.absolute_path)
+          file_content = @@location_cache[location.absolute_path]
         else
-          file_content = File.read(@file)
-          @@location_cache[@file] = file_content
+          file_content = File.read(location.absolute_path)
+          @@location_cache[location.absolute_path] = file_content
         end
 
         @var_name = file_content
           .lines
-          .slice(@line - 2, 2)
+          .slice(location.lineno - 2, 2)
           .map(&:strip)
           .join
           .match(/[\s\(]([^\s]+|\[.*\]|{.*})\.(to|not)[\s\(]/)

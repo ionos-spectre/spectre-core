@@ -103,10 +103,14 @@ module Spectre
   class Failure
     attr_reader :message, :file, :line
 
-    def initialize message, file, line
+    def initialize message, call_stack
+      loc = call_stack
+        .select { |x| ['<main>', '<top (required)>'].include? x.base_label }
+        .first
+
       @message = message
-      @file = file
-      @line = line
+      @file = loc.absolute_path.sub(Dir.pwd, '.')
+      @line = loc.lineno
     end
 
     def to_s
@@ -134,10 +138,12 @@ module Spectre
       end
     end
 
-    def report message, file, line
-      file_path = file.sub(Dir.pwd, '.')
-      failure = Failure.new(message, file_path, line)
+    def report failure
       @failures << failure
+    end
+
+    def failure desc
+      Failure.new(desc, caller_locations)
     end
   end
 
@@ -538,14 +544,25 @@ module Spectre
       Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
     end
 
-    def assert evaluation
-      @evaluations << EvaluationContext.new("assert #{evaluation.repr}") do
-        report(evaluation.failure, evaluation.file, evaluation.line) unless evaluation.failure.nil?
-      end
-    end
+    %i[assert expect].each do |method|
+      define_method(method) do |evaluation, &block|
+        desc = "#{method} #{evaluation}"
 
-    def fail_with message
-      raise Expectation::ExpectationFailure, message
+        @evaluations << if block
+                          EvaluationContext.new(desc, &block)
+                        else
+                          EvaluationContext.new(desc) do
+                            unless evaluation.failure.nil?
+                              report(Failure.new(
+                                       evaluation.failure,
+                                       evaluation.call_location
+                                     ))
+                            end
+                          end
+                        end
+
+        raise AbortException if method == :assert
+      end
     end
 
     def add_log timestamp, severity, progname, message
@@ -587,10 +604,12 @@ module Spectre
       end
     end
 
+    # Returns the status of the `observe` execution
     def success?
       @success.nil? ? true : @success
     end
 
+    # Method to run mixins
     def run desc, with: nil
       Spectre.formatter.scope(desc, self, :mixin) do
         with ||= [OpenStruct.new]
@@ -607,6 +626,7 @@ module Spectre
       end
     end
 
+    # Add this alias to construct prettier mixin execution calls
     alias also run
 
     def skip message
