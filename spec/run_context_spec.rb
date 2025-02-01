@@ -1,19 +1,3 @@
-# RSpec.describe 'Output' do
-#   it 'should have a pretty output' do
-#     runs = Spectre
-#       .setup({
-#         'specs' => [],
-#         'tags' => [],
-#         'formatter' => 'Spectre::ConsoleFormatter',
-#         'stdout' => $stdout,
-#         # 'debug' => true,
-#       })
-#       .run
-#
-#     Spectre.report(runs)
-#   end
-# end
-
 RSpec.describe Spectre::RunContext do
   before do
     @console_out = StringIO.new
@@ -150,6 +134,34 @@ RSpec.describe Spectre::RunContext do
     expect(run_context.status).to eq(:success)
     expect(run_context.logs.count).to eq(1)
     expect(run_context.logs.first[3]).to eq('data is foo')
+  end
+
+  context 'observe' do
+    it 'a successful process' do
+      run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+        context.execute({}) do
+          observe 'a process' do
+            ## do nothing here
+          end
+        end
+      end
+
+      expect(run_context.status).to eq(:success)
+      expect(run_context.success?).to eq(true)
+    end
+
+    it 'a failed process' do
+      run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+        context.execute({}) do
+          observe 'a process' do
+            raise StandardError, 'Oops!'
+          end
+        end
+      end
+
+      expect(run_context.status).to eq(:success)
+      expect(run_context.success?).to eq(false)
+    end
   end
 
   context 'evaluation' do

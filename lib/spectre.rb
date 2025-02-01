@@ -663,8 +663,7 @@ module Spectre
             end
           end
 
-          run_context.execute(@data, &@block) if run_context.error.nil? and
-                                                 run_context.failures.none?
+          run_context.execute(@data, &@block) if run_context.status == :success
         ensure
           afters.each do |block|
             Spectre.formatter.scope('after', self, :after) do
@@ -754,7 +753,6 @@ module Spectre
 
       if selected.any?
         Spectre.formatter.scope(@desc, self, :context) do
-          setup_run = nil
           setup_bag = nil
 
           if @setups.any?
@@ -775,7 +773,7 @@ module Spectre
           end
 
           # Only run specs if setup was successful
-          if setup_run.nil? or (setup_run.error.nil? and setup_run.failures.none?)
+          if runs.all? { |x| x.status == :success }
             runs += selected.map do |spec|
               Spectre.logger.correlate do
                 spec.run(@befores, @afters, setup_bag)
@@ -983,6 +981,7 @@ module Spectre
 
     %i[debug info warn log].each do |method|
       define_method(method) do |message|
+        message = message.to_s
         Spectre.logger.send(method, message)
         Spectre.formatter.log(method, message)
       end
