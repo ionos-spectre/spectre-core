@@ -2,6 +2,8 @@ RSpec.describe Spectre::RunContext do
   before do
     @console_out = StringIO.new
     @log_out = StringIO.new
+    @log_format = '\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}[+\-]\d{2}:\d{2}\] ' \
+                  '\s?[A-Z]+ -- spectre: \[[a-z0-9\-]+\] \[[a-z0-9]*\] .*'
 
     Spectre
       .setup({
@@ -57,16 +59,13 @@ RSpec.describe Spectre::RunContext do
     expect(DateTime.parse(log[0])).not_to eq(nil)
     expect(log[1]).to eq('INFO')
     expect(log[2]).to eq('spectre')
-    expect(log[3]).to eq(log_message)
+    expect(log[4]).to eq(log_message)
 
     @log_out.rewind
     log = @log_out.readlines
     expect(log.count).to eq(1)
 
-    log_format = '\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}[+\-]\d{2}:\d{2}\]  ' \
-                 'INFO -- spectre: \[test\] \[\] this is a log messag'
-
-    expect(log.first).to match(log_format)
+    expect(log.first).to match(@log_format)
 
     @console_out.rewind
     lines = @console_out.readlines
@@ -85,8 +84,16 @@ RSpec.describe Spectre::RunContext do
 
     expect(run_context.status).to eq(:success)
     expect(run_context.logs.count).to eq(2)
-    expect(run_context.logs.first[1]).to eq('DEBUG')
-    expect(run_context.logs.first[3]).to eq('group "test group"')
+
+    log = run_context.logs.first
+    expect(log[1]).to eq('DEBUG')
+    expect(log[3]).to match('[a-z0-9]{4}')
+    expect(log[4]).to eq('group "test group"')
+
+    @log_out.rewind
+    log = @log_out.readlines
+
+    expect(log.first).to match(@log_format)
   end
 
   it 'aborts a run' do
@@ -125,7 +132,7 @@ RSpec.describe Spectre::RunContext do
 
     expect(run_context.status).to eq(:skipped)
     expect(run_context.logs.count).to eq(2)
-    expect(run_context.logs[1][3]).to eq('a desc - canceled by user')
+    expect(run_context.logs[1][4]).to eq('a desc - canceled by user')
   end
 
   it 'runs with given data' do
@@ -137,7 +144,7 @@ RSpec.describe Spectre::RunContext do
 
     expect(run_context.status).to eq(:success)
     expect(run_context.logs.count).to eq(1)
-    expect(run_context.logs.first[3]).to eq('data is foo')
+    expect(run_context.logs.first[4]).to eq('data is foo')
   end
 
   context 'observe' do
@@ -317,7 +324,7 @@ RSpec.describe Spectre::RunContext do
       end
 
       expect(run_context.logs.count).to eq(3)
-      expect(run_context.logs[1][3]).to eq('data is 42')
+      expect(run_context.logs[1][4]).to eq('data is 42')
 
       console_out.rewind
       lines = console_out.readlines

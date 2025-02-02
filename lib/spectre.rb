@@ -128,11 +128,13 @@ module Spectre
         date_formatted = datetime.strftime(config['log_date_format'])
         progname ||= 'spectre'
 
+        corr_id = @corr_ids.join
+
         # Add log message also to the current executing run context
         if RunContext.current.nil?
           context_name = 'spectre'
         else
-          RunContext.current.add_log(date_formatted, severity, progname, message)
+          RunContext.current.logs << [date_formatted, severity, progname, corr_id, message]
           context_name = RunContext.current.name
         end
 
@@ -141,13 +143,9 @@ module Spectre
                severity,
                progname,
                context_name,
-               @corr_ids.join,
+               corr_id,
                message)
       end
-    end
-
-    def correlation_id
-      @corr_ids.join
     end
 
     def correlate
@@ -250,23 +248,23 @@ module Spectre
     end
   end
 
-  class ConsoleFormatter
+  class SimpleFormatter
     def initialize config
       @out = config['stdout'] || $stdout
       @level = 0
       @width = 80
       @indent = 2
+      @colors = [:blue, :magenta, :yellow, :green]
     end
 
     def list specs
-      colors = [:blue, :magenta, :yellow, :green]
       counter = 0
 
       specs
         .group_by { |x| x.parent.root }
         .each_value do |spec_group|
           spec_group.each do |spec|
-            spec_id = "[#{spec.name}]".send(colors[counter % colors.length])
+            spec_id = "[#{spec.name}]".send(@colors[counter % @colors.length])
             @out.puts "#{spec_id} #{spec.full_desc} #{spec.tags.map { |x| "##{x}" }.join(' ').cyan}"
           end
 
@@ -275,14 +273,13 @@ module Spectre
     end
 
     def details specs
-      colors = [:blue, :magenta, :yellow, :green]
       counter = 0
 
       specs
         .group_by { |x| x.parent.root }
         .each_value do |spec_group|
           spec_group.each do |spec|
-            spec_id = "[#{spec.name}]".send(colors[counter % colors.length])
+            spec_id = "[#{spec.name}]".send(@colors[counter % @colors.length])
             spec_detail  = "#{spec_id}\n"
             spec_detail += "  subject..: #{spec.parent.desc}\n"
             spec_detail += "  desc.....: #{spec.desc}\n"
@@ -555,10 +552,6 @@ module Spectre
       end
     end
 
-    def add_log timestamp, severity, progname, message
-      @logs << [timestamp, severity, progname, message]
-    end
-
     def duration
       @finished - @started
     end
@@ -699,10 +692,20 @@ module Spectre
       context.instance_eval(&)
     end
 
+    ##
+    # Adds a setup block which will be executed
+    # once at the beginning of a context.
+    # Multiple setups are allowed.
+    #
     def setup &block
       @setups << block
     end
 
+    ##
+    # Adds a teardown block which will be executed
+    # once at the end of a context.
+    # Multiple teardowns are allowed.
+    #
     def teardown &block
       @teardowns << block
     end
@@ -802,7 +805,7 @@ module Spectre
     'log_date_format' => '%F %T.%L%:z',
     # [timestamp] LEVEL -- module_name: [spec-id] correlation_id log_message
     'log_message_format' => "[%s] %5s -- %s: [%s] [%s] %s\n",
-    'formatter' => 'Spectre::ConsoleFormatter',
+    'formatter' => 'Spectre::SimpleFormatter',
     'reporter' => 'Spectre::SimpleReporter',
     'out_path' => 'reports',
     'specs' => [],
