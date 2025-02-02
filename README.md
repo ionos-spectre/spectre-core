@@ -128,7 +128,7 @@ This will create multiple empty directories and a `spectre.yml` config file.
 The following properties can be set in your `spectre.yml`. 
 Shown values are set by default.
 
-See [Spectre::CONFIG](./lib/spectre.rb:798) for default values and available options.
+See [Spectre::CONFIG](./lib/spectre.rb#L798) for default values and available options.
 
 All options can also be overridden with the command line argument `-p` or `--property`
 
