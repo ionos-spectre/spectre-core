@@ -80,8 +80,6 @@ RSpec.describe Spectre::SimpleReporter do
     report_output.rewind
     lines = report_output.readlines
 
-    puts "\n#{lines.join}"
-
     expect(lines[0]).to eq("#{'1 succeeded 2 failures 1 errors 0 skipped'.red}\n")
     expect(lines[2]).to match('1\) Some subject does something stupid \(.*\) \[some_subject-2\]')
     expect(lines[3]).to eq("     assert some truth, but a bad thing happened\n")

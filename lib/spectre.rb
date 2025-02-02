@@ -790,8 +790,11 @@ module Spectre
     end
   end
 
+  ##
   # Define default config
-
+  # This `Hash` can be manipulated before calling `Spectre.setup`
+  # However config overrides should be done by passing `config_overrides` to `Spectre.setup`
+  #
   CONFIG = {
     'config_file' => './spectre.yml',
     # 'log_file' => './logs/spectre_<date>.log',
@@ -813,6 +816,9 @@ module Spectre
     'modules' => [],
   }
 
+  ##
+  # Contains all `Spectre::DefinitionContext`s add by `Spectre.describe`
+  #
   CONTEXTS = []
   MIXINS = {}
   RESOURCES = {}
@@ -823,6 +829,10 @@ module Spectre
   class << self
     attr_reader :env, :formatter, :logger
 
+    ##
+    # Setup spectre with given config
+    # Has to be called before any spec run
+    #
     def setup config_overrides
       # Load global config file
       global_config_file = File.join(File.expand_path('~'), '.spectre')

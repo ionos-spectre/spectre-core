@@ -322,7 +322,6 @@ RSpec.describe Spectre::RunContext do
       console_out.rewind
       lines = console_out.readlines
 
-      puts "\n#{lines.join}"
       expect(lines.count).to eq(3)
     end
   end

@@ -60,8 +60,6 @@ RSpec.describe Spectre::Specification do
     lines = @console_out.readlines
     expect(lines.count).to eq(10)
 
-    puts "\n#{lines.join}"
-
     expect(lines[0]).to eq("#{'does something'.cyan}\n")
     expect(lines[1]).to eq("  #{'before'.magenta}\n")
     expect(lines[2]).to eq("    message in first before block#{'.' * 47}#{'[info]'.blue}\n")

@@ -79,9 +79,8 @@ RSpec.describe Spectre::Specification do
     lines = @console_out.readlines
     expect(lines.count).to eq(29)
 
-    puts "\n#{lines.join}"
-
     expect(lines[0]).to eq("#{'Some subject'.blue}\n")
+
     [1, 3].each do |i|
       expect(lines[i]).to eq("  #{'setup'.magenta}\n")
     end
