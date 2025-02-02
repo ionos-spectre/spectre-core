@@ -128,7 +128,7 @@ This will create multiple empty directories and a `spectre.yml` config file.
 The following properties can be set in your `spectre.yml`. 
 Shown values are set by default.
 
-See [Spectre::CONFIG](./lib/spectre.rb#L798) for default values and available options.
+See [Spectre::CONFIG](./lib/spectre.rb#L798-L817) for default values and available options.
 
 All options can also be overridden with the command line argument `-p` or `--property`
 
@@ -194,8 +194,11 @@ The project structure could then look something like this:
 hollow_webapi
 +-- environments
 |   +-- development.env.rb
+|   +-- development.env.secret.rb
 |   +-- staging.env.rb
+|   +-- staging.env.secret.rb
 |   +-- production.env.rb
+|   +-- production.env.secret.rb
 +-- logs
 +-- specs
 |   +-- ghosts
@@ -288,43 +291,6 @@ When required keys are missing, an `ArgumentError` will be raised.
 `optional` will only log the optional keys to the spectre log for debugging purposes.
 
 
-### Diagnostic `spectre/diagnostic`
-
-This module adds functions to track execution time.
-
-
-```ruby
-describe 'Hollow API' do
-  it 'sends out spooky ghosts' do
-    start_watch # start timer
-
-    http 'dummy_api' do
-      auth 'basic' # add this to use basic auth
-      method 'GET'
-      path 'employee/1'
-    end
-
-    stop_watch # stop timer
-
-    # can also be used within the `measure` block
-    measure do
-      http 'dummy_api' do
-        auth 'basic' # add this to use basic auth
-        method 'GET'
-        path 'employee/1'
-      end
-    end
-
-    expect 'the duration to be lower than 1 sec'
-      fail_with duration if duration > 1
-    end
-  end
-end
-```
-
-`started_at` and `finished_at` are also available and return the according start or finish time.
-
-
 ## Development
 
 ### Modules
@@ -359,7 +325,7 @@ module Spectre
       # Implement a logger with lazy loading, as the `Spectre.logger`
       # will be initialized *after* the module is loaded
       def logger
-        @@logger ||= defined?(Spectre.logger) ? Spectre.logger : Logger.new(STDOUT)
+        @@logger ||= defined?(Spectre.logger) ? Spectre.logger : Logger.new($stdout)
       end
 
       def greetings name, &block
