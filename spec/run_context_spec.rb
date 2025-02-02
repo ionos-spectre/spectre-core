@@ -285,11 +285,45 @@ RSpec.describe Spectre::RunContext do
           expect(run_context.evaluations.first.failures.first.message).to eq('oops')
 
           @console_out.rewind
-          lines = @console_out.read.lines
+          lines = @console_out.readlines
 
           expect(lines[0]).to eq("#{method} #{desc}#{'.' * 51}#{'[failed]'.red}\n")
         end
       end
+    end
+  end
+
+  context 'mixin' do
+    it 'does execute' do
+      console_out = StringIO.new
+      log_out = StringIO.new
+
+      Spectre.mixin 'some mixin' do |params|
+        Spectre.info "data is #{params.foo}"
+      end
+
+      Spectre
+        .setup({
+          'log_file' => log_out,
+          'stdout' => console_out,
+        })
+
+      run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+        context.execute(nil) do
+          run 'some mixin', with: {foo: 42}
+
+          Spectre.info 'another message'
+        end
+      end
+
+      expect(run_context.logs.count).to eq(3)
+      expect(run_context.logs[1][3]).to eq('data is 42')
+
+      console_out.rewind
+      lines = console_out.readlines
+
+      puts "\n#{lines.join}"
+      expect(lines.count).to eq(3)
     end
   end
 end

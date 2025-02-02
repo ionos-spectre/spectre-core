@@ -41,33 +41,12 @@ class Hash
     merge!(second, &merger)
   end
 
-  def deep_freeze
-    transform_values(&:deep_freeze)
-    .freeze
-  end
-
   def to_recursive_struct
     OpenStruct.new(
       transform_values do |val|
         val.is_a?(Hash) ? val.to_recursive_struct : val
       end
     )
-  end
-end
-
-class Array
-  def deep_freeze
-    map(&:deep_freeze)
-  end
-end
-
-class Object
-  def deep_freeze
-    freeze
-  end
-
-  def deep_clone
-    Marshal.load(Marshal.dump(self))
   end
 end
 
@@ -893,12 +872,10 @@ module Spectre
       # Note that spec files are only loaded once, because of the relative require,
       # even if the setup function is called multiple times
       require_files(CONFIG['spec_patterns'])
-      CONTEXTS.freeze
 
       # Load mixins
       # Mixins are also only loaded once
       require_files(CONFIG['mixin_patterns'])
-      MIXINS.freeze
 
       # Load resources
       CONFIG['resource_paths'].each do |resource_path|
