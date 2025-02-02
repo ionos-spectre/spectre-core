@@ -25,59 +25,59 @@ OptionParser.new do |opts|
   BANNER
 
   opts.on('-s SPEC,SPEC', '--specs SPEC,SPEC', Array, 'The specs to run') do |specs|
-    Spectre::CONFIG['specs'] = specs
+    config_overrides['specs'] = specs
   end
 
   opts.on('-t TAG,TAG', '--tags TAG,TAG', Array, 'Run only specs with given tags') do |tags|
-    Spectre::CONFIG['tags'] = tags
+    config_overrides['tags'] = tags
   end
 
   opts.on('-e NAME', '--env NAME', 'Name of the environment to load') do |env_name|
-    Spectre::CONFIG['selected_env'] = env_name
+    config_overrides['selected_env'] = env_name
   end
 
   opts.on('-c FILE', '--config FILE', 'Config file to load') do |file_path|
-    Spectre::CONFIG['config_file'] = file_path
+    config_overrides['config_file'] = file_path
   end
 
   opts.on('--spec-pattern PATTERN', Array, 'File pattern for spec files') do |spec_pattern|
-    Spectre::CONFIG['spec_patterns'] = spec_pattern
+    config_overrides['spec_patterns'] = spec_pattern
   end
 
   opts.on('--env-pattern PATTERN', Array, 'File pattern for environment files') do |env_patterns|
-    Spectre::CONFIG['env_patterns'] = env_patterns
+    config_overrides['env_patterns'] = env_patterns
   end
 
   opts.on('--ignore-failure', 'Always exit with code 0') do
-    Spectre::CONFIG['ignore_failure'] = true
+    config_overrides['ignore_failure'] = true
   end
 
   opts.on('--formatter NAME', 'Use specified formatter') do |class_name|
-    Spectre::CONFIG['formatter'] = class_name
+    config_overrides['formatter'] = class_name
   end
 
   opts.on('--reporter NAME', 'Use specified reporter') do |class_name|
-    Spectre::CONFIG['reporter'] = class_name
+    config_overrides['reporter'] = class_name
   end
 
-  opts.on('--json', 'Use JSON formatter') do
-    Spectre::CONFIG['formatter'] = 'Spectre::JsonFormatter'
-  end
+  # opts.on('--json', 'Use JSON formatter') do
+  #   Spectre::CONFIG['formatter'] = 'Spectre::JsonFormatter'
+  # end
 
   opts.on('--no-log', 'Disable file logging') do
     config_overrides['log_file'] = StringIO.new
   end
 
   opts.on('-o PATH', '--out PATH', 'Output directory path') do |path|
-    Spectre::CONFIG['out_path'] = File.absolute_path(path)
+    config_overrides['out_path'] = File.absolute_path(path)
   end
 
   opts.on('-m MODULE,MODULE', '--modules MODULE,MODULE', Array, 'Load the given modules') do |modules|
-    Spectre::CONFIG['modules'] += modules
+    config_overrides['modules'] += modules
   end
 
   opts.on('-d', '--debug', 'Run in debug mode. Do not use in production!') do
-    Spectre::CONFIG['debug'] = true
+    config_overrides['debug'] = true
   end
 
   opts.on('-p KEY=VAL',
@@ -120,21 +120,14 @@ OptionParser.new do |opts|
 end.parse!
 
 # Expose spectre methods
-%i[env describe expect mixin resources observe debug info warn log].each do |method|
+%i[env describe mixin resources debug info warn log].each do |method|
   Kernel.define_method(method) do |*args, &block|
     Spectre.send(method, *args, &block)
   end
 end
 
-# Expose expectation methods
-%i[be be_empty contain match].each do |method|
-  Kernel.define_method(method) do |*args, &block|
-    Spectre::Expectation.send(method, *args, &block)
-  end
-end
-
 # Expose run context methods
-%i[expect bag success?].each do |method|
+%i[assert expect bag observe success? skip].each do |method|
   Kernel.define_method(method) do |*args, &block|
     Spectre::RunContext.current.send(method, *args, &block)
   end
@@ -146,130 +139,111 @@ Spectre.setup(config_overrides)
 # Determine action
 action = ARGV[0] || 'run'
 
-# List specs
-if action == 'list'
+case action
+when 'list'
   Spectre.formatter.list(Spectre.list)
-  exit
-end
-
-# List specs details
-if action == 'info'
+when 'info'
   Spectre.formatter.details(Spectre.list)
-  exit
-end
-
-# Run specs
-if action == 'run'
+when 'run'
   runs = Spectre.run
   Spectre.report(runs)
-  exit
-end
-
-# Show config
-if action == 'show'
+when 'show'
   puts Spectre::CONFIG.pretty
-  exit
-end
-
-# List mixins
-if action == 'mixins'
+when 'mixins'
   puts Spectre::MIXINS.keys
-  exit
-end
-
-# Cleanup temporary files
-if action == 'cleanup'
+when 'cleanup'
   FileUtils.rm_rf(Dir.glob('./logs/*'), secure: true)
-  exit
-end
+when 'init'
+  DEFAULT_SPECTRE_CFG = <<~CONTENT
+    log_file: ./logs/spectre_<date>.log
+    env_patterns:
+      - './environments/**/*.env.yml'
+    env_partial_patterns:
+      - './environments/**/*.env.secret.yml'
+    spec_patterns:
+      - './specs/**/*.spec.rb'
+    mixin_patterns:
+      - '../common/**/*.mixin.rb'
+      - './mixins/**/*.mixin.rb'
+    resource_paths:
+      - '../common/resources'
+      - './resources'
+  CONTENT
 
-DEFAULT_SPECTRE_CFG = %(log_file: ./logs/spectre_<date>.log
-env_patterns:
-  - './environments/**/*.env.yml'
-env_partial_patterns:
-  - './environments/**/*.env.secret.yml'
-spec_patterns:
-  - './specs/**/*.spec.rb'
-mixin_patterns:
-  - '../common/**/*.mixin.rb'
-  - './mixins/**/*.mixin.rb'
-resource_paths:
-  - '../common/resources'
-  - './resources'
-)
+  DEFAULT_ENV_CFG = <<~CONTENT
+    cert: &cert ./resources/<root_cert>.cer
+    http:
+      <http_client_name>:
+        base_url: http://localhost:5000/api/v1/
+        # basic_auth:
+          # username: <username>
+          # password:
+    # ssh:
+      # <ssh_client_name>:
+        # host: <hostname>
+        # username: <username>
+        # password: <password>
+  CONTENT
 
-DEFAULT_ENV_CFG = %(cert: &cert ./resources/<root_cert>.cer
-http:
-  <http_client_name>:
-    base_url: http://localhost:5000/api/v1/
-    # basic_auth:
-      # username: <username>
-      # password:
-# ssh:
-  # <ssh_client_name>:
-    # host: <hostname>
-    # username: <username>
-    # password: <password>
-)
+  DEFAULT_ENV_SECRET_CFG = <<~CONTENT
+    http:
+      <http_client_name>:
+        # basic_auth:
+          # username: <username>
+          # password: <password>
+  CONTENT
 
-DEFAULT_ENV_SECRET_CFG = %(http:
-  <http_client_name>:
-    # basic_auth:
-      # username: <username>
-      # password: <password>
-)
+  SAMPLE_SPEC = <<~CONTENT
+    describe '<subject>' do
+      it 'does some http requests', tags: [:sample] do
+        log 'doing some http request'
 
-SAMPLE_SPEC = %[describe '<subject>' do
-  it 'does some http requests', tags: [:sample] do
-    log 'doing some http request'
+        http '<http_client_name>' do
+          method 'GET'
+          auth 'basic'
+          path 'path/to/resource'
+          param 'id', 4295118773
+          param 'foo', 'bar'
+          header 'X-Correlation-Id', '4c2367b1-bfee-4cc2-bdc5-ed17a6a9dd4b'
+          header 'Range', 'bytes=500-999'
+          json({
+            "message": "Hello Spectre!"
+          })
+        end
 
-    http '<http_client_name>' do
-      auth 'basic'
-      # auth 'keystone'
-      method 'GET'
-      path 'path/to/resource'
-      param 'id', 4295118773
-      param 'foo', 'bar'
-      header 'X-Correlation-Id', '4c2367b1-bfee-4cc2-bdc5-ed17a6a9dd4b'
-      header 'Range', 'bytes=500-999'
-      json({
-        "message": "Hello Spectre!"
-      })
+        assert response.code.to be 200
+
+        assert 'the correct data to be returned' do
+          report failure 'message not correct' unless respone.json.message == 'Hello World!'
+          report failure 'incorrect number' unless respone.json.number == 42
+        end
+      end
     end
+  CONTENT
 
-    expect 'the response code to be 200' do
-      response.code.should_be 200
-    end
+  DEFAULT_GITIGNORE = <<~CONTENT
+    *.code-workspace
+    logs/
+    reports/
+    **/environments/*.env.secret.yml
+  CONTENT
 
-    expect 'a message to exist' do
-      response.json.message.should_not_be_empty
-    end
-  end
-end
-]
+  DEFAULT_GEMFILE = <<~CONTENT
+    source 'https://rubygems.org'
 
-DEFAULT_GITIGNORE = %(*.code-workspace
-logs/
-reports/
-**/environments/*.env.secret.yml
-)
+    gem 'spectre-core'
+    gem 'spectre-http'
+    # gem 'spectre-mysql'
+    # gem 'spectre-ssh'
+    # gem 'spectre-ftp'
+    # gem 'spectre-curl'
+    # gem 'spectre-git'
+    # gem 'spectre-rabbitmq'
+    # gem 'spectre-reporter-junit'
+    # gem 'spectre-reporter-vstest'
+    # gem 'spectre-reporter-html'
+  CONTENT
 
-DEFAULT_GEMFILE = %(source 'https://rubygems.org'
-
-gem 'spectre-core'
-gem 'spectre-http'
-# gem 'spectre-mysql'
-# gem 'spectre-ssh'
-# gem 'spectre-ftp'
-# gem 'spectre-curl'
-# gem 'spectre-git'
-# gem 'spectre-rabbitmq'
-# gem 'spectre-reporter-junit'
-# gem 'spectre-reporter-vstest'
-# gem 'spectre-reporter-html'
-)
-
-if action == 'init'
   DEFAULT_FILES = [
     ['./environments/default.env.yml', DEFAULT_ENV_CFG],
     ['./environments/default.env.secret.yml', DEFAULT_ENV_SECRET_CFG],

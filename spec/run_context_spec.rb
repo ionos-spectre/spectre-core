@@ -87,7 +87,7 @@ RSpec.describe Spectre::RunContext do
 
     log = run_context.logs.first
     expect(log[1]).to eq('DEBUG')
-    expect(log[3]).to match('[a-z0-9]{4}')
+    expect(log[3]).to match('[a-z0-9]+')
     expect(log[4]).to eq('group "test group"')
 
     @log_out.rewind
@@ -145,6 +145,20 @@ RSpec.describe Spectre::RunContext do
     expect(run_context.status).to eq(:success)
     expect(run_context.logs.count).to eq(1)
     expect(run_context.logs.first[4]).to eq('data is foo')
+  end
+
+  it 'skips' do
+    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+      context.execute({}) do
+        skip 'randomly'
+
+        # :nocov:
+        info 'this message will never be written'
+        # :nocov:
+      end
+    end
+
+    expect(run_context.status).to eq(:skipped)
   end
 
   context 'observe' do

@@ -294,21 +294,25 @@ module Spectre
         end
     end
 
-    def scope desc, _subject, type
+    def scope desc, type
       if desc
-        if [:before, :after, :setup, :teardown].include?(type)
-          colored_desc = desc.magenta
-        elsif type == :group
-          colored_desc = desc.grey
-        elsif type == :spec
-          colored_desc = desc.cyan
-        elsif type == :mixin
-          colored_desc = desc.yellow
-        elsif type == :context
-          colored_desc = desc.blue
-        end
+        colored_desc = case type
+                       when :before, :after, :setup, :teardown
+                         desc.magenta
+                       when :group
+                         desc.grey
+                       when :spec
+                         desc.cyan
+                       when :mixin
+                         desc.yellow
+                       when :context
+                         desc.blue
+                       else
+                         desc
+                       end
 
         write(colored_desc)
+
         @out.puts "\n"
       end
 
@@ -365,118 +369,6 @@ module Spectre
       end
 
       @out.print '.' * (@width > output.length ? @width - output.length : 0) if fill
-    end
-  end
-
-  class JsonReporter
-    def initialize config
-      @out = config['stdout'] || $stdout
-      @out.sync = true
-    end
-
-    def report runs
-      reports = runs.map do |run|
-        {
-          id: run.id,
-          parent: run.parent.id,
-          status: run.status,
-          error: run.error,
-          evaluations: run.evaluations.map do |eval|
-            {
-              desc: eval.desc,
-              failures: eval.failures.map do |fail|
-                {
-                  message: fail.message,
-                }
-              end,
-            }
-          end,
-          started: run.started,
-          finished: run.finished,
-          logs: run.logs,
-        }
-      end
-
-      @out.puts reports.to_json
-    end
-  end
-
-  class JsonFormatter
-    def initialize config
-      @scope_id = nil
-      @out = config['stdout'] || $stdout
-      @out.sync = true
-      @date_format = config['log_date_format']
-    end
-
-    def list specs
-      context_to_hash = proc do |context|
-        {
-          name: context.name,
-          desc: context.desc,
-          children: context.children.map(&context_to_hash),
-          specs: context.specs.map do |spec|
-            {
-              name: spec.name,
-              desc: spec.desc,
-              tags: spec.tags,
-              file: spec.file,
-            }
-          end,
-        }
-      end
-
-      @out.puts specs
-        .group_by { |x| x.parent.root }
-        .map { |x| context_to_hash.call(x.first) }.to_json
-    end
-
-    def scope desc, _subject, type
-      prev_scope = @scope_id
-      @scope_id = SecureRandom.hex(5)
-
-      log_entry = {
-        id: @scope_id,
-        scope: prev_scope,
-        type:,
-        desc:,
-      }
-
-      @out.puts log_entry.to_json
-
-      begin
-        yield
-      ensure
-        @scope_id = prev_scope
-      end
-    end
-
-    def log level, message, status = nil, desc = nil
-      timestamp = DateTime.now
-      log_id = SecureRandom.hex(5)
-
-      write_log(log_id, timestamp, level, message, status, desc)
-
-      level, status, desc = yield if block_given?
-
-      write_log(log_id, DateTime.now, level, message, status, desc) if block_given? and !status.nil?
-    end
-
-    private
-
-    def write_log log_id, timestamp, level, message, status, desc
-      log_entry = {
-        id: log_id,
-        scope: @scope_id,
-        type: :log,
-        timestamp: timestamp.strftime(@date_format),
-        level:,
-        message:,
-        status:,
-        desc:,
-      }
-
-      @out.puts log_entry.to_json
     end
   end
 
@@ -567,7 +459,7 @@ module Spectre
     def group(desc, &)
       Spectre.logger.correlate do
         Spectre.logger.debug("group \"#{desc}\"")
-        Spectre.formatter.scope(desc, @parent, :group, &)
+        Spectre.formatter.scope(desc, :group, &)
       end
     end
 
@@ -590,7 +482,7 @@ module Spectre
 
     # Method to run mixins
     def run desc, with: nil
-      Spectre.formatter.scope(desc, self, :mixin) do
+      Spectre.formatter.scope(desc, :mixin) do
         with ||= [OpenStruct.new]
         with = [with.to_recursive_struct] if with.is_a? Hash
         with = with.map { |x| x.is_a?(Hash) ? x.to_recursive_struct : x }
@@ -633,9 +525,9 @@ module Spectre
 
     def run befores, afters, bag
       RunContext.new(self, :spec, bag) do |run_context|
-        Spectre.formatter.scope(@desc, self, :spec) do
+        Spectre.formatter.scope(@desc, :spec) do
           befores.each do |block|
-            Spectre.formatter.scope('before', self, :before) do
+            Spectre.formatter.scope('before', :before) do
               Spectre.logger.correlate do
                 run_context.execute(@data, &block)
               end
@@ -645,7 +537,7 @@ module Spectre
           run_context.execute(@data, &@block) if run_context.status == :success
         ensure
           afters.each do |block|
-            Spectre.formatter.scope('after', self, :after) do
+            Spectre.formatter.scope('after', :after) do
               Spectre.logger.correlate do
                 run_context.execute(@data, &block)
               end
@@ -741,13 +633,13 @@ module Spectre
       runs = []
 
       if selected.any?
-        Spectre.formatter.scope(@desc, self, :context) do
+        Spectre.formatter.scope(@desc, :context) do
           setup_bag = nil
 
           if @setups.any?
             setup_run = RunContext.new(self, :setup) do |run_context|
               @setups.each do |block|
-                Spectre.formatter.scope('setup', self, :setup) do
+                Spectre.formatter.scope('setup', :setup) do
                   Spectre.logger.correlate do
                     Spectre.logger.debug("setup \"#{@desc}\"")
                     run_context.execute(nil, &block)
@@ -773,7 +665,7 @@ module Spectre
           if @teardowns.any?
             runs << RunContext.new(self, :teardown, setup_bag) do |run_context|
               @teardowns.each do |block|
-                Spectre.formatter.scope('teardown', self, :teardown) do
+                Spectre.formatter.scope('teardown', :teardown) do
                   Spectre.logger.correlate do
                     Spectre.logger.debug("teardown \"#{@desc}\"")
                     run_context.execute(nil, &block)
@@ -799,7 +691,9 @@ module Spectre
   # However config overrides should be done by passing `config_overrides` to `Spectre.setup`
   #
   CONFIG = {
-    'config_file' => './spectre.yml',
+    'work_dir' => '.',
+    'global_config_file' => '~/.config/spectre.yml',
+    'config_file' => 'spectre.yml',
     # 'log_file' => './logs/spectre_<date>.log',
     'log_file' => StringIO.new,
     'log_date_format' => '%F %T.%L%:z',
@@ -820,7 +714,7 @@ module Spectre
   }
 
   ##
-  # Contains all `Spectre::DefinitionContext`s add by `Spectre.describe`
+  # Contains all `Spectre::DefinitionContext`s added by `Spectre.describe`
   #
   CONTEXTS = []
   MIXINS = {}
@@ -838,12 +732,16 @@ module Spectre
     #
     def setup config_overrides
       # Load global config file
-      global_config_file = File.join(File.expand_path('~'), '.spectre')
+      global_config_file = config_overrides['global_config_file'] || File.expand_path('~/.config/spectre.yml')
 
       if File.exist? global_config_file
         global_config = load_yaml(global_config_file)
         CONFIG.deep_merge!(global_config)
       end
+
+      # Set working directory so all paths in config
+      # are relative to this directory
+      Dir.chdir(config_overrides['work_dir'] || CONFIG['work_dir'] || '.')
 
       # Load main spectre config
       main_config_file = config_overrides['config_file'] || CONFIG['config_file']
@@ -916,12 +814,10 @@ module Spectre
 
       @formatter = Object.const_get(CONFIG['formatter']).new(CONFIG)
 
-      log_file = CONFIG['log_file']
-
       # If log file is an actual file path do not initilize the logger yet
       # as it will create the file immediatly, even the specs are just listed
       # Initialize it for testing purposes
-      @logger = Logger.new(CONFIG) unless log_file.is_a? String
+      @logger = Logger.new(CONFIG) unless CONFIG['log_file'].is_a? String
 
       self
     end
@@ -941,7 +837,7 @@ module Spectre
     end
 
     def run
-      @logger = Logger.new(CONFIG['log_file']) if @logger.nil?
+      @logger = Logger.new(CONFIG)
 
       list
         .group_by { |x| x.parent.root }

@@ -1,4 +1,5 @@
 .vscode/
+.ruby-lsp/
 .bundle/
 **/logs
 **/reports

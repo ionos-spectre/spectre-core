@@ -2,7 +2,6 @@ require 'securerandom'
 require 'json'
 require 'date'
 require 'ostruct'
-require 'jsonpath'
 
 class ::String
   def as_json
@@ -33,16 +32,6 @@ class ::String
     return "#{self[0..size - 4]}..." if (length + 3) > size
 
     self
-  end
-
-  def pick path
-    raise ArgumentError, "`path' must not be nil or empty" if path.nil? or path.empty?
-
-    begin
-      JsonPath.on(self, path)
-    rescue MultiJson::ParseError
-      # do nothing and return nil
-    end
   end
 
   # File helpers
