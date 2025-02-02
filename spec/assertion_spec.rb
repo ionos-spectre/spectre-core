@@ -1,6 +1,6 @@
 require_relative '../lib/spectre/assertion'
 
-RSpec.describe 'Assertion' do
+RSpec.describe Spectre::Assertion do
   before do
     @console_out = StringIO.new
     @log_out = StringIO.new

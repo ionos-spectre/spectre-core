@@ -13,26 +13,6 @@ require 'stringio'
 
 require_relative 'spectre/version'
 
-def get_error_info error
-  return unless error.backtrace
-
-  non_spectre_files = error.backtrace.reject { |x| x.include? 'lib/spectre' }
-
-  causing_file = if non_spectre_files.count.positive?
-                   non_spectre_files.first
-                 else
-                   error.backtrace[0]
-                 end
-
-  matches = causing_file.match(/(.*\.rb):(\d+)/)
-
-  return unless matches
-
-  file, line = matches.captures
-
-  [file.sub!(Dir.pwd, '.'), line]
-end
-
 class Hash
   def deep_merge!(second)
     return unless second.is_a?(Hash)
@@ -64,11 +44,13 @@ module Spectre
   class AbortException < StandardError
   end
 
-  class Failure
+  class Failure < StandardError
     attr_reader :message, :file, :line
 
-    def initialize message, call_stack
-      loc = call_stack
+    def initialize message, call_stack = nil
+      super(message)
+
+      loc = (call_stack || caller_locations)
         .select { |x| ['<main>', '<top (required)>'].include? x.base_label }
         .first
 
@@ -99,6 +81,9 @@ module Spectre
           Spectre.logger.info("#{desc} - ok")
           [:info, :ok, nil]
         end
+      rescue Failure => e
+        report(e)
+        [:error, :failed, nil]
       end
     end
 
@@ -195,7 +180,13 @@ module Spectre
           output += "\n"
 
           if run.error
-            file, line = get_error_info(run.error)
+            location = run.error
+              .backtrace_locations
+              .select { |x| x.base_label == '<top (required)>' }
+              .first
+
+            file = location.absolute_path.sub(Dir.pwd, '.')
+            line = location.lineno
 
             error_output  = "but an unexpected error occurred during run\n"
             error_output += "  file.....: #{file}:#{line}\n" if file

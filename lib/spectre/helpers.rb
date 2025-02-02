@@ -72,33 +72,19 @@ class ::OpenStruct
       .to_json(*, **)
   end
 
-  def pick path
-    raise ArgumentError, "`path' must not be nil or empty" if path.nil? or path.empty?
-
-    JsonPath.on(self, path)
-  end
-
   def default_to! defaults
     defaults.each_key do |key|
       self[key] ||= defaults[key]
     end
   end
-
-  alias defaults_to! default_to!
 end
 
 class ::Hash
-  def symbolize_keys
-    each_with_object({}) { |memo, (k, v)| memo[k.to_sym] = v; memo }
-  end
-
   def default_to! defaults
     defaults.each_key do |key|
       self[key] ||= defaults[key]
     end
   end
-
-  alias defaults_to! default_to!
 end
 
 class ::Array

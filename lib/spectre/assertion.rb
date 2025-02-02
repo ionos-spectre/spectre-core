@@ -155,7 +155,7 @@ module Spectre
         [
           expected_val,
           __method__,
-          proc { |expected, actual| actual.include?(expected) }
+          proc { |expected, actual| actual.respond_to? :include? and actual.include?(expected) }
         ]
       end
 
