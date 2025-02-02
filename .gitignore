@@ -6,4 +6,7 @@ tmp/
 pkg/
 temp/
 vendor/
+doc/
+coverage/
 *.code-workspace
+Gemfile.lock

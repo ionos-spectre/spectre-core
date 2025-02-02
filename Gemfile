@@ -6,7 +6,9 @@ gemspec
 
 gem 'debug', require: false
 gem 'rake'
+gem 'rdoc'
 gem 'rspec', require: 'spec'
 gem 'rubocop'
 gem 'rubocop-rake'
 gem 'rubocop-rspec'
+gem 'simplecov'

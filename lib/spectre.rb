@@ -12,7 +12,6 @@ require 'logger'
 require 'stringio'
 
 require_relative 'spectre/version'
-require_relative 'spectre/expectation'
 
 def get_error_info error
   return unless error.backtrace
@@ -30,22 +29,8 @@ def get_error_info error
   return unless matches
 
   file, line = matches.captures
-  file.slice!("#{Dir.pwd}/")
 
-  [file, line]
-end
-
-def tag? tags, tag_exp
-  tags = tags.map(&:to_s)
-  all_tags = tag_exp.split('+')
-
-  included_tags = all_tags.reject { |x| x.start_with? '!' }
-
-  excluded_tags = all_tags
-    .select { |x| x.start_with? '!' }
-    .map { |x| x[1..] }
-
-  included_tags & tags == included_tags and excluded_tags & tags == []
+  [file.sub!(Dir.pwd, '.'), line]
 end
 
 class Hash
@@ -56,33 +41,12 @@ class Hash
     merge!(second, &merger)
   end
 
-  def deep_freeze
-    transform_values(&:deep_freeze)
-    .freeze
-  end
-
   def to_recursive_struct
     OpenStruct.new(
       transform_values do |val|
         val.is_a?(Hash) ? val.to_recursive_struct : val
       end
     )
-  end
-end
-
-class Array
-  def deep_freeze
-    map(&:deep_freeze)
-  end
-end
-
-class Object
-  def deep_freeze
-    freeze
-  end
-
-  def deep_clone
-    Marshal.load(Marshal.dump(self))
   end
 end
 
@@ -97,22 +61,71 @@ class String
 end
 
 module Spectre
-  class CancelException < StandardError
+  class AbortException < StandardError
+  end
+
+  class Failure
+    attr_reader :message, :file, :line
+
+    def initialize message, call_stack
+      loc = call_stack
+        .select { |x| ['<main>', '<top (required)>'].include? x.base_label }
+        .first
+
+      @message = message
+      @file = loc.absolute_path.sub(Dir.pwd, '.')
+      @line = loc.lineno
+    end
+
+    def to_s
+      "#{@message} - in #{@file}:#{@line}"
+    end
+  end
+
+  class EvaluationContext
+    attr_reader :desc, :failures
+
+    def initialize(desc, &)
+      @desc = desc
+      @failures = []
+
+      Spectre.formatter.log(:info, desc) do
+        instance_eval(&)
+
+        if @failures.any?
+          Spectre.logger.error("#{desc} - failed")
+          [:error, :failed, nil]
+        else
+          Spectre.logger.info("#{desc} - ok")
+          [:info, :ok, nil]
+        end
+      end
+    end
+
+    def report failure
+      @failures << failure
+    end
+
+    def failure desc
+      Failure.new(desc, caller_locations)
+    end
   end
 
   class Logger < ::Logger
-    def initialize log_file
+    def initialize config
+      log_file = config['log_file']
+
       if log_file.is_a? String
         log_file = log_file.gsub('<date>', DateTime.now.strftime('%Y-%m-%d_%H%M%S%3N'))
         FileUtils.mkdir_p(File.dirname(log_file))
       end
 
-      super
+      super(log_file)
 
       @corr_ids = []
 
       @formatter = proc do |severity, datetime, progname, message|
-        date_formatted = datetime.strftime(CONFIG['log_date_format'])
+        date_formatted = datetime.strftime(config['log_date_format'])
         progname ||= 'spectre'
 
         # Add log message also to the current executing run context
@@ -123,7 +136,7 @@ module Spectre
           context_name = RunContext.current.name
         end
 
-        format(CONFIG['log_message_format'],
+        format(config['log_message_format'],
                date_formatted,
                severity,
                progname,
@@ -157,29 +170,30 @@ module Spectre
     def report runs
       runs = runs.select { |x| x.parent.is_a? Specification }
 
-      errors   = runs.count { |x| !x.error.nil? }
-      failed   = runs.count { |x| !x.failure.nil? }
-      skipped  = runs.count(&:skipped?)
-      succeded = runs.count - errors - failed - skipped
+      errors    = runs.count { |x| x.status == :error }
+      failed    = runs.count { |x| x.status == :failed }
+      skipped   = runs.count { |x| x.status == :skipped }
+      succeeded = runs.count - errors - failed - skipped
 
-      summary  = "#{succeded} succeded"
+      summary  = "#{succeeded} succeeded"
       summary += " #{failed} failures"
       summary += " #{errors} errors"
       summary += " #{skipped} skipped"
-      summary += "\n\n"
 
-      output  = "\n"
-      output += summary.send((errors + failed).positive? ? :red : :green)
+      @out.puts(summary.send((errors + failed).positive? ? :red : :green))
+
+      output = "\n"
 
       runs
-        .select { |x| !x.error.nil? or !x.failure.nil? }
+        .select { |x| [:error, :failed].include? x.status }
         .each_with_index do |run, index|
-          title  = "#{index + 1})"
-          title += " #{run.parent.full_desc}"
-          title += " (#{(run.finished - run.started).duration})"
-          title += " [#{run.parent.name}]"
+          index += 1
 
-          output += title.red
+          output += "#{index})"
+          output += " #{run.parent.full_desc}"
+          output += " (#{(run.finished - run.started).duration})"
+          output += " [#{run.parent.name}]"
+
           output += "\n"
 
           if run.error
@@ -198,20 +212,47 @@ module Spectre
               end
             end
 
-            output += error_output.indent(5).red
+            output += error_output.indent(5)
             output += "\n\n"
           end
 
-          output += "     #{run.failure.message.red}\n\n" if run.failure
+          next unless run.status == :failed
+
+          failed = run.evaluations
+            .select { |x| x.failures.any? }
+
+          failed.each_with_index do |eval, eval_idx|
+            output += if failed.count == 1
+                        "     #{eval.desc}, but"
+                      else
+                        "     #{index}.#{eval_idx + 1}) #{eval.desc}, but"
+                      end
+
+            if eval.failures.count == 1
+              output += " #{eval.failures.first.message}\n"
+            else
+              output += " #{eval.failures.count} failures occured\n"
+
+              eval.failures.each_with_index do |fail, fail_idx|
+                output += if failed.count == 1
+                            "       #{index}.#{fail_idx + 1}) #{fail.message}\n"
+                          else
+                            "       #{index}.#{eval_idx + 1}.#{fail_idx + 1}) #{fail.message}\n"
+                          end
+              end
+            end
+          end
+
+          output += "\n"
         end
 
-      @out.puts output
+      @out.puts output.red
     end
   end
 
   class ConsoleFormatter
-    def initialize
-      @out = CONFIG['stdout'] || $stdout
+    def initialize config
+      @out = config['stdout'] || $stdout
       @level = 0
       @width = 80
       @indent = 2
@@ -331,8 +372,8 @@ module Spectre
   end
 
   class JsonReporter
-    def initialize
-      @out = CONFIG['stdout'] || $stdout
+    def initialize config
+      @out = config['stdout'] || $stdout
       @out.sync = true
     end
 
@@ -341,18 +382,18 @@ module Spectre
         {
           id: run.id,
           parent: run.parent.id,
-          status: if run.error
-                    :error
-                  else
-                    (if run.failure
-                       :failed
-                     else
-                       (run.skipped? ? :skipped : :ok)
-                     end)
-                  end,
+          status: run.status,
           error: run.error,
-          failure: run.failure,
-          skipped: run.skipped,
+          evaluations: run.evaluations.map do |eval|
+            {
+              desc: eval.desc,
+              failures: eval.failures.map do |fail|
+                {
+                  message: fail.message,
+                }
+              end,
+            }
+          end,
           started: run.started,
           finished: run.finished,
           logs: run.logs,
@@ -364,11 +405,11 @@ module Spectre
   end
 
   class JsonFormatter
-    def initialize
+    def initialize config
       @scope_id = nil
-      @out = CONFIG['stdout'] || $stdout
+      @out = config['stdout'] || $stdout
       @out.sync = true
-      @date_format = CONFIG['log_date_format']
+      @date_format = config['log_date_format']
     end
 
     def list specs
@@ -443,9 +484,10 @@ module Spectre
   end
 
   class RunContext
-    attr_reader :id, :name, :parent, :type, :logs, :bag, :error, :failure, :started, :finished
+    attr_reader :id, :name, :parent, :type, :logs, :bag, :error, :evaluations, :started, :finished
 
     @@current = nil
+    @@location_cache = {}
 
     def self.current
       @@current
@@ -463,8 +505,8 @@ module Spectre
 
       @bag = OpenStruct.new(bag)
 
+      @evaluations = []
       @error = nil
-      @failure = nil
       @skipped = false
 
       @started = Time.now
@@ -478,8 +520,43 @@ module Spectre
       end
     end
 
-    def skipped?
-      @skipped
+    def execute(data, &)
+      instance_exec(data.is_a?(Hash) ? OpenStruct.new(data) : data, &)
+    rescue AbortException
+      # Do nothing. The run will be ended here
+    rescue Interrupt
+      @skipped = true
+      Spectre.formatter.log(:debug, nil, :skipped, 'canceled by user')
+      Spectre.logger.info("#{@parent.desc} - canceled by user")
+    rescue StandardError => e
+      @error = e
+      Spectre.formatter.log(:fatal, e.message, :error, e.class.name)
+      Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
+    end
+
+    %i[assert expect].each do |method|
+      define_method(method) do |evaluation, &block|
+        desc = "#{method} #{evaluation}"
+
+        @evaluations << if block
+                          EvaluationContext.new(desc, &block)
+                        else
+                          EvaluationContext.new(desc) do
+                            unless evaluation.failure.nil?
+                              report(Failure.new(
+                                       evaluation.failure,
+                                       evaluation.call_location
+                                     ))
+                            end
+                          end
+                        end
+
+        raise AbortException if method == :assert
+      end
+    end
+
+    def add_log timestamp, severity, progname, message
+      @logs << [timestamp, severity, progname, message]
     end
 
     def duration
@@ -488,42 +565,10 @@ module Spectre
 
     def status
       return :error if @error
-      return :failed if @failure
+      return :failed if @evaluations.any? { |x| x.failures.any? }
       return :skipped if @skipped
 
       :success
-    end
-
-    def fail_with message
-      raise Expectation::ExpectationFailure, message
-    end
-
-    def expect desc
-      Spectre.formatter.log(:debug, "expect #{desc}") do
-        result = [:debug, :ok, nil]
-
-        begin
-          yield
-        rescue Expectation::ExpectationFailure => e
-          file, line = get_error_info(e)
-          fail_message = "expected #{desc}, but it failed with \"#{e.message}\" - in #{file}:#{line}"
-          @failure = Expectation::ExpectationFailure.new(fail_message)
-          result = [:error, :failed, nil, @failure]
-          Spectre.logger.error(fail_message)
-        rescue Interrupt
-          @skipped = true
-          result = [:debug, :skipped, 'canceled by user']
-          Spectre.logger.info("expecting #{desc} - canceled by user")
-        rescue StandardError => e
-          @error = e
-          result = [:fatal, :error, e.class.name, e]
-          Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
-        end
-
-        result
-      end
-
-      raise CancelException if @skipped or @error or @failure
     end
 
     def group(desc, &)
@@ -533,10 +578,24 @@ module Spectre
       end
     end
 
-    def add_log timestamp, severity, progname, message
-      @logs << [timestamp, severity, progname, message]
+    def observe desc
+      Spectre.formatter.log(:info, "observe #{desc}".cyan) do
+        yield
+        @success = true
+        [:info, :ok, nil]
+      rescue StandardError => e
+        @success = false
+        Spectre.logger.debug("#{e.message}\n#{e.backtrace.join("\n")}")
+        [:info, :warn, e.message]
+      end
     end
 
+    # Returns the status of the `observe` execution
+    def success?
+      @success.nil? ? true : @success
+    end
+
+    # Method to run mixins
     def run desc, with: nil
       Spectre.formatter.scope(desc, self, :mixin) do
         with ||= [OpenStruct.new]
@@ -553,25 +612,13 @@ module Spectre
       end
     end
 
+    # Add this alias to construct prettier mixin execution calls
     alias also run
 
-    def execute(data, &)
-      instance_exec(data.is_a?(Hash) ? OpenStruct.new(data) : data, &)
-    rescue CancelException
-      # Do nothing. The run will be ended here
-    rescue Expectation::ExpectationFailure => e
-      @failure = e
-      Spectre.formatter.log(:error, e.message, :failed, e.desc)
-      file, line = get_error_info(e)
-      Spectre.logger.error("#{e.message} - in #{file}:#{line}")
-    rescue Interrupt
+    def skip message
       @skipped = true
-      Spectre.formatter.log(:debug, nil, :skipped, 'canceled by user')
-      Spectre.logger.info("#{@parent.desc} - canceled by user")
-    rescue StandardError => e
-      Spectre.formatter.log(:fatal, e.message, :error, e.class.name)
-      @error = e
-      Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
+      Spectre.logger.info("#{message} - canceled by user")
+      raise AbortException
     end
   end
 
@@ -602,7 +649,7 @@ module Spectre
             end
           end
 
-          run_context.execute(@data, &@block) if run_context.error.nil? and run_context.failure.nil?
+          run_context.execute(@data, &@block) if run_context.status == :success
         ensure
           afters.each do |block|
             Spectre.formatter.scope('after', self, :after) do
@@ -692,7 +739,6 @@ module Spectre
 
       if selected.any?
         Spectre.formatter.scope(@desc, self, :context) do
-          setup_run = nil
           setup_bag = nil
 
           if @setups.any?
@@ -713,7 +759,7 @@ module Spectre
           end
 
           # Only run specs if setup was successful
-          if setup_run.nil? or (setup_run.error.nil? and setup_run.failure.nil?)
+          if runs.all? { |x| x.status == :success }
             runs += selected.map do |spec|
               Spectre.logger.correlate do
                 spec.run(@befores, @afters, setup_bag)
@@ -748,7 +794,7 @@ module Spectre
 
   CONFIG = {
     'config_file' => './spectre.yml',
-    # 'log_file'             => './logs/spectre_<date>.log',
+    # 'log_file' => './logs/spectre_<date>.log',
     'log_file' => StringIO.new,
     'log_date_format' => '%F %T.%L%:z',
     # [timestamp] LEVEL -- module_name: [spec-id] correlation_id log_message
@@ -789,7 +835,7 @@ module Spectre
       # Load main spectre config
       main_config_file = config_overrides['config_file'] || CONFIG['config_file']
 
-      if File.exist? main_config_file
+      unless main_config_file.nil? or !File.exist? main_config_file
         main_config = load_yaml(main_config_file)
         CONFIG.deep_merge!(main_config)
         Dir.chdir(File.dirname(main_config_file))
@@ -826,12 +872,10 @@ module Spectre
       # Note that spec files are only loaded once, because of the relative require,
       # even if the setup function is called multiple times
       require_files(CONFIG['spec_patterns'])
-      CONTEXTS.freeze
 
       # Load mixins
       # Mixins are also only loaded once
       require_files(CONFIG['mixin_patterns'])
-      MIXINS.freeze
 
       # Load resources
       CONFIG['resource_paths'].each do |resource_path|
@@ -857,7 +901,14 @@ module Spectre
         end
       end
 
-      @formatter = Object.const_get(CONFIG['formatter']).new
+      @formatter = Object.const_get(CONFIG['formatter']).new(CONFIG)
+
+      log_file = CONFIG['log_file']
+
+      # If log file is an actual file path do not initilize the logger yet
+      # as it will create the file immediatly, even the specs are just listed
+      # Initialize it for testing purposes
+      @logger = Logger.new(CONFIG) unless log_file.is_a? String
 
       self
     end
@@ -877,7 +928,7 @@ module Spectre
     end
 
     def run
-      @logger = Logger.new(CONFIG['log_file'])
+      @logger = Logger.new(CONFIG['log_file']) if @logger.nil?
 
       list
         .group_by { |x| x.parent.root }
@@ -904,14 +955,6 @@ module Spectre
       main_context.instance_eval(&)
     end
 
-    def expect(desc, &)
-      RunContext.current.expect(desc, &)
-    end
-
-    def bag
-      RunContext.current.bag
-    end
-
     def mixin desc, &block
       MIXINS[desc] = block
     end
@@ -920,36 +963,12 @@ module Spectre
       RESOURCES
     end
 
-    def observe desc
-      Spectre.formatter.log(:info, "observe #{desc}".cyan) do
-        yield
-        @success = true
-        [:info, :ok, nil]
-      rescue Expectation::ExpectationFailure => e
-        @success = false
-        Spectre.logger.debug(e.message)
-        [:warn, :warn, e.message]
-      rescue StandardError => e
-        @success = false
-        Spectre.logger.debug("#{e.message}\n#{e.backtrace.join("\n")}")
-        [:info, :ok, e.message]
-      end
-    end
-
-    def success?
-      @success.nil? ? true : @success
-    end
-
-    %i[debug info warn].each do |method|
+    %i[debug info warn log].each do |method|
       define_method(method) do |message|
+        message = message.to_s
         Spectre.logger.send(method, message)
         Spectre.formatter.log(method, message)
       end
-    end
-
-    def log message
-      Spectre.logger.info(message)
-      Spectre.formatter.log('info', message)
     end
 
     private
@@ -965,6 +984,19 @@ module Spectre
     def load_yaml file_path
       file_content = File.read(file_path)
       YAML.safe_load(file_content, aliases: true) || {}
+    end
+
+    def tag? tags, tag_exp
+      tags = tags.map(&:to_s)
+      all_tags = tag_exp.split('+')
+
+      included_tags = all_tags.reject { |x| x.start_with? '!' }
+
+      excluded_tags = all_tags
+        .select { |x| x.start_with? '!' }
+        .map { |x| x[1..] }
+
+      included_tags & tags == included_tags and excluded_tags & tags == []
     end
   end
 end
