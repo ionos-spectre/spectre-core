@@ -3,8 +3,6 @@
   <h2>IONOS Spectre</h2>
   <p>Describe Tests. Analyse Results. Understand What Happened.</p>
   <a href="https://github.com/ionos-spectre/spectre-core/actions/workflows/build.yml"><img src="https://github.com/ionos-spectre/spectre-core/actions/workflows/build.yml/badge.svg" alt="Build Status" /></a>
-  <a href="https://github.com/ionos-spectre/spectre-core/actions/workflows/docker-publish.yml"><img src="https://github.com/ionos-spectre/spectre-core/actions/workflows/docker-publish.yml/badge.svg" alt="Docker Status" /></a>
-  <a href="https://rubygems.org/gems/spectre-core"><img src="https://badge.fury.io/rb/spectre-core.svg" alt="Gem Version" /></a>
 </div>
 
 # Spectre
@@ -29,7 +27,7 @@ This helps to debug test subjects and to better understand what and how it is te
 ## External Modules
 
 | Module | Documentation |
-| ------ | ------------- |
+| :----- | :------------ |
 | `spectre/http` | https://github.com/ionos-spectre/spectre-http |
 | `spectre/ftp` | https://github.com/ionos-spectre/spectre-ftp |
 | `spectre/git` | https://github.com/ionos-spectre/spectre-git |
@@ -58,7 +56,7 @@ $ docker run -t --rm -v "path/to/specs:/spectre" spectre [command] [options]
 
 ## Installation
 
-To use the command line tool, Ruby has to be installed on your system. 
+Ruby has to be installed on your system. 
 
 See [ruby-lang.org](https://www.ruby-lang.org/en/documentation/installation/) for installation instructions.
 
@@ -72,7 +70,22 @@ winget search ruby
 winget instal RubyInstallerTeam.RubyWithDevKit.3.4
 ```
 
-Spectre is available as a Ruby *gem* from https://rubygems.org/
+Spectre is available as a Ruby *gem* from the GitHub packages 
+repository https://rubygems.pkg.github.com/ionos-spectre
+
+It is recommended to create a `Gemfile` and install `spectre-core` with bundler.
+
+```ruby
+source "https://rubygems.pkg.github.com/ionos-spectre" do
+  gem "spectre-core", "1.14.6"
+end
+```
+
+```bash
+$ bundle install
+```
+
+You can also install the tool globally with
 
 ```bash
 $ gem install spectre-core
@@ -87,25 +100,18 @@ rake install
 To test, if the tool is working, try one of the following commands.
 
 ```bash
+# When using bundler
+$ bundle exec spectre -h
+
+# otherwise
 $ spectre -h
-$ spectre --version
 ```
-
-
-## Quickstart
-
-To create a minimal spectre project run the following command
-
-```bash
-$ spectre init
-```
-
-This will create a basic folder structure and generate some sample files.
 
 
 ## Creating a new project
 
 Create a new project structure by executing
+
 ```bash
 $ spectre init
 ```
@@ -113,7 +119,7 @@ $ spectre init
 This will create multiple empty directories and a `spectre.yml` config file.
 
 | Directory/File | Description |
-| -------------- | ----------- |
+| :------------- | :---------- |
 | `environments` | This directory should contain `**/*.env.yml` files. In these files, you can define environment variables, which can be accessed during a spec run. |
 | `logs` | Logs will be placed in this folder |
 | `reports` | This folder contains report files like the HTML report, which are created by `reporter` |
@@ -128,7 +134,7 @@ This will create multiple empty directories and a `spectre.yml` config file.
 The following properties can be set in your `spectre.yml`. 
 Shown values are set by default.
 
-See [Spectre::CONFIG](./lib/spectre.rb#L798-L817) for default values and available options.
+See [Spectre::CONFIG](./lib/spectre.rb#L702-L723) for default values and available options.
 
 All options can also be overridden with the command line argument `-p` or `--property`
 
@@ -137,8 +143,8 @@ $ spectre -p config_file=my_custom_spectre.yml -p "log_file=/var/log/spectre/spe
 ```
 
 You can also create a global spectre config file with the options above. 
-Create a file `.spectre` in your users home directory (`~/.spectre`) 
-and set the options you like.
+Create a `spectre.yml` file in your users `.config` directory (`~/config/spectre.yml`) 
+and set the options which shall be used for all projects on your computer.
 
 
 ## Writing specs
@@ -245,7 +251,7 @@ and add this mixin to any spec with the `run`, `step` or `also` function.
 ```ruby
 describe 'Hollow API' do
   it 'checks health', tags: [:health] do
-    also 'check health', with: ['dummy_api'] # pass mixin parameter as value list
+    also 'check health', with: ['hollow_api'] # pass mixin parameter as value list
   end
 end
 ```
@@ -289,114 +295,3 @@ end
 
 When required keys are missing, an `ArgumentError` will be raised.
 `optional` will only log the optional keys to the spectre log for debugging purposes.
-
-
-## Development
-
-### Modules
-
-```ruby
-module Spectre
-  module MyModule
-    # Define a default config for your module to operate on
-    DEFAULT_CONFIG = {
-      'message' => 'Hello',
-    }
-
-    # Create a class to provide some function
-    # for manipulating the config at runtime
-    # in scope of your module
-    class Greetings
-      def initialize config
-        @config = config
-      end
-
-      # Provide some function to manipulate the config ad runtime
-      def message text
-        @config['message'] = text
-      end
-    end
-
-    class << self
-      # Load a specific config section, when used with Spectre
-      # otherwise initialize an empty `Hash`
-      @@config = defined?(Spectre::CONFIG) ? Spectre::CONFIG['my_module'] || {} : {}
-
-      # Implement a logger with lazy loading, as the `Spectre.logger`
-      # will be initialized *after* the module is loaded
-      def logger
-        @@logger ||= defined?(Spectre.logger) ? Spectre.logger : Logger.new($stdout)
-      end
-
-      def greetings name, &block
-        # Get the specific options with given name
-        # from the config hash, if the given name is present
-        # This takes effect when the module is used with Spectre
-        if @@config.key? name
-          config = @@config[name]
-        else
-          # Otherwise use an empty hash, when module is used as standalone
-          # or there is no config present for this name
-          config = {}
-        end
-
-        # Instanciate you configuration class
-        # and call `instance_eval` to "expose" those function
-        Greetings.new(config).instance_eval(&block)
-
-        # Merge the default config with the given one
-        # in order to ensure all required values are present
-        config = DEFAULT_CONFIG.merge(config)
-
-        # Do your logic with the config
-        puts "#{config['message']} #{config['name']}!"
-      end
-    end
-  end
-end
-
-# Expose you module function to the wild, so it can be used anywhere
-# without prefixing the name of you module
-# Be aware that this can override existing functions
-%i{greetings}.each do |method|
-  Kernel.define_method(method) do |*args, &block|
-    Spectre::MyModule.send(method, *args, &block)
-  end
-end
-```
-
-The module can then be used standalone
-
-```ruby
-greetings 'World' do
-  message 'Konnichiwa'
-end
-# Konnichiwa World!
-
-greetings 'World'
-# Hello World!
-```
-
-or as an Spectre module
-
-`default.env.yml`
-```yml
-my_module:
-  first_greeting:
-    name: World
-```
-
-`greeting.spec.rb`
-```ruby
-describe 'Greeting' do
-  it 'greets with a name' do
-    greetings 'first_greeting' do
-      message 'Ohayo'
-    end
-    # Ohayo World!
-
-    greetings 'first_greeting'
-    # Hello World!
-  end
-end
-```

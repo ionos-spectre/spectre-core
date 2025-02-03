@@ -334,10 +334,21 @@ module Spectre
 
       write(message, fill: true) if block_given? or @debug or level != :debug
 
+      error = nil
+
       if block_given?
         @locked = true
-        level, status, desc = yield
-        @locked = false
+
+        begin
+          level, status, desc = yield
+        rescue StandardError => e
+          level = :fatal
+          status = :error
+          desc = e.class
+          error = e
+        ensure
+          @locked = false
+        end
       end
 
       label = status || level
@@ -351,6 +362,8 @@ module Spectre
       else
         @out.puts "#{status_text} - #{desc}".send(label)
       end
+
+      raise error if error
     end
 
     private

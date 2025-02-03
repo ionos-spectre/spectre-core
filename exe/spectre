@@ -260,7 +260,7 @@ when 'init'
     ['./Gemfile', DEFAULT_GEMFILE],
   ]
 
-  %w[environments logs specs].each do |dir_name|
+  %w[environments logs modules reports resources specs].each do |dir_name|
     Dir.mkdir(dir_name) unless File.directory? dir_name
   end
 
