@@ -15,6 +15,7 @@ module Spectre
         !(!negate ^ predicate.call(@val, actual))
       end
 
+      # :nodoc:
       def to_s
         return "\"#{@val}\"" if @val.is_a?(String)
         return @val.inspect if @val.is_a?(Regexp)
@@ -34,6 +35,7 @@ module Spectre
         @first.evaluate(predicate, actual, negate) or @second.evaluate(predicate, actual, negate)
       end
 
+      # :nodoc:
       def to_s
         "#{@first} or #{@second}"
       end
@@ -50,6 +52,7 @@ module Spectre
         @first.evaluate(predicate, actual, negate) and @second.evaluate(predicate, actual, negate)
       end
 
+      # :nodoc:
       def to_s
         "#{@first} and #{@second}"
       end
@@ -105,6 +108,7 @@ module Spectre
                    end
       end
 
+      # :nodoc:
       def to_s
         @repr
       end

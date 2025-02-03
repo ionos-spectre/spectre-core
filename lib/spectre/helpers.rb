@@ -4,18 +4,30 @@ require 'date'
 require 'ostruct'
 
 class ::String
+  ##
+  # Parses the string as JSON and returns an +OpenStruct+
+  #
   def as_json
     JSON.parse(self, object_class: OpenStruct)
   end
 
+  ##
+  # Parses the string as a date time object
+  #
   def as_date
     DateTime.parse(self)
   end
 
+  ##
+  # Parses the string as a date time object and returns it as a unix timestamp
+  #
   def as_timestamp
     DateTime.parse(self).to_time.to_i
   end
 
+  ##
+  # Replaces placeholder in style of +#{placeholder}+ with the given +Hash+
+  #
   def with mapping
     return self unless mapping.is_a? Hash
 
@@ -28,14 +40,17 @@ class ::String
     new_string
   end
 
+  ##
+  # Trims the string to the given length and adds +...+ at the end
   def trim size = 50
     return "#{self[0..size - 4]}..." if (length + 3) > size
 
     self
   end
 
-  # File helpers
-
+  ##
+  # Interprets the string as a file path and reads its content
+  #
   def content with: nil
     raise "'#{self}' is not a file path, or the file does not exist." unless File.exist? self
 
@@ -48,16 +63,25 @@ class ::String
     end
   end
 
+  ##
+  # Interprets the string as a file path and returns its size
+  #
   def file_size
     raise "'#{self}' is not a file path, or the file does not exist." unless File.exist? self
 
     File.size(self)
   end
 
+  ##
+  # Interprets the string as a file path and returns +true+ if is exists, +false+ otherwise
+  #
   def exists?
     File.exist? self
   end
 
+  ##
+  # Interprets the string as a file path and removes it
+  #
   def remove!
     raise "'#{self}' is not a file path, or the file does not exist." unless File.exist? self
 
@@ -87,22 +111,18 @@ class ::Hash
   end
 end
 
-class ::Array
-  def first_element
-    self[0]
+module Spectre
+  module Helpers
+    class << self
+      def uuid length = niL
+        return SecureRandom.hex(length / 2) if length
+
+        SecureRandom.uuid
+      end
+
+      def now
+        Time.now
+      end
+    end
   end
-
-  def last_element
-    self[-1]
-  end
-end
-
-def uuid length = nil
-  return SecureRandom.hex(length / 2) if length
-
-  SecureRandom.uuid
-end
-
-def now
-  Time.now
 end

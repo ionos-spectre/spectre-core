@@ -73,6 +73,18 @@ RSpec.describe Spectre::RunContext do
     expect(lines.first).to eq("this is a log message#{'.' * 59}#{'[info]'.blue}\n")
   end
 
+  it 'lets define run properties' do
+    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+      context.execute([]) do
+        property foo: 'bar'
+        property number: 42, text: 'some text'
+      end
+    end
+
+    expect(run_context.status).to eq(:success)
+    expect(run_context.properties).to eq({foo: 'bar', number: 42, text: 'some text'})
+  end
+
   it 'lets define a group' do
     run_context = Spectre::RunContext.new(@spec, :spec) do |context|
       context.execute([]) do

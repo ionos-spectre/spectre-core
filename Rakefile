@@ -9,8 +9,7 @@ task default: %i[test doc build]
 RSpec::Core::RakeTask.new(:test)
 
 RDoc::Task.new(:doc) do |rdoc|
-  rdoc.main = 'README.md'
+  rdoc.main = 'README.rdoc'
   rdoc.rdoc_dir = 'doc'
-  rdoc.rdoc_files.include('README.md', 'lib/**/*.rb')
-  rdoc.markup = 'markdown'
+  rdoc.rdoc_files.include('README.rdoc', 'lib/**/*.rb')
 end

@@ -133,6 +133,13 @@ end
   end
 end
 
+# Expose helper methods
+%i[uuid now].each do |method|
+  Kernel.define_method(method) do |*args, &block|
+    Spectre::Helpers.send(method, *args, &block)
+  end
+end
+
 # Setup spectre
 Spectre.setup(config_overrides)
 

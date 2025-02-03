@@ -14,6 +14,7 @@ require 'stringio'
 require_relative 'spectre/version'
 
 class Hash
+  # :nodoc:
   def deep_merge!(second)
     return unless second.is_a?(Hash)
 
@@ -21,6 +22,7 @@ class Hash
     merge!(second, &merger)
   end
 
+  # :nodoc:
   def to_recursive_struct
     OpenStruct.new(
       transform_values do |val|
@@ -45,8 +47,16 @@ module Spectre
   end
 
   class Failure < StandardError
-    attr_reader :message, :file, :line
+    # A message describing the failure
+    attr_reader :message
+    # The file path where the failure occured
+    attr_reader :file
+    # The line where the failure occured
+    attr_reader :line
 
+    ##
+    # Constructs a new +Failure+ instance with the given message
+    # and determines the +file+ and +line+ from the given call stack
     def initialize message, call_stack = nil
       super(message)
 
@@ -59,6 +69,7 @@ module Spectre
       @line = loc.lineno
     end
 
+    # :nodoc:
     def to_s
       "#{@message} - in #{@file}:#{@line}"
     end
@@ -364,7 +375,8 @@ module Spectre
   end
 
   class RunContext
-    attr_reader :id, :name, :parent, :type, :logs, :bag, :error, :evaluations, :started, :finished
+    attr_reader :id, :name, :parent, :type, :logs, :bag, :error,
+                :evaluations, :started, :finished, :properties
 
     @@current = nil
     @@location_cache = {}
@@ -384,6 +396,8 @@ module Spectre
       @name += "-#{type}" unless type == :spec
 
       @bag = OpenStruct.new(bag)
+
+      @properties = {}
 
       @evaluations = []
       @error = nil
@@ -414,6 +428,14 @@ module Spectre
       Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
     end
 
+    def status
+      return :error if @error
+      return :failed if @evaluations.any? { |x| x.failures.any? }
+      return :skipped if @skipped
+
+      :success
+    end
+
     %i[assert expect].each do |method|
       define_method(method) do |evaluation, &block|
         desc = "#{method} #{evaluation}"
@@ -435,16 +457,12 @@ module Spectre
       end
     end
 
-    def duration
-      @finished - @started
+    def property **kwargs
+      @properties.merge!(kwargs)
     end
 
-    def status
-      return :error if @error
-      return :failed if @evaluations.any? { |x| x.failures.any? }
-      return :skipped if @skipped
-
-      :success
+    def duration
+      @finished - @started
     end
 
     def group(desc, &)
