@@ -887,6 +887,12 @@ module Spectre
         .report(runs)
     end
 
+    def cleanup
+      Dir.chdir(Spectre::CONFIG['work_dir'])
+      log_file_pattern = CONFIG['log_file'].gsub('<date>', '*')
+      FileUtils.rm_rf(Dir.glob(log_file_pattern), secure: true)
+    end
+
     def describe(name, &)
       main_context = CONTEXTS.find { |x| x.desc == name }
 

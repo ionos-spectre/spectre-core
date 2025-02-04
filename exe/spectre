@@ -159,8 +159,7 @@ when 'show'
 when 'mixins'
   puts Spectre::MIXINS.keys
 when 'cleanup'
-  Dir.chdir(Spectre::CONFIG['work_dir'])
-  FileUtils.rm_rf(Dir.glob('./logs/*'), secure: true)
+  Spectre.cleanup
 when 'init'
   DEFAULT_SPECTRE_CFG = <<~CONTENT
     log_file: ./logs/spectre_<date>.log
