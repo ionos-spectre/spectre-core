@@ -56,7 +56,7 @@ RSpec.describe Spectre::SimpleFormatter do
     console_out.rewind
     lines = console_out.readlines
 
-    expect(lines.count).to eq(18)
+    expect(lines.count).to eq(19)
 
     expect(lines[0]).to eq("#{'[some_subject-1]'.blue}\n")
     expect(lines[1]).to eq("  subject..: Some subject\n")
@@ -69,5 +69,12 @@ RSpec.describe Spectre::SimpleFormatter do
     expect(lines[8]).to eq("  desc.....: does another thing\n")
     expect(lines[9]).to eq("  tags.....: some_tag, another_tag\n")
     expect(lines[10]).to eq("  file.....: ./spec/simple_formatter_spec.rb:18\n")
+
+    expect(lines[12]).to eq("#{'[another_subject-2]'.magenta}\n")
+    expect(lines[13]).to eq("  subject..: Another subject\n")
+    expect(lines[14]).to eq("  context..: a sub\n")
+    expect(lines[15]).to eq("  desc.....: does something in another context\n")
+    expect(lines[16]).to eq("  tags.....: a_sub_tag\n")
+    expect(lines[17]).to eq("  file.....: ./spec/simple_formatter_spec.rb:23\n")
   end
 end
