@@ -6,7 +6,7 @@ config_overrides = {
   'log_file' => './logs/spectre_<date>.log',
 }
 
-OptionParser.new do |opts|
+options = OptionParser.new do |opts|
   opts.banner = <<~BANNER
     Spectre #{Spectre::VERSION}
 
@@ -16,6 +16,7 @@ OptionParser.new do |opts|
         run         Run specs (default)
         list        List specs
         info        Print detailed info about specs, like file location
+        mixins      Lists all mixin names
         show        Print current environment settings
         dump        Dumps the given environment in YAML format to console
         cleanup     Will remove all generated files (e.g. logs and reports)
@@ -117,7 +118,10 @@ OptionParser.new do |opts|
     puts opts
     exit
   end
-end.parse!
+end
+
+# Parse options and get action
+action = options.parse!.first || 'run'
 
 # Expose spectre methods
 %i[env describe mixin resources debug info warn log].each do |method|
@@ -142,9 +146,6 @@ end
 
 # Setup spectre
 Spectre.setup(config_overrides)
-
-# Determine action
-action = ARGV[0] || 'run'
 
 case action
 when 'list'
@@ -267,4 +268,8 @@ when 'init'
   DEFAULT_FILES.each do |file, content|
     File.write(file, content) unless File.exist? file
   end
+else
+  puts "unknown action #{action.inspect}\n".red
+  puts options
+  exit 1
 end
