@@ -395,6 +395,27 @@ module Spectre
     end
   end
 
+  class Mixin
+    attr_reader :desc, :params
+
+    def initialize desc, required, block
+      @desc = desc
+      @required = required
+      @block = block
+      @params = {}
+    end
+
+    def with **params
+      @params.merge! params
+    end
+
+    def run run_context, params
+      params ||= {}
+      params.merge! @params unless @params.empty?
+      run_context.instance_exec(params.to_recursive_struct, &@block)
+    end
+  end
+
   class RunContext
     attr_reader :id, :name, :parent, :type, :logs, :bag, :error,
                 :evaluations, :started, :finished, :properties
@@ -511,17 +532,16 @@ module Spectre
     end
 
     # Method to run mixins
-    def run desc, with: nil
+    def run(desc, with: nil, &)
       Spectre.formatter.scope(desc, :mixin) do
-        with ||= [OpenStruct.new]
-        with = [with.to_recursive_struct] if with.is_a? Hash
-        with = with.map { |x| x.is_a?(Hash) ? x.to_recursive_struct : x }
-
         raise "mixin \"#{desc}\" not found" unless MIXINS.key? desc
+
+        mixin = MIXINS[desc]
+        mixin.instance_eval(&) if block_given?
 
         Spectre.logger.correlate do
           Spectre.logger.debug("execute mixin \"#{desc}\"")
-          result = instance_exec(*with, &MIXINS[desc])
+          result = mixin.run(self, with)
           return result.is_a?(Hash) ? OpenStruct.new(result) : result
         end
       end
@@ -904,8 +924,8 @@ module Spectre
       main_context.instance_eval(&)
     end
 
-    def mixin desc, &block
-      MIXINS[desc] = block
+    def mixin desc, params = nil, &block
+      MIXINS[desc] = Mixin.new(desc, params, block)
     end
 
     def resources

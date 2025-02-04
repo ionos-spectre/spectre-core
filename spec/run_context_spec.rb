@@ -358,5 +358,38 @@ RSpec.describe Spectre::RunContext do
 
       expect(lines.count).to eq(3)
     end
+
+    it 'does execute with new style params' do
+      console_out = StringIO.new
+      log_out = StringIO.new
+
+      Spectre.mixin 'some mixin' do |params|
+        Spectre.info "data is #{params.foo}"
+      end
+
+      Spectre
+        .setup({
+          'log_file' => log_out,
+          'stdout' => console_out,
+        })
+
+      run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+        context.execute(nil) do
+          also 'some mixin' do
+            with foo: 42
+          end
+
+          Spectre.info 'another message'
+        end
+      end
+
+      expect(run_context.logs.count).to eq(3)
+      expect(run_context.logs[1][4]).to eq('data is 42')
+
+      console_out.rewind
+      lines = console_out.readlines
+
+      expect(lines.count).to eq(3)
+    end
   end
 end

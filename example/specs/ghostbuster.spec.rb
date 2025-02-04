@@ -67,6 +67,11 @@ describe 'Ghostbuster' do
     end
 
     it 'captures some ghosts', tags: [:emergency, :ghosts] do
+      also "consult Tobin's Spirit Guide" do
+        with entity: 'Zuul'
+        with occurance: 'refrigerator'
+      end
+
       info 'shoot the rays'
 
       raise StandardError, 'rays have been crossed'
