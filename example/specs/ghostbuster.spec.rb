@@ -43,7 +43,7 @@ describe 'Ghostbuster' do
 
     # "Expecting" something will not abort the test run, even if a failure was reported
     expect 'a classic conversation' do
-      report failure 'not the legendary message' unless answer.message == 'Ghostbusters. Whaddaya want?'
+      report failure 'no legendary answer was given' unless answer.message == 'Ghostbusters. Whaddaya want?'
       report failure 'wrong caller' unless answer.caller == 'Janine Melnitz'
     end
 
