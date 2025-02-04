@@ -9,6 +9,7 @@ RSpec.describe Spectre::RunContext do
       .setup({
         'log_file' => @log_out,
         'stdout' => @console_out,
+        'debug' => true,
       })
 
     @subject = Spectre::DefinitionContext.new('Some subject')
