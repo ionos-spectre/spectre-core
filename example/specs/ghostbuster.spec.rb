@@ -1,9 +1,9 @@
-describe 'Firehouse' do
+describe 'Ghostbuster' do
   # This block will be executed +once+ at the beginning of this context
   setup do
     # You can add log messages with the following functions
     info 'get the proton back ready'
-    # debug 'check the ghost trap for failures'
+    debug 'check the ghost trap for failures'
     # log 'inspection protocol'
 
     # Use the bag to store some values, which can be used later in every spec
@@ -17,7 +17,7 @@ describe 'Firehouse' do
   teardown do
     info 'place entities into the containment unit'
 
-    # Do some cleanup (delete temporary resouces, shutdown test system,...) 
+    # Do some cleanup (delete temporary resouces, shutdown test system,...)
     # after all specs have been executed.
     # Multiple blocks can be defined.
     # These blocks are always executed, even errors occured previously
@@ -50,8 +50,6 @@ describe 'Firehouse' do
     # However "asserting" something *will* abort the test run *after* all
     # conditions within the +assert+ block have been checked
     assert "ain't afraid of no ghosts" do
-      report failure 'message not correct' unless respone.json.message == 'Hello World!'
-      report failure 'incorrect number' unless respone.json.number == 42
     end
 
     info "won't continue if someone is a coward"

@@ -118,6 +118,12 @@ module Spectre
 
       super(log_file)
 
+      if config['debug']
+        debug!
+      else
+        info!
+      end
+
       @corr_ids = []
 
       @formatter = proc do |severity, datetime, progname, message|
@@ -257,6 +263,7 @@ module Spectre
       @width = 80
       @indent = 2
       @colors = [:blue, :magenta, :yellow, :green]
+      @debug = config['debug']
     end
 
     def list specs
