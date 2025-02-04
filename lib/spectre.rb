@@ -283,7 +283,8 @@ module Spectre
           spec_group.each do |spec|
             spec_id = "[#{spec.name}]".send(@colors[counter % @colors.length])
             spec_detail  = "#{spec_id}\n"
-            spec_detail += "  subject..: #{spec.parent.desc}\n"
+            spec_detail += "  subject..: #{spec.root.desc}\n"
+            spec_detail += "  context..: #{spec.parent.desc}\n" unless spec.root == spec.parent
             spec_detail += "  desc.....: #{spec.desc}\n"
             spec_detail += "  tags.....: #{spec.tags.join(', ')}\n" if spec.tags.any?
             spec_detail += "  data.....: #{spec.data.to_json}\n" if spec.data
