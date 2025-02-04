@@ -708,7 +708,11 @@ module Spectre
       end
 
       @children.each do |context|
-        runs += context.run(specs)
+        Spectre.formatter.scope nil, nil do
+          Spectre.logger.correlate do
+            runs += context.run(specs)
+          end
+        end
       end
 
       runs
