@@ -17,6 +17,7 @@ options = OptionParser.new do |opts|
       Commands:
         run, ru           Run specs (default)
         list, li          List specs
+        describe, de      Print all subject descriptions
         specs, sp         Print detailed information about specs
         mixins, mi        List all mixin names
         collections, co   List the loaded collections
@@ -155,6 +156,8 @@ when 'list', 'li', 'ls'
   Spectre.formatter.list(Spectre.list)
 when 'specs', 'sp'
   Spectre.formatter.details(Spectre.list)
+when 'describe', 'de'
+  Spectre.formatter.describe(Spectre.subjects)
 when 'run', 'ru'
   runs = Spectre.run
   puts

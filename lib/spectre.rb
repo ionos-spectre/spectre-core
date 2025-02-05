@@ -264,6 +264,7 @@ module Spectre
 
     ##
     # Formats a list of specs in short form
+    #
     def list specs
       counter = 0
 
@@ -280,7 +281,23 @@ module Spectre
     end
 
     ##
+    # Outputs all the specs for all contexts
+    #
+    def describe contexts, level = 0
+      contexts.each do |context|
+        @out.puts("#{'  ' * level}#{context.desc.blue}")
+
+        context.specs.each do |spec|
+          @out.puts("#{'  ' * (level + 1)}#{spec.desc}")
+        end
+
+        describe(context.children, level + 1)
+      end
+    end
+
+    ##
     # Formats the details of given specs
+    #
     def details specs
       counter = 0
 
@@ -1023,6 +1040,13 @@ module Spectre
     def mixin desc, params: [], &block
       file, line = get_call_location(caller_locations)
       MIXINS[desc] = Mixin.new(desc, params, block, file, line)
+    end
+
+    ##
+    # Returns all registered subjects
+    #
+    def subjects
+      CONTEXTS
     end
 
     ##
