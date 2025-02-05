@@ -14,14 +14,14 @@ options = OptionParser.new do |opts|
     Usage: spectre [command] [options]
 
       Commands:
-        run         Run specs (default)
-        list        List specs
-        info        Print detailed info about specs, like file location
-        mixins      Lists all mixin names
-        show        Print current environment settings
-        dump        Dumps the given environment in YAML format to console
-        cleanup     Will remove all generated files (e.g. logs and reports)
-        init        Initializes a new spectre project
+        run, ru           Run specs (default)
+        list, ls          List specs
+        info, if          Print detailed information about specs
+        mixins, mx        List all mixin names
+        collections, co   List the loaded collections
+        show, sh          Print current environment settings
+        cleanup, cl       Will remove all generated files (e.g. logs and reports)
+        init, in          Initialize a new spectre project
 
       Specific options:
   BANNER
@@ -141,21 +141,23 @@ end
 Spectre.setup(config_overrides)
 
 case action
-when 'list'
+when 'list', 'ls'
   Spectre.formatter.list(Spectre.list)
-when 'info'
+when 'info', 'if'
   Spectre.formatter.details(Spectre.list)
-when 'run'
+when 'run', 'ru'
   runs = Spectre.run
   puts
   Spectre.report(runs)
-when 'show'
+when 'show', 'sh'
   puts Spectre::CONFIG.pretty
-when 'mixins'
+when 'mixins', 'mx'
   Spectre.formatter.mixins(Spectre.mixins)
-when 'cleanup'
+when 'collections', 'co'
+  puts Spectre.collections.pretty
+when 'cleanup', 'cl'
   Spectre.cleanup
-when 'init'
+when 'init', 'in'
   DEFAULT_SPECTRE_CFG = <<~CONTENT
     log_file: ./logs/spectre_<date>.log
     env_patterns:
