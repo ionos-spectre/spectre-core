@@ -59,6 +59,8 @@ module Spectre
     end
 
     class Evaluation
+      @@location_cache = {}
+
       attr_reader :actual, :expected, :method, :negate, :desc, :failure, :call_location
 
       def initialize call_location, actual, expected, method, predicate, negate: false
@@ -114,23 +116,26 @@ module Spectre
       end
     end
 
-    class ::Object
-      @@location_cache = {}
-
-      def not params
+    [
+      ::Array, ::Hash, ::String, ::Integer, ::Float,
+      ::NilClass, ::TrueClass, ::FalseClass
+    ].each do |cls|
+      cls.define_method(:not) do |params|
         Evaluation.new(caller_locations, self, *params, negate: true)
       end
 
-      def to params
+      cls.define_method(:to) do |params|
         Evaluation.new(caller_locations, self, *params)
       end
+    end
 
-      def or other_val
-        OrWrapper.new(self, other_val)
+    [::Array, ::Hash, ::String, ::Integer, ::Float, ::Regexp].each do |cls|
+      cls.define_method(:or) do |other|
+        OrWrapper.new(self, other)
       end
 
-      def and other_val
-        AndWrapper.new(self, other_val)
+      cls.define_method(:and) do |other|
+        AndWrapper.new(self, other)
       end
     end
 

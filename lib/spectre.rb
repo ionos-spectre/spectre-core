@@ -582,7 +582,7 @@ module Spectre
       end
     end
 
-    # Returns the status of the `observe` execution
+    # Returns the status of the +observe+ execution
     def success?
       @success.nil? ? true : @success
     end
