@@ -147,6 +147,7 @@ when 'info'
   Spectre.formatter.details(Spectre.list)
 when 'run'
   runs = Spectre.run
+  puts
   Spectre.report(runs)
 when 'show'
   puts Spectre::CONFIG.pretty
