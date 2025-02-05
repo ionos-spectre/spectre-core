@@ -412,6 +412,12 @@ module Spectre
     def run run_context, params
       params ||= {}
       params.merge! @params unless @params.empty?
+
+      if @required.any?
+        missing_params = @required - params.keys
+        raise StandardError, "missing params: #{missing_params.join(', ')}" unless missing_params.empty?
+      end
+
       run_context.instance_exec(params.to_recursive_struct, &@block)
     end
   end
@@ -924,7 +930,7 @@ module Spectre
       main_context.instance_eval(&)
     end
 
-    def mixin desc, params = nil, &block
+    def mixin desc, params: [], &block
       MIXINS[desc] = Mixin.new(desc, params, block)
     end
 

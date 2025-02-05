@@ -350,6 +350,7 @@ RSpec.describe Spectre::RunContext do
         end
       end
 
+      expect(run_context.status).to eq(:success)
       expect(run_context.logs.count).to eq(3)
       expect(run_context.logs[1][4]).to eq('data is 42')
 
@@ -383,6 +384,7 @@ RSpec.describe Spectre::RunContext do
         end
       end
 
+      expect(run_context.status).to eq(:success)
       expect(run_context.logs.count).to eq(3)
       expect(run_context.logs[1][4]).to eq('data is 42')
 
@@ -390,6 +392,41 @@ RSpec.describe Spectre::RunContext do
       lines = console_out.readlines
 
       expect(lines.count).to eq(3)
+    end
+
+    it 'does raise an error when parameters are missing' do
+      console_out = StringIO.new
+      log_out = StringIO.new
+
+      Spectre.mixin 'some mixin', params: [:foo, :bar] do |params|
+        Spectre.info "data is #{params.foo}"
+      end
+
+      Spectre
+        .setup({
+          'log_file' => log_out,
+          'stdout' => console_out,
+        })
+
+      run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+        context.execute(nil) do
+          run 'some mixin' do
+            with foo: 42
+          end
+
+          Spectre.info 'another message'
+        end
+      end
+
+      expect(run_context.status).to eq(:error)
+      expect(run_context.logs.count).to eq(2)
+      expect(run_context.logs[1][4]).to start_with('missing params: bar')
+
+      console_out.rewind
+      lines = console_out.readlines
+
+      expect(lines.count).to eq(2)
+      expect(lines[1]).to eq("missing params: bar#{'.' * 61}#{'[error] - StandardError'.red}\n")
     end
   end
 end
