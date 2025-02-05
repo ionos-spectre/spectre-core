@@ -50,6 +50,8 @@ describe 'Ghostbuster' do
     # However "asserting" something *will* abort the test run *after* all
     # conditions within the +assert+ block have been checked
     assert "ain't afraid of no ghosts" do
+      report failure 'trap was not ready'
+      report failure 'fears itself'
     end
 
     info "won't continue if someone is a coward"
@@ -67,13 +69,30 @@ describe 'Ghostbuster' do
     end
 
     it 'captures some ghosts', tags: [:emergency, :ghosts] do
+      # Run the mixin with the given description
+      # Mixins help to run reusable logic with given parameters
+      # Do use mixins for *test logic*
+      # If you want reusable code which wraps additional technical
+      # functions (like database connection, ...) consider implementing
+      # a custom spectre module
       also "consult Tobin's Spirit Guide" do
         with entity: 'Zuul'
         with occurance: 'refrigerator'
       end
 
-      info 'shoot the rays'
+      group 'together' do
+        info 'shoot the rays'
+      end
 
+      info 'try to capture entity'
+
+      group 'together again' do
+        info 'shoot the rays'
+        info "don't panic"
+        info 'keep it steady'
+      end
+
+      # An unexpected error will abort the current test run with status +error+
       raise StandardError, 'rays have been crossed'
     end
   end

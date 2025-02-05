@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 require_relative '../lib/spectre'
+require_relative '../lib/spectre/helpers'
 
 config_overrides = {
   'log_file' => './logs/spectre_<date>.log',
@@ -124,23 +125,15 @@ end
 action = options.parse!.first || 'run'
 
 # Expose spectre methods
-%i[env describe mixin resources debug info warn log].each do |method|
-  Kernel.define_method(method) do |*args, **kwargs, &block|
-    Spectre.send(method, *args, **kwargs, &block)
-  end
-end
-
-# Expose run context methods
-%i[assert expect bag observe success? skip].each do |method|
-  Kernel.define_method(method) do |*args, **kwargs, &block|
-    Spectre::RunContext.current.send(method, *args, **kwargs, &block)
-  end
-end
-
-# Expose helper methods
-%i[uuid now].each do |method|
-  Kernel.define_method(method) do |*args, **kwargs, &block|
-    Spectre::Helpers.send(method, *args, **kwargs, &block)
+[
+  [Spectre, %i[env describe mixin resources debug info warn log]],
+  [Spectre::RunContext, %i[assert expect bag observe success? skip]],
+  [Spectre::Helpers, %i[uuid now]],
+].each do |target, methods|
+  methods.each do |method|
+    Kernel.define_method(method) do |*args, **kwargs, &block|
+      target.send(method, *args, **kwargs, &block)
+    end
   end
 end
 

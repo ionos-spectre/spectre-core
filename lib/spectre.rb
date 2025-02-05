@@ -510,7 +510,7 @@ module Spectre
       Spectre.logger.info("#{@parent.desc} - canceled by user")
     rescue StandardError => e
       @error = e
-      Spectre.formatter.log(:fatal, e.message, :error, e.class.name)
+      Spectre.formatter.log(:fatal, e.message.red, :error, e.class.name)
       Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
     end
 
