@@ -522,6 +522,18 @@ module Spectre
       :success
     end
 
+    ##
+    # :method: assert
+    # Assert a specific condition. If a block is given methods from
+    # the +EvaluationContext+ are available. If a failure is reported
+    # within this block, the run will be *aborted*.
+
+    ##
+    # :method: expect
+    # Expect a specific condition. If a block is given methods from
+    # the +EvaluationContext+ are available. If a failure is reported
+    # within this block, the run will *continue*.
+    #
     %i[assert expect].each do |method|
       define_method(method) do |evaluation, &block|
         desc = "#{method} #{evaluation}"
