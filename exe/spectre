@@ -15,11 +15,11 @@ options = OptionParser.new do |opts|
 
       Commands:
         run, ru           Run specs (default)
-        list, ls          List specs
-        info, if          Print detailed information about specs
-        mixins, mx        List all mixin names
+        list, li          List specs
+        specs, sp         Print detailed information about specs
+        mixins, mi        List all mixin names
         collections, co   List the loaded collections
-        show, sh          Print current environment settings
+        env, en           Print current environment settings
         cleanup, cl       Will remove all generated files (e.g. logs and reports)
         init, in          Initialize a new spectre project
 
@@ -149,17 +149,17 @@ end
 Spectre.setup(config_overrides)
 
 case action
-when 'list', 'ls'
+when 'list', 'li', 'ls'
   Spectre.formatter.list(Spectre.list)
-when 'info', 'if'
+when 'specs', 'sp'
   Spectre.formatter.details(Spectre.list)
 when 'run', 'ru'
   runs = Spectre.run
   puts
   Spectre.report(runs)
-when 'show', 'sh'
+when 'env', 'en'
   puts Spectre::CONFIG.pretty
-when 'mixins', 'mx'
+when 'mixins', 'mi', 'mx'
   Spectre.formatter.mixins(Spectre.mixins)
 when 'collections', 'co'
   puts Spectre.collections.pretty
