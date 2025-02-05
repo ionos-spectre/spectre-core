@@ -42,11 +42,15 @@ options = OptionParser.new do |opts|
     config_overrides['config_file'] = file_path
   end
 
-  opts.on('--spec-pattern PATTERN', Array, 'File pattern for spec files') do |spec_pattern|
+  opts.on('--work-dir PATH', 'Path of the working directory') do |path|
+    config_overrides['work_dir'] = path
+  end
+
+  opts.on('--spec-patterns PATTERN', Array, 'File pattern for spec files') do |spec_pattern|
     config_overrides['spec_patterns'] = spec_pattern
   end
 
-  opts.on('--env-pattern PATTERN', Array, 'File pattern for environment files') do |env_patterns|
+  opts.on('--env-patterns PATTERN', Array, 'File pattern for environment files') do |env_patterns|
     config_overrides['env_patterns'] = env_patterns
   end
 
@@ -60,6 +64,10 @@ options = OptionParser.new do |opts|
 
   opts.on('--reporter NAME', 'Use specified reporter') do |class_name|
     config_overrides['reporter'] = class_name
+  end
+
+  opts.on('--collection NAME', 'Run or list specs of a specific collection') do |name|
+    config_overrides['collection'] = name
   end
 
   # opts.on('--json', 'Use JSON formatter') do

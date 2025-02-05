@@ -97,3 +97,15 @@ describe 'Ghostbuster' do
     end
   end
 end
+
+##
+# You can describe multiple subject in one file.
+# However it is recommended to split each subject in separate files.
+# Also consider using multiple files for one subject
+#
+describe 'Firehouse' do
+  it 'is the home of the Ladder 8 company', tags: [:trivia] do
+    info "it's name is Hook & Ladder Company 8 Firehouse"
+    info 'located at 14 North Moore Street'
+  end
+end

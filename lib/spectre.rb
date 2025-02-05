@@ -807,6 +807,7 @@ module Spectre
     'env_partial_patterns' => ['environments/**/*.env.secret.yml'],
     'spec_patterns' => ['specs/**/*.spec.rb'],
     'mixin_patterns' => ['mixins/**/*.mixin.rb'],
+    'collection_patterns' => ['**/*.collection.yml'],
     'resource_paths' => ['../common/resources', './resources'],
     'modules' => [],
   }
@@ -818,6 +819,7 @@ module Spectre
   MIXINS = {}
   RESOURCES = {}
   ENVIRONMENTS = {}
+  COLLECTIONS = {}
 
   DEFAULT_ENV_NAME = 'default'
 
@@ -870,6 +872,22 @@ module Spectre
 
       # Select environment and merge it
       CONFIG.deep_merge!(ENVIRONMENTS[CONFIG.delete('selected_env') || DEFAULT_ENV_NAME])
+
+      # Load collections
+      CONFIG['collection_patterns'].each do |pattern|
+        Dir.glob(pattern).each do |file_path|
+          COLLECTIONS.merge! load_yaml(file_path)
+        end
+      end
+
+      # Use collection if given
+      if config_overrides.key? 'collection'
+        collection = COLLECTIONS[config_overrides['collection']]
+
+        raise StandardError, "collection #{config_overrides['collection']} not found" unless collection
+
+        CONFIG.deep_merge!(collection)
+      end
 
       # Merge property overrides
       CONFIG.deep_merge!(config_overrides)
@@ -979,6 +997,13 @@ module Spectre
     def mixin desc, params: [], &block
       file, line = get_call_location(caller_locations)
       MIXINS[desc] = Mixin.new(desc, params, block, file, line)
+    end
+
+    ##
+    # Loaded collections
+    #
+    def collections
+      COLLECTIONS
     end
 
     ##
