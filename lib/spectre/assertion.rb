@@ -84,7 +84,7 @@ module Spectre
 
         @var_name = file_content
           .lines
-          .slice(location.lineno - 2, 2)
+          .slice(location.lineno - 1, 1)
           .map(&:strip)
           .join
           .match(/[\s\(]([^\s]+|\[.*\]|{.*})\.(to|not)[\s\(]/)

@@ -57,6 +57,14 @@ describe 'Ghostbuster' do
     info "won't continue if someone is a coward"
   end
 
+  it 'hunt at the Sedgewick Hotel', tags: [:ghosts] do
+    entity_color = 'green'
+    entity_desc = 'A real nasty one!'
+
+    assert entity_color.to be 'green'
+    assert entity_desc.to match 'nasty'
+  end
+
   context 'at midnight' do
     setup do
       info 'get Ecto-1 ready'

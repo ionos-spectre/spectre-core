@@ -539,7 +539,7 @@ module Spectre
                           end
                         end
 
-        raise AbortException if method == :assert
+        raise AbortException if method == :assert and @evaluations.any? { |x| x.failures.any? }
       end
     end
 

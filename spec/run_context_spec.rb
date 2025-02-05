@@ -204,21 +204,20 @@ RSpec.describe Spectre::RunContext do
 
   context 'evaluation' do
     %i[assert expect].each do |method|
-      expected_log_count = method == :assert ? 1 : 2
-
       context method do
         it 'a positive evaluation' do
           run_context = Spectre::RunContext.new(@spec, :spec) do |context|
             context.execute(nil) do
               send(method, OpenStruct.new({to_s: 'something'}))
+              send(method, OpenStruct.new({to_s: 'another thing'}))
 
               Spectre.info 'another log message'
             end
           end
 
-          expect(run_context.logs.count).to eq(expected_log_count)
+          expect(run_context.logs.count).to eq(3)
           expect(run_context.status).to eq(:success)
-          expect(run_context.evaluations.count).to eq(1)
+          expect(run_context.evaluations.count).to eq(2)
 
           @console_out.rewind
           lines = @console_out.read.lines
@@ -226,7 +225,7 @@ RSpec.describe Spectre::RunContext do
 
           @log_out.rewind
           log = @log_out.readlines
-          expect(log.count).to eq(expected_log_count)
+          expect(log.count).to eq(3)
           expect(log.first).to end_with("#{method} something - ok\n")
         end
 
@@ -262,7 +261,7 @@ RSpec.describe Spectre::RunContext do
 
           @log_out.rewind
           log = @log_out.readlines
-          expect(log.count).to eq(expected_log_count)
+          expect(log.count).to eq(method == :expect ? 2 : 1)
           expect(log.first).to end_with("#{method} something - failed\n")
         end
 
@@ -281,9 +280,7 @@ RSpec.describe Spectre::RunContext do
             end
           end
 
-          log_count = method == :assert ? 1 : 2
-
-          expect(run_context.logs.count).to eq(log_count)
+          expect(run_context.logs.count).to eq(2)
           expect(run_context.status).to eq(:success)
           expect(run_context.evaluations.count).to eq(1)
 
@@ -296,7 +293,7 @@ RSpec.describe Spectre::RunContext do
           @log_out.rewind
           log = @log_out.readlines
 
-          expect(log.count).to eq(log_count)
+          expect(log.count).to eq(2)
           expect(log[0]).to end_with("#{method} #{desc} - ok\n")
           expect(log[1]).to end_with("#{message}\n") unless method == :assert
         end
