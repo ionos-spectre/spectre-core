@@ -1014,8 +1014,7 @@ module Spectre
     end
 
     def load_yaml file_path
-      file_content = File.read(file_path)
-      YAML.safe_load(file_content, aliases: true) || {}
+      YAML.safe_load_file(file_path, aliases: true) || {}
     end
 
     def tag? tags, tag_exp
