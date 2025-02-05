@@ -99,17 +99,13 @@ module Spectre
           [:info, :ok, nil]
         end
       rescue Failure => e
-        report(e)
+        @failures << e
         [:error, :failed, nil]
       end
     end
 
     def report failure
-      @failures << failure
-    end
-
-    def failure desc
-      Failure.new(desc, caller_locations)
+      @failures << Failure.new(failure, caller_locations)
     end
   end
 
@@ -547,10 +543,10 @@ module Spectre
                         else
                           EvaluationContext.new(desc) do
                             unless evaluation.failure.nil?
-                              report(Failure.new(
-                                       evaluation.failure,
-                                       evaluation.call_location
-                                     ))
+                              @failures << Failure.new(
+                                evaluation.failure,
+                                evaluation.call_location
+                              )
                             end
                           end
                         end

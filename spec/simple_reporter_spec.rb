@@ -35,7 +35,7 @@ RSpec.describe Spectre::SimpleReporter do
 
     subject.it 'does something stupid' do
       assert 'some truth' do
-        report failure 'a bad thing happened'
+        report 'a bad thing happened'
       end
     end
 
@@ -45,17 +45,17 @@ RSpec.describe Spectre::SimpleReporter do
       end
 
       expect 'some truth' do
-        report failure 'a bad thing happened'
+        report 'a bad thing happened'
       end
 
       expect 'some truth' do
-        report failure 'a bad thing happened'
-        report failure 'and another bad thing'
+        report 'a bad thing happened'
+        report 'and another bad thing'
       end
 
       assert 'another truth' do
-        report failure 'a bad thing happened'
-        report failure 'and another bad one'
+        report 'a bad thing happened'
+        report 'and another bad one'
       end
     end
 

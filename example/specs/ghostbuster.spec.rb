@@ -36,33 +36,36 @@ describe 'Ghostbuster' do
     info 'seal ghost trap'
   end
 
-  it 'accepts emergency calls', tags: [:emergency, :call] do
+  it 'accepts emergency calls', tags: [:emergency, :call, :failed] do
     info 'pickup the phone'
 
     answer = do_phone_call('216 245-2368')
 
     # "Expecting" something will not abort the test run, even if a failure was reported
     expect 'a classic conversation' do
-      report failure 'no legendary answer was given' unless answer.message == 'Ghostbusters. Whaddaya want?'
-      report failure 'wrong caller' unless answer.caller == 'Janine Melnitz'
+      report 'no legendary answer was given' unless answer.message == 'Ghostbusters. Whaddaya want?'
+      report 'wrong caller' unless answer.caller == 'Janine Melnitz'
     end
 
     # However "asserting" something *will* abort the test run *after* all
     # conditions within the +assert+ block have been checked
     assert "ain't afraid of no ghosts" do
-      report failure 'trap was not ready'
-      report failure 'fears itself'
+      report 'trap was not ready'
+      report 'fears itself'
     end
 
     info "won't continue if someone is a coward"
   end
 
-  it 'hunt at the Sedgewick Hotel', tags: [:ghosts] do
+  it 'hunts at the Sedgewick Hotel', tags: [:ghosts, :success] do
     entity_color = 'green'
     entity_desc = 'A real nasty one!'
+    storage_facility = ['Ghoul', 'Library ghost', 'Ivo Shandor']
 
     assert entity_color.to be 'green'
     assert entity_desc.to match 'nasty'
+    assert entity_desc.not to be 'Class V entity'
+    assert storage_facility.to contain 'Ghoul'
   end
 
   context 'at midnight' do
@@ -76,7 +79,7 @@ describe 'Ghostbuster' do
       info 'do the usual stuff'
     end
 
-    it 'captures some ghosts', tags: [:emergency, :ghosts] do
+    it 'captures some ghosts', tags: [:emergency, :ghosts, :error] do
       # Run the mixin with the given description
       # Mixins help to run reusable logic with given parameters
       # Do use mixins for *test logic*

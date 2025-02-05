@@ -303,7 +303,7 @@ RSpec.describe Spectre::RunContext do
           run_context = Spectre::RunContext.new(@spec, :spec) do |context|
             context.execute(nil) do
               send(method, desc) do
-                report failure 'oops'
+                report 'oops'
               end
 
               Spectre.info 'another message'

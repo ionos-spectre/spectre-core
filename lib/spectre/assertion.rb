@@ -72,7 +72,7 @@ module Spectre
         # Maybe not the most elegant way, but it works for now
         # as long as the `.to` call is on the same line as the variable
         location = call_location
-          .select { |x| ['<main>', '<top (required)>'].include? x.base_label }
+          .select { |x| x.base_label == '<top (required)>' }
           .first
 
         if @@location_cache.key?(location.absolute_path)
