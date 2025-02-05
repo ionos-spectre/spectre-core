@@ -125,22 +125,22 @@ action = options.parse!.first || 'run'
 
 # Expose spectre methods
 %i[env describe mixin resources debug info warn log].each do |method|
-  Kernel.define_method(method) do |*args, &block|
-    Spectre.send(method, *args, &block)
+  Kernel.define_method(method) do |*args, **kwargs, &block|
+    Spectre.send(method, *args, **kwargs, &block)
   end
 end
 
 # Expose run context methods
 %i[assert expect bag observe success? skip].each do |method|
-  Kernel.define_method(method) do |*args, &block|
-    Spectre::RunContext.current.send(method, *args, &block)
+  Kernel.define_method(method) do |*args, **kwargs, &block|
+    Spectre::RunContext.current.send(method, *args, **kwargs, &block)
   end
 end
 
 # Expose helper methods
 %i[uuid now].each do |method|
-  Kernel.define_method(method) do |*args, &block|
-    Spectre::Helpers.send(method, *args, &block)
+  Kernel.define_method(method) do |*args, **kwargs, &block|
+    Spectre::Helpers.send(method, *args, **kwargs, &block)
   end
 end
 
@@ -158,7 +158,7 @@ when 'run'
 when 'show'
   puts Spectre::CONFIG.pretty
 when 'mixins'
-  puts Spectre::MIXINS.keys
+  Spectre.formatter.mixins(Spectre.mixins)
 when 'cleanup'
   Spectre.cleanup
 when 'init'

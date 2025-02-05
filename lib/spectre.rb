@@ -13,6 +13,17 @@ require 'stringio'
 
 require_relative 'spectre/version'
 
+def get_call_location call_stack
+  loc = (call_stack || caller_locations)
+    .select { |x| x.base_label == '<top (required)>' }
+    .first
+
+  [
+    loc.absolute_path.sub(Dir.pwd, '.'),
+    loc.lineno
+  ]
+end
+
 class Hash
   # :nodoc:
   def deep_merge!(second)
@@ -60,13 +71,8 @@ module Spectre
     def initialize message, call_stack = nil
       super(message)
 
-      loc = (call_stack || caller_locations)
-        .select { |x| ['<main>', '<top (required)>'].include? x.base_label }
-        .first
-
+      @file, @line = get_call_location(call_stack || caller_locations)
       @message = message
-      @file = loc.absolute_path.sub(Dir.pwd, '.')
-      @line = loc.lineno
     end
 
     # :nodoc:
@@ -197,13 +203,7 @@ module Spectre
           output += "\n"
 
           if run.error
-            location = run.error
-              .backtrace_locations
-              .select { |x| x.base_label == '<top (required)>' }
-              .first
-
-            file = location.absolute_path.sub(Dir.pwd, '.')
-            line = location.lineno
+            file, line = get_call_location(run.error.backtrace_locations)
 
             error_output  = "but an unexpected error occurred during run\n"
             error_output += "  file.....: #{file}:#{line}\n" if file
@@ -266,6 +266,8 @@ module Spectre
       @debug = config['debug']
     end
 
+    ##
+    # Formats a list of specs in short form
     def list specs
       counter = 0
 
@@ -281,6 +283,8 @@ module Spectre
         end
     end
 
+    ##
+    # Formats the details of given specs
     def details specs
       counter = 0
 
@@ -302,6 +306,22 @@ module Spectre
 
           counter += 1
         end
+    end
+
+    ##
+    # Formats a list of mixins
+    #
+    def mixins mixins
+      paragraphs = []
+
+      mixins.each do |mixin|
+        output  = "#{mixin.desc.yellow}\n"
+        output += "  params.....: #{mixin.required.join ', '}\n" if mixin.required.any?
+        output += "  location...: #{mixin.file}:#{mixin.line}"
+        paragraphs << output
+      end
+
+      @out.puts paragraphs.join("\n\n")
     end
 
     def scope desc, type
@@ -396,12 +416,14 @@ module Spectre
   end
 
   class Mixin
-    attr_reader :desc, :params
+    attr_reader :desc, :required, :file, :line
 
-    def initialize desc, required, block
+    def initialize desc, required, block, file, line
       @desc = desc
       @required = required
       @block = block
+      @file = file
+      @line = line
       @params = {}
     end
 
@@ -409,6 +431,10 @@ module Spectre
       @params.merge! params
     end
 
+    ##
+    # Run the mixin with the given parameters in the context of the given +RunContext+
+    # All methods of the +RunContext+ are available within the mixin block
+    #
     def run run_context, params
       params ||= {}
       params.merge! @params unless @params.empty?
@@ -913,12 +939,17 @@ module Spectre
         .report(runs)
     end
 
+    ##
+    # Cleanup temporary files like logs, etc.
     def cleanup
       Dir.chdir(Spectre::CONFIG['work_dir'])
       log_file_pattern = CONFIG['log_file'].gsub('<date>', '*')
       FileUtils.rm_rf(Dir.glob(log_file_pattern), secure: true)
     end
 
+    ##
+    # Describe a test subject
+    #
     def describe(name, &)
       main_context = CONTEXTS.find { |x| x.desc == name }
 
@@ -930,8 +961,19 @@ module Spectre
       main_context.instance_eval(&)
     end
 
+    ##
+    # Registers a mixin
+    #
     def mixin desc, params: [], &block
-      MIXINS[desc] = Mixin.new(desc, params, block)
+      file, line = get_call_location(caller_locations)
+      MIXINS[desc] = Mixin.new(desc, params, block, file, line)
+    end
+
+    ##
+    # Returns a list of all registered mixins
+    #
+    def mixins
+      MIXINS.values
     end
 
     def resources
