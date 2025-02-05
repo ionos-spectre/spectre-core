@@ -427,6 +427,9 @@ module Spectre
       @params = {}
     end
 
+    def params
+    end
+
     def with **params
       @params.merge! params
     end
