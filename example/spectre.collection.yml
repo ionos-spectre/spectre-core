@@ -1,0 +1,10 @@
+scary:
+  tags:
+   - ghosts
+
+trivia:
+  tags:
+   - emergency
+  specs:
+   - firehouse-1
+
