@@ -782,18 +782,17 @@ module Spectre
   end
 
   ##
-  # Define default config
-  # This `Hash` can be manipulated before calling `Spectre.setup`
-  # However config overrides should be done by passing `config_overrides` to `Spectre.setup`
+  # Defines the default config.
+  # This +Hash+ can be manipulated before calling +Spectre.setup+
+  # However config overrides should be done by passing +config_overrides+ to +Spectre.setup+
   #
   CONFIG = {
     'work_dir' => '.',
     'global_config_file' => '~/.config/spectre.yml',
     'config_file' => 'spectre.yml',
-    # 'log_file' => './logs/spectre_<date>.log',
-    'log_file' => StringIO.new,
+    'log_file' => StringIO.new, # Deactivate loggin by default
     'log_date_format' => '%F %T.%L%:z',
-    # [timestamp] LEVEL -- module_name: [spec-id] correlation_id log_message
+    # Format: [timestamp] LEVEL -- module_name: [spec-id] correlation_id log_message
     'log_message_format' => "[%s] %5s -- %s: [%s] [%s] %s\n",
     'formatter' => 'Spectre::SimpleFormatter',
     'reporter' => 'Spectre::SimpleReporter',
@@ -811,11 +810,22 @@ module Spectre
   }
 
   ##
-  # Contains all `Spectre::DefinitionContext`s added by `Spectre.describe`
+  # Contains all +Spectre::DefinitionContext+ added with +Spectre.describe+
   #
   CONTEXTS = []
+
+  ##
+  # Conains all the configured +Spectre::Mixin+ added with +Spectre.mixin+
+  #
   MIXINS = {}
+
+  ##
+  # Contains all resources loaded with +CONFIG+ +resource_paths+
+  #
   RESOURCES = {}
+
+  ##
+  # Contains all the loaded environments with +CONFIG+ +env_patterns+ and +env_partial_patterns+
   ENVIRONMENTS = {}
   COLLECTIONS = {}
 
@@ -936,6 +946,9 @@ module Spectre
       self
     end
 
+    ##
+    # Get a list of specs with the configured filter
+    #
     def list
       spec_filter = CONFIG['specs']
       tag_filter = CONFIG['tags']
@@ -950,6 +963,9 @@ module Spectre
         end
     end
 
+    ##
+    # Runs specs with the current config
+    #
     def run
       @logger = Logger.new(CONFIG)
 
