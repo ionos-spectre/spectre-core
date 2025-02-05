@@ -726,8 +726,8 @@ module Spectre
       selected = @specs.select { |x| specs.include? x }
       runs = []
 
-      if selected.any?
-        Spectre.formatter.scope(@desc, :context) do
+      Spectre.formatter.scope(@desc, :context) do
+        if selected.any?
           setup_bag = nil
 
           if @setups.any?
@@ -769,10 +769,8 @@ module Spectre
             end
           end
         end
-      end
 
-      @children.each do |context|
-        Spectre.formatter.scope nil, nil do
+        @children.each do |context|
           Spectre.logger.correlate do
             runs += context.run(specs)
           end
