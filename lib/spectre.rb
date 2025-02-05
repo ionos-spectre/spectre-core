@@ -316,7 +316,7 @@ module Spectre
 
       mixins.each do |mixin|
         output  = "#{mixin.desc.yellow}\n"
-        output += "  params.....: #{mixin.required.join ', '}\n" if mixin.required.any?
+        output += "  params.....: #{mixin.params.join ', '}\n" if mixin.params.any?
         output += "  location...: #{mixin.file}:#{mixin.line}"
         paragraphs << output
       end
@@ -416,22 +416,31 @@ module Spectre
   end
 
   class Mixin
-    attr_reader :desc, :required, :file, :line
+    # The description of the mixin. This value has to be unique
+    # as it is used for running the mixin.
+    attr_reader :desc
+    # A list of required parameters the mixin uses.
+    # When running the mixin, given params must contain the keys in this list.
+    attr_reader :params
+    # The file where the mixin is defined
+    attr_reader :file
+    # The line in the file where the mixin is defined
+    attr_reader :line
 
     def initialize desc, required, block, file, line
       @desc = desc
-      @required = required
+      @params = required
       @block = block
       @file = file
       @line = line
-      @params = {}
+      @given = {}
     end
 
-    def params
-    end
-
+    ##
+    # Add execution paramters
+    #
     def with **params
-      @params.merge! params
+      @given.merge! params
     end
 
     ##
@@ -440,10 +449,10 @@ module Spectre
     #
     def run run_context, params
       params ||= {}
-      params.merge! @params unless @params.empty?
+      params.merge! @given unless @given.empty?
 
-      if @required.any?
-        missing_params = @required - params.keys
+      if @params.any?
+        missing_params = @params - params.keys
         raise StandardError, "missing params: #{missing_params.join(', ')}" unless missing_params.empty?
       end
 
