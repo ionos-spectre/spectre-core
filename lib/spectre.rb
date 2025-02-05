@@ -825,8 +825,8 @@ module Spectre
     attr_reader :env, :formatter, :logger
 
     ##
-    # Setup spectre with given config
-    # Has to be called before any spec run
+    # Setup spectre with given config.
+    # Has to be called before any spec run.
     #
     def setup config_overrides
       # Load global config file
@@ -988,6 +988,9 @@ module Spectre
       MIXINS.values
     end
 
+    ##
+    # A dictionary of loaded resources
+    #
     def resources
       RESOURCES
     end
