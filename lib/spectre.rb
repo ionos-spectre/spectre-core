@@ -524,12 +524,16 @@ module Spectre
 
     ##
     # :method: assert
+    # :args: desc
+    #
     # Assert a specific condition. If a block is given methods from
     # the +EvaluationContext+ are available. If a failure is reported
     # within this block, the run will be *aborted*.
 
     ##
     # :method: expect
+    # :args: desc
+    #
     # Expect a specific condition. If a block is given methods from
     # the +EvaluationContext+ are available. If a failure is reported
     # within this block, the run will *continue*.
