@@ -3,10 +3,13 @@
 require_relative '../lib/spectre'
 require_relative '../lib/spectre/helpers'
 require_relative '../lib/spectre/assertion'
+require_relative '../lib/spectre/expectation'
 
 config_overrides = {
   'log_file' => './logs/spectre_<date>.log',
 }
+
+cleanup = false
 
 options = OptionParser.new do |opts|
   opts.banner = <<~BANNER
@@ -78,6 +81,10 @@ options = OptionParser.new do |opts|
 
   opts.on('--no-log', 'Disable file logging') do
     config_overrides['log_file'] = StringIO.new
+  end
+
+  opts.on('--cleanup', 'Cleans up before executing') do
+    cleanup = true
   end
 
   opts.on('-o PATH', '--out PATH', 'Output directory path') do |path|
@@ -159,6 +166,7 @@ when 'specs', 'sp'
 when 'describe', 'de'
   Spectre.formatter.describe(Spectre.subjects)
 when 'run', 'ru'
+  Spectre.cleanup if cleanup
   runs = Spectre.run
   puts
   Spectre.report(runs)
