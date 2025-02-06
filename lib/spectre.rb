@@ -462,14 +462,22 @@ module Spectre
     #
     def run run_context, params
       params ||= {}
-      params.merge! @given unless @given.empty?
 
-      if @params.any?
-        missing_params = @params - params.keys
-        raise StandardError, "missing params: #{missing_params.join(', ')}" unless missing_params.empty?
+      case params
+      when Hash
+        params.merge! @given unless @given.empty?
+
+        if @params.any?
+          missing_params = @params - params.keys
+          raise StandardError, "missing params: #{missing_params.join(', ')}" unless missing_params.empty?
+        end
+
+        params = [params.to_recursive_struct]
+      when Array
+        params = params.map(&:to_recursive_struct)
       end
 
-      run_context.instance_exec(params.to_recursive_struct, &@block)
+      run_context.instance_exec(*params, &@block)
     end
   end
 
