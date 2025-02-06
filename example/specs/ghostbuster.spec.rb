@@ -92,19 +92,25 @@ describe 'Ghostbuster' do
       end
 
       group 'together' do
-        info 'shoot the rays'
+        info 'Grab your stick!'
+        debug "HOLDIN'!"
+        info "Heat 'em up!"
+        debug "SMOKIN'!"
+        info "Make 'em hard!"
+        debug 'READY!'
+        info 'THROW IT!'
       end
 
       info 'try to capture entity'
 
       group 'together again' do
-        info 'shoot the rays'
+        info 'shoot the streams'
         info "don't panic"
         info 'keep it steady'
       end
 
       # An unexpected error will abort the current test run with status +error+
-      raise StandardError, 'rays have been crossed'
+      raise StandardError, 'streams have been crossed and that is bad'
     end
   end
 end
@@ -141,6 +147,8 @@ describe 'Firehouse' do
       debug 'rig up and keep the unit going'
     end
 
-    assert success?.to be true
+    assert 'the unit to work how' do
+      report 'cracks began to appear in the retaining wall' unless success?
+    end
   end
 end

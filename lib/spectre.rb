@@ -12,6 +12,8 @@ require 'logger'
 require 'stringio'
 
 require_relative 'spectre/version'
+require_relative 'spectre/assertion'
+require_relative 'spectre/helpers'
 
 def get_call_location call_stack
   loc = (call_stack || caller_locations)
@@ -57,6 +59,28 @@ module Spectre
   class AbortException < StandardError
   end
 
+  module Delegate
+    @@methods = {}
+
+    def respond_to_missing?(method, *)
+      @@methods.keys.include? method
+    end
+
+    def method_missing(method, *)
+      super unless @@methods.keys.include? method
+
+      target = @@methods[method]
+      target = target.call if target.is_a? Proc
+      target.send(method, *)
+    end
+
+    def self.register target, *methods
+      methods.each do |method|
+        @@methods[method] = target
+      end
+    end
+  end
+
   class Failure < StandardError
     # A message describing the failure
     attr_reader :message
@@ -82,6 +106,8 @@ module Spectre
   end
 
   class EvaluationContext
+    include Delegate
+
     attr_reader :desc, :failures
 
     def initialize(desc, &)
@@ -482,6 +508,8 @@ module Spectre
   end
 
   class RunContext
+    include Delegate
+
     attr_reader :id, :name, :parent, :type, :logs, :bag, :error,
                 :evaluations, :started, :finished, :properties
 
@@ -1111,6 +1139,27 @@ module Spectre
         .map { |x| x[1..] }
 
       included_tags & tags == included_tags and excluded_tags & tags == []
+    end
+  end
+
+  # Delegate methods to specific classes or instances
+  # to be available in descending block
+  [
+    [self, %i[debug info warn log]],
+    [proc { RunContext.current }, %i[assert expect bag observe success? skip]],
+    [Assertion, %i[to be be_empty contain match]],
+    [Helpers, %i[uuid now]],
+  ].each do |target, methods|
+    Delegate.register(target, *methods)
+  end
+
+  [
+    [self, %i[env describe mixin]],
+  ].each do |target, methods|
+    methods.each do |method|
+      Kernel.define_method(method) do |*args, **kwargs, &block|
+        target.send(method, *args, **kwargs, &block)
+      end
     end
   end
 end

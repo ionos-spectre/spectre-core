@@ -1,8 +1,6 @@
 #!/usr/bin/ruby
 
 require_relative '../lib/spectre'
-require_relative '../lib/spectre/helpers'
-require_relative '../lib/spectre/assertion'
 require_relative '../lib/spectre/expectation'
 
 config_overrides = {
@@ -140,20 +138,6 @@ end
 
 # Parse options and get action
 action = options.parse!.first || 'run'
-
-# Expose spectre methods
-[
-  [Spectre, %i[env describe mixin resources debug info warn log]],
-  [Spectre::RunContext, %i[assert expect bag observe success? skip]],
-  [Spectre::Assertion, %i[to be be_empty contain match]],
-  [Spectre::Helpers, %i[uuid now]],
-].each do |target, methods|
-  methods.each do |method|
-    Kernel.define_method(method) do |*args, **kwargs, &block|
-      target.send(method, *args, **kwargs, &block)
-    end
-  end
-end
 
 # Setup spectre
 Spectre.setup(config_overrides)

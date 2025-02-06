@@ -324,6 +324,22 @@ RSpec.describe Spectre::RunContext do
     end
   end
 
+  it 'uses success within an evaluation block' do
+    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+      context.execute({}) do
+        observe 'a process' do
+          ## do nothing here
+        end
+
+        expect 'to be successful' do
+          report 'not successful' unless success?
+        end
+      end
+    end
+
+    expect(run_context.status).to eq(:success)
+  end
+
   context 'mixin' do
     it 'does execute' do
       console_out = StringIO.new
