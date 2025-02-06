@@ -36,7 +36,7 @@ describe 'Ghostbuster' do
     info 'seal ghost trap'
   end
 
-  it 'accepts emergency calls', tags: [:emergency, :call, :failed] do
+  it 'accepts emergency calls', tags: [:emergency, :call, :failed, :expect, :assert] do
     info 'pickup the phone'
 
     answer = do_phone_call('216 245-2368')
@@ -57,7 +57,7 @@ describe 'Ghostbuster' do
     info "won't continue if someone is a coward"
   end
 
-  it 'hunts at the Sedgewick Hotel', tags: [:ghosts, :success] do
+  it 'hunts at the Sedgewick Hotel', tags: [:ghosts, :success, :expect, :assert] do
     entity_color = 'green'
     entity_desc = 'A real nasty one!'
     storage_facility = ['Ghoul', 'Library ghost', 'Ivo Shandor']
@@ -79,7 +79,7 @@ describe 'Ghostbuster' do
       info 'do the usual stuff'
     end
 
-    it 'captures some ghosts', tags: [:emergency, :ghosts, :error] do
+    it 'captures some ghosts', tags: [:emergency, :ghosts, :error, :group, :mixin] do
       # Run the mixin with the given description
       # Mixins help to run reusable logic with given parameters
       # Do use mixins for *test logic*
@@ -118,5 +118,29 @@ describe 'Firehouse' do
   it 'is the home of the Ladder 8 company', tags: [:trivia] do
     info "it's name is Hook & Ladder Company 8 Firehouse"
     info 'located at 14 North Moore Street'
+  end
+
+  it 'has a functioning containment unit', tags: [:fails, :observe, :expect, :assert] do
+    # Use observe to capture any error wihtin the block
+    observe 'containment unit' do
+      raise StandardError, 'a blackout occured'
+    end
+
+    expect success?.to be true
+
+    # The status of the observation can be retrieved wiht +success?+
+    unless success?
+      info 'but backup battery in place'
+      debug 'set recovery time to 3 seconds after blackout'
+    end
+
+    observe 'containment unit again' do
+      debug 'is possessed by Killerwatt'
+      info 'use generator from Ecto-1'
+      info 'tell Peter to buy a bicycle'
+      debug 'rig up and keep the unit going'
+    end
+
+    assert success?.to be true
   end
 end
