@@ -908,7 +908,7 @@ module Spectre
       end
 
       # Select environment and merge it
-      CONFIG.deep_merge!(ENVIRONMENTS[CONFIG.delete('selected_env') || DEFAULT_ENV_NAME])
+      CONFIG.deep_merge!(ENVIRONMENTS[config_overrides.delete('selected_env') || DEFAULT_ENV_NAME])
 
       # Load collections
       CONFIG['collection_patterns'].each do |pattern|

@@ -12,6 +12,7 @@ RSpec.describe Spectre do
         'stdout' => console_out,
         'work_dir' => work_dir,
         'tags' => ['success+!ignore'],
+        'selected_env' => 'staging',
         'modules' => [
           # Make spectre to load a relative module
           './modules/some_module.rb',
@@ -25,7 +26,7 @@ RSpec.describe Spectre do
     # Check if the global config was loaded
     expect(Spectre.env.some_global_var).to eq('what ever')
     # Check if the env file was loaded
-    expect(Spectre.env.foo).to eq('bar')
+    expect(Spectre.env.foo).to eq('buff')
     # Check if the partial env file was loaded
     expect(Spectre.env.some_secret).to eq('bar')
     # Check if spectre config was loaded
