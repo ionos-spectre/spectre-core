@@ -5,6 +5,3 @@ mixin "consult Tobin's Spirit Guide", params: [:entity] do |params|
   info "searching for information about #{params.entity}"
   debug "checking for occurance in #{params.occurance}"
 end
-
-mixin 'even do more things', params: [:foo, :bar] do
-end
