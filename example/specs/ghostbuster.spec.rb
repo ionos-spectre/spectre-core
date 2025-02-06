@@ -62,9 +62,9 @@ describe 'Ghostbuster' do
     entity_desc = 'A real nasty one!'
     storage_facility = ['Ghoul', 'Library ghost', 'Ivo Shandor']
 
-    assert entity_color.to be 'green'
+    expect entity_color.to be 'green'
     assert entity_desc.to match 'nasty'
-    assert entity_desc.not to be 'Class V entity'
+    expect entity_desc.not to be 'Class V entity'
     assert storage_facility.to contain 'Ghoul'
   end
 
