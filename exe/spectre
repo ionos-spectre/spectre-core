@@ -73,9 +73,10 @@ options = OptionParser.new do |opts|
     config_overrides['collection'] = name
   end
 
-  # opts.on('--json', 'Use JSON formatter') do
-  #   Spectre::CONFIG['formatter'] = 'Spectre::JsonFormatter'
-  # end
+  opts.on('--json', 'Use JSON formatter') do
+    Spectre::CONFIG['formatter'] = 'Spectre::JsonFormatter'
+    Spectre::CONFIG['reporters'] = ['Spectre::JsonReporter']
+  end
 
   opts.on('--no-log', 'Disable file logging') do
     config_overrides['log_file'] = StringIO.new

@@ -219,7 +219,7 @@ module Spectre
 
           output += "#{index})"
           output += " #{run.parent.full_desc}"
-          output += " (#{(run.finished - run.started).duration})"
+          output += " (#{run.duration})"
           output += " [#{run.parent.name}]"
 
           output += "\n"
@@ -275,6 +275,117 @@ module Spectre
         end
 
       @out.puts output.red
+    end
+  end
+
+  class JsonReporter
+    def initialize config
+      @out = config['stdout'] || $stdout
+      @debug = config['debug']
+    end
+
+    def report runs
+      runs = runs.select { |x| x.parent.is_a? Specification }
+
+      errors    = runs.count { |x| x.status == :error }
+      failed    = runs.count { |x| x.status == :failed }
+      skipped   = runs.count { |x| x.status == :skipped }
+      succeeded = runs.count - errors - failed - skipped
+
+      report = {
+        errors: errors,
+        failed: failed,
+        skipped: skipped,
+        succeeded: succeeded,
+        runs: runs.map do |run|
+          {
+            spec: run.parent.name,
+            desc: run.parent.full_desc,
+            duration: run.duration,
+            status: run.status,
+            error: run.error,
+            evaluations: run.evaluations.map do |evaluation|
+              {
+                desc: evaluation.desc,
+                failures: evaluation.failures.map do |failure|
+                  {
+                    message: failure.message,
+                    file: failure.file,
+                    line: failure.line,
+                  }
+                end
+              }
+            end
+          }
+        end
+      }
+
+      @out.puts JSON.pretty_generate(report)
+    end
+  end
+
+  class JsonFormatter
+    def initialize config
+      @out = config['stdout'] || $stdout
+      @curr_scope = nil
+    end
+
+    def scope desc, type
+      id = SecureRandom.hex(8)
+
+      prev_scope = @curr_scope
+      @curr_scope = id
+
+      spec = type.is_a?(Specification) ? type.name : nil
+      context = type.is_a?(DefinitionContext) ? type.name : nil
+
+      @out.puts JSON.dump({
+        id: id,
+        type: 'scope',
+        desc: desc,
+        scope: type,
+        spec: spec,
+        context: context,
+      })
+
+      yield
+    ensure
+      @curr_scope = prev_scope
+    end
+
+    def log level, message, status = nil, desc = nil
+      id = SecureRandom.hex(8)
+
+      @out.puts JSON.dump({
+        id: id,
+        scope: @curr_scope,
+        type: 'log',
+        run: RunContext.current.id,
+        level: level,
+        message: message,
+        status: status,
+        desc: desc,
+      })
+
+      return unless block_given?
+
+      begin
+        level, status, desc = yield
+      rescue StandardError => e
+        level = :fatal
+        status = :error
+        desc = e.class
+        error = e
+      end
+
+      @out.puts JSON.dump({
+        id: id,
+        type: 'status',
+        level: level,
+        status: status,
+        desc: desc,
+        error: error,
+      })
     end
   end
 
@@ -370,11 +481,11 @@ module Spectre
                          desc.magenta
                        when :group
                          desc.grey
-                       when :spec
+                       when Specification
                          desc.cyan
                        when :mixin
                          desc.yellow
-                       when :context
+                       when DefinitionContext
                          desc.blue
                        else
                          desc
@@ -398,6 +509,8 @@ module Spectre
 
     def log level, message, status = nil, desc = nil
       return if @locked
+
+      message = message.red if level == :fatal
 
       write(message, fill: true) if block_given? or @debug or level != :debug
 
@@ -522,7 +635,7 @@ module Spectre
     end
 
     def initialize parent, type, bag = nil
-      @id = SecureRandom.hex(5)
+      @id = SecureRandom.hex(8)
 
       @parent = parent
       @type = type
@@ -561,7 +674,7 @@ module Spectre
       raise Interrupt if (@@skip_count += 1) > 2
     rescue StandardError => e
       @error = e
-      Spectre.formatter.log(:fatal, e.message.red, :error, e.class.name)
+      Spectre.formatter.log(:fatal, e.message, :error, e.class.name)
       Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
     end
 
@@ -626,7 +739,7 @@ module Spectre
     end
 
     def observe desc
-      Spectre.formatter.log(:info, "observe #{desc}".cyan) do
+      Spectre.formatter.log(:info, "observe #{desc}") do
         yield
         @success = true
         [:info, :ok, nil]
@@ -672,7 +785,7 @@ module Spectre
     attr_reader :id, :name, :desc, :full_desc, :parent, :root, :tags, :data, :file
 
     def initialize parent, name, desc, tags, data, file, block
-      @id = SecureRandom.hex(5)
+      @id = SecureRandom.hex(8)
       @parent = parent
       @root = parent.root
       @name = name
@@ -686,7 +799,7 @@ module Spectre
 
     def run befores, afters, bag
       RunContext.new(self, :spec, bag) do |run_context|
-        Spectre.formatter.scope(@desc, :spec) do
+        Spectre.formatter.scope(@desc, self) do
           befores.each do |block|
             Spectre.formatter.scope('before', :before) do
               Spectre.logger.correlate do
@@ -713,7 +826,7 @@ module Spectre
     attr_reader :id, :name, :desc, :parent, :full_desc, :children, :specs
 
     def initialize desc, parent = nil
-      @id = SecureRandom.hex(5)
+      @id = SecureRandom.hex(8)
       @parent = parent
       @desc = desc
       @children = []
@@ -796,7 +909,7 @@ module Spectre
 
       selected = @specs.select { |x| specs.include? x }
 
-      Spectre.formatter.scope(@desc, :context) do
+      Spectre.formatter.scope(@desc, self) do
         if selected.any?
           setup_bag = nil
 
@@ -865,7 +978,7 @@ module Spectre
     # Format: [timestamp] LEVEL -- module_name: [spec-id] correlation_id log_message
     'log_message_format' => "[%s] %5s -- %s: [%s] [%s] %s\n",
     'formatter' => 'Spectre::SimpleFormatter',
-    'reporter' => 'Spectre::SimpleReporter',
+    'reporters' => ['Spectre::SimpleReporter'],
     'out_path' => 'reports',
     'specs' => [],
     'tags' => [],
@@ -1055,9 +1168,11 @@ module Spectre
     end
 
     def report runs
-      Object.const_get(CONFIG['reporter'])
-        .new(CONFIG)
-        .report(runs)
+      CONFIG['reporters'].each do |reporter|
+        Object.const_get(reporter)
+          .new(CONFIG)
+          .report(runs)
+      end
     end
 
     ##
