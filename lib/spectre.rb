@@ -789,8 +789,11 @@ module Spectre
     end
 
     def run specs
-      selected = @specs.select { |x| specs.include? x }
       runs = []
+
+      return runs unless all_specs.any? { |x| specs.include? x }
+
+      selected = @specs.select { |x| specs.include? x }
 
       Spectre.formatter.scope(@desc, :context) do
         if selected.any?

@@ -152,6 +152,7 @@ when 'describe', 'de'
 when 'run', 'ru'
   Spectre.cleanup if cleanup
   runs = Spectre.run
+  exit if runs.nil?
   puts
   Spectre.report(runs)
 when 'env', 'en'
