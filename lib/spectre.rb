@@ -1145,7 +1145,7 @@ module Spectre
   # Delegate methods to specific classes or instances
   # to be available in descending block
   [
-    [self, %i[debug info warn log]],
+    [self, %i[resources debug info warn log]],
     [proc { RunContext.current }, %i[assert expect bag observe success? skip]],
     [Assertion, %i[to be be_empty contain match]],
     [Helpers, %i[uuid now]],
