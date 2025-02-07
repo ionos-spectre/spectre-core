@@ -557,6 +557,7 @@ module Spectre
       @skipped = true
       Spectre.formatter.log(:debug, nil, :skipped, 'canceled by user')
       Spectre.logger.info("#{@parent.desc} - canceled by user")
+      raise Interrupt if (@@skip_count += 1) > 2
     rescue StandardError => e
       @error = e
       Spectre.formatter.log(:fatal, e.message.red, :error, e.class.name)
@@ -1040,6 +1041,8 @@ module Spectre
           context.run(specs)
         end
         .flatten
+    rescue Interrupt
+      # Do nothing here
     end
 
     def report runs
