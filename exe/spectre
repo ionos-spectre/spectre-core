@@ -158,7 +158,9 @@ when 'run', 'ru'
 when 'env', 'en'
   puts Spectre::CONFIG.pretty
 when 'mixins', 'mi', 'mx'
-  Spectre.formatter.mixins(Spectre.mixins)
+  search = ARGV.first
+  mixins = Spectre.mixins.select { |x| x.desc.include? search }
+  Spectre.formatter.mixins(mixins)
 when 'collections', 'co'
   puts Spectre.collections.pretty
 when 'cleanup', 'cl'
