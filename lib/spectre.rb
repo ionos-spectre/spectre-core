@@ -860,7 +860,7 @@ module Spectre
     'work_dir' => '.',
     'global_config_file' => '~/.config/spectre.yml',
     'config_file' => 'spectre.yml',
-    'log_file' => StringIO.new, # Deactivate loggin by default
+    'log_file' => StringIO.new, # Deactivate logging by default
     'log_date_format' => '%F %T.%L%:z',
     # Format: [timestamp] LEVEL -- module_name: [spec-id] correlation_id log_message
     'log_message_format' => "[%s] %5s -- %s: [%s] [%s] %s\n",
@@ -902,7 +902,7 @@ module Spectre
   DEFAULT_ENV_NAME = 'default'
 
   class << self
-    attr_reader :env, :formatter, :logger
+    attr_reader :env, :formatter
 
     ##
     # Setup spectre with given config.
@@ -993,6 +993,10 @@ module Spectre
         end
       end
 
+      @formatter = Object
+        .const_get(CONFIG['formatter'])
+        .new(CONFIG)
+
       # Load modules
       if CONFIG['modules'].is_a? Array
         CONFIG['modules'].each do |module_name|
@@ -1006,14 +1010,17 @@ module Spectre
         end
       end
 
-      @formatter = Object.const_get(CONFIG['formatter']).new(CONFIG)
-
-      # If log file is an actual file path do not initilize the logger yet
-      # as it will create the file immediatly, even the specs are just listed
-      # Initialize it for testing purposes
-      @logger = Logger.new(CONFIG) unless CONFIG['log_file'].is_a? String
+      ##
+      # Reset logger in case +setup+ has been called again
+      # with different logger configs. Happens mostly in tests.
+      # Rather irrelevant for cli usage, but does not hurt
+      @logger = nil
 
       self
+    end
+
+    def logger
+      @logger ||= Logger.new(CONFIG, progname: 'spectre')
     end
 
     ##
@@ -1037,8 +1044,6 @@ module Spectre
     # Runs specs with the current config
     #
     def run
-      @logger = Logger.new(CONFIG)
-
       list
         .group_by { |x| x.parent.root }
         .map do |context, specs|
