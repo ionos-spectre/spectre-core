@@ -137,7 +137,7 @@ options = OptionParser.new do |opts|
 end
 
 # Parse options and get action
-action = options.parse!.first || 'run'
+action = options.parse!.delete_at(0) || 'run'
 
 # Setup spectre
 Spectre.setup(config_overrides)
