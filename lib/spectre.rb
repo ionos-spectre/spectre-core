@@ -136,7 +136,7 @@ module Spectre
   end
 
   class Logger < ::Logger
-    def initialize config
+    def initialize(config, **)
       log_file = config['log_file']
 
       if log_file.is_a? String
@@ -144,7 +144,7 @@ module Spectre
         FileUtils.mkdir_p(File.dirname(log_file))
       end
 
-      super(log_file)
+      super(log_file, **)
 
       if config['debug']
         debug!
@@ -356,7 +356,7 @@ module Spectre
       mixins.each do |mixin|
         output  = "#{mixin.desc.yellow}\n"
         output += "  params.....: #{mixin.params.join ', '}\n" if mixin.params.any?
-        output += "  location...: #{mixin.file}:#{mixin.line}"
+        output += "  location...: #{mixin.file.sub(Dir.pwd, '.')}:#{mixin.line}"
         paragraphs << output
       end
 
@@ -495,7 +495,7 @@ module Spectre
 
         if @params.any?
           missing_params = @params - params.keys
-          raise StandardError, "missing params: #{missing_params.join(', ')}" unless missing_params.empty?
+          raise "missing params: #{missing_params.join(', ')}" unless missing_params.empty?
         end
 
         params = [params.to_recursive_struct]
@@ -515,6 +515,7 @@ module Spectre
 
     @@current = nil
     @@location_cache = {}
+    @@skip_count = 0
 
     def self.current
       @@current
@@ -774,7 +775,7 @@ module Spectre
       file = caller
         .first
         .gsub(/:in .*/, '')
-        .gsub(Dir.getwd, '.')
+        .gsub(Dir.pwd, '.')
 
       with ||= [nil]
 
@@ -961,7 +962,7 @@ module Spectre
       if config_overrides.key? 'collection'
         collection = COLLECTIONS[config_overrides['collection']]
 
-        raise StandardError, "collection #{config_overrides['collection']} not found" unless collection
+        raise "collection #{config_overrides['collection']} not found" unless collection
 
         CONFIG.deep_merge!(collection)
       end
