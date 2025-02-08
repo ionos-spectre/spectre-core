@@ -320,14 +320,44 @@ module Spectre
         end
       }
 
-      @out.puts JSON.pretty_generate(report)
+      @out.puts JSON.dump(report)
     end
   end
 
   class JsonFormatter
     def initialize config
       @out = config['stdout'] || $stdout
+      @out.sync = true
       @curr_scope = nil
+    end
+
+    def describe contexts
+      @out.puts JSON.dump de(contexts)
+    end
+
+    def de contexts
+      contexts.map do |context|
+        {
+          name: context.name,
+          desc: context.desc,
+          specs: context.specs.map do |spec|
+            {
+              name: spec.name,
+              desc: spec.desc,
+              tags: spec.tags,
+            }
+          end,
+          children: de(context.children),
+        }
+      end
+    end
+
+    def list specs
+      @out.puts JSON.pretty_generate(specs.map do |spec|
+        {
+          name: spec.name,
+        }
+      end)
     end
 
     def scope desc, type
@@ -336,8 +366,15 @@ module Spectre
       prev_scope = @curr_scope
       @curr_scope = id
 
-      spec = type.is_a?(Specification) ? type.name : nil
-      context = type.is_a?(DefinitionContext) ? type.name : nil
+      if type.is_a?(Specification)
+        spec =  type.name
+        type = :spec
+      end
+
+      if type.is_a?(DefinitionContext)
+        context =  type.name
+        type = :context
+      end
 
       @out.puts JSON.dump({
         id: id,
