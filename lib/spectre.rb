@@ -364,7 +364,6 @@ module Spectre
       id = SecureRandom.hex(8)
 
       prev_scope = @curr_scope
-      @curr_scope = id
 
       if type.is_a?(Specification)
         spec =  type.name
@@ -380,11 +379,13 @@ module Spectre
         id: id,
         type: 'scope',
         desc: desc,
+        parent: @curr_scope,
         scope: type,
         spec: spec,
         context: context,
       })
 
+      @curr_scope = id
       yield
     ensure
       @curr_scope = prev_scope
@@ -395,7 +396,7 @@ module Spectre
 
       @out.puts JSON.dump({
         id: id,
-        scope: @curr_scope,
+        parent: @curr_scope,
         type: 'log',
         run: RunContext.current.id,
         level: level,
