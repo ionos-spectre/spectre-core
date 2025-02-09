@@ -366,12 +366,12 @@ module Spectre
       prev_scope = @curr_scope
 
       if type.is_a?(Specification)
-        spec =  type.name
+        spec = type.name
         type = :spec
       end
 
       if type.is_a?(DefinitionContext)
-        context =  type.name
+        context = type.name
         type = :context
       end
 
@@ -673,8 +673,6 @@ module Spectre
     end
 
     def initialize parent, type, bag = nil
-      @id = SecureRandom.hex(8)
-
       @parent = parent
       @type = type
       @logs = []
@@ -823,7 +821,6 @@ module Spectre
     attr_reader :id, :name, :desc, :full_desc, :parent, :root, :tags, :data, :file
 
     def initialize parent, name, desc, tags, data, file, block
-      @id = SecureRandom.hex(8)
       @parent = parent
       @root = parent.root
       @name = name
@@ -864,7 +861,6 @@ module Spectre
     attr_reader :id, :name, :desc, :parent, :full_desc, :children, :specs
 
     def initialize desc, parent = nil
-      @id = SecureRandom.hex(8)
       @parent = parent
       @desc = desc
       @children = []

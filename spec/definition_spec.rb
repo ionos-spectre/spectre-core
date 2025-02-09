@@ -58,7 +58,6 @@ RSpec.describe Spectre::Specification do
       Spectre.info 'another message'
     end
 
-    expect(subject.id).not_to be_nil
     expect(subject.name).to eq('some_subject')
     expect(subject.full_desc).to eq('Some subject')
     expect(subject.root).to be(subject)

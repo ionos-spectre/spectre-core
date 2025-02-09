@@ -33,7 +33,6 @@ RSpec.describe Spectre::Specification do
     )
 
     expect(spec.full_desc).to eq('Some subject does something')
-    expect(spec.id).not_to be_nil
     expect(spec.root).to be @subject
 
     befores = [
