@@ -160,7 +160,7 @@ when 'env', 'en'
   puts Spectre::CONFIG.pretty
 when 'mixins', 'mi', 'mx'
   search = ARGV.first
-  mixins = Spectre.mixins.select { |x| x.desc.include? search }
+  mixins = Spectre.mixins.select { |x| search.nil? or x.desc.include? search }
   Spectre.formatter.mixins(mixins)
 when 'collections', 'co'
   puts Spectre.collections.pretty
