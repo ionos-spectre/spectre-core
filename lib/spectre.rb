@@ -460,7 +460,7 @@ module Spectre
     #
     def describe contexts, level = 0
       contexts.each do |context|
-        @out.puts("#{'  ' * level}#{context.desc.send(level.positive? ? :cyan : :blue)}")
+        @out.puts("#{'  ' * level}#{context.desc.send(level.positive? ? :magenta : :blue)}")
 
         context.specs.each do |spec|
           @out.puts("#{'  ' * (level + 1)}#{spec.desc}")
