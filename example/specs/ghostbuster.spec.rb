@@ -136,7 +136,7 @@ describe 'Firehouse' do
 
     # The status of the observation can be retrieved wiht +success?+
     unless success?
-      info 'but backup battery in place'
+      info 'put backup battery in place'
       debug 'set recovery time to 3 seconds after blackout'
     end
 
@@ -147,7 +147,7 @@ describe 'Firehouse' do
       debug 'rig up and keep the unit going'
     end
 
-    assert 'the unit to work how' do
+    assert 'the unit to work now' do
       report 'cracks began to appear in the retaining wall' unless success?
     end
   end
