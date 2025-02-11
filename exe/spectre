@@ -184,48 +184,101 @@ when 'init', 'in'
   CONTENT
 
   DEFAULT_ENV_CFG = <<~CONTENT
+    # Set the environment name.
+    # This property is optional. If not set, the environment name is "default"
+    name: default
+
+    # Define reusable variables
+    # See https://yaml.org/spec/1.2.2/#anchors-and-aliases
     cert: &cert ./resources/<root_cert>.cer
+
+    # Define HTTP client configs used by the `http` module
     http:
       <http_client_name>:
+        # Set the base URL of the API for the client to use
         base_url: http://localhost:5000/api/v1/
+
+        # Set a custom CA certificate for server cert validation
+        cert: *cert
+
+        # You can set a path to an OpenAPI spec.
+        # This can be a file or a URL.
+        # Request options can then be set by the `endpoint` method
+        # which refers to the operation ID of the OpenAPI endpoint
+        # openapi: [https://localhost:5000]/doc/openapi.json
+
+        # Define basicauth authentication here
+        # Do NOT put credentials in this file.
+        # Use the `*.env.secret.yml` files instead
         # basic_auth:
-          # username: <username>
-          # password:
-    # ssh:
-      # <ssh_client_name>:
-        # host: <hostname>
-        # username: <username>
-        # password: <password>
+        #   username: <username>
+        #   password:
   CONTENT
 
   DEFAULT_ENV_SECRET_CFG = <<~CONTENT
+    # Define sensitive data here and do NOT commit this file in version control
+    some_secret: thisissensitivedata
+
     http:
       <http_client_name>:
         # basic_auth:
-          # username: <username>
-          # password: <password>
+        #   username: <username>
+        #   password: <password>
   CONTENT
 
   SAMPLE_SPEC = <<~CONTENT
+    # Define a test subject. This can be the name of the component
+    # or the name of a specific feature or requirement.
     describe '<subject>' do
       it 'does some http requests', tags: [:sample] do
+        # Use log messages to describe processes
         log 'doing some http request'
 
+        # Use external or custom module
         http '<http_client_name>' do
-          method 'GET'
-          auth 'basic'
-          path 'path/to/resource'
-          param 'id', 4295118773
-          param 'foo', 'bar'
+          # To request a specific endpoint, predefined endpoints
+          # or openapi operations can be used...
+          # endpoint 'getSomeResource'
+
+          # ... or define a request in short form...
+          get 'api/v1/some-resource/{resourceId}'
+
+          # ... or use explicit method and path settings
+          # method 'GET'
+          # path 'api/v1/some-resource/{resourceId}'
+
+          # Set route parameter
+          with resourceId: 42
+
+          # Set query parameters. This method can
+          # be called multiple times.
+          query id: 4295118773,
+                foo: 'bar'
+
+          # Set request headers
           header 'X-Correlation-Id', '4c2367b1-bfee-4cc2-bdc5-ed17a6a9dd4b'
           header 'Range', 'bytes=500-999'
+
+          # Set request body as JSON.
+          # This call also sets `application/json` content type.
           json({
             "message": "Hello Spectre!"
           })
         end
 
+        # Expect conditions in a single line
+        # If the check fails, the run will continue
+        expect(response.headers['X-Correlation-Id']).not to be empty
+
+        # Assert conditions in a single line...
+        # If an assertion fails, the run will be aborted
         assert response.code.to be 200
 
+        # ...or assert multiple conditions in a block
+        # All conditions within this block will be evaluated.
+        # After the block finishes and a failure was reported,
+        # the run will be aborted.
+        # When using `expect` instead of `assert` the run will continue.
         assert 'the correct data to be returned' do
           report failure 'message not correct' unless respone.json.message == 'Hello World!'
           report failure 'incorrect number' unless respone.json.number == 42
