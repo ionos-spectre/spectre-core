@@ -1174,16 +1174,16 @@ module Spectre
     # Get a list of specs with the configured filter
     #
     def list
-      spec_filter = CONFIG['specs']
-      tag_filter = CONFIG['tags']
+      spec_filter = CONFIG['specs'] || []
+      tag_filter = CONFIG['tags'] || []
 
       CONTEXTS
         .map(&:all_specs)
         .flatten
         .select do |spec|
           (spec_filter.empty? and tag_filter.empty?) or
-            (spec_filter.empty? or spec_filter.any? { |x| spec.name.match?("^#{x.gsub('*', '.*')}$") }) and
-            (tag_filter.empty? or tag_filter.any? { |x| tag?(spec.tags, x) })
+            spec_filter.any? { |x| spec.name.match?("^#{x.gsub('*', '.*')}$") } or
+            tag_filter.any? { |x| tag?(spec.tags, x) }
         end
     end
 
