@@ -48,6 +48,7 @@ end
 class String
   alias error   red
   alias failed  red
+  alias fatal   red
   alias warn    yellow
   alias ok      green
   alias info    blue
@@ -549,9 +550,9 @@ module Spectre
     def log level, message, status = nil, desc = nil
       return if @locked
 
-      message = message.red if level == :fatal
+      color = [:fatal, :debug].include?(level) ? level : nil
 
-      write(message, fill: true) if block_given? or @debug or level != :debug
+      write(message, fill: true, color:) if block_given? or @debug or level != :debug
 
       error = nil
 
@@ -591,18 +592,19 @@ module Spectre
       ' ' * (@level * @indent)
     end
 
-    def write message, fill: false
-      if message.nil? or message.empty?
-        output = indent
-        @out.print output
+    def write message, fill: false, color: nil
+      output = if message.nil? or message.empty?
+        indent
       else
-        message.lines.each do |line|
-          output = indent + line
-          @out.print output
-        end
+        message.lines.map do |line|
+          indent + line
+        end.join
       end
 
-      @out.print '.' * (@width > output.length ? @width - output.length : 0) if fill
+      output += '.' * (@width > output.length ? @width - output.length : 0) if fill
+      output = output.send(color) unless color.nil?
+
+      @out.print output
     end
   end
 
