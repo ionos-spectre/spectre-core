@@ -45,6 +45,10 @@ options = OptionParser.new do |opts|
     config_overrides['config_file'] = file_path
   end
 
+  opts.on('-C', '--collection NAME', 'Run or list specs of a specific collection') do |name|
+    config_overrides['collection'] = name
+  end
+
   opts.on('--work-dir PATH', 'Path of the working directory') do |path|
     config_overrides['work_dir'] = path
   end
@@ -67,10 +71,6 @@ options = OptionParser.new do |opts|
 
   opts.on('--reporter NAME', 'Use specified reporter') do |class_name|
     config_overrides['reporter'] = class_name
-  end
-
-  opts.on('--collection NAME', 'Run or list specs of a specific collection') do |name|
-    config_overrides['collection'] = name
   end
 
   opts.on('--json', 'Use JSON formatter') do
