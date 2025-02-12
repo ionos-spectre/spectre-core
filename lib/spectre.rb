@@ -67,12 +67,12 @@ module Spectre
       @@methods.keys.include? method
     end
 
-    def method_missing(method, *)
+    def method_missing(method, *, &block)
       super unless @@methods.keys.include? method
 
       target = @@methods[method]
       target = target.call if target.is_a? Proc
-      target.send(method, *)
+      target.send(method, *, &block)
     end
 
     def self.register target, *methods
