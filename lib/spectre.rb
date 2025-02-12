@@ -722,6 +722,10 @@ module Spectre
       :success
     end
 
+    def fail_with message
+      raise Failure, message
+    end
+
     ##
     # :method: assert
     # :args: desc
@@ -1315,7 +1319,7 @@ module Spectre
   # to be available in descending block
   [
     [self, %i[resources debug info warn log]],
-    [proc { RunContext.current }, %i[assert expect bag observe success? measure duration skip]],
+    [proc { RunContext.current }, %i[assert expect bag fail_with observe success? measure duration skip]],
     [Assertion, %i[to be be_empty contain match]],
     [Helpers, %i[uuid now]],
   ].each do |target, methods|
