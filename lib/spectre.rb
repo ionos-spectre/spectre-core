@@ -125,6 +125,7 @@ module Spectre
           [:info, :ok, nil]
         end
       rescue Failure => e
+        Spectre.logger.error("#{desc} - failed")
         @failures << e
         [:error, :failed, nil]
       end

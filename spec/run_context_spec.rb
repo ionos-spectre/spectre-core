@@ -73,6 +73,22 @@ RSpec.describe Spectre::RunContext do
     expect(lines.first).to eq("this is a log message#{'.' * 59}#{'[info]'.blue}\n")
   end
 
+  it 'fail with a message' do
+    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+      context.execute([]) do
+        Spectre.info 'this is a log message'
+
+        assert 'something' do
+          fail_with 'a message'
+        end
+      end
+    end
+
+    expect(run_context.status).to eq(:failed)
+    expect(run_context.logs.count).to eq(2)
+    expect(run_context.logs[1][4]).to eq('assert something - failed')
+  end
+
   it 'lets define run properties' do
     run_context = Spectre::RunContext.new(@spec, :spec) do |context|
       context.execute([]) do
