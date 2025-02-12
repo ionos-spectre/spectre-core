@@ -781,7 +781,7 @@ module Spectre
         [:info, :ok, nil]
       rescue StandardError => e
         @success = false
-        Spectre.logger.debug("#{e.message}\n#{e.backtrace.join("\n")}")
+        Spectre.logger.warn("#{e.message}\n#{e.backtrace.join("\n")}")
         [:info, :warn, e.message]
       end
     end
