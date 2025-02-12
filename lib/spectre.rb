@@ -1282,13 +1282,15 @@ module Spectre
       RESOURCES
     end
 
-    %i[debug info warn log].each do |method|
+    %i[debug info warn].each do |method|
       define_method(method) do |message|
         message = message.to_s
         Spectre.logger.send(method, message)
         Spectre.formatter.log(method, message)
       end
     end
+
+    alias log info
 
     private
 
