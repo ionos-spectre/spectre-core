@@ -118,7 +118,7 @@ module Spectre
 
     [
       ::Array, ::Hash, ::String, ::Integer, ::Float,
-      ::NilClass, ::TrueClass, ::FalseClass
+      ::NilClass, ::TrueClass, ::FalseClass, ::OpenStruct
     ].each do |cls|
       cls.define_method(:not) do |params|
         Evaluation.new(caller_locations, self, *params, negate: true)
