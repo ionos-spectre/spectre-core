@@ -64,7 +64,7 @@ describe 'Ghostbuster' do
 
     expect entity_color.to be 'green'
     assert entity_desc.to match 'nasty'
-    expect entity_desc.not to be 'Class V entity'
+    expect entity_desc.not_to be 'Class V entity'
     assert storage_facility.to contain 'Ghoul'
   end
 

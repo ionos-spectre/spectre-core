@@ -12,8 +12,8 @@ RSpec.describe Spectre do
   end
 
   it 'sets up a project and runs it' do
-    Spectre
-      .setup({
+    engine = Spectre::Engine
+      .new({
         'global_config_file' => @global_config_file,
         'log_file' => @log_file,
         'stdout' => @console_out,
@@ -31,23 +31,23 @@ RSpec.describe Spectre do
     # Test if the local module was loaded
     expect(SOME_MODULE_VAR).to eq('foo')
     # Check if the global config was loaded
-    expect(Spectre.env.some_global_var).to eq('what ever')
+    expect(engine.env.some_global_var).to eq('what ever')
     # Check if the env file was loaded
-    expect(Spectre.env.foo).to eq('buff')
+    expect(engine.env.foo).to eq('buff')
     # Check if the partial env file was loaded
-    expect(Spectre.env.some_secret).to eq('bar')
+    expect(engine.env.some_secret).to eq('bar')
     # Check if spectre config was loaded
-    expect(Spectre.env.some_config_var).to eq(42)
+    expect(engine.env.some_config_var).to eq(42)
 
-    specs = Spectre.list
+    specs = engine.list
 
     expect(specs.count).to eq(2)
 
-    runs = Spectre.run
+    runs = engine.run
 
     expect(runs.all? { |x| x.status == :success })
 
-    Spectre.report(runs)
+    engine.report(runs)
 
     expect(File.exist?(@log_file)).to eq(true)
 
@@ -58,14 +58,14 @@ RSpec.describe Spectre do
   end
 
   it 'lists all specs' do
-    Spectre
-      .setup({
+    engine = Spectre::Engine
+      .new({
         'config_file' => @config_file,
         'specs' => [],
         'tags' => [],
       })
 
-    specs = Spectre.list
+    specs = engine.list
 
     expect(specs.count).to eq(3)
   end
@@ -73,14 +73,14 @@ RSpec.describe Spectre do
   it 'filters by specs' do
     filter = ['some_subject-1', 'some_subject-2']
 
-    Spectre
-      .setup({
+    engine = Spectre::Engine
+      .new({
         'config_file' => @config_file,
         'specs' => filter,
         'tags' => [],
       })
 
-    specs = Spectre.list
+    specs = engine.list
 
     expect(specs.count).to eq(2)
     expect((filter - specs.map(&:name)).count).to eq(0)
@@ -89,14 +89,14 @@ RSpec.describe Spectre do
   it 'filters by tags' do
     expected_specs = ['some_subject-2', 'some_subject-3']
 
-    Spectre
-      .setup({
+    engine = Spectre::Engine
+      .new({
         'config_file' => @config_file,
         'specs' => [],
         'tags' => ['second_tag'],
       })
 
-    specs = Spectre.list
+    specs = engine.list
 
     expect(specs.count).to eq(2)
     expect((expected_specs - specs.map(&:name)).count).to eq(0)
@@ -105,28 +105,28 @@ RSpec.describe Spectre do
   it 'filters by excluded tags' do
     expected_specs = ['some_subject-3']
 
-    Spectre
-      .setup({
+    engine = Spectre::Engine
+      .new({
         'config_file' => @config_file,
         'specs' => [],
         'tags' => ['second_tag+!ignore'],
       })
 
-    specs = Spectre.list
+    specs = engine.list
 
     expect(specs.count).to eq(1)
     expect((expected_specs - specs.map(&:name)).count).to eq(0)
   end
 
   it 'filters by multiple tags' do
-    Spectre
-      .setup({
+    engine = Spectre::Engine
+      .new({
         'config_file' => @config_file,
         'specs' => [],
         'tags' => ['second_tag+!ignore', 'success'],
       })
 
-    specs = Spectre.list
+    specs = engine.list
 
     expect(specs.count).to eq(3)
   end
@@ -134,14 +134,14 @@ RSpec.describe Spectre do
   it 'filters by tags and specs' do
     expected_specs = ['some_subject-1', 'some_subject-3']
 
-    Spectre
-      .setup({
+    engine = Spectre::Engine
+      .new({
         'config_file' => @config_file,
         'specs' => ['some_subject-3'],
         'tags' => ['first_tag'],
       })
 
-    specs = Spectre.list
+    specs = engine.list
 
     expect(specs.count).to eq(2)
     expect((expected_specs - specs.map(&:name)).count).to eq(0)

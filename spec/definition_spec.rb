@@ -3,8 +3,8 @@ RSpec.describe Spectre::Specification do
     @console_out = StringIO.new
     @log_out = StringIO.new
 
-    Spectre
-      .setup({
+    @engine = Spectre::Engine
+      .new({
         'log_file' => @log_out,
         'stdout' => @console_out,
       })
@@ -19,43 +19,43 @@ RSpec.describe Spectre::Specification do
     subject = Spectre::DefinitionContext.new('Some subject')
 
     subject.setup do
-      Spectre.info 'message in first setup'
+      info 'message in first setup'
     end
 
     subject.setup do
-      Spectre.info 'message in second setup'
+      info 'message in second setup'
     end
 
     subject.teardown do
-      Spectre.info 'message in first teardown'
+      info 'message in first teardown'
     end
 
     subject.teardown do
-      Spectre.info 'message in second teardown'
+      info 'message in second teardown'
     end
 
     subject.before do
-      Spectre.info 'message in first before'
+      info 'message in first before'
     end
 
     subject.before do
-      Spectre.info 'message in second before'
+      info 'message in second before'
     end
 
     subject.after do
-      Spectre.info 'message in first after'
+      info 'message in first after'
     end
 
     subject.after do
-      Spectre.info 'message in second after'
+      info 'message in second after'
     end
 
     subject.it 'does something' do
-      Spectre.info 'a message'
+      info 'a message'
     end
 
     subject.it 'does another thing' do
-      Spectre.info 'another message'
+      info 'another message'
     end
 
     expect(subject.name).to eq('some_subject')
@@ -66,7 +66,7 @@ RSpec.describe Spectre::Specification do
     expect(subject.specs[0].name).to eq('some_subject-1')
     expect(subject.specs[1].name).to eq('some_subject-2')
 
-    runs = subject.run(subject.specs)
+    runs = subject.run(@engine, subject.specs)
 
     expect(runs.count).to eq(4)
     expect(runs[0].status).to eq(:success)
@@ -100,15 +100,15 @@ RSpec.describe Spectre::Specification do
 
       subject.it 'does something' do
         # :nocov:
-        Spectre.info 'a message'
+        info 'a message'
         # :nocov:
       end
 
       subject.teardown do
-        Spectre.info 'some cleanup'
+        info 'some cleanup'
       end
 
-      runs = subject.run(subject.specs)
+      runs = subject.run(@engine, subject.specs)
 
       expect(runs.count).to eq(2)
     end
@@ -127,14 +127,14 @@ RSpec.describe Spectre::Specification do
     end
 
     subject.it 'another thing' do
-      Spectre.info bag.foo
+      info bag.foo
     end
 
     subject.teardown do
-      Spectre.info bag.foo
+      info bag.foo
     end
 
-    runs = subject.run(subject.specs)
+    runs = subject.run(@engine, subject.specs)
 
     expect(runs.all? { |x| x.status == :success }).to eq(true)
 
@@ -150,17 +150,17 @@ RSpec.describe Spectre::Specification do
     subject = Spectre::DefinitionContext.new('Some subject')
 
     subject.it 'does a main thing' do
-      Spectre.info 'a message'
+      info 'a message'
     end
 
     subject.context 'first child context' do
       it 'does things' do
-        Spectre.info 'a message'
+        info 'a message'
       end
 
       context 'another child' do
         it 'does another thing' do
-          Spectre.info 'another message'
+          info 'another message'
         end
       end
     end
@@ -172,7 +172,7 @@ RSpec.describe Spectre::Specification do
     expect(subject.children.first.children.first.name).to eq('some_subject-first_child_context-another_child')
     expect(subject.children.first.children.first.root).to be(subject)
 
-    runs = subject.run(subject.all_specs)
+    runs = subject.run(@engine, subject.all_specs)
 
     expect(runs.count).to eq(3)
   end

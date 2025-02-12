@@ -141,31 +141,31 @@ end
 action = options.parse!.shift || 'run'
 
 # Setup spectre
-Spectre.setup(config_overrides)
+engine = Spectre::Engine.new(config_overrides)
 
 case action
 when 'list', 'li', 'ls'
-  Spectre.formatter.list(Spectre.list)
+  engine.formatter.list(Spectre.list)
 when 'specs', 'sp'
-  Spectre.formatter.details(Spectre.list)
+  engine.formatter.details(Spectre.list)
 when 'describe', 'de'
-  Spectre.formatter.describe(Spectre.subjects)
+  engine.formatter.describe(Spectre.subjects)
 when 'run', 'ru'
-  Spectre.cleanup if cleanup
-  runs = Spectre.run
+  engine.cleanup if cleanup
+  runs = engine.run
   exit if runs.nil?
   puts
-  Spectre.report(runs)
+  engine.report(runs)
 when 'env', 'en'
-  puts Spectre::CONFIG.pretty
+  puts engine.config.pretty
 when 'mixins', 'mi', 'mx'
   search = ARGV.first
-  mixins = Spectre.mixins.select { |x| search.nil? or x.desc.include? search }
-  Spectre.formatter.mixins(mixins)
+  mixins = engine.mixins.select { |x| search.nil? or x.desc.include? search }
+  engine.formatter.mixins(mixins)
 when 'collections', 'co'
-  puts Spectre.collections.pretty
+  puts engine.collections.pretty
 when 'cleanup', 'cl'
-  Spectre.cleanup
+  engine.cleanup
 when 'init', 'in'
   DEFAULT_SPECTRE_CFG = <<~CONTENT
     log_file: ./logs/spectre_<date>.log

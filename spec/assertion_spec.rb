@@ -4,12 +4,6 @@ RSpec.describe Spectre::Assertion do
   before do
     @console_out = StringIO.new
     @log_out = StringIO.new
-
-    Spectre
-      .setup({
-        'log_file' => @log_out,
-        'stdout' => @console_out,
-      })
   end
 
   context 'equal check' do
@@ -35,7 +29,7 @@ RSpec.describe Spectre::Assertion do
 
     it 'negates' do
       value = 42
-      evaluation = value.not Spectre::Assertion.to Spectre::Assertion.be 666
+      evaluation = value.not_to Spectre::Assertion.be 666
 
       expect(evaluation.failure).to be_nil
       expect(evaluation.to_s).to eq('value not to be 666')
@@ -43,7 +37,7 @@ RSpec.describe Spectre::Assertion do
 
     it 'negates negative' do
       value = 666
-      evaluation = value.not Spectre::Assertion.to Spectre::Assertion.be 666
+      evaluation = value.not_to Spectre::Assertion.be 666
 
       expect(evaluation.failure).to eq('it does not')
       expect(evaluation.to_s).to eq('value not to be 666')
@@ -101,7 +95,7 @@ RSpec.describe Spectre::Assertion do
 
     it 'negates' do
       value = [42, 'foo', 'bar']
-      evaluation = value.not Spectre::Assertion.to Spectre::Assertion.contain 'buff'
+      evaluation = value.not_to Spectre::Assertion.contain 'buff'
 
       expect(evaluation.failure).to be_nil
       expect(evaluation.to_s).to eq('value not to contain "buff"')
@@ -109,7 +103,7 @@ RSpec.describe Spectre::Assertion do
 
     it 'negates with multiple values' do
       value = [42, 'foo', 'bar']
-      evaluation = value.not Spectre::Assertion.to Spectre::Assertion.contain 'buff'.or 'bar'
+      evaluation = value.not_to Spectre::Assertion.contain 'buff'.or 'bar'
 
       expect(evaluation.failure).to be_nil
       expect(evaluation.to_s).to eq('value not to contain "buff" or "bar"')
@@ -117,7 +111,7 @@ RSpec.describe Spectre::Assertion do
 
     it 'negates with multiple values' do
       value = [42, 'foo', 'bar']
-      evaluation = value.not Spectre::Assertion.to Spectre::Assertion.contain 'buff'.and 666
+      evaluation = value.not_to Spectre::Assertion.contain 'buff'.and 666
 
       expect(evaluation.failure).to be_nil
       expect(evaluation.to_s).to eq('value not to contain "buff" and 666')

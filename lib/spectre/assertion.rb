@@ -89,7 +89,7 @@ module Spectre
           .slice(location.lineno - 1, 1)
           .map(&:strip)
           .join
-          .match(/[\s\(]([^\s]+|\[.*\]|{.*})\.(to|not)[\s\(]/)
+          .match(/[\s\(]([^\s]+|\[.*\]|{.*})\.(to|not_to)[\s\(]/)
           .captures
           .first
           .strip
@@ -120,7 +120,7 @@ module Spectre
       ::Array, ::Hash, ::String, ::Integer, ::Float,
       ::NilClass, ::TrueClass, ::FalseClass, ::OpenStruct
     ].each do |cls|
-      cls.define_method(:not) do |params|
+      cls.define_method(:not_to) do |params|
         Evaluation.new(caller_locations, self, *params, negate: true)
       end
 
@@ -140,10 +140,6 @@ module Spectre
     end
 
     class << self
-      def to params
-        params
-      end
-
       def be expected_val
         [
           expected_val,

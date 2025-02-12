@@ -45,6 +45,9 @@ Style/MutableConstant:
 Style/StringConcatenation:
   Enabled: false
 
+Style/EvalWithLocation:
+  Enabled: false
+
 Layout/SpaceInsideHashLiteralBraces:
   Enabled: false
 

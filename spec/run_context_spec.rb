@@ -5,8 +5,8 @@ RSpec.describe Spectre::RunContext do
     @log_format = '\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}[+\-]\d{2}:\d{2}\] ' \
                   '\s?[A-Z]+ -- spectre: \[[a-z0-9\-]+\] \[[a-z0-9]*\] .*'
 
-    Spectre
-      .setup({
+    @engine = Spectre::Engine
+      .new({
         'log_file' => @log_out,
         'stdout' => @console_out,
         'debug' => true,
@@ -33,9 +33,9 @@ RSpec.describe Spectre::RunContext do
     log_message = 'this is a log message'
     bag = {foo: 'bar'}
 
-    run_context = Spectre::RunContext.new(@spec, :spec, bag) do |context|
+    run_context = Spectre::RunContext.new(@engine, @spec, :spec, bag) do |context|
       context.execute([]) do
-        Spectre.info log_message
+        info log_message
       end
 
       expect(Spectre::RunContext.current).to be(context)
@@ -74,9 +74,9 @@ RSpec.describe Spectre::RunContext do
   end
 
   it 'fail with a message' do
-    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+    run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
       context.execute([]) do
-        Spectre.info 'this is a log message'
+        info 'this is a log message'
 
         assert 'something' do
           fail_with 'a message'
@@ -90,7 +90,7 @@ RSpec.describe Spectre::RunContext do
   end
 
   it 'lets define run properties' do
-    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+    run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
       context.execute([]) do
         property foo: 'bar'
         property number: 42, text: 'some text'
@@ -102,10 +102,10 @@ RSpec.describe Spectre::RunContext do
   end
 
   it 'lets define a group' do
-    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+    run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
       context.execute([]) do
         group 'test group' do
-          Spectre.info 'this is a log message'
+          info 'this is a log message'
         end
       end
     end
@@ -125,15 +125,15 @@ RSpec.describe Spectre::RunContext do
   end
 
   it 'aborts a run' do
-    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+    run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
       context.execute([]) do
-        Spectre.info 'this is a log message'
+        info 'this is a log message'
 
         raise Spectre::AbortException
 
         # :nocov:
         # rubocop:disable Lint/UnreachableCode
-        Spectre.info 'this will never be logged'
+        info 'this will never be logged'
         # rubocop:enable Lint/UnreachableCode
         # :nocov:
       end
@@ -144,15 +144,15 @@ RSpec.describe Spectre::RunContext do
   end
 
   it 'skips a run' do
-    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+    run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
       context.execute([]) do
-        Spectre.info 'this is a log message'
+        info 'this is a log message'
 
         raise Interrupt
 
         # :nocov:
         # rubocop:disable Lint/UnreachableCode
-        Spectre.info 'this will never be logged'
+        info 'this will never be logged'
         # rubocop:enable Lint/UnreachableCode
         # :nocov:
       end
@@ -164,9 +164,9 @@ RSpec.describe Spectre::RunContext do
   end
 
   it 'runs with given data' do
-    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+    run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
       context.execute({message: 'foo'}) do |data|
-        Spectre.info "data is #{data.message}"
+        info "data is #{data.message}"
       end
     end
 
@@ -176,7 +176,7 @@ RSpec.describe Spectre::RunContext do
   end
 
   it 'skips' do
-    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+    run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
       context.execute({}) do
         skip 'randomly'
 
@@ -191,7 +191,7 @@ RSpec.describe Spectre::RunContext do
 
   context 'observe' do
     it 'a successful process' do
-      run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+      run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
         context.execute({}) do
           observe 'a process' do
             ## do nothing here
@@ -204,7 +204,7 @@ RSpec.describe Spectre::RunContext do
     end
 
     it 'a failed process' do
-      run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+      run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
         context.execute({}) do
           observe 'a process' do
             raise StandardError, 'Oops!'
@@ -221,12 +221,12 @@ RSpec.describe Spectre::RunContext do
     %i[assert expect].each do |method|
       context method do
         it 'a positive evaluation' do
-          run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+          run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
             context.execute(nil) do
               send(method, OpenStruct.new({to_s: 'something'}))
               send(method, OpenStruct.new({to_s: 'another thing'}))
 
-              Spectre.info 'another log message'
+              info 'another log message'
             end
           end
 
@@ -245,7 +245,7 @@ RSpec.describe Spectre::RunContext do
         end
 
         it 'a failure' do
-          run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+          run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
             context.execute(nil) do
               send(method, OpenStruct.new({
                 failure: 'oops',
@@ -253,7 +253,7 @@ RSpec.describe Spectre::RunContext do
                 call_location: caller_locations,
               }))
 
-              Spectre.info 'another log line'
+              info 'another log line'
             end
           end
 
@@ -284,14 +284,14 @@ RSpec.describe Spectre::RunContext do
           desc = 'a block to be executed'
           message = 'another log message'
 
-          run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+          run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
             context.execute(nil) do
               send(method, desc) do
                 # do nothing here
                 # the evaluation should end with ok status
               end
 
-              Spectre.info message
+              info message
             end
           end
 
@@ -315,13 +315,13 @@ RSpec.describe Spectre::RunContext do
 
         it 'a block reporting a failure' do
           desc = 'a block to be executed'
-          run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+          run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
             context.execute(nil) do
               send(method, desc) do
                 report 'oops'
               end
 
-              Spectre.info 'another message'
+              info 'another message'
             end
           end
 
@@ -340,7 +340,7 @@ RSpec.describe Spectre::RunContext do
   end
 
   it 'uses success within an evaluation block' do
-    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+    run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
       context.execute({}) do
         observe 'a process' do
           ## do nothing here
@@ -357,24 +357,15 @@ RSpec.describe Spectre::RunContext do
 
   context 'mixin' do
     it 'does execute' do
-      console_out = StringIO.new
-      log_out = StringIO.new
-
-      Spectre.mixin 'some mixin' do |params|
-        Spectre.info "data is #{params.foo}"
+      @engine.mixin 'some mixin' do |params|
+        info "data is #{params.foo}"
       end
 
-      Spectre
-        .setup({
-          'log_file' => log_out,
-          'stdout' => console_out,
-        })
-
-      run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+      run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
         context.execute(nil) do
           run 'some mixin', with: {foo: 42}
 
-          Spectre.info 'another message'
+          info 'another message'
         end
       end
 
@@ -382,33 +373,24 @@ RSpec.describe Spectre::RunContext do
       expect(run_context.logs.count).to eq(3)
       expect(run_context.logs[1][4]).to eq('data is 42')
 
-      console_out.rewind
-      lines = console_out.readlines
+      @console_out.rewind
+      lines = @console_out.readlines
 
       expect(lines.count).to eq(3)
     end
 
     it 'does execute with new style params' do
-      console_out = StringIO.new
-      log_out = StringIO.new
-
-      Spectre.mixin 'some mixin' do |params|
-        Spectre.info "data is #{params.foo}"
+      @engine.mixin 'some mixin' do |params|
+        info "data is #{params.foo}"
       end
 
-      Spectre
-        .setup({
-          'log_file' => log_out,
-          'stdout' => console_out,
-        })
-
-      run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+      run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
         context.execute(nil) do
           also 'some mixin' do
             with foo: 42
           end
 
-          Spectre.info 'another message'
+          info 'another message'
         end
       end
 
@@ -416,33 +398,24 @@ RSpec.describe Spectre::RunContext do
       expect(run_context.logs.count).to eq(3)
       expect(run_context.logs[1][4]).to eq('data is 42')
 
-      console_out.rewind
-      lines = console_out.readlines
+      @console_out.rewind
+      lines = @console_out.readlines
 
       expect(lines.count).to eq(3)
     end
 
     it 'does raise an error when parameters are missing' do
-      console_out = StringIO.new
-      log_out = StringIO.new
-
-      Spectre.mixin 'some mixin', params: [:foo, :bar] do |params|
-        Spectre.info "data is #{params.foo}"
+      @engine.mixin 'some mixin', params: [:foo, :bar] do |params|
+        info "data is #{params.foo}"
       end
 
-      Spectre
-        .setup({
-          'log_file' => log_out,
-          'stdout' => console_out,
-        })
-
-      run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+      run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
         context.execute(nil) do
           run 'some mixin' do
             with foo: 42
           end
 
-          Spectre.info 'another message'
+          info 'another message'
         end
       end
 
@@ -450,11 +423,11 @@ RSpec.describe Spectre::RunContext do
       expect(run_context.logs.count).to eq(2)
       expect(run_context.logs[1][4]).to start_with('missing params: bar')
 
-      console_out.rewind
-      lines = console_out.readlines
+      @console_out.rewind
+      lines = @console_out.readlines
 
       expect(lines.count).to eq(2)
-      expect(lines[1]).to eq("#{('missing params: bar' + '.' * 61).red}#{'[error] - RuntimeError'.red}\n")
+      expect(lines[1]).to eq("#{('missing params: bar' + ('.' * 61)).red}#{'[error] - RuntimeError'.red}\n")
     end
   end
 end

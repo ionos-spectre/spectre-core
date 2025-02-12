@@ -63,16 +63,23 @@ module Spectre
   module Delegate
     @@methods = {}
 
+    def instance_eval &block
+      @outer_scope = eval('self', block.binding)
+      super
+    end
+
     def respond_to_missing?(method, *)
       @@methods.keys.include? method
     end
 
-    def method_missing(method, *, &block)
+    def method_missing(method, *, &)
+      return @outer_scope.send(method, *, &) if @outer_scope.respond_to? method
+
       super unless @@methods.keys.include? method
 
       target = @@methods[method]
       target = target.call if target.is_a? Proc
-      target.send(method, *, &block)
+      target.send(method, *, &)
     end
 
     def self.register target, *methods
@@ -111,22 +118,22 @@ module Spectre
 
     attr_reader :desc, :failures
 
-    def initialize(desc, &)
+    def initialize(engine, desc, &)
       @desc = desc
       @failures = []
 
-      Spectre.formatter.log(:info, desc) do
+      engine.formatter.log(:info, desc) do
         instance_eval(&)
 
         if @failures.any?
-          Spectre.logger.error("#{desc} - failed")
+          engine.logger.error("#{desc} - failed")
           [:error, :failed, nil]
         else
-          Spectre.logger.info("#{desc} - ok")
+          engine.logger.info("#{desc} - ok")
           [:info, :ok, nil]
         end
       rescue Failure => e
-        Spectre.logger.error("#{desc} - failed")
+        engine.logger.error("#{desc} - failed")
         @failures << e
         [:error, :failed, nil]
       end
@@ -594,12 +601,12 @@ module Spectre
 
     def write message, fill: false, color: nil
       output = if message.nil? or message.empty?
-        indent
-      else
-        message.lines.map do |line|
-          indent + line
-        end.join
-      end
+                 indent
+               else
+                 message.lines.map do |line|
+                   indent + line
+                 end.join
+               end
 
       output += '.' * (@width > output.length ? @width - output.length : 0) if fill
       output = output.send(color) unless color.nil?
@@ -675,7 +682,8 @@ module Spectre
       @@current
     end
 
-    def initialize parent, type, bag = nil
+    def initialize engine, parent, type, bag = nil
+      @engine = engine
       @parent = parent
       @type = type
       @logs = []
@@ -708,13 +716,13 @@ module Spectre
       # Do nothing. The run will be ended here
     rescue Interrupt
       @skipped = true
-      Spectre.formatter.log(:debug, nil, :skipped, 'canceled by user')
-      Spectre.logger.info("#{@parent.desc} - canceled by user")
+      @engine.formatter.log(:debug, nil, :skipped, 'canceled by user')
+      @engine.logger.info("#{@parent.desc} - canceled by user")
       raise Interrupt if (@@skip_count += 1) > 2
     rescue StandardError => e
       @error = e
-      Spectre.formatter.log(:fatal, e.message, :error, e.class.name)
-      Spectre.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
+      @engine.formatter.log(:fatal, e.message, :error, e.class.name)
+      @engine.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
     end
 
     def status
@@ -723,6 +731,20 @@ module Spectre
       return :skipped if @skipped
 
       :success
+    end
+
+    %i[debug info warn].each do |method|
+      define_method(method) do |message|
+        message = message.to_s
+        @engine.logger.send(method, message)
+        @engine.formatter.log(method, message)
+      end
+    end
+
+    alias log info
+
+    def resources
+      @engine.resources
     end
 
     def fail_with message
@@ -750,9 +772,9 @@ module Spectre
         desc = "#{method} #{evaluation}"
 
         @evaluations << if block
-                          EvaluationContext.new(desc, &block)
+                          EvaluationContext.new(@engine, desc, &block)
                         else
-                          EvaluationContext.new(desc) do
+                          EvaluationContext.new(@engine, desc) do
                             unless evaluation.failure.nil?
                               @failures << Failure.new(
                                 evaluation.failure,
@@ -783,20 +805,20 @@ module Spectre
     end
 
     def group(desc, &)
-      Spectre.logger.correlate do
-        Spectre.logger.debug("group \"#{desc}\"")
-        Spectre.formatter.scope(desc, :group, &)
+      @engine.logger.correlate do
+        @engine.logger.debug("group \"#{desc}\"")
+        @engine.formatter.scope(desc, :group, &)
       end
     end
 
     def observe desc
-      Spectre.formatter.log(:info, "observe #{desc}") do
+      @engine.formatter.log(:info, "observe #{desc}") do
         yield
         @success = true
         [:info, :ok, nil]
       rescue StandardError => e
         @success = false
-        Spectre.logger.warn("#{e.message}\n#{e.backtrace.join("\n")}")
+        @engine.logger.warn("#{e.message}\n#{e.backtrace.join("\n")}")
         [:info, :warn, e.message]
       end
     end
@@ -808,14 +830,14 @@ module Spectre
 
     # Method to run mixins
     def run(desc, with: nil, &)
-      Spectre.formatter.scope(desc, :mixin) do
-        raise "mixin \"#{desc}\" not found" unless MIXINS.key? desc
+      @engine.formatter.scope(desc, :mixin) do
+        raise "mixin \"#{desc}\" not found" unless @engine.mixins.key? desc
 
-        mixin = MIXINS[desc]
+        mixin = @engine.mixins[desc]
         mixin.instance_eval(&) if block_given?
 
-        Spectre.logger.correlate do
-          Spectre.logger.debug("execute mixin \"#{desc}\"")
+        @engine.logger.correlate do
+          @engine.logger.debug("execute mixin \"#{desc}\"")
           result = mixin.run(self, with)
           return result.is_a?(Hash) ? OpenStruct.new(result) : result
         end
@@ -827,7 +849,7 @@ module Spectre
 
     def skip message
       @skipped = true
-      Spectre.logger.info("#{message} - canceled by user")
+      @engine.logger.info("#{message} - canceled by user")
       raise AbortException
     end
   end
@@ -847,12 +869,12 @@ module Spectre
       @full_desc = "#{@parent.full_desc} #{@desc}"
     end
 
-    def run befores, afters, bag
-      RunContext.new(self, :spec, bag) do |run_context|
-        Spectre.formatter.scope(@desc, self) do
+    def run engine, befores, afters, bag
+      RunContext.new(engine, self, :spec, bag) do |run_context|
+        engine.formatter.scope(@desc, self) do
           befores.each do |block|
-            Spectre.formatter.scope('before', :before) do
-              Spectre.logger.correlate do
+            engine.formatter.scope('before', :before) do
+              engine.logger.correlate do
                 run_context.execute(@data, &block)
               end
             end
@@ -861,8 +883,8 @@ module Spectre
           run_context.execute(@data, &@block) if run_context.status == :success
         ensure
           afters.each do |block|
-            Spectre.formatter.scope('after', :after) do
-              Spectre.logger.correlate do
+            engine.formatter.scope('after', :after) do
+              engine.logger.correlate do
                 run_context.execute(@data, &block)
               end
             end
@@ -951,23 +973,23 @@ module Spectre
       end
     end
 
-    def run specs
+    def run engine, specs
       runs = []
 
       return runs unless all_specs.any? { |x| specs.include? x }
 
       selected = @specs.select { |x| specs.include? x }
 
-      Spectre.formatter.scope(@desc, self) do
+      engine.formatter.scope(@desc, self) do
         if selected.any?
           setup_bag = nil
 
           if @setups.any?
-            setup_run = RunContext.new(self, :setup) do |run_context|
+            setup_run = RunContext.new(engine, self, :setup) do |run_context|
               @setups.each do |block|
-                Spectre.formatter.scope('setup', :setup) do
-                  Spectre.logger.correlate do
-                    Spectre.logger.debug("setup \"#{@desc}\"")
+                engine.formatter.scope('setup', :setup) do
+                  engine.logger.correlate do
+                    engine.logger.debug("setup \"#{@desc}\"")
                     run_context.execute(nil, &block)
                   end
                 end
@@ -982,18 +1004,18 @@ module Spectre
           # Only run specs if setup was successful
           if runs.all? { |x| x.status == :success }
             runs += selected.map do |spec|
-              Spectre.logger.correlate do
-                spec.run(@befores, @afters, setup_bag)
+              engine.logger.correlate do
+                spec.run(engine, @befores, @afters, setup_bag)
               end
             end
           end
 
           if @teardowns.any?
-            runs << RunContext.new(self, :teardown, setup_bag) do |run_context|
+            runs << RunContext.new(engine, self, :teardown, setup_bag) do |run_context|
               @teardowns.each do |block|
-                Spectre.formatter.scope('teardown', :teardown) do
-                  Spectre.logger.correlate do
-                    Spectre.logger.debug("teardown \"#{@desc}\"")
+                engine.formatter.scope('teardown', :teardown) do
+                  engine.logger.correlate do
+                    engine.logger.debug("teardown \"#{@desc}\"")
                     run_context.execute(nil, &block)
                   end
                 end
@@ -1003,8 +1025,8 @@ module Spectre
         end
 
         @children.each do |context|
-          Spectre.logger.correlate do
-            runs += context.run(specs)
+          engine.logger.correlate do
+            runs += context.run(engine, specs)
           end
         end
       end
@@ -1015,14 +1037,12 @@ module Spectre
 
   ##
   # Defines the default config.
-  # This +Hash+ can be manipulated before calling +Spectre.setup+
-  # However config overrides should be done by passing +config_overrides+ to +Spectre.setup+
   #
   CONFIG = {
     'work_dir' => '.',
     'global_config_file' => '~/.config/spectre.yml',
     'config_file' => 'spectre.yml',
-    'log_file' => StringIO.new, # Deactivate logging by default
+    'log_file' => nil, # Deactivate logging by default
     'log_date_format' => '%F %T.%L%:z',
     # Format: [timestamp] LEVEL -- module_name: [spec-id] correlation_id log_message
     'log_message_format' => "[%s] %5s -- %s: [%s] [%s] %s\n",
@@ -1041,127 +1061,119 @@ module Spectre
     'modules' => [],
   }
 
-  ##
-  # Contains all +Spectre::DefinitionContext+ added with +Spectre.describe+
-  #
-  CONTEXTS = []
-
-  ##
-  # Conains all the configured +Spectre::Mixin+ added with +Spectre.mixin+
-  #
-  MIXINS = {}
-
-  ##
-  # Contains all resources loaded with +CONFIG+ +resource_paths+
-  #
-  RESOURCES = {}
-
-  ##
-  # Contains all the loaded environments with +CONFIG+ +env_patterns+ and +env_partial_patterns+
-  ENVIRONMENTS = {}
-  COLLECTIONS = {}
-
   DEFAULT_ENV_NAME = 'default'
 
-  class << self
-    attr_reader :env, :formatter
+  class Engine
+    attr_reader :env, :formatter, :config, :subjects, :mixins, :collections, :resources
 
-    ##
-    # Setup spectre with given config.
-    # Has to be called before any spec run.
-    #
-    def setup config_overrides
+    @@current = nil
+
+    def self.current
+      @@current
+    end
+
+    def initialize config
+      @environments = {}
+      @collections = {}
+      @contexts = []
+      @mixins = {}
+      @resources = {}
+
+      @@current = self
+
+      @config = Marshal.load(Marshal.dump(CONFIG))
+
       # Load global config file
-      global_config_file = config_overrides['global_config_file'] || File.expand_path('~/.config/spectre.yml')
+      global_config_file = config['global_config_file'] || File.expand_path('~/.config/spectre.yml')
 
       if File.exist? global_config_file
         global_config = load_yaml(global_config_file)
-        CONFIG.deep_merge!(global_config)
+        @config.deep_merge!(global_config)
       end
 
       # Set working directory so all paths in config
       # are relative to this directory
-      Dir.chdir(config_overrides['work_dir'] || CONFIG['work_dir'] || '.')
+      Dir.chdir(config['work_dir'] || @config['work_dir'] || '.')
 
       # Load main spectre config
-      main_config_file = config_overrides['config_file'] || CONFIG['config_file']
+      main_config_file = config['config_file'] || @config['config_file']
 
       unless main_config_file.nil? or !File.exist? main_config_file
         main_config = load_yaml(main_config_file)
-        CONFIG.deep_merge!(main_config)
+        @config.deep_merge!(main_config)
         Dir.chdir(File.dirname(main_config_file))
       end
 
       # Load environments
-      CONFIG['env_patterns'].each do |pattern|
+      @config['env_patterns'].each do |pattern|
         Dir.glob(pattern).each do |file_path|
           loaded_env = load_yaml(file_path)
           env_name = loaded_env['name'] || DEFAULT_ENV_NAME
-          ENVIRONMENTS[env_name] = loaded_env
+          @environments[env_name] = loaded_env
         end
       end
 
       # Load and merge partial environment files
-      CONFIG['env_partial_patterns'].each do |pattern|
+      @config['env_partial_patterns'].each do |pattern|
         Dir.glob(pattern).each do |file_path|
           loaded_env = load_yaml(file_path)
           env_name = loaded_env['name'] || DEFAULT_ENV_NAME
-          ENVIRONMENTS[env_name].deep_merge!(loaded_env) if ENVIRONMENTS.key?(env_name)
+          @environments[env_name].deep_merge!(loaded_env) if @environments.key?(env_name)
         end
       end
 
       # Select environment and merge it
-      CONFIG.deep_merge!(ENVIRONMENTS[config_overrides.delete('selected_env') || DEFAULT_ENV_NAME])
+      @config.deep_merge!(@environments[config.delete('selected_env') || DEFAULT_ENV_NAME])
 
       # Load collections
-      CONFIG['collection_patterns'].each do |pattern|
+      @config['collection_patterns'].each do |pattern|
         Dir.glob(pattern).each do |file_path|
-          COLLECTIONS.merge! load_yaml(file_path)
+          @collections.merge! load_yaml(file_path)
         end
       end
 
       # Use collection if given
-      if config_overrides.key? 'collection'
-        collection = COLLECTIONS[config_overrides['collection']]
+      if config.key? 'collection'
+        collection = @collections[config['collection']]
 
-        raise "collection #{config_overrides['collection']} not found" unless collection
+        raise "collection #{config['collection']} not found" unless collection
 
-        CONFIG.deep_merge!(collection)
+        @config.deep_merge!(collection)
       end
 
       # Merge property overrides
-      CONFIG.deep_merge!(config_overrides)
+      @config.deep_merge!(config)
 
       # Set env before loading specs in order to make it available in spec definitions
-      @env = CONFIG.to_recursive_struct.freeze
+      @env = @config.to_recursive_struct
 
       # Load specs
       # Note that spec files are only loaded once, because of the relative require,
       # even if the setup function is called multiple times
-      require_files(CONFIG['spec_patterns'])
+      load_files(@config['spec_patterns'])
 
       # Load mixins
       # Mixins are also only loaded once
-      require_files(CONFIG['mixin_patterns'])
+      load_files(@config['mixin_patterns'])
 
       # Load resources
-      CONFIG['resource_paths'].each do |resource_path|
+      @config['resource_paths'].each do |resource_path|
         resource_files = Dir.glob File.join(resource_path, '**/*')
 
         resource_files.each do |file|
           file.slice! resource_path
           file = file[1..]
-          RESOURCES[file] = File.expand_path File.join(resource_path, file)
+          @resources[file] = File.expand_path File.join(resource_path, file)
         end
       end
 
       @formatter = Object
-        .const_get(CONFIG['formatter'])
-        .new(CONFIG)
+        .const_get(@config['formatter'])
+        .new(@config)
 
       # Load modules
-      if CONFIG['modules'].is_a? Array
-        CONFIG['modules'].each do |module_name|
+      if @config['modules'].is_a? Array
+        @config['modules'].each do |module_name|
           module_path = File.join(Dir.pwd, module_name)
 
           if File.exist? module_path
@@ -1172,27 +1184,21 @@ module Spectre
         end
       end
 
-      ##
-      # Reset logger in case +setup+ has been called again
-      # with different logger configs. Happens mostly in tests.
-      # Rather irrelevant for cli usage, but does not hurt
-      @logger = nil
-
-      self
+      @@current = nil
     end
 
     def logger
-      @logger ||= Logger.new(CONFIG, progname: 'spectre')
+      @logger ||= Logger.new(@config, progname: 'spectre')
     end
 
     ##
     # Get a list of specs with the configured filter
     #
     def list
-      spec_filter = CONFIG['specs'] || []
-      tag_filter = CONFIG['tags'] || []
+      spec_filter = @config['specs'] || []
+      tag_filter = @config['tags'] || []
 
-      CONTEXTS
+      @contexts
         .map(&:all_specs)
         .flatten
         .select do |spec|
@@ -1209,7 +1215,7 @@ module Spectre
       list
         .group_by { |x| x.parent.root }
         .map do |context, specs|
-          context.run(specs)
+          context.run(self, specs)
         end
         .flatten
     rescue Interrupt
@@ -1217,9 +1223,9 @@ module Spectre
     end
 
     def report runs
-      CONFIG['reporters'].each do |reporter|
+      @config['reporters'].each do |reporter|
         Object.const_get(reporter)
-          .new(CONFIG)
+          .new(@config)
           .report(runs)
       end
     end
@@ -1227,8 +1233,8 @@ module Spectre
     ##
     # Cleanup temporary files like logs, etc.
     def cleanup
-      Dir.chdir(Spectre::CONFIG['work_dir'])
-      log_file_pattern = CONFIG['log_file'].gsub('<date>', '*')
+      Dir.chdir(@config['work_dir'])
+      log_file_pattern = @config['log_file'].gsub('<date>', '*')
       FileUtils.rm_rf(Dir.glob(log_file_pattern), secure: true)
     end
 
@@ -1236,11 +1242,11 @@ module Spectre
     # Describe a test subject
     #
     def describe(name, &)
-      main_context = CONTEXTS.find { |x| x.desc == name }
+      main_context = @contexts.find { |x| x.desc == name }
 
       if main_context.nil?
         main_context = DefinitionContext.new(name)
-        CONTEXTS << main_context
+        @contexts << main_context
       end
 
       main_context.instance_eval(&)
@@ -1251,53 +1257,15 @@ module Spectre
     #
     def mixin desc, params: [], &block
       file, line = get_call_location(caller_locations)
-      MIXINS[desc] = Mixin.new(desc, params, block, file, line)
+      @mixins[desc] = Mixin.new(desc, params, block, file, line)
     end
-
-    ##
-    # Returns all registered subjects
-    #
-    def subjects
-      CONTEXTS
-    end
-
-    ##
-    # Loaded collections
-    #
-    def collections
-      COLLECTIONS
-    end
-
-    ##
-    # Returns a list of all registered mixins
-    #
-    def mixins
-      MIXINS.values
-    end
-
-    ##
-    # A dictionary of loaded resources
-    #
-    def resources
-      RESOURCES
-    end
-
-    %i[debug info warn].each do |method|
-      define_method(method) do |message|
-        message = message.to_s
-        Spectre.logger.send(method, message)
-        Spectre.formatter.log(method, message)
-      end
-    end
-
-    alias log info
 
     private
 
-    def require_files patterns
+    def load_files patterns
       patterns.each do |pattern|
         Dir.glob(pattern).each do |file|
-          require_relative File.join(Dir.pwd, file)
+          load File.join(Dir.pwd, file)
         end
       end
     end
@@ -1323,21 +1291,17 @@ module Spectre
   # Delegate methods to specific classes or instances
   # to be available in descending block
   [
-    [self, %i[resources debug info warn log]],
-    [proc { RunContext.current }, %i[assert expect bag fail_with observe success? measure duration skip]],
-    [Assertion, %i[to be be_empty contain match]],
+    [Assertion, %i[be be_empty contain match]],
     [Helpers, %i[uuid now]],
   ].each do |target, methods|
     Delegate.register(target, *methods)
   end
 
-  [
-    [self, %i[env describe mixin]],
-  ].each do |target, methods|
-    methods.each do |method|
-      Kernel.define_method(method) do |*args, **kwargs, &block|
-        target.send(method, *args, **kwargs, &block)
-      end
+  # Define globally accessible methods which have
+  # to be available on spec and mixin loading
+  %i[env describe mixin].each do |method|
+    Kernel.define_method(method) do |*args, **kwargs, &block|
+      Engine.current.send(method, *args, **kwargs, &block)
     end
   end
 end

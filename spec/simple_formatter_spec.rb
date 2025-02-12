@@ -3,12 +3,6 @@ RSpec.describe Spectre::SimpleFormatter do
     @console_out = StringIO.new
     @log_out = StringIO.new
 
-    Spectre
-      .setup({
-        'log_file' => @log_out,
-        'stdout' => @console_out,
-      })
-
     subject1 = Spectre::DefinitionContext.new('Some subject')
     subject1.it 'does something', tags: [:some_tag] do
       # do nothing
@@ -62,19 +56,19 @@ RSpec.describe Spectre::SimpleFormatter do
     expect(lines[1]).to eq("  subject..: Some subject\n")
     expect(lines[2]).to eq("  desc.....: does something\n")
     expect(lines[3]).to eq("  tags.....: some_tag\n")
-    expect(lines[4]).to eq("  file.....: ./spec/simple_formatter_spec.rb:13\n")
+    expect(lines[4]).to match("  file.....: ./spec/simple_formatter_spec.rb:\\d+\n")
 
     expect(lines[6]).to eq("#{'[another_subject-1]'.magenta}\n")
     expect(lines[7]).to eq("  subject..: Another subject\n")
     expect(lines[8]).to eq("  desc.....: does another thing\n")
     expect(lines[9]).to eq("  tags.....: some_tag, another_tag\n")
-    expect(lines[10]).to eq("  file.....: ./spec/simple_formatter_spec.rb:18\n")
+    expect(lines[10]).to match("  file.....: ./spec/simple_formatter_spec.rb:\\d+\n")
 
     expect(lines[12]).to eq("#{'[another_subject-2]'.magenta}\n")
     expect(lines[13]).to eq("  subject..: Another subject\n")
     expect(lines[14]).to eq("  context..: a sub\n")
     expect(lines[15]).to eq("  desc.....: does something in another context\n")
     expect(lines[16]).to eq("  tags.....: a_sub_tag\n")
-    expect(lines[17]).to eq("  file.....: ./spec/simple_formatter_spec.rb:23\n")
+    expect(lines[17]).to match("  file.....: ./spec/simple_formatter_spec.rb:\\d+\n")
   end
 end

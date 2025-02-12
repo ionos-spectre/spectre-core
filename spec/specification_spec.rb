@@ -3,8 +3,8 @@ RSpec.describe Spectre::Specification do
     @console_out = StringIO.new
     @log_out = StringIO.new
 
-    Spectre
-      .setup({
+    @engine = Spectre::Engine
+      .new({
         'log_file' => @log_out,
         'stdout' => @console_out,
       })
@@ -19,7 +19,7 @@ RSpec.describe Spectre::Specification do
 
   it 'runs before and after blocks with the same bag' do
     block = proc do
-      Spectre.info "message from the main block #{bag.buff}"
+      info "message from the main block #{bag.buff}"
     end
 
     spec = Spectre::Specification.new(
@@ -37,20 +37,20 @@ RSpec.describe Spectre::Specification do
 
     befores = [
       proc do
-        Spectre.info 'message in first before block'
+        info 'message in first before block'
         bag.buff = 42
       end,
-      proc { Spectre.info 'message in second before block' },
+      proc { info 'message in second before block' },
     ]
 
     afters = [
-      proc { Spectre.info 'message in first after block' },
-      proc { Spectre.info 'message in second after block' },
+      proc { info 'message in first after block' },
+      proc { info 'message in second after block' },
     ]
 
     bag = { foo: 'bar' }
 
-    run_context = spec.run(befores, afters, bag)
+    run_context = spec.run(@engine, befores, afters, bag)
 
     expect(run_context.status).to eq(:success)
     expect(run_context.logs.count).to eq(5)
@@ -90,16 +90,16 @@ RSpec.describe Spectre::Specification do
 
     befores = [
       proc do
-        Spectre.info 'message in before block'
+        info 'message in before block'
         raise StandardError, 'Oops!'
       end,
     ]
 
     afters = [
-      proc { Spectre.info 'message in after block' },
+      proc { info 'message in after block' },
     ]
 
-    run_context = spec.run(befores, afters, {})
+    run_context = spec.run(@engine, befores, afters, {})
 
     expect(run_context.status).to eq(:error)
     expect(run_context.logs.count).to eq(3)

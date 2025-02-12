@@ -16,15 +16,15 @@ RSpec.describe Spectre::Expectation do
       nil
     )
 
-    Spectre
-      .setup({
+    @engine = Spectre::Engine
+      .new({
         'log_file' => @log_out,
         'stdout' => @console_out,
       })
   end
 
   it 'executes should be' do
-    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+    run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
       context.execute(nil) do
         expect 'a specific value' do
           value = 666
@@ -43,7 +43,7 @@ RSpec.describe Spectre::Expectation do
   end
 
   it 'executes should not be' do
-    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+    run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
       context.execute(nil) do
         expect 'a specific value' do
           value = 666
@@ -57,7 +57,7 @@ RSpec.describe Spectre::Expectation do
   end
 
   it 'executes should be empty' do
-    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+    run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
       context.execute(nil) do
         expect 'a specific value' do
           value = [1, 2]
@@ -71,7 +71,7 @@ RSpec.describe Spectre::Expectation do
   end
 
   it 'executes should not be empty' do
-    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+    run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
       context.execute(nil) do
         expect 'a specific value' do
           value = []
@@ -85,7 +85,7 @@ RSpec.describe Spectre::Expectation do
   end
 
   it 'executes should not exist' do
-    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+    run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
       context.execute(nil) do
         expect 'a specific value' do
           value = 666
@@ -99,7 +99,7 @@ RSpec.describe Spectre::Expectation do
   end
 
   it 'executes should contain' do
-    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+    run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
       context.execute(nil) do
         expect 'a specific value' do
           value = [1, 2]
@@ -113,7 +113,7 @@ RSpec.describe Spectre::Expectation do
   end
 
   it 'executes should not contain' do
-    run_context = Spectre::RunContext.new(@spec, :spec) do |context|
+    run_context = Spectre::RunContext.new(@engine, @spec, :spec) do |context|
       context.execute(nil) do
         expect 'a specific value' do
           value = [1, 2, 666]
