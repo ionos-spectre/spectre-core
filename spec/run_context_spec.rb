@@ -454,7 +454,7 @@ RSpec.describe Spectre::RunContext do
       lines = console_out.readlines
 
       expect(lines.count).to eq(2)
-      expect(lines[1]).to eq("#{'missing params: bar'.red}#{'.' * 61}#{'[error] - RuntimeError'.red}\n")
+      expect(lines[1]).to eq("#{('missing params: bar' + '.' * 61).red}#{'[error] - RuntimeError'.red}\n")
     end
   end
 end
