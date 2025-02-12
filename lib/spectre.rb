@@ -219,7 +219,7 @@ module Spectre
 
           output += "#{index})"
           output += " #{run.parent.full_desc}"
-          output += " (#{run.duration})"
+          output += " (#{run.finished - run.started})"
           output += " [#{run.parent.name}]"
 
           output += "\n"
@@ -301,7 +301,7 @@ module Spectre
           {
             spec: run.parent.name,
             desc: run.parent.full_desc,
-            duration: run.duration,
+            duration: run.finished - run.started,
             status: run.status,
             error: run.error,
             evaluations: run.evaluations.map do |evaluation|
@@ -763,8 +763,16 @@ module Spectre
       @properties.merge!(kwargs)
     end
 
+    def measure
+      start_time = Time.now
+      yield
+      end_time = Time.now
+
+      @measured_duration = end_time - start_time
+    end
+
     def duration
-      @finished - @started
+      @measured_duration
     end
 
     def group(desc, &)
@@ -1307,7 +1315,7 @@ module Spectre
   # to be available in descending block
   [
     [self, %i[resources debug info warn log]],
-    [proc { RunContext.current }, %i[assert expect bag observe success? skip]],
+    [proc { RunContext.current }, %i[assert expect bag observe success? measure duration skip]],
     [Assertion, %i[to be be_empty contain match]],
     [Helpers, %i[uuid now]],
   ].each do |target, methods|
