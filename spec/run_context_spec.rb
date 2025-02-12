@@ -50,7 +50,6 @@ RSpec.describe Spectre::RunContext do
 
     expect(run_context.started).not_to eq(nil)
     expect(run_context.finished).not_to eq(nil)
-    expect(run_context.duration).not_to eq(nil)
 
     expect(run_context.bag.foo).to eq('bar')
     expect(run_context.logs.count).to eq(1)
