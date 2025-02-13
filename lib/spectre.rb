@@ -68,24 +68,21 @@ module Spectre
       super
     end
 
+    def instance_exec(*, **, &block)
+      @outer_scope = eval('self', block.binding)
+      super
+    end
+
     def respond_to_missing?(method, *)
-      @@methods.keys.include? method
+      @engine.respond_to?(method) or
+        @outer_scope.respond_to?(method)
     end
 
     def method_missing(method, *, &)
-      return @outer_scope.send(method, *, &) if @outer_scope.respond_to? method
+      return @engine.send(method, *, &) if @engine.respond_to?(method)
+      return @outer_scope.send(method, *, &) if @outer_scope.respond_to?(method)
 
-      super unless @@methods.keys.include? method
-
-      target = @@methods[method]
-      target = target.call if target.is_a? Proc
-      target.send(method, *, &)
-    end
-
-    def self.register target, *methods
-      methods.each do |method|
-        @@methods[method] = target
-      end
+      super
     end
   end
 
@@ -616,6 +613,8 @@ module Spectre
   end
 
   class Mixin
+    include Delegate
+
     # The description of the mixin. This value has to be unique
     # as it is used for running the mixin.
     attr_reader :desc
@@ -1067,9 +1066,14 @@ module Spectre
     attr_reader :env, :formatter, :config, :subjects, :mixins, :collections, :resources
 
     @@current = nil
+    @@modules = []
 
     def self.current
       @@current
+    end
+
+    def self.register cls, *methods
+      @@modules << [cls, methods]
     end
 
     def initialize config
@@ -1078,8 +1082,7 @@ module Spectre
       @contexts = []
       @mixins = {}
       @resources = {}
-
-      @@current = self
+      @delegates = {}
 
       @config = Marshal.load(Marshal.dump(CONFIG))
 
@@ -1172,19 +1175,25 @@ module Spectre
         .new(@config)
 
       # Load modules
-      if @config['modules'].is_a? Array
-        @config['modules'].each do |module_name|
-          module_path = File.join(Dir.pwd, module_name)
+      return unless @config['modules'].is_a? Array
 
-          if File.exist? module_path
-            require_relative module_path
-          else
-            require module_name
-          end
+      @config['modules'].each do |module_name|
+        module_path = File.join(Dir.pwd, module_name)
+
+        if File.exist? module_path
+          require_relative module_path
+        else
+          require module_name
         end
       end
+    end
 
-      @@current = nil
+    def respond_to_missing?(method, *)
+      @delegates.key? method
+    end
+
+    def method_missing(method, *, **, &)
+      @delegates[method]&.send(method, *, **, &)
     end
 
     def logger
@@ -1212,6 +1221,14 @@ module Spectre
     # Runs specs with the current config
     #
     def run
+      @@modules.each do |mod, methods|
+        target = mod.respond_to?(:new) ? mod.new(@config, logger) : mod
+
+        methods.each do |method|
+          @delegates[method] = target
+        end
+      end
+
       list
         .group_by { |x| x.parent.root }
         .map do |context, specs|
@@ -1263,11 +1280,15 @@ module Spectre
     private
 
     def load_files patterns
+      @@current = self
+
       patterns.each do |pattern|
         Dir.glob(pattern).each do |file|
           load File.join(Dir.pwd, file)
         end
       end
+
+      @@current = nil
     end
 
     def load_yaml file_path
@@ -1290,12 +1311,8 @@ module Spectre
 
   # Delegate methods to specific classes or instances
   # to be available in descending block
-  [
-    [Assertion, %i[be be_empty contain match]],
-    [Helpers, %i[uuid now]],
-  ].each do |target, methods|
-    Delegate.register(target, *methods)
-  end
+  Engine.register(Assertion, %i[be be_empty contain match])
+  Engine.register(Helpers, %i[uuid now])
 
   # Define globally accessible methods which have
   # to be available on spec and mixin loading
