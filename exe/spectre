@@ -145,11 +145,11 @@ engine = Spectre::Engine.new(config_overrides)
 
 case action
 when 'list', 'li', 'ls'
-  engine.formatter.list(Spectre.list)
+  engine.formatter.list(engine.list)
 when 'specs', 'sp'
-  engine.formatter.details(Spectre.list)
+  engine.formatter.details(engine.list)
 when 'describe', 'de'
-  engine.formatter.describe(Spectre.subjects)
+  engine.formatter.describe(engine.contexts)
 when 'run', 'ru'
   engine.cleanup if cleanup
   runs = engine.run

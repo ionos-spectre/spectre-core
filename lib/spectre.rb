@@ -526,7 +526,7 @@ module Spectre
     def mixins mixins
       paragraphs = []
 
-      mixins.each do |mixin|
+      mixins.values.each do |mixin|
         output  = "#{mixin.desc.yellow}\n"
         output += "  params.....: #{mixin.params.join ', '}\n" if mixin.params.any?
         output += "  location...: #{mixin.file.sub(Dir.pwd, '.')}:#{mixin.line}"
@@ -1083,7 +1083,7 @@ module Spectre
   DEFAULT_ENV_NAME = 'default'
 
   class Engine
-    attr_reader :env, :formatter, :config, :subjects, :mixins, :collections, :resources
+    attr_reader :env, :formatter, :config, :contexts, :mixins, :collections, :resources
 
     @@current = nil
     @@modules = []
