@@ -74,21 +74,20 @@ module Spectre
         # Maybe not the most elegant way, but it works for now
         # as long as the `.to` call is on the same line as the variable
         location = call_location
-          .select { |x| x.base_label == '<top (required)>' }
-          .first
+          .find { |x| x.label.include? 'Spectre::Engine#load_files' or x.base_label == '<top (required)>' }
 
-        if @@location_cache.key?(location.absolute_path)
-          file_content = @@location_cache[location.absolute_path]
+        path = location.path
+
+        if @@location_cache.key?(path)
+          file_content = @@location_cache[path]
         else
-          file_content = File.read(location.absolute_path)
-          @@location_cache[location.absolute_path] = file_content
+          file_content = File.read(path)
+          @@location_cache[path] = file_content
         end
 
         @var_name = file_content
-          .lines
-          .slice(location.lineno - 1, 1)
-          .map(&:strip)
-          .join
+          .lines[location.lineno - 1]
+          .strip
           .match(/[\s\(]([^\s]+|\[.*\]|{.*})\.(to|not_to)[\s\(]/)
           .captures
           .first

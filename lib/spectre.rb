@@ -17,11 +17,10 @@ require_relative 'spectre/helpers'
 
 def get_call_location call_stack
   loc = (call_stack || caller_locations)
-    .select { |x| x.base_label == '<top (required)>' }
-    .first
+    .find { |x| x.label.include? 'Spectre::Engine#load_files' or x.base_label == '<top (required)>'}
 
   [
-    loc.absolute_path.sub(Dir.pwd, '.'),
+    loc.path.sub(Dir.pwd, '.'),
     loc.lineno
   ]
 end
@@ -39,9 +38,28 @@ class Hash
   def to_recursive_struct
     OpenStruct.new(
       transform_values do |val|
-        val.is_a?(Hash) ? val.to_recursive_struct : val
+        case val
+        when Hash, Array
+          val.to_recursive_struct
+        else
+          val
+        end
       end
     )
+  end
+end
+
+class Array
+  # :nodoc:
+  def to_recursive_struct
+    map(&:to_recursive_struct)
+  end
+end
+
+class Object
+  # :nodoc:
+  def to_recursive_struct
+    self
   end
 end
 
@@ -894,6 +912,8 @@ module Spectre
   end
 
   class DefinitionContext
+    include Delegate
+
     attr_reader :id, :name, :desc, :parent, :full_desc, :children, :specs
 
     def initialize desc, parent = nil
@@ -1284,7 +1304,8 @@ module Spectre
 
       patterns.each do |pattern|
         Dir.glob(pattern).each do |file|
-          load File.join(Dir.pwd, file)
+          content = File.read File.join(Dir.pwd, file)
+          instance_eval(content, file, 1)
         end
       end
 
@@ -1311,14 +1332,10 @@ module Spectre
 
   # Delegate methods to specific classes or instances
   # to be available in descending block
-  Engine.register(Assertion, :be, :be_empty, :contain, :match)
-  Engine.register(Helpers, :uuid, :now)
-
-  # Define globally accessible methods which have
-  # to be available on spec and mixin loading
-  %i[env describe mixin].each do |method|
-    Kernel.define_method(method) do |*args, **kwargs, &block|
-      Engine.current.send(method, *args, **kwargs, &block)
-    end
+  [
+    [Assertion, :be, :be_empty, :contain, :match],
+    [Helpers, :uuid, :now],
+  ].each do |args|
+    Engine.register(*args)
   end
 end

@@ -39,7 +39,9 @@ describe 'Ghostbuster' do
   it 'accepts emergency calls', tags: [:emergency, :call, :failed, :expect, :assert] do
     info 'pickup the phone'
 
-    answer = do_phone_call('216 245-2368')
+    answer = call('216 245-2368') do
+      ask 'Hello? Hello? Please, I need help! Ahhhhh!'
+    end
 
     # "Expecting" something will not abort the test run, even if a failure was reported
     expect 'a classic conversation' do
@@ -55,6 +57,18 @@ describe 'Ghostbuster' do
     end
 
     info "won't continue if someone is a coward"
+  end
+
+  context 'while preparing' do
+    env.strange_things.each do |strange_thing|
+      it "lookups #{strange_thing.entity}", tags: [:entity, :location, :env] do
+        info 'searching for information'
+
+        also "consult Tobin's Spirit Guide" do
+          with(**strange_thing.to_h)
+        end
+      end
+    end
   end
 
   it 'hunts at the Sedgewick Hotel', tags: [:ghosts, :success, :expect, :assert] do
@@ -88,7 +102,7 @@ describe 'Ghostbuster' do
       # a custom spectre module
       also "consult Tobin's Spirit Guide" do
         with entity: 'Zuul'
-        with occurance: 'refrigerator'
+        with occurance: env.location
       end
 
       group 'together' do
