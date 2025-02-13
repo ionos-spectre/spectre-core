@@ -1311,8 +1311,8 @@ module Spectre
 
   # Delegate methods to specific classes or instances
   # to be available in descending block
-  Engine.register(Assertion, %i[be be_empty contain match])
-  Engine.register(Helpers, %i[uuid now])
+  Engine.register(Assertion, :be, :be_empty, :contain, :match)
+  Engine.register(Helpers, :uuid, :now)
 
   # Define globally accessible methods which have
   # to be available on spec and mixin loading
