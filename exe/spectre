@@ -3,11 +3,14 @@
 require_relative '../lib/spectre'
 require_relative '../lib/spectre/expectation'
 
+FAILED_FILENAME = '.failed'
+
 config_overrides = {
   'log_file' => './logs/spectre_<date>.log',
 }
 
 cleanup = false
+run_failed = false
 
 options = OptionParser.new do |opts|
   opts.banner = <<~BANNER
@@ -76,6 +79,18 @@ options = OptionParser.new do |opts|
   opts.on('--json', 'Use JSON formatter') do
     Spectre::CONFIG['formatter'] = 'Spectre::JsonFormatter'
     Spectre::CONFIG['reporters'] = ['Spectre::JsonReporter']
+  end
+
+  opts.on('--failed', 'Run previously failed specs') do
+    run_failed = true
+
+    next if config_overrides.key? 'specs' or
+      config_overrides.key? 'tags' or
+      config_overrides.key? 'collection'
+
+    config_overrides['specs'] = File
+      .readlines(FAILED_FILENAME)
+      .map(&:strip) if File.exist?(FAILED_FILENAME)
   end
 
   opts.on('--no-log', 'Disable file logging') do
@@ -154,6 +169,13 @@ when 'run', 'ru'
   engine.cleanup if cleanup
   runs = engine.run
   exit if runs.nil?
+
+  File.write('.failed', runs
+    .select { |x| x.type == :spec and
+                  x.status != :success }
+    .map(&:name)
+    .join("\n")) if run_failed
+
   puts
   engine.report(runs)
 when 'env', 'en'
