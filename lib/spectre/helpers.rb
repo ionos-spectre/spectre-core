@@ -90,6 +90,10 @@ class ::String
 end
 
 class ::OpenStruct
+  def each(&)
+    to_h.each(&)
+  end
+
   def to_json(*, **)
     to_h
       .transform_values { |x| x.is_a?(OpenStruct) ? x.to_h : x }
