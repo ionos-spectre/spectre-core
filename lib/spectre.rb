@@ -828,22 +828,19 @@ module Spectre
       @measured_duration
     end
 
-    def async name=DEFAULT_ASYNC_NAME, &block
-      unless @threads.key? name
-        @threads[name] = []
-      end
-
-      @threads[name] << Thread.new(&block)
+    def async(name = DEFAULT_ASYNC_NAME, &)
+      @threads[name] ||= []
+      @threads[name] << Thread.new(&)
     end
 
-    def await name=DEFAULT_ASYNC_NAME
+    def await name = DEFAULT_ASYNC_NAME
       return unless @threads.key? name
 
-      threads = @threads[name].map { |x| x.join() }
+      threads = @threads[name].map(&:join)
 
       @threads.delete(name)
 
-      threads.map { |x| x.value }
+      threads.map(&:join)
     end
 
     def group(desc, &)
