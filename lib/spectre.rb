@@ -327,6 +327,7 @@ module Spectre
             desc: run.parent.full_desc,
             duration: run.finished - run.started,
             status: run.status,
+            logs: run.logs,
             error: run.error,
             evaluations: run.evaluations.map do |evaluation|
               {
@@ -369,6 +370,8 @@ module Spectre
               name: spec.name,
               desc: spec.desc,
               tags: spec.tags,
+              file: spec.file,
+              data: spec.data,
             }
           end,
           children: de(context.children),
