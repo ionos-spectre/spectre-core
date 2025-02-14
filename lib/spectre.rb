@@ -1097,7 +1097,7 @@ module Spectre
     'env_partial_patterns' => ['environments/**/*.env.secret.yml'],
     'spec_patterns' => ['specs/**/*.spec.rb'],
     'mixin_patterns' => ['mixins/**/*.mixin.rb'],
-    'collection_patterns' => ['**/*.collection.yml'],
+    'collections_patterns' => ['**/*.collections.yml'],
     'resource_paths' => ['../common/resources', './resources'],
     'modules' => [],
   }
@@ -1171,7 +1171,7 @@ module Spectre
       @config.deep_merge!(@environments[config.delete('selected_env') || DEFAULT_ENV_NAME])
 
       # Load collections
-      @config['collection_patterns'].each do |pattern|
+      @config['collections_patterns'].each do |pattern|
         Dir.glob(pattern).each do |file_path|
           @collections.merge! load_yaml(file_path)
         end
