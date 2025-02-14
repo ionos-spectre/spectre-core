@@ -58,7 +58,11 @@ module Spectre
       end
 
       def should_contain value
-        predicate = proc { |expected, actual| actual.respond_to? :include? and actual.include?(expected) }
+        predicate = proc do |expected, actual|
+          expected = expected.to_s if actual.is_a? String
+          actual.respond_to? :include? and actual.include?(expected)
+        end
+
         value = Spectre::Assertion::ValueWrapper.wrap(value)
         success = value.evaluate(predicate, self, false)
 
@@ -68,7 +72,11 @@ module Spectre
       end
 
       def should_not_contain value
-        predicate = proc { |expected, actual| actual.respond_to? :include? and actual.include?(expected) }
+        predicate = proc do |expected, actual|
+          expected = expected.to_s if actual.is_a? String
+          actual.respond_to? :include? and actual.include?(expected)
+        end
+
         value = Spectre::Assertion::ValueWrapper.wrap(value)
         success = value.evaluate(predicate, self, true)
 

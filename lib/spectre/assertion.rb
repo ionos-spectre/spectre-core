@@ -159,7 +159,10 @@ module Spectre
         [
           expected_val,
           __method__,
-          proc { |expected, actual| actual.respond_to? :include? and actual.include?(expected) }
+          proc do |expected, actual|
+            expected = expected.to_s if actual.is_a? String
+            actual.respond_to? :include? and actual.include?(expected)
+          end
         ]
       end
 
