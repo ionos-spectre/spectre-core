@@ -694,6 +694,8 @@ module Spectre
     attr_reader :id, :name, :parent, :type, :logs, :bag, :error,
                 :evaluations, :started, :finished, :properties
 
+    DEFAULT_ASYNC_NAME = 'default'
+
     @@current = nil
     @@location_cache = {}
     @@skip_count = 0
@@ -707,6 +709,8 @@ module Spectre
       @parent = parent
       @type = type
       @logs = []
+
+      @threads = {}
 
       @name = parent.name
       @name += "-#{type}" unless type == :spec
@@ -822,6 +826,24 @@ module Spectre
 
     def duration
       @measured_duration
+    end
+
+    def async name=DEFAULT_ASYNC_NAME, &block
+      unless @threads.key? name
+        @threads[name] = []
+      end
+
+      @threads[name] << Thread.new(&block)
+    end
+
+    def await name=DEFAULT_ASYNC_NAME
+      return unless @threads.key? name
+
+      threads = @threads[name].map { |x| x.join() }
+
+      @threads.delete(name)
+
+      threads.map { |x| x.value }
     end
 
     def group(desc, &)
