@@ -17,7 +17,7 @@ require_relative 'spectre/helpers'
 
 def get_call_location call_stack
   loc = (call_stack || caller_locations)
-    .find { |x| x.label.include? 'Spectre::Engine#load_files' or x.base_label == '<top (required)>'}
+    .find { |x| x.label.include? 'Spectre::Engine#load_files' or x.base_label == '<top (required)>' }
 
   [
     loc.path.sub(Dir.pwd, '.'),
@@ -529,7 +529,7 @@ module Spectre
     def mixins mixins
       paragraphs = []
 
-      mixins.values.each do |mixin|
+      mixins.eack_value do |mixin|
         output  = "#{mixin.desc.yellow}\n"
         output += "  params.....: #{mixin.params.join ', '}\n" if mixin.params.any?
         output += "  location...: #{mixin.file.sub(Dir.pwd, '.')}:#{mixin.line}"
