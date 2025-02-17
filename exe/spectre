@@ -182,7 +182,7 @@ when 'env', 'en'
   puts engine.config.pretty
 when 'mixins', 'mi', 'mx'
   search = ARGV.first
-  mixins = engine.mixins.select { |x| search.nil? or x.desc.include? search }
+  mixins = engine.mixins.select { |x| search.nil? or x.include? search }
   engine.formatter.mixins(mixins)
 when 'collections', 'co'
   puts engine.collections.pretty
