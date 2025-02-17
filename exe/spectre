@@ -173,7 +173,7 @@ when 'run', 'ru'
   runs = engine.run
   exit if runs.nil?
 
-  if run_failed
+  if run_failed and runs.any? { |x| x.status != :success }
     File.write('.failed', runs
       .select do |x|
         x.type == :spec and
