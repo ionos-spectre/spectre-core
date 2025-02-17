@@ -92,6 +92,8 @@ options = OptionParser.new do |opts|
       config_overrides['specs'] = File
         .readlines(FAILED_FILENAME)
         .map(&:strip)
+
+      File.delete(FAILED_FILENAME)
     end
   end
 
