@@ -99,7 +99,7 @@ options = OptionParser.new do |opts|
     config_overrides['log_file'] = StringIO.new
   end
 
-  opts.on('--cleanup', 'Cleans up before executing') do
+  opts.on('--cleanup', 'Remove generated file before running specs') do
     cleanup = true
   end
 
