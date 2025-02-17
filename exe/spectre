@@ -85,12 +85,14 @@ options = OptionParser.new do |opts|
     run_failed = true
 
     next if config_overrides.key? 'specs' or
-      config_overrides.key? 'tags' or
-      config_overrides.key? 'collection'
+            config_overrides.key? 'tags' or
+            config_overrides.key? 'collection'
 
-    config_overrides['specs'] = File
-      .readlines(FAILED_FILENAME)
-      .map(&:strip) if File.exist?(FAILED_FILENAME)
+    if File.exist?(FAILED_FILENAME)
+      config_overrides['specs'] = File
+        .readlines(FAILED_FILENAME)
+        .map(&:strip)
+    end
   end
 
   opts.on('--no-log', 'Disable file logging') do
@@ -110,6 +112,7 @@ options = OptionParser.new do |opts|
   end
 
   opts.on('-d', '--debug', 'Run in debug mode. Do not use in production!') do
+    require 'debug'
     config_overrides['debug'] = true
   end
 
@@ -170,11 +173,15 @@ when 'run', 'ru'
   runs = engine.run
   exit if runs.nil?
 
-  File.write('.failed', runs
-    .select { |x| x.type == :spec and
-                  x.status != :success }
-    .map(&:name)
-    .join("\n")) if run_failed
+  if run_failed
+    File.write('.failed', runs
+      .select do |x|
+        x.type == :spec and
+          x.status != :success
+      end
+      .map(&:name)
+      .join("\n"))
+  end
 
   puts
   engine.report(runs)
