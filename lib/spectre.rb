@@ -529,7 +529,7 @@ module Spectre
     def mixins mixins
       paragraphs = []
 
-      mixins.eack_value do |mixin|
+      mixins.each_value do |mixin|
         output  = "#{mixin.desc.yellow}\n"
         output += "  params.....: #{mixin.params.join ', '}\n" if mixin.params.any?
         output += "  location...: #{mixin.file.sub(Dir.pwd, '.')}:#{mixin.line}"
