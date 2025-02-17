@@ -104,7 +104,7 @@ class ::OpenStruct
     defaults = kwargs if kwargs.any?
 
     defaults.each_key do |key|
-      self[key] ||= defaults[key]
+      self[key] = defaults[key] unless to_h.key? key
     end
   end
 end
@@ -114,7 +114,7 @@ class ::Hash
     defaults = kwargs if kwargs.any?
 
     defaults.each_key do |key|
-      self[key] ||= defaults[key]
+      self[key] = defaults[key] unless key? key
     end
   end
 end
