@@ -179,13 +179,13 @@ when 'run', 'ru'
   puts
   engine.report(runs)
 when 'env', 'en'
-  puts engine.config.pretty
+  engine.formatter.environment(engine.env)
 when 'mixins', 'mi', 'mx'
   search = ARGV.first
   mixins = engine.mixins.select { |x| search.nil? or x.desc.include? search }
   engine.formatter.mixins(mixins)
 when 'collections', 'co'
-  puts engine.collections.pretty
+  engine.formatter.collections(engine.collections)
 when 'cleanup', 'cl'
   engine.cleanup
 when 'init', 'in'

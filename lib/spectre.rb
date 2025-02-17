@@ -387,6 +387,14 @@ module Spectre
       end)
     end
 
+    def collections cols
+      @out.puts cols.to_json
+    end
+
+    def environment env
+      @out.puts env.to_json
+    end
+
     def scope desc, type
       id = SecureRandom.hex(8)
 
@@ -537,6 +545,14 @@ module Spectre
       end
 
       @out.puts paragraphs.join("\n\n")
+    end
+
+    def collections cols
+      @out.puts cols.pretty
+    end
+
+    def environment env
+      @out.puts env.to_h.pretty
     end
 
     def scope desc, type
