@@ -16,5 +16,5 @@ RDoc::Task.new(:doc) do |rdoc|
 end
 
 RuboCop::RakeTask.new(:style) do |task|
-  task.requires << 'rubocop-rake'
+  task.plugins << 'rubocop-rake'
 end
