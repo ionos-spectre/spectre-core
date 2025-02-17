@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
   spec.bindir = 'exe'
   spec.executables = 'spectre'
 
+  spec.add_dependency 'debug'
   spec.add_dependency 'ectoplasm'
   spec.add_dependency 'logger'
   spec.add_dependency 'ostruct'
