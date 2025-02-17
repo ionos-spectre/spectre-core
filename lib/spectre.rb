@@ -148,7 +148,7 @@ module Spectre
           [:info, :ok, nil]
         end
       rescue Failure => e
-        engine.logger.error("#{desc} - failed")
+        engine.logger.error("#{e.message} - failed")
         @failures << e
         [:error, :failed, nil]
       end
