@@ -100,17 +100,21 @@ class ::OpenStruct
       .to_json(*, **)
   end
 
-  def default_to! defaults
+  def default_to! defaults = {}, **kwargs
+    defaults = kwargs if kwargs.any?
+
     defaults.each_key do |key|
-      self[key] ||= defaults[key]
+      self[key] = defaults[key] unless to_h.key? key
     end
   end
 end
 
 class ::Hash
-  def default_to! defaults
+  def default_to! defaults = {}, **kwargs
+    defaults = kwargs if kwargs.any?
+
     defaults.each_key do |key|
-      self[key] ||= defaults[key]
+      self[key] = defaults[key] unless key? key
     end
   end
 end

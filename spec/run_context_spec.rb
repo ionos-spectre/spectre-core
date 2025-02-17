@@ -87,7 +87,7 @@ RSpec.describe Spectre::RunContext do
 
     expect(run_context.status).to eq(:failed)
     expect(run_context.logs.count).to eq(2)
-    expect(run_context.logs[1][4]).to eq('assert something - failed')
+    expect(run_context.logs[1][4]).to eq('a message - failed')
   end
 
   it 'lets define run properties' do
