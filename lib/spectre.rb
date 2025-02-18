@@ -708,7 +708,7 @@ module Spectre
     include Delegate
 
     attr_reader :id, :name, :parent, :type, :logs, :bag, :error,
-                :evaluations, :started, :finished, :properties
+                :evaluations, :started, :finished, :properties, :data
 
     DEFAULT_ASYNC_NAME = 'default'
 
@@ -751,6 +751,7 @@ module Spectre
     end
 
     def execute(data, &)
+      @data = data
       instance_exec(data.is_a?(Hash) ? OpenStruct.new(data) : data, &)
     rescue AbortException
       # Do nothing. The run will be ended here
