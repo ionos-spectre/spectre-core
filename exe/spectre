@@ -194,7 +194,7 @@ when 'mixins', 'mi', 'mx'
   mixins = engine.mixins.select { |x| search.nil? or x.include? search }
   engine.formatter.mixins(mixins)
 when 'collections', 'co'
-  engine.formatter.collections(engine.collections)
+  engine.formatter.collections(engine)
 when 'cleanup', 'cl'
   engine.cleanup
 when 'init', 'in'

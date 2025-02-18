@@ -387,8 +387,14 @@ module Spectre
       end)
     end
 
-    def collections cols
-      @out.puts cols.to_json
+    def collections engine
+      @out.puts(engine.collections.map do |name, config|
+        {
+          name:,
+          config:,
+          specs: engine.list(config).map(&:name),
+        }
+      end.to_json)
     end
 
     def environment env
@@ -547,8 +553,8 @@ module Spectre
       @out.puts paragraphs.join("\n\n")
     end
 
-    def collections cols
-      @out.puts cols.pretty
+    def collections engine
+      @out.puts engine.collections.pretty
     end
 
     def environment env
@@ -1268,9 +1274,9 @@ module Spectre
     ##
     # Get a list of specs with the configured filter
     #
-    def list
-      spec_filter = @config['specs'] || []
-      tag_filter = @config['tags'] || []
+    def list config = @config
+      spec_filter = config['specs'] || []
+      tag_filter = config['tags'] || []
 
       @contexts
         .map(&:all_specs)
