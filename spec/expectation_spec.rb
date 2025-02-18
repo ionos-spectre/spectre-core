@@ -5,7 +5,7 @@ RSpec.describe Spectre::Expectation do
     @console_out = StringIO.new
     @log_out = StringIO.new
 
-    @subject = Spectre::DefinitionContext.new('Some subject')
+    @subject = Spectre::DefinitionContext.new('Some subject', nil)
     @spec = Spectre::Specification.new(
       @subject,
       'test',

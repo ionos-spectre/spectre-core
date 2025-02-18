@@ -953,11 +953,12 @@ module Spectre
   class DefinitionContext
     include Delegate
 
-    attr_reader :id, :name, :desc, :parent, :full_desc, :children, :specs
+    attr_reader :id, :name, :desc, :parent, :full_desc, :children, :specs, :file
 
-    def initialize desc, parent = nil
+    def initialize desc, file, parent = nil
       @parent = parent
       @desc = desc
+      @file = file
       @children = []
       @specs = []
 
@@ -982,7 +983,12 @@ module Spectre
     end
 
     def context(desc, &)
-      context = DefinitionContext.new(desc, self)
+      file = caller
+        .first
+        .gsub(/:in .*/, '')
+        .gsub(Dir.pwd, '.')
+
+      context = DefinitionContext.new(desc, file, self)
       @children << context
       context.instance_eval(&)
     end
@@ -1318,10 +1324,15 @@ module Spectre
     # Describe a test subject
     #
     def describe(name, &)
+      file = caller
+        .first
+        .gsub(/:in .*/, '')
+        .gsub(Dir.pwd, '.')
+
       main_context = @contexts.find { |x| x.desc == name }
 
       if main_context.nil?
-        main_context = DefinitionContext.new(name)
+        main_context = DefinitionContext.new(name, file)
         @contexts << main_context
       end
 

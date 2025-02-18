@@ -12,7 +12,7 @@ RSpec.describe Spectre::RunContext do
         'debug' => true,
       })
 
-    subject = Spectre::DefinitionContext.new('Some subject')
+    subject = Spectre::DefinitionContext.new('Some subject', nil)
 
     @spec = Spectre::Specification.new(
       subject,

@@ -6,7 +6,7 @@ RSpec.describe Spectre::SimpleReporter do
         'stdout' => StringIO.new,
       })
 
-    subject = Spectre::DefinitionContext.new('Some subject')
+    subject = Spectre::DefinitionContext.new('Some subject', nil)
 
     subject.it 'does something' do
       info 'a message'
@@ -27,7 +27,7 @@ RSpec.describe Spectre::SimpleReporter do
   end
 
   it 'reports a failed run' do
-    subject = Spectre::DefinitionContext.new('Some subject')
+    subject = Spectre::DefinitionContext.new('Some subject', nil)
 
     subject.it 'does something' do
       info 'a message'

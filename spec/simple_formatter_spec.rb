@@ -3,17 +3,17 @@ RSpec.describe Spectre::SimpleFormatter do
     @console_out = StringIO.new
     @log_out = StringIO.new
 
-    subject1 = Spectre::DefinitionContext.new('Some subject')
+    subject1 = Spectre::DefinitionContext.new('Some subject', nil)
     subject1.it 'does something', tags: [:some_tag] do
       # do nothing
     end
 
-    subject2 = Spectre::DefinitionContext.new('Another subject')
+    subject2 = Spectre::DefinitionContext.new('Another subject', nil)
     subject2.it 'does another thing', tags: [:some_tag, :another_tag] do
       # do nothing
     end
 
-    context = Spectre::DefinitionContext.new('a sub', subject2)
+    context = Spectre::DefinitionContext.new('a sub', nil, subject2)
     context.it 'does something in another context', tags: [:a_sub_tag] do
       # do nothing
     end

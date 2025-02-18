@@ -16,7 +16,7 @@ RSpec.describe Spectre::Specification do
   end
 
   it 'defines a subject' do
-    subject = Spectre::DefinitionContext.new('Some subject')
+    subject = Spectre::DefinitionContext.new('Some subject', nil)
 
     subject.setup do
       info 'message in first setup'
@@ -94,7 +94,7 @@ RSpec.describe Spectre::Specification do
     proc { assert('a fact') { report failure 'fail' } },
   ].each do |block|
     it 'does not run when setup fails' do
-      subject = Spectre::DefinitionContext.new('Some subject')
+      subject = Spectre::DefinitionContext.new('Some subject', nil)
 
       subject.setup(&block)
 
@@ -115,7 +115,7 @@ RSpec.describe Spectre::Specification do
   end
 
   it 'preserves bags between runs' do
-    subject = Spectre::DefinitionContext.new('Some subject')
+    subject = Spectre::DefinitionContext.new('Some subject', nil)
 
     subject.setup do
       bag.foo = 42
@@ -147,7 +147,7 @@ RSpec.describe Spectre::Specification do
   end
 
   it 'defines child contexts' do
-    subject = Spectre::DefinitionContext.new('Some subject')
+    subject = Spectre::DefinitionContext.new('Some subject', nil)
 
     subject.it 'does a main thing' do
       info 'a message'
