@@ -269,6 +269,8 @@ module Spectre
         end
       end
 
+      alias assert expect
+
       def observe desc = nil
         prefix = 'observing'
         prefix += " '#{desc}'" if desc
@@ -303,6 +305,6 @@ module Spectre
       @@debug = config['debug']
     end
 
-    Spectre.delegate :expect, :observe, :success?, :fail_with, to: self
+    Spectre.delegate :expect, :assert, :observe, :success?, :fail_with, to: self
   end
 end

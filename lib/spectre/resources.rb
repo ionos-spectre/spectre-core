@@ -18,6 +18,10 @@ module Spectre
 
         @items[name]
       end
+
+      def key? name
+        @items.key? name
+      end
     end
 
     class << self

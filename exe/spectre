@@ -46,7 +46,7 @@ DEFAULT_CONFIG = {
   'env_patterns' => ['./environments/**/*.env.yml'],
   'env_partial_patterns' => ['./environments/**/*.env.secret.yml'],
   'resource_paths' => ['../common/resources', './resources'],
-  'modules' => [
+  'default_modules' => [
     'spectre/helpers',
     'spectre/reporter/console',
     'spectre/logging/console',
@@ -325,8 +325,9 @@ if ['list', 'run'].include? action
 
     # Load Modules
 
-    cfg['modules']
+    cfg['default_modules']
       .concat(cfg['include'])
+      .concat(cfg['modules'])
       .select { |mod| !cfg['exclude'].include? mod }
       .each do |mod|
         begin
