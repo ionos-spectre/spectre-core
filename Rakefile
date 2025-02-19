@@ -7,14 +7,14 @@ require 'rdoc/task'
 
 task default: %i[style test doc build]
 
+RuboCop::RakeTask.new(:style) do |task|
+  task.plugins << 'rubocop-rake'
+end
+
 RSpec::Core::RakeTask.new(:test)
 
 RDoc::Task.new(:doc) do |rdoc|
   rdoc.main = 'main.rdoc'
   rdoc.rdoc_dir = 'doc'
   rdoc.rdoc_files.include('main.rdoc', 'lib/**/*.rb')
-end
-
-RuboCop::RakeTask.new(:style) do |task|
-  task.plugins << 'rubocop-rake'
 end
