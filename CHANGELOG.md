@@ -2,7 +2,7 @@
 
 #### Major
  - `assert` was added as an alias for `expect`. Use `assert` from now on to have the same behavior with spectre v2
- - Module loading was updated. The `include` option in `spectre.yml` is replaced by `modules`. `include` will still work and now adjustments are necessary.
+ - Module loading was updated. The `include` option in `spectre.yml` is replaced by `modules`. `include` will still work and no adjustments are necessary.
  - Resource class has now the `.key?` method.
  - Latest `ectoplasm` gem is used and `--no-color` option was removed.
 
