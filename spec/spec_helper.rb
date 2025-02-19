@@ -1,5 +1,9 @@
 require 'simplecov'
-SimpleCov.start
+
+SimpleCov.start do
+  add_filter 'vendor/'
+  minimum_coverage 90
+end
 
 require_relative '../lib/spectre'
 require_relative '../lib/spectre/helpers'
