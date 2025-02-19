@@ -22,7 +22,6 @@ DEFAULT_CONFIG = {
   'environment' => 'default',
   'specs' => [],
   'tags' => [],
-  'colored' => true,
   'verbose' => false,
   'log_file' => './logs/spectre_<date>.log',
   'log_format' => {
@@ -115,10 +114,6 @@ OptionParser.new do |opts|
 
   opts.on('--env-pattern PATTERN', Array, 'File pattern for environment files') do |env_patterns|
     cmd_options['env_patterns'] = env_patterns
-  end
-
-  opts.on('--no-color', 'Disable colored output') do
-    cmd_options['colored'] = false
   end
 
   opts.on('--ignore-failure', 'Always exit with code 0') do
@@ -252,8 +247,6 @@ cfg.deep_merge! env if env
 # Merge property overrides after environment load to give it higher priority
 cfg.deep_merge! property_overrides
 
-
-String.colored! if cfg['colored']
 
 # Load environment exlicitly before loading specs to make it available in spec definition
 require_relative '../lib/spectre/environment' unless cfg['exclude'].include? 'spectre/environment'
