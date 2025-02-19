@@ -320,7 +320,7 @@ if ['list', 'run'].include? action
 
     cfg['default_modules']
       .concat(cfg['include'])
-      .concat(cfg['modules'])
+      .concat(cfg['modules'] || [])
       .select { |mod| !cfg['exclude'].include? mod }
       .each do |mod|
         begin
