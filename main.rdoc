@@ -34,23 +34,19 @@ and add the following content.
         end
       end
 
-      class << self
-        # Load a specific config section, when used with Spectre
-        # otherwise initialize an empty +Hash+
-        @@config = defined?(Spectre::CONFIG) ? Spectre::CONFIG['my_module'] || {} : {}
-
-        # Implement a logger with lazy loading, as the +Spectre.logger+
-        # will be initialized *after* the module is loaded
-        def logger
-          @@logger ||= defined?(Spectre.logger) ? Spectre.logger : Logger.new($stdout)
+      class Greeter
+        # Define a contructor which takes a Spectre config
+        # and a usual logger instance as arguments
+        def initialize config, logger
+          @config = config['greeter']
+          @logger = logger
         end
 
         def greetings name, &block
           # Get the specific options with given name
           # from the config hash, if the given name is present
-          # This takes effect when the module is used with Spectre
-          if @@config.key? name
-            config = @@config[name]
+          if @config.key? name
+            config = @config[name]
           else
             # Otherwise use an empty hash, when module is used as standalone
             # or there is no config present for this name
@@ -70,18 +66,13 @@ and add the following content.
         end
       end
     end
+
+    # Register the class and it's method in the +Spectre::Engine+
+    # So the methods are available "globally" when using it within Spectre
+    Engine.register(MyModule::Greeter, :greetings) if defined? Engine
   end
 
-  # Expose you module function to the wild, so it can be used anywhere
-  # without prefixing the name of you module
-  # Be aware that this can override existing functions
-  %i[greetings].each do |method|
-    Kernel.define_method(method) do |*args, &block|
-      Spectre::MyModule.send(method, *args, &block)
-    end
-  end
-
-The module can be then be used standalone in any Ruby file.
+The module can then be used standalone in any Ruby file.
 
   greetings 'World' do
     message 'Konnichiwa'
@@ -97,7 +88,7 @@ The module can be then be used standalone in any Ruby file.
 When using your module with +Spectre+ add a section to an environment file 
 +default.env.yml+ and add the +greetings.rb+ to the +modules+ list.
 
-  my_module:
+  greeter:
     first_greeting:
       name: World
 

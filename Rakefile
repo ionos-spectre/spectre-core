@@ -10,9 +10,9 @@ task default: %i[style test doc build]
 RSpec::Core::RakeTask.new(:test)
 
 RDoc::Task.new(:doc) do |rdoc|
-  rdoc.main = 'README.rdoc'
+  rdoc.main = 'main.rdoc'
   rdoc.rdoc_dir = 'doc'
-  rdoc.rdoc_files.include('README.rdoc', 'lib/**/*.rb')
+  rdoc.rdoc_files.include('main.rdoc', 'lib/**/*.rb')
 end
 
 RuboCop::RakeTask.new(:style) do |task|
