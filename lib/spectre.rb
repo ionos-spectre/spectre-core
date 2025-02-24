@@ -587,7 +587,6 @@ module Spectre
         id: id,
         parent: @curr_scope,
         type: 'log',
-        run: RunContext.current.id,
         level: level,
         message: message,
         status: status,
