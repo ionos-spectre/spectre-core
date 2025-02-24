@@ -77,13 +77,15 @@ It is recommended to create a `Gemfile` and install `spectre-core` with bundler.
 
 ```ruby
 source "https://rubygems.pkg.github.com/ionos-spectre" do
-  gem "spectre-core", "1.14.6"
+  gem "spectre-core"
 end
 ```
 
 ```bash
 $ bundle install
 ```
+
+For more information about bundler see https://bundler.io
 
 You can also install the tool globally with
 
@@ -131,21 +133,18 @@ This will create multiple empty directories and a `spectre.yml` config file.
 
 ### Spectre Config
 
-The following properties can be set in your `spectre.yml`. 
-Shown values are set by default.
-
-You can see the set values of an spectre config, indluding the environment file by executing
+You can see the set values of an spectre config, including the environment file by executing
 
 ```bash
 spectre show
 ```
 
-See [Spectre::CONFIG](./lib/spectre.rb#L702-L723) for available options.
+See [Spectre::CONFIG](./lib/spectre.rb#L1111-1131) for available options.
 
 All options can also be overridden with the command line argument `-p` or `--property`
 
 ```bash
-$ spectre -p config_file=my_custom_spectre.yml -p "log_file=/var/log/spectre/spectre-<date>.log"
+$ spectre -p spec_patterns=some_specific.spec.rb -p mixin_patterns=**/*.my_mixins.rb
 ```
 
 You can also create a global spectre config file with the options above. 
@@ -157,13 +156,12 @@ and set the options which shall be used for all projects on your computer.
 
 To write automated tests, just open an editor of your choice and create a file named, 
 for example `spooky.spec.rb` in the `specs` folder. Specs are structured in three levels. 
-The *subject* defined by the keyword `describe`, the actual *specification* defined 
+The *subject*, the root context, defined by the keyword `describe`, the actual *specification* defined 
 by the `it` keyword and one or more *assertions* or *expectations* described by `assert` or `expect`.
-A *subject* can contain one or more *specs*.
+A *subject* can contain one or more *contexts* and/or *specs*.
 
-Copy the following code into the file and save it
-
-TODO: create example files and add link
+See example/specs/ghostbuster.spec.rb for an example and more detailed descriptions
+on how specs are structured.
 
 
 ## Listing specs
@@ -177,12 +175,21 @@ $ spectre list
 The output looks like this
 
 ```
-[spooky-1] Spooky always has the right answer #simple
-[spooky-2] Spooky does some strange things in the neighbourhood #scary
-[spooky-3] Spooky only scares some people #scary #dangerous
+[ghostbuster-1] Ghostbuster accepts emergency calls #emergency #call #failed #expect #assert
+[ghostbuster-2] Ghostbuster while preparing lookups Zuul #entity #location #env
+[ghostbuster-3] Ghostbuster while preparing lookups Dream Ghost #entity #location #env
+[ghostbuster-4] Ghostbuster hunts at the Sedgewick Hotel #ghosts #success #expect #assert
+[ghostbuster-5] Ghostbuster at midnight captures some ghosts #emergency #ghosts #error #group #mixin
+[firehouse-1] Firehouse is the home of the Ladder 8 company #trivia
+[firehouse-2] Firehouse has a functioning containment unit #fails #observe #expect #assert
 ```
 
 The name in the brackets is an identifier for a *spec*. This can be used to run only specific *specs*.
+
+```bash
+$ spectre -s ghostbuster-1
+```
+
 Note that this ID can change, when more *specs* have been added.
 
 
@@ -193,12 +200,15 @@ In order to easier maintain your project, it is recommended to
 place *specs* of a *subject* in different `*.spec.rb` files and folders, 
 grouped by a specific context. A *subject* can be described in multiple files.
 
+
+### Resource operation testing
+
 For example, when writing *specs* for a REST API, the *specs* could be grouped 
 by the APIs *resources* in different folders, and their *operations* in different files.
 
 Specs of a RPC API can be grouped by its functions.
 
-Our *Hollow API* has two resources *ghosts* and *monsters*. 
+Let's asume we have a *Hollow API* which operates on two resources *ghosts* and *monsters*. 
 Each resource can be *created*, *read*, *updated* and *deleted*. 
 The project structure could then look something like this:
 
@@ -227,77 +237,12 @@ hollow_webapi
 +-- spectre.yaml
 ```
 
+In this case the *resources* can be defined as *subjects*.
+
+
 ### Mixins `spectre/mixin`
 
 You can define reusable specs by using mixins. Create a `.mixin.rb` file 
 in the mixin directory (default: `mixins`)
 
-```ruby
-mixin 'check health' do |http_name| # the mixin can be parameterized
-  http http_name do
-    auth 'basic'
-    method 'GET'
-    path 'health'
-  end
-
-  expect 'the response code to be 200' do
-    response.code.should be 200
-  end
-
-  expect 'the status to be ok' do
-    response.json.status.should be 'Ok'
-  end
-
-  response
-end
-```
-
-and add this mixin to any spec with the `run`, `step` or `also` function.
-
-```ruby
-describe 'Hollow API' do
-  it 'checks health', tags: [:health] do
-    also 'check health', with: ['hollow_api'] # pass mixin parameter as value list
-  end
-end
-```
-
-Like every ruby block or function, a mixin has a return value (the last expression in the `do` block)
-If the return value is a `Hash`, it will be converted to an `OpenStruct` for better value access.
-
-```ruby
-mixin 'spooky stuff' do
-  # spook around
-
-  { say: 'Boo!' }
-end
-```
-
-This can be used like so:
-
-```ruby
-describe 'Hollow API' do
-  it 'is scary' do
-    result = run 'spooky stuff'
-
-    expect 'some spooky things' do
-      result.say.should be 'Boo!'
-    end
-  end
-end
-```
-
-You can pass one or more parameters to a mixin run. When passing one `Hash` to the mixin, 
-it will be converted to an `OpenStruct` for easier access.
-
-```ruby
-mixin 'spook around' do |params|
-  required params, :boo, :rawrrr
-  optional params, :light
-
-  [...]
-end
-```
-
-When required keys are missing, an `ArgumentError` will be raised.
-`optional` will only log the optional keys to the spectre log for debugging purposes.
+See example/mixins/helpers.mixin.rb for examples and usage description.
