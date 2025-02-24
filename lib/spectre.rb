@@ -154,6 +154,9 @@ module Spectre
       end
     end
 
+    ##
+    # Report a failure with the +EvaluationContext+.
+    #
     def report failure
       @failures << Failure.new(failure, caller_locations)
     end
@@ -210,261 +213,6 @@ module Spectre
       ensure
         @corr_ids.pop
       end
-    end
-  end
-
-  class SimpleReporter
-    def initialize config
-      @out = config['stdout'] || $stdout
-      @debug = config['debug']
-    end
-
-    def report runs
-      runs = runs.select { |x| x.parent.is_a? Specification }
-
-      errors    = runs.count { |x| x.status == :error }
-      failed    = runs.count { |x| x.status == :failed }
-      skipped   = runs.count { |x| x.status == :skipped }
-      succeeded = runs.count - errors - failed - skipped
-
-      summary  = "#{succeeded} succeeded"
-      summary += " #{failed} failures"
-      summary += " #{errors} errors"
-      summary += " #{skipped} skipped"
-
-      @out.puts(summary.send((errors + failed).positive? ? :red : :green))
-
-      output = "\n"
-
-      runs
-        .select { |x| [:error, :failed].include? x.status }
-        .each_with_index do |run, index|
-          index += 1
-
-          output += "#{index})"
-          output += " #{run.parent.full_desc}"
-          output += " (#{run.finished - run.started})"
-          output += " [#{run.parent.name}]"
-
-          output += "\n"
-
-          if run.error
-            file, line = get_call_location(run.error.backtrace_locations)
-
-            error_output  = "but an unexpected error occurred during run\n"
-            error_output += "  file.....: #{file}:#{line}\n" if file
-            error_output += "  type.....: #{run.error.class.name}\n"
-            error_output += "  message..: #{run.error.message}\n"
-
-            if @debug and run.error.backtrace
-              error_output += "  backtrace:\n"
-
-              run.error.backtrace.each do |trace|
-                error_output += "    #{trace}\n"
-              end
-            end
-
-            output += error_output.indent(5)
-            output += "\n\n"
-          end
-
-          next unless run.status == :failed
-
-          failed = run.evaluations
-            .select { |x| x.failures.any? }
-
-          failed.each_with_index do |eval, eval_idx|
-            output += if failed.count == 1
-                        "     #{eval.desc}, but"
-                      else
-                        "     #{index}.#{eval_idx + 1}) #{eval.desc}, but"
-                      end
-
-            if eval.failures.count == 1
-              output += " #{eval.failures.first.message}\n"
-            else
-              output += " #{eval.failures.count} failures occured\n"
-
-              eval.failures.each_with_index do |fail, fail_idx|
-                output += if failed.count == 1
-                            "       #{index}.#{fail_idx + 1}) #{fail.message}\n"
-                          else
-                            "       #{index}.#{eval_idx + 1}.#{fail_idx + 1}) #{fail.message}\n"
-                          end
-              end
-            end
-          end
-
-          output += "\n"
-        end
-
-      @out.puts output.red
-    end
-  end
-
-  class JsonReporter
-    def initialize config
-      @out = config['stdout'] || $stdout
-      @debug = config['debug']
-    end
-
-    def report runs
-      runs = runs.select { |x| x.parent.is_a? Specification }
-
-      errors    = runs.count { |x| x.status == :error }
-      failed    = runs.count { |x| x.status == :failed }
-      skipped   = runs.count { |x| x.status == :skipped }
-      succeeded = runs.count - errors - failed - skipped
-
-      report = {
-        errors: errors,
-        failed: failed,
-        skipped: skipped,
-        succeeded: succeeded,
-        runs: runs.map do |run|
-          {
-            spec: run.parent.name,
-            desc: run.parent.full_desc,
-            duration: run.finished - run.started,
-            status: run.status,
-            logs: run.logs,
-            error: run.error,
-            evaluations: run.evaluations.map do |evaluation|
-              {
-                desc: evaluation.desc,
-                failures: evaluation.failures.map do |failure|
-                  {
-                    message: failure.message,
-                    file: failure.file,
-                    line: failure.line,
-                  }
-                end
-              }
-            end
-          }
-        end
-      }
-
-      @out.puts JSON.dump(report)
-    end
-  end
-
-  class JsonFormatter
-    def initialize config
-      @out = config['stdout'] || $stdout
-      @out.sync = true
-      @curr_scope = nil
-    end
-
-    def describe contexts
-      @out.puts JSON.dump de(contexts)
-    end
-
-    def de contexts
-      contexts.map do |context|
-        {
-          name: context.name,
-          desc: context.desc,
-          specs: context.specs.map do |spec|
-            {
-              name: spec.name,
-              desc: spec.desc,
-              tags: spec.tags,
-              file: spec.file,
-              data: spec.data,
-            }
-          end,
-          children: de(context.children),
-        }
-      end
-    end
-
-    def list specs
-      @out.puts JSON.pretty_generate(specs.map do |spec|
-        {
-          name: spec.name,
-        }
-      end)
-    end
-
-    def collections engine
-      @out.puts(engine.collections.map do |name, config|
-        {
-          name:,
-          config:,
-          specs: engine.list(config).map(&:name),
-        }
-      end.to_json)
-    end
-
-    def environment env
-      @out.puts env.to_json
-    end
-
-    def scope desc, type
-      id = SecureRandom.hex(8)
-
-      prev_scope = @curr_scope
-
-      if type.is_a?(Specification)
-        spec = type.name
-        type = :spec
-      end
-
-      if type.is_a?(DefinitionContext)
-        context = type.name
-        type = :context
-      end
-
-      @out.puts JSON.dump({
-        id: id,
-        type: 'scope',
-        desc: desc,
-        parent: @curr_scope,
-        scope: type,
-        spec: spec,
-        context: context,
-      })
-
-      @curr_scope = id
-      yield
-    ensure
-      @curr_scope = prev_scope
-    end
-
-    def log level, message, status = nil, desc = nil
-      id = SecureRandom.hex(8)
-
-      @out.puts JSON.dump({
-        id: id,
-        parent: @curr_scope,
-        type: 'log',
-        run: RunContext.current.id,
-        level: level,
-        message: message,
-        status: status,
-        desc: desc,
-      })
-
-      return unless block_given?
-
-      begin
-        level, status, desc = yield
-      rescue StandardError => e
-        level = :fatal
-        status = :error
-        desc = e.class
-        error = e
-      end
-
-      @out.puts JSON.dump({
-        id: id,
-        type: 'status',
-        level: level,
-        status: status,
-        desc: desc,
-        error: error,
-      })
     end
   end
 
@@ -656,6 +404,261 @@ module Spectre
     end
   end
 
+  class SimpleReporter
+    def initialize config
+      @out = config['stdout'] || $stdout
+      @debug = config['debug']
+    end
+
+    def report runs
+      runs = runs.select { |x| x.parent.is_a? Specification }
+
+      errors    = runs.count { |x| x.status == :error }
+      failed    = runs.count { |x| x.status == :failed }
+      skipped   = runs.count { |x| x.status == :skipped }
+      succeeded = runs.count - errors - failed - skipped
+
+      summary  = "#{succeeded} succeeded"
+      summary += " #{failed} failures"
+      summary += " #{errors} errors"
+      summary += " #{skipped} skipped"
+
+      @out.puts(summary.send((errors + failed).positive? ? :red : :green))
+
+      output = "\n"
+
+      runs
+        .select { |x| [:error, :failed].include? x.status }
+        .each_with_index do |run, index|
+          index += 1
+
+          output += "#{index})"
+          output += " #{run.parent.full_desc}"
+          output += " (#{run.finished - run.started})"
+          output += " [#{run.parent.name}]"
+
+          output += "\n"
+
+          if run.error
+            file, line = get_call_location(run.error.backtrace_locations)
+
+            error_output  = "but an unexpected error occurred during run\n"
+            error_output += "  file.....: #{file}:#{line}\n" if file
+            error_output += "  type.....: #{run.error.class.name}\n"
+            error_output += "  message..: #{run.error.message}\n"
+
+            if @debug and run.error.backtrace
+              error_output += "  backtrace:\n"
+
+              run.error.backtrace.each do |trace|
+                error_output += "    #{trace}\n"
+              end
+            end
+
+            output += error_output.indent(5)
+            output += "\n\n"
+          end
+
+          next unless run.status == :failed
+
+          failed = run.evaluations
+            .select { |x| x.failures.any? }
+
+          failed.each_with_index do |eval, eval_idx|
+            output += if failed.count == 1
+                        "     #{eval.desc}, but"
+                      else
+                        "     #{index}.#{eval_idx + 1}) #{eval.desc}, but"
+                      end
+
+            if eval.failures.count == 1
+              output += " #{eval.failures.first.message}\n"
+            else
+              output += " #{eval.failures.count} failures occured\n"
+
+              eval.failures.each_with_index do |fail, fail_idx|
+                output += if failed.count == 1
+                            "       #{index}.#{fail_idx + 1}) #{fail.message}\n"
+                          else
+                            "       #{index}.#{eval_idx + 1}.#{fail_idx + 1}) #{fail.message}\n"
+                          end
+              end
+            end
+          end
+
+          output += "\n"
+        end
+
+      @out.puts output.red
+    end
+  end
+
+  class JsonFormatter
+    def initialize config
+      @out = config['stdout'] || $stdout
+      @out.sync = true
+      @curr_scope = nil
+    end
+
+    def describe contexts
+      @out.puts JSON.dump de(contexts)
+    end
+
+    def de contexts
+      contexts.map do |context|
+        {
+          name: context.name,
+          desc: context.desc,
+          specs: context.specs.map do |spec|
+            {
+              name: spec.name,
+              desc: spec.desc,
+              tags: spec.tags,
+              file: spec.file,
+              data: spec.data,
+            }
+          end,
+          children: de(context.children),
+        }
+      end
+    end
+
+    def list specs
+      @out.puts JSON.pretty_generate(specs.map do |spec|
+        {
+          name: spec.name,
+        }
+      end)
+    end
+
+    def collections engine
+      @out.puts(engine.collections.map do |name, config|
+        {
+          name:,
+          config:,
+          specs: engine.list(config).map(&:name),
+        }
+      end.to_json)
+    end
+
+    def environment env
+      @out.puts env.to_json
+    end
+
+    def scope desc, type
+      id = SecureRandom.hex(8)
+
+      prev_scope = @curr_scope
+
+      if type.is_a?(Specification)
+        spec = type.name
+        type = :spec
+      end
+
+      if type.is_a?(DefinitionContext)
+        context = type.name
+        type = :context
+      end
+
+      @out.puts JSON.dump({
+        id: id,
+        type: 'scope',
+        desc: desc,
+        parent: @curr_scope,
+        scope: type,
+        spec: spec,
+        context: context,
+      })
+
+      @curr_scope = id
+      yield
+    ensure
+      @curr_scope = prev_scope
+    end
+
+    def log level, message, status = nil, desc = nil
+      id = SecureRandom.hex(8)
+
+      @out.puts JSON.dump({
+        id: id,
+        parent: @curr_scope,
+        type: 'log',
+        run: RunContext.current.id,
+        level: level,
+        message: message,
+        status: status,
+        desc: desc,
+      })
+
+      return unless block_given?
+
+      begin
+        level, status, desc = yield
+      rescue StandardError => e
+        level = :fatal
+        status = :error
+        desc = e.class
+        error = e
+      end
+
+      @out.puts JSON.dump({
+        id: id,
+        type: 'status',
+        level: level,
+        status: status,
+        desc: desc,
+        error: error,
+      })
+    end
+  end
+
+  class JsonReporter
+    def initialize config
+      @out = config['stdout'] || $stdout
+      @debug = config['debug']
+    end
+
+    def report runs
+      runs = runs.select { |x| x.parent.is_a? Specification }
+
+      errors    = runs.count { |x| x.status == :error }
+      failed    = runs.count { |x| x.status == :failed }
+      skipped   = runs.count { |x| x.status == :skipped }
+      succeeded = runs.count - errors - failed - skipped
+
+      report = {
+        errors: errors,
+        failed: failed,
+        skipped: skipped,
+        succeeded: succeeded,
+        runs: runs.map do |run|
+          {
+            spec: run.parent.name,
+            desc: run.parent.full_desc,
+            duration: run.finished - run.started,
+            status: run.status,
+            logs: run.logs,
+            error: run.error,
+            evaluations: run.evaluations.map do |evaluation|
+              {
+                desc: evaluation.desc,
+                failures: evaluation.failures.map do |failure|
+                  {
+                    message: failure.message,
+                    file: failure.file,
+                    line: failure.line,
+                  }
+                end
+              }
+            end
+          }
+        end
+      }
+
+      @out.puts JSON.dump(report)
+    end
+  end
+
   class Mixin
     include Delegate
 
@@ -717,12 +720,16 @@ module Spectre
     attr_reader :id, :name, :parent, :type, :logs, :bag, :error,
                 :evaluations, :started, :finished, :properties, :data
 
+    ##
+    # The default name for +async+ threads.
     DEFAULT_ASYNC_NAME = 'default'
 
     @@current = nil
     @@location_cache = {}
     @@skip_count = 0
 
+    ##
+    # The current executing +RunContext+
     def self.current
       @@current
     end
@@ -757,6 +764,10 @@ module Spectre
       end
     end
 
+    ##
+    # Executes the given block in the context of this +RunContext+.
+    # For internal use only. Do not execute within an +it+ block.
+    #
     def execute(data, &)
       @data = data
       instance_exec(data.is_a?(Hash) ? OpenStruct.new(data) : data, &)
@@ -773,6 +784,11 @@ module Spectre
       @engine.logger.fatal("#{e.message}\n#{e.backtrace.join("\n")}")
     end
 
+    ##
+    # returns:: One of +:error+, +:failed+, +:skipped+ or +:success+
+    #
+    # The status of the current run.
+    #
     def status
       return :error if @error
       return :failed if @evaluations.any? { |x| x.failures.any? }
@@ -780,6 +796,27 @@ module Spectre
 
       :success
     end
+
+    ##
+    # :method: debug
+    # :args: message
+    #
+    # Logs a debug message. Only when +debug+ config option is set to +true+.
+    #
+
+    ##
+    # :method: info
+    # :args: message
+    #
+    # Logs a info message.
+    #
+
+    ##
+    # :method: warn
+    # :args: message
+    #
+    # Logs a warn message.
+    #
 
     %i[debug info warn].each do |method|
       define_method(method) do |message|
@@ -791,10 +828,18 @@ module Spectre
 
     alias log info
 
+    ##
+    # Access the loaded resources (files)
+    #
     def resources
       @engine.resources
     end
 
+    ##
+    # Raise a failure error.
+    # Using this method within an +assert+ or +expect+ block
+    # will report an error.
+    #
     def fail_with message
       raise Failure, message
     end
@@ -836,10 +881,27 @@ module Spectre
       end
     end
 
+    ##
+    # Adds the given key-value arguments to the run report.
+    # Use this to add generated values during the run to the test report.
+    #
+    #   property key: 'value'
+    #
     def property **kwargs
       @properties.merge!(kwargs)
     end
 
+    ##
+    # Takes a block and measures the time of the execution.
+    # The duration in seconds is available through +duration+.
+    #
+    #   measure do
+    #     info 'do some long running stuff'
+    #     sleep 1
+    #   end
+    #
+    #   info "run duration was #{duration}"
+    #
     def measure
       start_time = Time.now
       yield
@@ -848,15 +910,45 @@ module Spectre
       @measured_duration = end_time - start_time
     end
 
+    ##
+    # returns::
+    #   The duration of the previously executed +measure+ block.
+    #
+    # The duration optained by +measure+.
+    #
     def duration
       @measured_duration
     end
 
+    ##
+    # Executes the given block asyncronously in a new thread.
+    # This thread can be awaited with +await+ and the given name.
+    # You can start multiple threads with the same name.
+    # Using this name with +await+ will wait for all threads to finish.
+    #
+    # The last line in the +async+ block will be returned as a result.
+    # and is available when +await+ ing the threads.
+    #
+    #   async do
+    #     info 'do some async stuff'
+    #
+    #     'a result'
+    #   end
+    #
+    #   result = await
+    #
     def async(name = DEFAULT_ASYNC_NAME, &)
       @threads[name] ||= []
       @threads[name] << Thread.new(&)
     end
 
+    ##
+    # returns:: An +Array+ of previously executed +async+ blocks
+    # with the same name.
+    #
+    # Waits for the threads created with +async+ to finish.
+    # Awaits all threads with the given name.
+    #
     def await name = DEFAULT_ASYNC_NAME
       return unless @threads.key? name
 
@@ -867,6 +959,11 @@ module Spectre
       threads.map(&:join)
     end
 
+    ##
+    # Groups code in a block.
+    # This is solely used for structuring tests
+    # and will not have effect on test reports.
+    #
     def group(desc, &)
       @engine.logger.correlate do
         @engine.logger.debug("group \"#{desc}\"")
@@ -874,6 +971,26 @@ module Spectre
       end
     end
 
+    ##
+    # Observes the given block and catches all errors
+    # within this block. If errors or failures occur
+    # the test will not fail or aborted.
+    #
+    # The result of the observation can be retreived
+    # through +success?+
+    #
+    #   observe do
+    #     info 'do some stuff'
+    #   end
+    #
+    #   assert success?.to be true
+    #
+    #   observe do
+    #     raise StandardError, 'Oops!'
+    #   end
+    #
+    #   assert success?.to be false
+    #
     def observe desc
       @engine.formatter.log(:info, "observe #{desc}") do
         yield
@@ -886,12 +1003,21 @@ module Spectre
       end
     end
 
-    # Returns the status of the +observe+ execution
+    ##
+    # Returns the status of the pervious +observe+ block
+    #
     def success?
       @success.nil? ? true : @success
     end
 
-    # Method to run mixins
+    ##
+    # Run the mixin with the given name and parameters
+    #
+    #   run 'additional actions' do
+    #     with some_param: 42,
+    #          another_param: 'foo'
+    #   end
+    #
     def run(desc, with: nil, &)
       @engine.formatter.scope(desc, :mixin) do
         raise "mixin \"#{desc}\" not found" unless @engine.mixins.key? desc
@@ -907,9 +1033,14 @@ module Spectre
       end
     end
 
-    # Add this alias to construct prettier mixin execution calls
+    ##
+    # Add this alias to construct prettier and more readable mixin execution calls
+    #
     alias also run
 
+    ##
+    # Skip the run for this spec
+    #
     def skip message
       @skipped = true
       @engine.logger.info("#{message} - canceled by user")
@@ -932,6 +1063,10 @@ module Spectre
       @full_desc = "#{@parent.full_desc} #{@desc}"
     end
 
+    ##
+    # Creates a new +RunContext+ and executes the spec,
+    # +before+ and +after+ blocks
+    #
     def run engine, befores, afters, bag
       RunContext.new(engine, self, :spec, bag) do |run_context|
         engine.formatter.scope(@desc, self) do
@@ -981,14 +1116,23 @@ module Spectre
       @full_desc = @parent.nil? ? @desc : "#{@parent.full_desc} #{@desc}"
     end
 
+    ##
+    # The root context aka test subject.
+    #
     def root
       @parent ? @parent.root : self
     end
 
+    ##
+    # A flattened list of all specs including those of child contexts.
+    #
     def all_specs
       @specs + @children.map(&:all_specs).flatten
     end
 
+    ##
+    # Creates a new sub context with the given block.
+    #
     def context(desc, &)
       file = caller
         .first
@@ -1018,14 +1162,27 @@ module Spectre
       @teardowns << block
     end
 
+    ##
+    # Creates a new block which will be executed *before*
+    # each +it+ block.
+    #
     def before &block
       @befores << block
     end
 
+    ##
+    # Creates a new block which will be executed *after*
+    # each +it+ block. These blocks are ensured to be executed,
+    # even on failure or error.
+    #
     def after &block
       @afters << block
     end
 
+    ##
+    # Creates a new specifiction (test). This is the main
+    # building block of a spectre tests and contains all test logic.
+    #
     def it desc, tags: [], with: nil, &block
       file = caller
         .first
@@ -1311,6 +1468,9 @@ module Spectre
       # Do nothing here
     end
 
+    ##
+    # Create a report with the given runs and configured reporter.
+    #
     def report runs
       @config['reporters'].each do |reporter|
         Object.const_get(reporter)
@@ -1321,6 +1481,7 @@ module Spectre
 
     ##
     # Cleanup temporary files like logs, etc.
+    #
     def cleanup
       Dir.chdir(@config['work_dir'])
       log_file_pattern = @config['log_file'].gsub('<date>', '*')
