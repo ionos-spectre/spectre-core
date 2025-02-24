@@ -487,6 +487,7 @@ module Spectre
       specs
         .group_by { |x| x.parent.root }
         .each_value do |spec_group|
+          spec_group.sort_by!(&:name)
           spec_group.each do |spec|
             spec_id = "[#{spec.name}]".send(@colors[counter % @colors.length])
             @out.puts "#{spec_id} #{spec.full_desc} #{spec.tags.map { |x| "##{x}" }.join(' ').cyan}"
