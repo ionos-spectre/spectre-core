@@ -687,7 +687,13 @@ module Spectre
     end
 
     ##
-    # Add execution paramters
+    # Add execution paramters. Available within the block
+    # of a mixin execution.
+    #
+    #   run 'some mixin' do
+    #     with some_key: 'a value',
+    #          a_number: 42
+    #   end
     #
     def with **params
       @given.merge! params
@@ -721,11 +727,12 @@ module Spectre
   class RunContext
     include Delegate
 
-    attr_reader :id, :name, :parent, :type, :logs, :bag, :error,
+    attr_reader :name, :parent, :type, :logs, :bag, :error,
                 :evaluations, :started, :finished, :properties, :data
 
     ##
     # The default name for +async+ threads.
+    #
     DEFAULT_ASYNC_NAME = 'default'
 
     @@current = nil
@@ -734,6 +741,7 @@ module Spectre
 
     ##
     # The current executing +RunContext+
+    #
     def self.current
       @@current
     end
@@ -1293,6 +1301,10 @@ module Spectre
     'modules' => [],
   }
 
+  ##
+  # The default environment name, when not set in `env` file
+  # or as selected `env`
+  #
   DEFAULT_ENV_NAME = 'default'
 
   class Engine
@@ -1301,10 +1313,17 @@ module Spectre
     @@current = nil
     @@modules = []
 
+    ##
+    # The current used engine
+    #
     def self.current
       @@current
     end
 
+    ##
+    # Register a class and methods, which should be
+    # available in all spectre scopes
+    #
     def self.register cls, *methods
       @@modules << [cls, methods]
     end
@@ -1421,14 +1440,17 @@ module Spectre
       end
     end
 
+    # :nodoc:
     def respond_to_missing?(method, *)
       @delegates.key? method
     end
 
+    # :nodoc:
     def method_missing(method, *, **, &)
       @delegates[method]&.send(method, *, **, &)
     end
 
+    # :nodoc:
     def logger
       @logger ||= Logger.new(@config, progname: 'spectre')
     end
