@@ -527,6 +527,10 @@ module Spectre
       @out.puts JSON.pretty_generate(specs.map do |spec|
         {
           name: spec.name,
+          desc: spec.desc,
+          tags: spec.tags,
+          file: spec.file,
+          data: spec.data,
         }
       end)
     end
