@@ -20,13 +20,13 @@ jobs:
       uses: actions/setup-ruby@v1
       with:
         ruby-version: '3.4'
+        bundler-cache: true
 
-    - name: Check style
+    - name: Check code style
       run: bundle exec rubocop
 
-    - name: Run unit tests
+    - name: Run tests
       run: bundle exec rspec
 
-    - name: Build 
+    - name: Build GEM
       run: bundle exec gem build
-

@@ -21,16 +21,20 @@ jobs:
       uses: actions/setup-ruby@v1
       with:
         ruby-version: '3.4'
+        bundler-cache: true
 
-    - name: Publish to GPR
-      run: |
-        mkdir -p $HOME/.gem
-        touch $HOME/.gem/credentials
-        chmod 0600 $HOME/.gem/credentials
-        printf -- "---\n:github: ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
-        gem build *.gemspec
-        gem push --KEY github --host https://rubygems.pkg.github.com/${OWNER} *.gem
+    - name: Check code style
+      run: bundle exec rubocop
+
+    - name: Run tests
+      run: bundle exec rspec
+
+    - name: Build GEM
+      run: bundle exec gem build
+
+    - name: Publish to GitHub Packages
+      run: gem push --host https://rubygems.pkg.github.com/${OWNER} *.gem
       env:
-        GEM_HOST_API_KEY: "Bearer ${{secrets.GITHUB_TOKEN}}"
         OWNER: ${{ github.repository_owner }}
+        GEM_HOST_API_KEY: "Bearer ${{secrets.GITHUB_TOKEN}}"
 
