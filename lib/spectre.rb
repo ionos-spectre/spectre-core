@@ -548,6 +548,10 @@ module Spectre
       @out.puts JSON.pretty_generate(specs.map do |spec|
         {
           name: spec.name,
+          desc: spec.desc,
+          tags: spec.tags,
+          file: spec.file,
+          data: spec.data,
         }
       end)
     end
@@ -604,7 +608,6 @@ module Spectre
         id: id,
         parent: @curr_scope,
         type: 'log',
-        run: RunContext.current.id,
         level: level,
         message: message,
         status: status,
@@ -704,7 +707,13 @@ module Spectre
     end
 
     ##
-    # Add execution paramters
+    # Add execution paramters. Available within the block
+    # of a mixin execution.
+    #
+    #   run 'some mixin' do
+    #     with some_key: 'a value',
+    #          a_number: 42
+    #   end
     #
     def with **params
       @given.merge! params
@@ -737,11 +746,6 @@ module Spectre
 
   class RunContext
     include Delegate
-
-    ##
-    # :attr_reader: name
-    # The name of the run
-    #
 
     attr_reader :name, :parent, :type, :logs, :bag, :error,
                 :evaluations, :started, :finished, :properties, :data
@@ -1316,6 +1320,10 @@ module Spectre
     'modules' => [],
   }
 
+  ##
+  # The default environment name, when not set in `env` file
+  # or as selected `env`
+  #
   DEFAULT_ENV_NAME = 'default'
 
   class Engine
@@ -1324,10 +1332,17 @@ module Spectre
     @@current = nil
     @@modules = []
 
+    ##
+    # The current used engine
+    #
     def self.current
       @@current
     end
 
+    ##
+    # Register a class and methods, which should be
+    # available in all spectre scopes
+    #
     def self.register cls, *methods
       @@modules << [cls, methods]
     end
@@ -1444,14 +1459,17 @@ module Spectre
       end
     end
 
+    # :nodoc:
     def respond_to_missing?(method, *)
       @delegates.key? method
     end
 
+    # :nodoc:
     def method_missing(method, *, **, &)
       @delegates[method]&.send(method, *, **, &)
     end
 
+    # :nodoc:
     def logger
       @logger ||= Logger.new(@config, progname: 'spectre')
     end
