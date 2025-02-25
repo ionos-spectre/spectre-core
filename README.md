@@ -159,7 +159,7 @@ See [spec example](example/specs/ghostbuster.spec.rb) for an example and more de
 on how specs are structured.
 
 
-## Listing specs
+## Listing and running specs
 
 To list specs execute
 
@@ -185,7 +185,35 @@ The name in the brackets is an identifier for a *spec*. This can be used to run 
 $ spectre -s ghostbuster-1
 ```
 
-Note that this ID can change, when more *specs* have been added.
+> **Note**
+> Note that this ID can change, when more *specs* have been added.
+
+
+Spec tags are listed with `#`. Those tags can be used to filter specs.
+
+Run specs with one of the listed tags
+
+```bash
+$ spectre -t emergency,entity
+```
+
+Run specs containing all listed tags
+
+```bash
+$ spectre -t emergency+entity
+```
+
+Run specs *not* containing specific tags
+
+```bash
+$ spectre -t !ghosts
+```
+
+You can also use a combination of all
+
+```bash
+$ spectre -t emergency,trivia+entity,success+!ghosts
+```
 
 
 ## Advanced writing specs
