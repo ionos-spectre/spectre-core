@@ -26,16 +26,11 @@ This helps to debug test subjects and to better understand what and how it is te
 
 ## External Modules
 
-| Module | Documentation |
-| :----- | :------------ |
-| `spectre/http` | https://github.com/ionos-spectre/spectre-http |
-| `spectre/ftp` | https://github.com/ionos-spectre/spectre-ftp |
-| `spectre/git` | https://github.com/ionos-spectre/spectre-git |
-| `spectre/mysql` | https://github.com/ionos-spectre/spectre-mysql |
-| `spectre/ssh` | https://github.com/ionos-spectre/spectre-ssh |
-| `spectre/reporter/html` | https://github.com/ionos-spectre/spectre-reporter-html |
-| `spectre/reporter/vstest` | https://github.com/ionos-spectre/spectre-reporter-vstest |
-| `spectre/reporter/junit` | https://github.com/ionos-spectre/spectre-reporter-junit |
+Spectre core only contains logic to run, log and report tests. For more functionality like
+HTTP requests, SSH command, database access,... see [ionos-spectre](https://github.com/ionos-spectre).
+
+See [minimal example module](example/modules/phone.rb) for a minimal module example and descriptions about
+how to create custom modules.
 
 
 ## Docker
@@ -160,7 +155,7 @@ The *subject*, the root context, defined by the keyword `describe`, the actual *
 by the `it` keyword and one or more *assertions* or *expectations* described by `assert` or `expect`.
 A *subject* can contain one or more *contexts* and/or *specs*.
 
-See example/specs/ghostbuster.spec.rb for an example and more detailed descriptions
+See [spec example](example/specs/ghostbuster.spec.rb) for an example and more detailed descriptions
 on how specs are structured.
 
 
