@@ -74,10 +74,20 @@ class String
   alias skipped grey
 end
 
+##
+# The main module containing all logic for the framework
+#
 module Spectre
+  ##
+  # Exception to throw in order to abort a spec run
+  #
   class AbortException < StandardError
   end
 
+  ##
+  # Extension methods used by Spectre modules to expose
+  # registered methods in all Spectre and module scopes.
+  #
   module Delegate
     @@methods = {}
 
@@ -104,6 +114,10 @@ module Spectre
     end
   end
 
+  ##
+  # The failure class containing information about spec failures
+  # created by +assert+ and +expect+.
+  #
   class Failure < StandardError
     # A message describing the failure
     attr_reader :message
@@ -128,6 +142,10 @@ module Spectre
     end
   end
 
+  ##
+  # This context will be created by +assert+ and +expect+
+  # methods. Failures are reported here.
+  #
   class EvaluationContext
     include Delegate
 
@@ -162,6 +180,9 @@ module Spectre
     end
   end
 
+  ##
+  # An extended +Logger+ class providing additional Spectre run information
+  #
   class Logger < ::Logger
     def initialize(config, **)
       log_file = config['log_file']
@@ -717,11 +738,17 @@ module Spectre
   class RunContext
     include Delegate
 
-    attr_reader :id, :name, :parent, :type, :logs, :bag, :error,
+    ##
+    # :attr_reader: name
+    # The name of the run
+    #
+
+    attr_reader :name, :parent, :type, :logs, :bag, :error,
                 :evaluations, :started, :finished, :properties, :data
 
     ##
-    # The default name for +async+ threads.
+    # The default identifier of +async+ blocks.
+    #
     DEFAULT_ASYNC_NAME = 'default'
 
     @@current = nil
@@ -730,6 +757,7 @@ module Spectre
 
     ##
     # The current executing +RunContext+
+    #
     def self.current
       @@current
     end
@@ -785,9 +813,8 @@ module Spectre
     end
 
     ##
-    # returns:: One of +:error+, +:failed+, +:skipped+ or +:success+
-    #
     # The status of the current run.
+    # One of +:error+, +:failed+, +:skipped+ or +:success+
     #
     def status
       return :error if @error
