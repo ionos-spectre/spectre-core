@@ -1298,25 +1298,43 @@ module Spectre
   # Defines the default config.
   #
   CONFIG = {
+    # Directory used as the working directory. All paths
+    # in the config are relative to this directory.
     'work_dir' => '.',
+    # Path to the global spectre config, which will *always* be loaded.
     'global_config_file' => '~/.config/spectre.yml',
+    # The name of the project config file
     'config_file' => 'spectre.yml',
+    # The log file name. Use <date> placeholder to add the run date.
     'log_file' => nil, # Deactivate logging by default
+    # The log date format
     'log_date_format' => '%F %T.%L%:z',
     # Format: [timestamp] LEVEL -- module_name: [spec-id] correlation_id log_message
     'log_message_format' => "[%s] %5s -- %s: [%s] [%s] %s\n",
+    # The output formatter to use when running specs
     'formatter' => 'Spectre::SimpleFormatter',
+    # The reporters to use for generating tests results.
     'reporters' => ['Spectre::SimpleReporter'],
+    # The path where reports are placed.
     'out_path' => 'reports',
+    # A list of spec names to run. This will usually be set by command line option.
     'specs' => [],
+    # A list of tags to run. This will usually be set by command line option.
     'tags' => [],
+    # Debug mode. Outputs +debug+ log and more detailed error messages.
     'debug' => false,
     'env_patterns' => ['environments/**/*.env.yml'],
+    # The patterns to use when loading environment files.
     'env_partial_patterns' => ['environments/**/*.env.secret.yml'],
+    # The patterns to use when loading spec files.
     'spec_patterns' => ['specs/**/*.spec.rb'],
+    # The patterns to use when loading mixin files.
     'mixin_patterns' => ['mixins/**/*.mixin.rb'],
+    # The patterns to use when loading collection files.
     'collections_patterns' => ['**/*.collections.yml'],
+    # Paths to folders containing resource files
     'resource_paths' => ['../common/resources', './resources'],
+    # A list of modules and/or gems to load when running tests
     'modules' => [],
   }
 
