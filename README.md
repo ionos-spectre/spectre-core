@@ -240,4 +240,4 @@ In this case the *resources* can be defined as *subjects*.
 You can define reusable specs by using mixins. Create a `.mixin.rb` file 
 in the mixin directory (default: `mixins`)
 
-See example/mixins/helpers.mixin.rb for examples and usage description.
+See [mixin example](example/mixins/helpers.mixin.rb) for examples and usage description.
