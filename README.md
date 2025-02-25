@@ -39,13 +39,13 @@ There is a `Dockerfile` to build `spectre` Docker images.
 To build a Docker image run
 
 ```bash
-$ docker build -t spectre .
+docker build -t spectre .
 ```
 
 and then run with
 
 ```bash
-$ docker run -t --rm -v "path/to/specs:/spectre" spectre [command] [options]
+docker run -t --rm -v "path/to/specs:/spectre" spectre [command] [options]
 ```
 
 
@@ -77,7 +77,7 @@ end
 ```
 
 ```bash
-$ bundle install
+bundle install
 ```
 
 For more information about bundler see https://bundler.io
@@ -85,7 +85,7 @@ For more information about bundler see https://bundler.io
 You can also install the tool globally with
 
 ```bash
-$ gem install spectre-core
+gem install spectre-core
 ```
 
 or clone this repository and run
@@ -98,10 +98,10 @@ To test, if the tool is working, try one of the following commands.
 
 ```bash
 # When using bundler
-$ bundle exec spectre -h
+bundle exec spectre -h
 
 # otherwise
-$ spectre -h
+spectre -h
 ```
 
 
@@ -110,7 +110,7 @@ $ spectre -h
 Create a new project structure by executing
 
 ```bash
-$ spectre init
+spectre init
 ```
 
 This will create multiple empty directories and a `spectre.yml` config file.
@@ -139,7 +139,7 @@ See [Spectre::CONFIG](./lib/spectre.rb#L1111-1131) for available options.
 All options can also be overridden with the command line argument `-p` or `--property`
 
 ```bash
-$ spectre -p spec_patterns=some_specific.spec.rb -p mixin_patterns=**/*.my_mixins.rb
+spectre -p spec_patterns=some_specific.spec.rb -p mixin_patterns=**/*.my_mixins.rb
 ```
 
 You can also create a global spectre config file with the options above. 
@@ -164,7 +164,7 @@ on how specs are structured.
 To list specs execute
 
 ```bash
-$ spectre list
+spectre list
 ```
 
 The output looks like this
@@ -182,7 +182,7 @@ The output looks like this
 The name in the brackets is an identifier for a *spec*. This can be used to run only specific *specs*.
 
 ```bash
-$ spectre -s ghostbuster-1
+spectre -s ghostbuster-1
 ```
 
 > **Note**
@@ -194,25 +194,25 @@ Spec tags are listed with `#`. Those tags can be used to filter specs.
 Run specs with one of the listed tags
 
 ```bash
-$ spectre -t emergency,entity
+spectre -t emergency,entity
 ```
 
 Run specs containing all listed tags
 
 ```bash
-$ spectre -t emergency+entity
+spectre -t emergency+entity
 ```
 
 Run specs *not* containing specific tags
 
 ```bash
-$ spectre -t !ghosts
+spectre -t !ghosts
 ```
 
 You can also use a combination of all
 
 ```bash
-$ spectre -t emergency,trivia+entity,success+!ghosts
+spectre -t emergency,trivia+entity,success+!ghosts
 ```
 
 
