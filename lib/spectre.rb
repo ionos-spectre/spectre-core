@@ -882,6 +882,11 @@ module Spectre
     # Assert a specific condition. If a block is given methods from
     # the +EvaluationContext+ are available. If a failure is reported
     # within this block, the run will be *aborted*.
+    #
+    #   assert 'a certain condition to be true' do
+    #     report 'it was not' unless certain_condition == true
+    #   end
+    #
 
     ##
     # :method: expect
