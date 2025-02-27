@@ -62,7 +62,7 @@ To install Ruby on windows, just use `winget`
 winget search ruby
 
 # Install Ruby with dev kit
-winget instal RubyInstallerTeam.RubyWithDevKit.3.4
+winget install RubyInstallerTeam.RubyWithDevKit.3.4
 ```
 
 Spectre is available as a Ruby *gem* from the GitHub packages 
