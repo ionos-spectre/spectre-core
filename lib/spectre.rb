@@ -1038,7 +1038,7 @@ module Spectre
     # Returns the status of the pervious +observe+ block
     #
     def success?
-      @success.nil? ? true : @success
+      @success.nil? || @success
     end
 
     ##
