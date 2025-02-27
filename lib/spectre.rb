@@ -149,6 +149,7 @@ module Spectre
   class EvaluationContext
     include Delegate
 
+    # :stopdoc:
     attr_reader :desc, :failures
 
     def initialize(engine, desc, &)
@@ -172,8 +173,14 @@ module Spectre
       end
     end
 
+    # :startdoc:
+
     ##
-    # Report a failure with the +EvaluationContext+.
+    # Report a failure within the +EvaluationContext+.
+    #
+    #   assert 'everthing goes well' do
+    #     report 'it does not' if some_thing_happens()
+    #   end
     #
     def report failure
       @failures << Failure.new(failure, caller_locations)
@@ -747,7 +754,23 @@ module Spectre
   class RunContext
     include Delegate
 
-    attr_reader :name, :parent, :type, :logs, :bag, :error,
+    ##
+    # A variable bag to store values across +setup+, +teardown+,
+    # +before+, +after+ and +it+ blocks.
+    #
+    #   setup do
+    #     bag.foo = 'bar'
+    #   end
+    #
+    #   it 'does something' do
+    #     assert bag.foo.to be 'bar'
+    #   end
+    #
+    attr_reader :bag
+
+    # :stopdoc:
+
+    attr_reader :name, :parent, :type, :logs, :error,
                 :evaluations, :started, :finished, :properties, :data
 
     ##
@@ -828,6 +851,8 @@ module Spectre
       :success
     end
 
+    # :startdoc:
+
     ##
     # :method: debug
     # :args: message
@@ -860,16 +885,25 @@ module Spectre
     alias log info
 
     ##
-    # Access the loaded resources (files)
+    # Access the loaded resources (files). The path parameter
+    # is relative to the resource directory.
+    #
+    #   resources['path/to/some.txt']
     #
     def resources
       @engine.resources
     end
 
     ##
+    # deprecated:: use +report+ instead.
+    #
     # Raise a failure error.
     # Using this method within an +assert+ or +expect+ block
-    # will report an error.
+    # will report an error and aborts the run *immediately*.
+    #
+    #   assert 'something' do
+    #     fail_with 'a detailed message'
+    #   end
     #
     def fail_with message
       raise Failure, message
@@ -877,25 +911,38 @@ module Spectre
 
     ##
     # :method: assert
-    # :args: desc
+    # :args: desc, &
     #
-    # Assert a specific condition. If a block is given methods from
-    # the +EvaluationContext+ are available. If a failure is reported
-    # within this block, the run will be *aborted*.
+    # Assert a specific condition. If a block is given it creates an
+    # +EvaluationContext+ and its methods are available. If a failure is reported
+    # within this block, the run will be *aborted* at the end of the block.
+    #
+    #   foo = 'bar'
+    #
+    #   assert foo.to be 'bar'
     #
     #   assert 'a certain condition to be true' do
-    #     report 'it was not' unless certain_condition == true
+    #     report 'it was not' if foo == 'bar'
     #   end
     #
 
     ##
     # :method: expect
-    # :args: desc
+    # :args: desc, &
     #
-    # Expect a specific condition. If a block is given methods from
-    # the +EvaluationContext+ are available. If a failure is reported
+    # Expect a specific condition. If a block is given it creates an
+    # +EvaluationContext+ and its methods are available. If a failure is reported
     # within this block, the run will *continue*.
     #
+    #   foo = 'bar'
+    #
+    #   expect foo.to be 'bar'
+    #
+    #   expect 'a certain condition to be true' do
+    #     report 'it was not' if foo == 'bar'
+    #   end
+    #
+
     %i[assert expect].each do |method|
       define_method(method) do |evaluation, &block|
         desc = "#{method} #{evaluation}"
@@ -1070,12 +1117,15 @@ module Spectre
     end
 
     ##
-    # Add this alias to construct prettier and more readable mixin execution calls
+    # Add this alias to construct prettier and more readable mixin execution calls.
     #
     alias also run
 
     ##
-    # Skip the run for this spec
+    # Skip the run for this spec. This can be used to skip spec runs when a certain
+    # condition occurs.
+    #
+    #   skip 'subject is not yet ready to be tests' unless service_is_ready()
     #
     def skip message
       @skipped = true
@@ -1237,6 +1287,7 @@ module Spectre
       end
     end
 
+    # :nodoc:
     def run engine, specs
       runs = []
 
