@@ -105,6 +105,13 @@ spectre -h
 ```
 
 
+## Documentation
+
+There is a more detailed documentation of available methods and functions via `bundle exec rdoc`. The generated files are located at `doc/`.
+
+This documentation will be hosted and available in the future.
+
+
 ## Creating a new project
 
 Create a new project structure by executing
