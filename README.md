@@ -55,6 +55,8 @@ Ruby has to be installed on your system.
 
 See [ruby-lang.org](https://www.ruby-lang.org/en/documentation/installation/) for installation instructions.
 
+Also consider to use a Ruby version manager like https://github.com/rbenv/rbenv or https://rvm.io/
+
 To install Ruby on windows, just use `winget`
 
 ```powershell
