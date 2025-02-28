@@ -1,3 +1,23 @@
+### v2.0.0
+
+#### Breaking Changes
+ - `expect` does not abort the test run. Use `assert` instead.
+ - Data type is considered when using `should_be`syntax. So `'42'.should_be 42` is not true anymore.
+ - `spectre/http` module has been extracted into new repository. See https://github.com/ionos-spectre/spectre-http
+ - `spectre/curl` was removed completely.
+ - `spectre-core` gem is not available via rubygems.org anymore. Use https://rubygems.pkg.github.com/ionos-spectre instead.
+
+#### Major
+ - New command line option are available. See `spectre -h` for options and details.
+ - New assertion syntax available. Run `bundle exec rdoc` for detailed documentation.
+    - `assert` will end the test run, when a failure occured. `expect` will only report the error, but the run continues.
+    - Single line assertion is now possible, like `assert foo.to be 'bar'`. No block needed anymore.
+    - In order to report failures within `assert` or `expect`, use `report <string>` (instead of `fail_with`)
+    - `fail_with` is *deprecated*
+ - New detailed documentation is available. Run `bundle exec rdoc` to generate documentatino. Generated files are located at `doc/index.html`.
+ - JSON formatter added. Use `spectre --json` to get JSON output of logs and reports.
+
+
 ### v1.15.2
 
 #### Major
@@ -5,16 +25,6 @@
  - Module loading was updated. The `include` option in `spectre.yml` is replaced by `modules`. `include` will still work and no adjustments are necessary.
  - Resource class has now the `.key?` method.
  - Latest `ectoplasm` gem is used and `--no-color` option was removed.
-
-### v1.14.3
-
-#### Major
- - New assertion syntax available
-   - You can now use `assert` which will abort the current spec run, if a failure occured
-   - Use `expect` to continue run on failure
- - JSON formatter added. Log messages, reports and listing can be outputted to console as JSON. Use `--json` to enabled json formatting.
- - `spectre/http` was extracted into separate repository and is available as a standalone module. Add `gem 'spectre-http'` to your `Gemfile`
-   and add `- spectre/http` to the modules list in `spectre.yml`
 
 ### v1.14.2
 
