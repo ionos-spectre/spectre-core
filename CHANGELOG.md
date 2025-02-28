@@ -9,14 +9,23 @@
 ### v1.14.3
 
 #### Major
- - Logger and reporter are added automatically, when corresponding module is loaded
- - Added `error` log method do module logger
+ - New assertion syntax available
+   - You can now use `assert` which will abort the current spec run, if a failure occured
+   - Use `expect` to continue run on failure
+ - JSON formatter added. Log messages, reports and listing can be outputted to console as JSON. Use `--json` to enabled json formatting.
+ - `spectre/http` was extracted into separate repository and is available as a standalone module. Add `gem 'spectre-http'` to your `Gemfile`
+   and add `- spectre/http` to the modules list in `spectre.yml`
 
 ### v1.14.2
 
 #### Minor
  - Refactor `uuid` generation. The helper method `uuid` will now return a GUID by default, when no length is given.
  - Fix assertions
+
+### v1.14.1
+
+#### Minor
+ - Value comparision of `should_be` is now done by calling `.to_s` on both values.
 
 ### v1.14.0
 

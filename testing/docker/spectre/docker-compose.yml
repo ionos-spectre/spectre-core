@@ -1,8 +1,0 @@
-version: '2'
-
-services:
-  web-api:
-    build: ./web_api
-    hostname: spectre-web
-    ports:
-      - 4567:4567

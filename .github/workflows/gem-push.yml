@@ -1,4 +1,4 @@
-name: Ruby Gem
+name: Gem Push
 
 on:
   push:
@@ -14,35 +14,27 @@ jobs:
       packages: write
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Ruby
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.1'
+        ruby-version: '3.4'
         bundler-cache: true
-    - name: Style check
-      run: bundle exec rubocop
-    - name: Run tests
-      run: bundle exec rspec spec
-    - name: Build gem
-      run: bundle exec rake build
-    - name: Publish to GPR
-      run: |
-        mkdir -p $HOME/.gem
-        touch $HOME/.gem/credentials
-        chmod 0600 $HOME/.gem/credentials
-        printf -- "---\n:github: ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
-        gem push --KEY github --host https://rubygems.pkg.github.com/${OWNER} pkg/*.gem
-      env:
-        GEM_HOST_API_KEY: "Bearer ${{secrets.GITHUB_TOKEN}}"
-        OWNER: ${{ github.repository_owner }}
 
-    - name: Publish to RubyGems
-      run: |
-        mkdir -p $HOME/.gem
-        touch $HOME/.gem/credentials
-        chmod 0600 $HOME/.gem/credentials
-        printf -- "---\n:rubygems_api_key: ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
-        gem push pkg/*.gem
+    - name: Check code style
+      run: bundle exec rubocop
+
+    - name: Run tests
+      run: bundle exec rspec
+
+    - name: Build GEM
+      run: bundle exec gem build
+
+    - name: Publish to GitHub Packages
+      run: gem push --host https://rubygems.pkg.github.com/${OWNER} *.gem
       env:
-        GEM_HOST_API_KEY: "${{secrets.RUBYGEMS_AUTH_TOKEN}}"
+        OWNER: ${{ github.repository_owner }}
+        GEM_HOST_API_KEY: "Bearer ${{secrets.GITHUB_TOKEN}}"
+

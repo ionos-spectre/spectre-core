@@ -1,50 +1,174 @@
-require 'spectre/assertion'
+require_relative '../lib/spectre/assertion'
 
-RSpec.describe 'spectre/assertion' do
-  it 'evaluates single assertions' do
-    42.should_be 42
-    '42'.should_be 42
-    42.should_be '42'
-    'foo'.should_not_be 'bar'
-    42.should_not_be 666
-
-    'foobar'.should_contain 'foo'
-    'foobar'.should_not_contain 'blubber'
-    'foobar'.should_not_contain 42
-    'foobar42'.should_contain 42
-
-    expect do
-      666.should_be 42
-    end.to raise_error(Spectre::Assertion::AssertionFailure)
-
-    expect do
-      666.should_be '42'
-    end.to raise_error(Spectre::Assertion::AssertionFailure)
-
-    expect do
-      '666'.should_be 42
-    end.to raise_error(Spectre::Assertion::AssertionFailure)
-
-    expect do
-      '42'.should_not_be '42'
-    end.to raise_error(Spectre::Assertion::AssertionFailure)
+RSpec.describe Spectre::Assertion do
+  before do
+    @console_out = StringIO.new
+    @log_out = StringIO.new
   end
 
-  it 'evaluates complex assertions' do
-    42.should_be 42.or 12
-    12.should_be 42.or 12
+  context 'equal check' do
+    [
+      [42, 42],
+      ['42', '42'],
+    ].each do |actual, expected|
+      it 'evaluates positive' do
+        evaluation = actual.to Spectre::Assertion.be expected
 
-    '42'.should_be 42.or 12
-    12.should_be '42'.or 12
+        expect(evaluation.failure).to be_nil
+        expect(evaluation.to_s).to eq("actual to be #{expected.inspect}")
+      end
+    end
 
-    '42'.should_be 42.or '12'
-    12.should_be '42'.or 12
+    it 'evaluates negative' do
+      value = 666
+      evaluation = value.to Spectre::Assertion.be 42
 
-    [1, 2, 3].should_contain 1.or 2
-    [2, 3, 4].should_contain 1.or 2.and 3
+      expect(evaluation.failure).to eq('got 666')
+      expect(evaluation.to_s).to eq('value to be 42')
+    end
 
-    expect do
-      [3, 4].should_contain 1.or 2.and 3
-    end.to raise_error(Spectre::Assertion::AssertionFailure)
+    it 'negates' do
+      value = 42
+      evaluation = value.not_to Spectre::Assertion.be 666
+
+      expect(evaluation.failure).to be_nil
+      expect(evaluation.to_s).to eq('value not to be 666')
+    end
+
+    it 'negates negative' do
+      value = 666
+      evaluation = value.not_to Spectre::Assertion.be 666
+
+      expect(evaluation.failure).to eq('it does not')
+      expect(evaluation.to_s).to eq('value not to be 666')
+    end
+
+    it 'accepts either the one or the other value' do
+      value = 42
+      evaluation = value.to Spectre::Assertion.be 24.or 42
+
+      expect(evaluation.failure).to be_nil
+      expect(evaluation.to_s).to eq('value to be 24 or 42')
+    end
+  end
+
+  context 'contain check' do
+    it 'evaluates positive' do
+      value = [42, 'foo']
+      evaluation = value.to Spectre::Assertion.contain 42
+
+      expect(evaluation.failure).to be_nil
+      expect(evaluation.to_s).to eq('value to contain 42')
+    end
+
+    it 'evaluates negative' do
+      value = [42, 'foo']
+      evaluation = value.to Spectre::Assertion.contain 666
+
+      expect(evaluation.failure).to eq('got [42, "foo"]')
+      expect(evaluation.to_s).to eq('value to contain 666')
+    end
+
+    it 'accepts either the one or the other value' do
+      value = [42, 'foo', 'bar']
+      evaluation = value.to Spectre::Assertion.contain 42.or 'buff'
+
+      expect(evaluation.failure).to be_nil
+      expect(evaluation.to_s).to eq('value to contain 42 or "buff"')
+    end
+
+    it 'accepts two values' do
+      value = [42, 'foo', 'bar']
+      evaluation = value.to Spectre::Assertion.contain 42.and 'foo'
+
+      expect(evaluation.failure).to be_nil
+      expect(evaluation.to_s).to eq('value to contain 42 and "foo"')
+    end
+
+    it 'accepts a group of values' do
+      value = [42, 'foo', 'bar']
+      evaluation = value.to Spectre::Assertion.contain 24.or 42.and 'foo'
+
+      expect(evaluation.failure).to be_nil
+      expect(evaluation.to_s).to eq('value to contain 24 or 42 and "foo"')
+    end
+
+    it 'negates' do
+      value = [42, 'foo', 'bar']
+      evaluation = value.not_to Spectre::Assertion.contain 'buff'
+
+      expect(evaluation.failure).to be_nil
+      expect(evaluation.to_s).to eq('value not to contain "buff"')
+    end
+
+    it 'negates with multiple values' do
+      value = [42, 'foo', 'bar']
+      evaluation = value.not_to Spectre::Assertion.contain 'buff'.or 'bar'
+
+      expect(evaluation.failure).to be_nil
+      expect(evaluation.to_s).to eq('value not to contain "buff" or "bar"')
+    end
+
+    it 'negates with multiple values' do
+      value = [42, 'foo', 'bar']
+      evaluation = value.not_to Spectre::Assertion.contain 'buff'.and 666
+
+      expect(evaluation.failure).to be_nil
+      expect(evaluation.to_s).to eq('value not to contain "buff" and 666')
+    end
+
+    context 'match' do
+      it 'evaluates positive' do
+        value = 'this is a text'
+        evaluation = value.to Spectre::Assertion.match(/this .*/)
+
+        expect(evaluation.failure).to be_nil
+        expect(evaluation.to_s).to eq('value to match /this .*/')
+      end
+
+      it 'evaluates negative' do
+        value = 'this is a text'
+        evaluation = value.to Spectre::Assertion.match(/not this .*/)
+
+        expect(evaluation.failure).to eq("got #{value.inspect}")
+        expect(evaluation.to_s).to eq('value to match /not this .*/')
+      end
+
+      it 'evaluates either one or the other' do
+        value = 'this is a text'
+        evaluation = value.to Spectre::Assertion.match(/this .*/.or(/that/))
+
+        expect(evaluation.failure).to be_nil
+        expect(evaluation.to_s).to eq('value to match /this .*/ or /that/')
+      end
+
+      it 'evaluates both' do
+        value = 'this is a text'
+        evaluation = value.to Spectre::Assertion.match(/.* is/.and(/a text/))
+
+        expect(evaluation.failure).to be_nil
+        expect(evaluation.to_s).to eq('value to match /.* is/ and /a text/')
+      end
+    end
+  end
+
+  context 'empty check' do
+    [{}, [], nil].each do |actual|
+      it 'evaluates positive' do
+        evaluation = actual.to Spectre::Assertion.be_empty
+
+        expect(evaluation.failure).to be_nil
+        expect(evaluation.to_s).to eq('actual to be empty')
+      end
+    end
+
+    [1, 'foo', [1, 2], {foo: 'bar'}].each do |actual|
+      it 'evaluates negative' do
+        evaluation = actual.to Spectre::Assertion.be_empty
+
+        expect(evaluation.failure).to eq("got #{actual.inspect}")
+        expect(evaluation.to_s).to eq('actual to be empty')
+      end
+    end
   end
 end

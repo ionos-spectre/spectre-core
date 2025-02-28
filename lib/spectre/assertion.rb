@@ -1,310 +1,178 @@
-require_relative '../spectre'
-require_relative 'helpers'
-require_relative 'logging'
-
 require 'ostruct'
-
 
 module Spectre
   module Assertion
-    class ::Object
-      def should_be(value)
-        evaluate(value, "#{self} should be #{value}") do |x|
-          self.to_s == x.to_s
-        end
+    class ValueWrapper
+      def self.wrap val
+        val.is_a?(ValueWrapper) ? val : ValueWrapper.new(val)
       end
 
-      def should_be_empty
-        raise AssertionFailure.new("#{self.to_s.trim} should be empty", nil, self) unless self.nil?
-      end
-
-      def should_not_be(val)
-        raise AssertionFailure.new("#{self.to_s.trim} should not be #{val.to_s.trim}", val, self) unless self.to_s != val.to_s
-      end
-
-      def should_not_exist
-        raise AssertionFailure.new("#{self.to_s.trim} should not exist, but it does", val, self) unless self.to_s != nil
-      end
-
-      def should_not_be_empty
-        raise AssertionFailure.new('empty value', 'nothing', self) unless self != nil
-      end
-
-      def evaluate val, message, &block
-        val = Evaluation.new(val) unless val.is_a? Evaluation
-        raise AssertionFailure.new(message, val, self) unless val.run &block
-      end
-
-      def or other
-        OrEvaluation.new(self, other)
-      end
-
-      def and other
-        AndEvaluation.new(self, other)
-      end
-    end
-
-    class ::NilClass
-      def should_be(val)
-        raise AssertionFailure.new("Value is empty, but it should be '#{val.to_s.trim}'", val, nil) unless val == nil
-      end
-
-      def should_be_empty
-      end
-
-      def should_not_be(val)
-        raise AssertionFailure.new(val, 'nil') unless val != nil
-      end
-
-      def should_not_exist
-      end
-
-      def should_not_be_empty
-        raise AssertionFailure.new('Value is empty', 'nil')
-      end
-    end
-
-    class ::Hash
-      def should_contain(other)
-        raise AssertionFailure.new(other, self) unless self.merge(other) == self
-      end
-
-      def should_not_contain(other)
-        raise AssertionFailure.new(other, self) unless self.merge(other) != self
-      end
-
-      def should_be_empty
-        raise AssertionFailure.new('Object should be empty', nil, self) unless self.empty?
-      end
-
-      def should_not_be_empty
-        raise AssertionFailure.new('Object should not be empty', nil, self) if self.empty?
-      end
-    end
-
-    class ::OpenStruct
-      def should_be_empty
-        raise AssertionFailure.new('Object should be empty', nil, self) unless self.to_h.empty?
-      end
-
-      def should_not_be_empty
-        raise AssertionFailure.new('Object should not be empty', nil, self) if self.to_h.empty?
-      end
-    end
-
-    class ::Array
-      def should_contain(val)
-        list = self
-
-        if val.is_a? Hash and self.all? { |x| x.is_a? OpenStruct or x.is_a? Hash }
-          list = self.map { |x| OpenStruct.new(x) }
-          val = OpenStruct.new(val)
-        end
-
-        evaluate(val, "#{list} should contain #{val.to_s}") do |x|
-          list.include? x
-        end
-      end
-
-      def should_not_contain(val)
-        list = self
-
-        if val.is_a? Hash and self.all? { |x| x.is_a? OpenStruct or x.is_a? Hash }
-          list = self.map { |x| OpenStruct.new(x) }
-          val = OpenStruct.new(val)
-        end
-
-        raise AssertionFailure.new("[#{list.join(', ').trim}] should not contain '#{val.to_s.trim}'", val, list) if list.include? val
-      end
-
-      def should_be_empty
-        raise AssertionFailure.new('List is not empty', self) unless self.empty?
-      end
-
-      def should_not_be_empty
-        raise AssertionFailure.new('List is empty', self) if self.empty?
-      end
-    end
-
-    class ::String
-      def should_be(val)
-        evaluate(val, "'#{self}' should be '#{val}'") do |x|
-          self.to_s == x.to_s
-        end
-      end
-
-      def should_be_empty
-        raise AssertionFailure.new("'#{self.trim}' should be empty", nil, self) unless self.empty?
-      end
-
-      def should_not_be(val)
-        evaluate(val, "'#{self}' should not be '#{val}'") do |x|
-          self.to_s != x.to_s
-        end
-      end
-
-      def should_not_be_empty
-        raise AssertionFailure.new('Text should not be empty', 'nothing', self) unless not self.empty?
-      end
-
-      def should_contain(val)
-        evaluate(val, "'#{self.trim}' should contain '#{val.to_s}'") do |x|
-          self.include? x.to_s
-        end
-      end
-
-      def should_not_contain(val)
-        evaluate(val, "'#{self}' should not contain '#{val}'") do |x|
-          not self.include? x.to_s
-        end
-      end
-
-      def should_match(regex)
-        evaluate(regex, "'#{self.trim}' should match /#{regex}/") do |x|
-          self.match(x)
-        end
-      end
-
-      def should_not_match(regex)
-        evaluate(regex, "'#{self.trim}' should not match '#{regex}'") do |x|
-          not self.match(x)
-        end
-      end
-
-      alias :| :or
-      alias :& :and
-    end
-
-    class Evaluation
       def initialize val
         @val = val
       end
 
-      def run &block
-        evaluate(@val, block)
+      def evaluate predicate, actual, negate
+        !(!negate ^ predicate.call(@val, actual))
       end
 
-      def evaluate(val, predicate)
-        if val.is_a? Evaluation
-          val.run &predicate
-        else
-          predicate.call(val)
-        end
-      end
-
+      # :nodoc:
       def to_s
+        return "\"#{@val}\"" if @val.is_a?(String)
+        return @val.inspect if @val.is_a?(Regexp)
+
         @val.to_s
       end
     end
 
-    class OrEvaluation < Evaluation
-      def initialize val, other
-        @val = val
-        @other = other
+    class OrWrapper < ValueWrapper
+      def initialize first, second
+        super(first)
+        @first = ValueWrapper.wrap(first)
+        @second = ValueWrapper.wrap(second)
       end
 
-      def run &block
-        res1 = evaluate(@val, block)
-        res2 = evaluate(@other, block)
-        res1 or res2
+      def evaluate predicate, actual, negate
+        @first.evaluate(predicate, actual, negate) or @second.evaluate(predicate, actual, negate)
       end
 
+      # :nodoc:
       def to_s
-        "(#{@val} or #{@other})"
+        "#{@first} or #{@second}"
       end
     end
 
-    class AndEvaluation < Evaluation
-      def initialize val, other
-        @val = val
-        @other = other
+    class AndWrapper < ValueWrapper
+      def initialize first, second
+        super(first)
+        @first = ValueWrapper.wrap(first)
+        @second = ValueWrapper.wrap(second)
       end
 
-      def run &block
-        res1 = evaluate(@val, block)
-        res2 = evaluate(@other, block)
-        res1 and res2
+      def evaluate predicate, actual, negate
+        @first.evaluate(predicate, actual, negate) and @second.evaluate(predicate, actual, negate)
       end
 
+      # :nodoc:
       def to_s
-        "(#{@val} and #{@other})"
+        "#{@first} and #{@second}"
       end
     end
 
-    class AssertionFailure < ExpectationFailure
-      attr_reader :expected, :actual
+    class Evaluation
+      @@location_cache = {}
 
-      def initialize message, expected=nil, actual=nil, expectation=nil
-        super message, expectation
-        @expected = expected
+      attr_reader :actual, :expected, :method, :negate, :desc, :failure, :call_location
+
+      def initialize call_location, actual, expected, method, predicate, negate: false
+        @call_location = call_location
         @actual = actual
+        @expected = ValueWrapper.wrap(expected)
+        @predicate = predicate
+        @negate = negate
+        @failure = nil
+
+        # Maybe not the most elegant way, but it works for now
+        # as long as the `.to` call is on the same line as the variable
+        location = call_location
+          .find { |x| x.label.include? 'Spectre::Engine#load_files' or x.base_label == '<top (required)>' }
+
+        path = location.path
+
+        if @@location_cache.key?(path)
+          file_content = @@location_cache[path]
+        else
+          file_content = File.read(path)
+          @@location_cache[path] = file_content
+        end
+
+        @var_name = file_content
+          .lines[location.lineno - 1]
+          .strip
+          .match(/[\s\(]([^\s]+|\[.*\]|{.*})\.(to|not_to)[\s\(]/)
+          .captures
+          .first
+          .strip
+
+        @repr = @var_name
+        @repr += ' not' if @negate
+        @repr += " to #{method}"
+        @repr += expected.nil? ? ' empty' : " #{@expected}"
+
+        success = @expected.evaluate(@predicate, @actual, @negate)
+
+        return if success
+
+        @failure = if @negate
+                     'it does not'
+                   else
+                     "got #{@actual.inspect}"
+                   end
+      end
+
+      # :nodoc:
+      def to_s
+        @repr
       end
     end
 
+    [
+      ::Array, ::Hash, ::String, ::Integer, ::Float,
+      ::NilClass, ::TrueClass, ::FalseClass, ::OpenStruct
+    ].each do |cls|
+      cls.define_method(:not_to) do |params|
+        Evaluation.new(caller_locations, self, *params, negate: true)
+      end
+
+      cls.define_method(:to) do |params|
+        Evaluation.new(caller_locations, self, *params)
+      end
+    end
+
+    [::Array, ::Hash, ::String, ::Integer, ::Float, ::Regexp].each do |cls|
+      cls.define_method(:or) do |other|
+        OrWrapper.new(self, other)
+      end
+
+      cls.define_method(:and) do |other|
+        AndWrapper.new(self, other)
+      end
+    end
 
     class << self
-      @@success = nil
-
-      def expect desc
-        status = 'unknown'
-
-        begin
-          Spectre::Logging.log_process("expect #{desc}")
-          yield
-          Spectre::Logging.log_status(desc, Logging::Status::OK)
-          status = :ok
-        rescue Interrupt => e
-          status = :skipped
-          raise e
-        rescue AssertionFailure => e
-          Spectre::Logging.log_status(desc, Logging::Status::FAILED)
-          status = :failed
-          raise AssertionFailure.new(e.message, e.expected, e.actual, desc), cause: nil
-        rescue Exception => e
-          Spectre::Logging.log_status(desc, Logging::Status::ERROR)
-          status = :error
-          raise AssertionFailure.new("An unexpected error occurred during expectation: #{e.message}", nil, nil, desc), cause: e
-        ensure
-          Spectre::Runner.current.expectations.append([desc, status])
-        end
+      def be expected_val
+        [
+          expected_val,
+          __method__,
+          proc { |expected, actual| expected.inspect == actual.inspect },
+        ]
       end
 
-      alias assert expect
-
-      def observe desc = nil
-        prefix = 'observing'
-        prefix += " '#{desc}'" if desc
-
-        begin
-          Spectre::Logging.log_info(prefix) if desc
-          yield
-          @@success = true
-          @@logger.info("#{prefix} finished with success")
-        rescue Interrupt => e
-          raise e
-        rescue Exception => e
-          error_message = "#{prefix} finished with failure: #{e.message}"
-          error_message += "\n" + e.backtrace.join("\n") if @@debug
-
-          @@logger.info(error_message)
-          @@success = false
-        end
+      def be_empty
+        [
+          nil,
+          'be',
+          proc { |_, actual| actual.nil? or (actual.respond_to?(:empty?) and actual.empty?) }
+        ]
       end
 
-      def success?
-        @@success
+      def contain expected_val
+        [
+          expected_val,
+          __method__,
+          proc do |expected, actual|
+            expected = expected.to_s if actual.is_a? String
+            actual.respond_to? :include? and actual.include?(expected)
+          end
+        ]
       end
 
-      def fail_with message
-        raise AssertionFailure.new(message)
+      def match regex
+        [
+          regex,
+          __method__,
+          proc { |expected, actual| actual.match?(expected) }
+        ]
       end
     end
-
-    Spectre.register do |config|
-      @@logger = Spectre::Logging::ModuleLogger.new(config, 'spectre/assertion')
-      @@debug = config['debug']
-    end
-
-    Spectre.delegate :expect, :assert, :observe, :success?, :fail_with, to: self
   end
 end

@@ -1,0 +1,18 @@
+scary:
+  tags:
+   - ghosts
+   - success
+
+trivia:
+  tags:
+   - trivia
+   - success
+  specs:
+   - ghostbuster-3
+
+failures:
+  tags:
+   - failed
+  specs:
+   - ghostbuster-2
+   - firehouse-2

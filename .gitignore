@@ -1,11 +1,13 @@
 .vscode/
+.ruby-lsp/
 .bundle/
-**/*.log
+**/logs
+**/reports
 tmp/
 pkg/
 temp/
 vendor/
-coverage/
 doc/
-Gemfile.lock
+coverage/
 *.code-workspace
+Gemfile.lock
