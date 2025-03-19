@@ -1641,7 +1641,7 @@ module Spectre
 
       patterns.each do |pattern|
         Dir.glob(pattern).each do |file|
-          content = File.read File.join(Dir.pwd, file)
+          content = File.read File.absolute_path(file)
           instance_eval(content, file, 1)
         end
       end
