@@ -523,6 +523,7 @@ module Spectre
 
   class JsonFormatter
     def initialize config
+      @config = config
       @out = config['stdout'] || $stdout
       @out.sync = true
       @curr_scope = nil
@@ -559,6 +560,17 @@ module Spectre
           tags: spec.tags,
           file: spec.file,
           data: spec.data,
+        }
+      end)
+    end
+
+    def mixins mixins
+      @out.puts JSON.pretty_generate(mixins.each_value.map do |mixin|
+        {
+          desc: mixin.desc,
+          params: mixin.params,
+          file: mixin.file,
+          line: mixin.line,
         }
       end)
     end
