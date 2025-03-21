@@ -1,4 +1,4 @@
-name: Gem Publish
+name: Gem Push
 
 on:
   workflow_dispatch:
