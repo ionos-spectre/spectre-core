@@ -3,6 +3,7 @@
   <h2>IONOS Spectre</h2>
   <p>Describe Tests. Analyse Results. Understand What Happened.</p>
   <a href="https://github.com/ionos-spectre/spectre-core/actions/workflows/build.yml"><img src="https://github.com/ionos-spectre/spectre-core/actions/workflows/build.yml/badge.svg" alt="Build Status" /></a>
+  <a href="https://badge.fury.io/rb/spectre-core"><img src="https://badge.fury.io/rb/spectre-core.svg" alt="Gem Version" height="18"></a>
 </div>
 
 # Spectre
