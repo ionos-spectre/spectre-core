@@ -1,9 +1,10 @@
-name: Release
+name: Gem Publish
 
 on:
-  release:
-    types:
-      - published
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*.*.*'
 
 jobs:
   build:
@@ -34,19 +35,19 @@ jobs:
         name: spectre-core-gem
         path: spectre-core-*.gem
 
-  publish-github:
-    name: Publish to GitHub Packages
-    runs-on: ubuntu-latest
+  # publish-github:
+  #   name: Publish to GitHub Packages
+  #   runs-on: ubuntu-latest
 
-    steps:
-    - name: Download artifact
-      uses: actions/download-artifact@v4
+  #   steps:
+  #   - name: Download artifact
+  #     uses: actions/download-artifact@v4
 
-    - name: Publish to GitHub Packages
-      run: gem push --host https://rubygems.pkg.github.com/${OWNER} *.gem
-      env:
-        OWNER: ${{ github.repository_owner }}
-        GEM_HOST_API_KEY: "Bearer ${{secrets.GITHUB_TOKEN}}"
+  #   - name: Publish to GitHub Packages
+  #     run: gem push --host https://rubygems.pkg.github.com/${OWNER} *.gem
+  #     env:
+  #       OWNER: ${{ github.repository_owner }}
+  #       GEM_HOST_API_KEY: "Bearer ${{secrets.GITHUB_TOKEN}}"
 
   publish-rubygems:
     name: Publish to RubyGems
