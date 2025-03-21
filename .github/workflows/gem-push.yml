@@ -1,7 +1,7 @@
 name: Gem Push
 
 on:
-  workflow_dispatch:
+  workflow_call:
   push:
     tags:
       - 'v*.*.*'
@@ -32,8 +32,8 @@ jobs:
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: spectre-core-gem
-        path: spectre-core-*.gem
+        name: gem
+        path: 'spectre-*.gem'
 
   publish-github:
     name: Publish to GitHub Packages
@@ -44,7 +44,7 @@ jobs:
     - name: Download artifact
       uses: actions/download-artifact@v4
       with:
-        name: spectre-core-gem
+        name: gem
 
     - name: Publish to GitHub Packages
       run: gem push --host https://rubygems.pkg.github.com/${OWNER} *.gem
@@ -61,7 +61,7 @@ jobs:
     - name: Download artifact
       uses: actions/download-artifact@v4
       with:
-        name: spectre-core-gem
+        name: gem
 
     - name: Publish to RubyGems
       run: gem push --host https://rubygems.org *.gem
