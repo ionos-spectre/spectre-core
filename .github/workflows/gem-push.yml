@@ -43,6 +43,8 @@ jobs:
     steps:
     - name: Download artifact
       uses: actions/download-artifact@v4
+      with:
+        name: spectre-core-gem
 
     - name: Publish to GitHub Packages
       run: gem push --host https://rubygems.pkg.github.com/${OWNER} *.gem
@@ -58,6 +60,8 @@ jobs:
     steps:
     - name: Download artifact
       uses: actions/download-artifact@v4
+      with:
+        name: spectre-core-gem
 
     - name: Publish to RubyGems
       run: gem push --host https://rubygems.org/gems/spectre-core *.gem
