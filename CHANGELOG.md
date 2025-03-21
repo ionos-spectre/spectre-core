@@ -1,3 +1,9 @@
+### v2.0.1
+
+#### Minor
+ - Use absolute paths when loading spec and mixin files
+ - Listing mixins in JSON format added
+
 ### v2.0.0
 
 #### Breaking Changes
@@ -5,7 +11,6 @@
  - Data type is considered when using `should_be`syntax. So `'42'.should_be 42` is not true anymore.
  - `spectre/http` module has been extracted into new repository. See https://github.com/ionos-spectre/spectre-http
  - `spectre/curl` was removed completely.
- - `spectre-core` gem is not available via rubygems.org anymore. Use https://rubygems.pkg.github.com/ionos-spectre instead.
 
 #### Major
  - New command line option are available. See `spectre -h` for options and details.
@@ -16,7 +21,6 @@
     - `fail_with` is *deprecated*
  - New detailed documentation is available. Run `bundle exec rdoc` to generate documentatino. Generated files are located at `doc/index.html`.
  - JSON formatter added. Use `spectre --json` to get JSON output of logs and reports.
-
 
 ### v1.15.2
 
