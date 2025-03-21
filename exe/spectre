@@ -5,9 +5,7 @@ require_relative '../lib/spectre/expectation'
 
 FAILED_FILENAME = '.failed'
 
-config_overrides = {
-  'log_file' => './logs/spectre_<date>.log',
-}
+config_overrides = {}
 
 cleanup = false
 run_failed = false

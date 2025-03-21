@@ -1,4 +1,4 @@
-log_file: ./logs/spectre_<date>.log
+log_file: ./logs/ghostbuster_<date>.log
 env_patterns:
   - './environments/**/*.env.yml'
 env_partial_patterns:
