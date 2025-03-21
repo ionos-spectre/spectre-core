@@ -67,4 +67,4 @@ jobs:
       run: gem push --host https://rubygems.org *.gem
       env:
         OWNER: ${{ github.repository_owner }}
-        GEM_HOST_API_KEY: "Bearer ${{secrets.RUBYGEMS_API_KEY}}"
+        GEM_HOST_API_KEY: ${{secrets.RUBYGEMS_API_KEY}}
