@@ -1,4 +1,4 @@
-name: Gem Push
+name: Release
 
 on:
   release:
