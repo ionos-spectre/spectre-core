@@ -1615,8 +1615,14 @@ module Spectre
     #
     def cleanup
       Dir.chdir(@config['work_dir'])
+
+      # Remove all log files explicitly
       log_file_pattern = @config['log_file'].gsub('<date>', '*')
       FileUtils.rm_rf(Dir.glob(log_file_pattern), secure: true)
+
+      # Remove all files (reports) in the output directory
+      out_files_pattern = File.join(@config['out_path'], '*')
+      FileUtils.rm_rf(Dir.glob(out_files_pattern), secure: true)
     end
 
     ##
