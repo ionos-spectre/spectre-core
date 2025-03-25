@@ -70,8 +70,8 @@ options = OptionParser.new do |opts|
     config_overrides['formatter'] = class_name
   end
 
-  opts.on('--reporter NAME', 'Use specified reporter') do |class_name|
-    config_overrides['reporter'] = class_name
+  opts.on('--reporters NAME', Array, 'Use specified reporters') do |reporters|
+    config_overrides['reporters'] = reporters
   end
 
   opts.on('--json', 'Use JSON formatter') do
@@ -108,7 +108,7 @@ options = OptionParser.new do |opts|
   end
 
   opts.on('-m MODULE,MODULE', '--modules MODULE,MODULE', Array, 'Load the given modules') do |modules|
-    config_overrides['modules'] += modules
+    config_overrides['modules'] = modules
   end
 
   opts.on('-d', '--debug', 'Run in debug mode. Do not use in production!') do

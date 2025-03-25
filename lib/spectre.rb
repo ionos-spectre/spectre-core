@@ -1502,6 +1502,10 @@ module Spectre
       end
 
       # Merge property overrides
+      # Merging would override arrays. We don't want this in certain cases,
+      # so merge them manually
+      @config['reporters'].concat(config.delete('reporters')) if config.key? 'reporters'
+      @config['modules'].concat(config.delete('modules')) if config.key? 'modules'
       @config.deep_merge!(config)
 
       # Set env before loading specs in order to make it available in spec definitions
