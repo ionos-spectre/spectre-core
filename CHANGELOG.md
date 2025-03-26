@@ -1,3 +1,13 @@
+### v2.0.3
+
+#### Minor
+ - Log filename placeholder are now replaced on setup and not when logger is initialized, so final log filename can be used by module initialization.
+
+### v2.0.2
+
+#### Minor
+ - Module loading has been fixed, when additional modules were defined with command line arguments.
+
 ### v2.0.1
 
 #### Minor

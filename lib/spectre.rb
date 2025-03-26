@@ -194,10 +194,7 @@ module Spectre
     def initialize(config, **)
       log_file = config['log_file']
 
-      if log_file.is_a? String
-        log_file = log_file.gsub('<date>', DateTime.now.strftime('%Y-%m-%d_%H%M%S%3N'))
-        FileUtils.mkdir_p(File.dirname(log_file))
-      end
+      FileUtils.mkdir_p(File.dirname(log_file)) if log_file.is_a? String
 
       super(log_file, **)
 
@@ -1515,7 +1512,16 @@ module Spectre
       end
 
       # Merge property overrides
+      # Merging would override arrays. We don't want this in certain cases,
+      # so merge them manually
+      @config['reporters'].concat(config.delete('reporters')) if config.key? 'reporters'
+      @config['modules'].concat(config.delete('modules')) if config.key? 'modules'
       @config.deep_merge!(config)
+
+      # Replace log filename placeholders
+      if @config['log_file'].respond_to? :gsub!
+        @config['log_file'].gsub!('<date>', DateTime.now.strftime('%Y-%m-%d_%H%M%S%3N'))
+      end
 
       # Set env before loading specs in order to make it available in spec definitions
       @env = @config.to_recursive_struct
@@ -1628,8 +1634,14 @@ module Spectre
     #
     def cleanup
       Dir.chdir(@config['work_dir'])
+
+      # Remove all log files explicitly
       log_file_pattern = @config['log_file'].gsub('<date>', '*')
       FileUtils.rm_rf(Dir.glob(log_file_pattern), secure: true)
+
+      # Remove all files (reports) in the output directory
+      out_files_pattern = File.join(@config['out_path'], '*')
+      FileUtils.rm_rf(Dir.glob(out_files_pattern), secure: true)
     end
 
     ##
