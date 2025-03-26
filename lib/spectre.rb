@@ -563,6 +563,7 @@ module Spectre
         {
           name: spec.name,
           desc: spec.desc,
+          subj: spec.root.desc,
           tags: spec.tags,
           file: spec.file,
           data: spec.data,
@@ -1425,7 +1426,7 @@ module Spectre
   DEFAULT_ENV_NAME = 'default'
 
   class Engine
-    attr_reader :env, :formatter, :config, :contexts, :mixins, :collections, :resources
+    attr_reader :env, :environments, :formatter, :config, :contexts, :mixins, :collections, :resources
 
     @@current = nil
     @@modules = []
