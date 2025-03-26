@@ -194,10 +194,7 @@ module Spectre
     def initialize(config, **)
       log_file = config['log_file']
 
-      if log_file.is_a? String
-        log_file = log_file.gsub('<date>', DateTime.now.strftime('%Y-%m-%d_%H%M%S%3N'))
-        FileUtils.mkdir_p(File.dirname(log_file))
-      end
+      FileUtils.mkdir_p(File.dirname(log_file)) if log_file.is_a? String
 
       super(log_file, **)
 
@@ -1507,6 +1504,11 @@ module Spectre
       @config['reporters'].concat(config.delete('reporters')) if config.key? 'reporters'
       @config['modules'].concat(config.delete('modules')) if config.key? 'modules'
       @config.deep_merge!(config)
+
+      # Replace log filename placeholders
+      if @config['log_file'].respond_to? :gsub!
+        @config['log_file'].gsub!('<date>', DateTime.now.strftime('%Y-%m-%d_%H%M%S%3N'))
+      end
 
       # Set env before loading specs in order to make it available in spec definitions
       @env = @config.to_recursive_struct
