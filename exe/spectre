@@ -187,6 +187,8 @@ when 'run', 'ru'
   engine.report(runs)
 when 'env', 'en'
   engine.formatter.environment(engine.env)
+when 'envs'
+  engine.formatter.envs(engine.environments)
 when 'mixins', 'mi', 'mx'
   search = ARGV.first
   mixins = engine.mixins.select { |x| search.nil? or x.include? search }

@@ -338,6 +338,12 @@ module Spectre
       @out.puts env.to_h.pretty
     end
 
+    def envs envs
+      @out.puts envs
+        .map { |env_name, _| env_name }
+        .join("\n")
+    end
+
     def scope desc, type
       if desc
         colored_desc = case type
@@ -587,6 +593,12 @@ module Spectre
 
     def environment env
       @out.puts env.to_json
+    end
+
+    def envs envs
+      @out.puts envs
+        .map { |env_name, _| env_name }
+        .to_json
     end
 
     def scope desc, type
