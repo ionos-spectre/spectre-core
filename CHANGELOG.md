@@ -1,3 +1,8 @@
+### v2.0.2
+
+#### Minor
+ - Module loading has been fixed, when additional modules were defined with command line arguments.
+
 ### v2.0.1
 
 #### Minor
