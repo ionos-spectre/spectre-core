@@ -1,3 +1,10 @@
+### v2.1.0
+
+#### Major
+ - Environment listing via command line added. Use `spectre envs` to list available environments.
+ - Added `context` attribute to `RunInfo`.
+ - Subject (`subj`) and context (`ctxt`) description added to spec listing with JSON formatter.
+
 ### v2.0.3
 
 #### Minor
