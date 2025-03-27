@@ -154,11 +154,27 @@ RSpec.describe Spectre::Specification do
     end
 
     subject.context 'first child context' do
+      setup do
+        # Nothing to do here
+      end
+
+      teardown do
+        # Nothing to do here
+      end
+
       it 'does things' do
         info 'a message'
       end
 
       context 'another child' do
+        setup do
+          # Nothing to do here
+        end
+
+        teardown do
+          # Nothing to do here
+        end
+
         it 'does another thing' do
           info 'another message'
         end
@@ -174,6 +190,27 @@ RSpec.describe Spectre::Specification do
 
     runs = subject.run(@engine, subject.all_specs)
 
-    expect(runs.count).to eq(3)
+    expect(runs.count).to eq(7)
+
+    expect(runs[0].name).to eq('some_subject-1')
+    expect(runs[0].context.name).to eq('some_subject')
+
+    expect(runs[1].name).to eq('some_subject-first_child_context-setup')
+    expect(runs[1].context.name).to eq('some_subject-first_child_context')
+
+    expect(runs[2].name).to eq('some_subject-2')
+    expect(runs[2].context.name).to eq('some_subject-first_child_context')
+
+    expect(runs[3].name).to eq('some_subject-first_child_context-teardown')
+    expect(runs[3].context.name).to eq('some_subject-first_child_context')
+
+    expect(runs[4].name).to eq('some_subject-first_child_context-another_child-setup')
+    expect(runs[4].context.name).to eq('some_subject-first_child_context-another_child')
+
+    expect(runs[5].name).to eq('some_subject-3')
+    expect(runs[5].context.name).to eq('some_subject-first_child_context-another_child')
+
+    expect(runs[6].name).to eq('some_subject-first_child_context-another_child-teardown')
+    expect(runs[6].context.name).to eq('some_subject-first_child_context-another_child')
   end
 end

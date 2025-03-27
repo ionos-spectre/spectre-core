@@ -561,6 +561,7 @@ module Spectre
           name: spec.name,
           desc: spec.desc,
           subj: spec.root.desc,
+          ctxt: spec.parent.desc,
           tags: spec.tags,
           file: spec.file,
           data: spec.data,
@@ -792,7 +793,7 @@ module Spectre
 
     # :stopdoc:
 
-    attr_reader :name, :parent, :type, :logs, :error,
+    attr_reader :name, :parent, :context, :type, :logs, :error,
                 :evaluations, :started, :finished, :properties, :data
 
     ##
@@ -820,7 +821,18 @@ module Spectre
       @threads = {}
 
       @name = parent.name
-      @name += "-#{type}" unless type == :spec
+
+      # If the run type is an actual spec, the context
+      # of the run is its parent +Specification+ 's parent.
+      if type == :spec
+        @context = parent.parent
+      else
+        # Otherwise the run context is the parent itself
+        # This is the case when a setup or teardown block
+        # is executet, which uses its own run context.
+        @context = parent
+        @name += "-#{type}"
+      end
 
       @bag = OpenStruct.new(bag)
 
