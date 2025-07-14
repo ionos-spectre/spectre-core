@@ -69,7 +69,7 @@ winget install RubyInstallerTeam.RubyWithDevKit.3.4
 ```
 
 Spectre is available as a Ruby *gem* from the GitHub packages 
-repository. See https://rubygems.pkg.github.com/ionos-spectre for instruction.
+repository. See https://github.com/ionos-spectre/spectre-core/pkgs/rubygems/spectre-core for instruction.
 
 It is recommended to create a `Gemfile` and install `spectre-core` with bundler.
 
