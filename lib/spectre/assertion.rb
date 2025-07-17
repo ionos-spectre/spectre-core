@@ -11,7 +11,7 @@ module Spectre
         @val = val
       end
 
-      def evaluate predicate, actual, negate
+      def evaluate? predicate, actual, negate
         !(!negate ^ predicate.call(@val, actual))
       end
 
@@ -31,8 +31,8 @@ module Spectre
         @second = ValueWrapper.wrap(second)
       end
 
-      def evaluate predicate, actual, negate
-        @first.evaluate(predicate, actual, negate) or @second.evaluate(predicate, actual, negate)
+      def evaluate? predicate, actual, negate
+        @first.evaluate?(predicate, actual, negate) or @second.evaluate?(predicate, actual, negate)
       end
 
       # :nodoc:
@@ -48,8 +48,8 @@ module Spectre
         @second = ValueWrapper.wrap(second)
       end
 
-      def evaluate predicate, actual, negate
-        @first.evaluate(predicate, actual, negate) and @second.evaluate(predicate, actual, negate)
+      def evaluate? predicate, actual, negate
+        @first.evaluate?(predicate, actual, negate) and @second.evaluate?(predicate, actual, negate)
       end
 
       # :nodoc:
@@ -98,7 +98,7 @@ module Spectre
         @repr += " to #{method}"
         @repr += expected.nil? ? ' empty' : " #{@expected}"
 
-        success = @expected.evaluate(@predicate, @actual, @negate)
+        success = @expected.evaluate?(@predicate, @actual, @negate)
 
         return if success
 

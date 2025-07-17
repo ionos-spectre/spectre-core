@@ -496,19 +496,19 @@ module Spectre
             .select { |x| x.failures.any? }
 
           failed.each_with_index do |eval, eval_idx|
-            output += if failed.count == 1
+            output += if failed.one?
                         "     #{eval.desc}, but"
                       else
                         "     #{index}.#{eval_idx + 1}) #{eval.desc}, but"
                       end
 
-            if eval.failures.count == 1
+            if eval.failures.one?
               output += " #{eval.failures.first.message}\n"
             else
               output += " #{eval.failures.count} failures occured\n"
 
               eval.failures.each_with_index do |fail, fail_idx|
-                output += if failed.count == 1
+                output += if failed.one?
                             "       #{index}.#{fail_idx + 1}) #{fail.message}\n"
                           else
                             "       #{index}.#{eval_idx + 1}.#{fail_idx + 1}) #{fail.message}\n"

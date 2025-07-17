@@ -121,7 +121,7 @@ options = OptionParser.new do |opts|
           'Override config option. Use `spectre show` to get list of available options') do |option|
     index = option.index('=')
     key = option[0...index]
-    val = option[index + 1..]
+    val = option[(index + 1)..]
 
     val = val.split(',') if Spectre::CONFIG[key].is_a? Array
     val = ['true', '1'].include? val if [true, false].include?(Spectre::CONFIG[key])

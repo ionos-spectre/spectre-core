@@ -43,7 +43,7 @@ class ::String
   ##
   # Trims the string to the given length and adds +...+ at the end
   def trim size = 50
-    return "#{self[0..size - 4]}..." if (length + 3) > size
+    return "#{self[0..(size - 4)]}..." if (length + 3) > size
 
     self
   end
