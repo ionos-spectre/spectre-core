@@ -981,20 +981,22 @@ module Spectre
       define_method(method) do |evaluation, &block|
         desc = "#{method} #{evaluation}"
 
-        @evaluations << if block
-                          EvaluationContext.new(@engine, desc, &block)
-                        else
-                          EvaluationContext.new(@engine, desc) do
-                            unless evaluation.failure.nil?
-                              @failures << Failure.new(
-                                evaluation.failure,
-                                evaluation.call_location
-                              )
-                            end
-                          end
-                        end
+        evaluation = if block
+                       EvaluationContext.new(@engine, desc, &block)
+                     else
+                       EvaluationContext.new(@engine, desc) do
+                         unless evaluation.failure.nil?
+                           @failures << Failure.new(
+                             evaluation.failure,
+                             evaluation.call_location
+                           )
+                         end
+                       end
+                     end
+        
+        @evaluations << evaluation
 
-        raise AbortException if method == :assert and @evaluations.any? { |x| x.failures.any? }
+        raise AbortException if method == :assert and evaluation.failures.any?
       end
     end
 
@@ -1690,8 +1692,9 @@ module Spectre
 
       patterns.each do |pattern|
         Dir.glob(pattern).each do |file|
-          content = File.read File.absolute_path(file)
-          instance_eval(content, file, 1)
+          abs_path = File.absolute_path(file)
+          content = File.read abs_path
+          instance_eval(content, abs_path, 1)
         end
       end
 

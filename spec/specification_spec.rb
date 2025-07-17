@@ -71,6 +71,40 @@ RSpec.describe Spectre::Specification do
     expect(lines[9]).to eq("    message in second after block#{'.' * 47}#{'[info]'.blue}\n")
   end
 
+  it 'runs entire after block on fail' do
+    block = proc do
+      info "message from the main block"
+      assert 'the run'.to Spectre::Assertion.be 'successful'
+    end
+
+    spec = Spectre::Specification.new(
+      @subject,
+      'test',
+      'does something',
+      [:some_tag],
+      [],
+      'path/to/file',
+      block
+    )
+
+    expect(spec.full_desc).to eq('Some subject does something')
+    expect(spec.root).to be @subject
+
+    afters = [
+      proc do
+        info 'message in first after block'
+        assert 'truth'.to Spectre::Assertion.be 'truth'
+        info 'this message should also be logged'
+      end,
+    ]
+
+    run_context = spec.run(@engine, [], afters, {})
+
+    expect(run_context.status).to eq(:failed)
+
+    expect(run_context.logs.any?{ |x| x[4] == 'this message should also be logged' }).to be_truthy
+  end
+
   it 'does not run main block if before fails but always runs after blocks' do
     block = proc do
       # :nocov:
