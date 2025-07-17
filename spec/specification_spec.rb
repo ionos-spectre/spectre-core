@@ -73,7 +73,7 @@ RSpec.describe Spectre::Specification do
 
   it 'runs entire after block on fail' do
     block = proc do
-      info "message from the main block"
+      info 'message from the main block'
       assert 'the run'.to Spectre::Assertion.be 'successful'
     end
 
@@ -102,7 +102,7 @@ RSpec.describe Spectre::Specification do
 
     expect(run_context.status).to eq(:failed)
 
-    expect(run_context.logs.any?{ |x| x[4] == 'this message should also be logged' }).to be_truthy
+    expect(run_context.logs.any? { |x| x[4] == 'this message should also be logged' }).to be_truthy
   end
 
   it 'does not run main block if before fails but always runs after blocks' do

@@ -993,7 +993,7 @@ module Spectre
                          end
                        end
                      end
-        
+
         @evaluations << evaluation
 
         raise AbortException if method == :assert and evaluation.failures.any?
