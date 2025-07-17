@@ -66,6 +66,11 @@ winget search ruby
 
 # Install Ruby with dev kit
 winget install RubyInstallerTeam.RubyWithDevKit.3.4
+
+# Run Ruby Dev Kit installation
+ridk install
+
+# Use option 1,2,3 for installation and system update
 ```
 
 Spectre is available as a Ruby *gem* from the GitHub packages 
