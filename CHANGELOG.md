@@ -1,3 +1,8 @@
+### v2.1.1
+
+#### Minor
+ - Fixes a bug where an `assert` in the after block aborts the run, even when the assert was successful.
+
 ### v2.1.0
 
 #### Major
