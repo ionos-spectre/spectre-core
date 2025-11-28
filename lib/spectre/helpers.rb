@@ -122,7 +122,7 @@ end
 module Spectre
   module Helpers
     class << self
-      def uuid length = niL
+      def uuid length = nil
         return SecureRandom.hex(length / 2) if length
 
         SecureRandom.uuid
