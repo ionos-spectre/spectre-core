@@ -88,7 +88,7 @@ module Spectre
         @var_name = file_content
           .lines[location.lineno - 1]
           .strip
-          .match(/[\s\(]([^\s]+|\[.*\]|{.*})\.(to|not_to)[\s\(]/)
+          .match(/[\s(]([^\s]+|\[.*\]|{.*})\.(to|not_to)[\s(]/)
           .captures
           .first
           .strip
