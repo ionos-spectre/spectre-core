@@ -1581,6 +1581,9 @@ module Spectre
           require module_name
         end
       end
+    ensure
+      # return to the previous working directory
+      Dir.chdir(Spectre.pwd)
     end
 
     # :nodoc:
