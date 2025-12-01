@@ -22,9 +22,10 @@ Gem::Specification.new do |spec|
   spec.bindir = 'exe'
   spec.executables = 'spectre'
 
-  spec.add_dependency 'debug', '~> 1.0'
-  spec.add_dependency 'ectoplasm', '~> 1.4'
-  spec.add_dependency 'logger', '~> 1.0'
-  spec.add_dependency 'ostruct', '~> 0.1'
-  spec.add_dependency 'stringio', '~> 3.0'
+  spec.add_dependency 'debug'
+  spec.add_dependency 'ectoplasm'
+  spec.add_dependency 'fiddle'
+  spec.add_dependency 'logger'
+  spec.add_dependency 'ostruct'
+  spec.add_dependency 'stringio'
 end
