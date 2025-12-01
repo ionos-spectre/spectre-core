@@ -23,7 +23,7 @@ RSpec.describe Spectre do
         'modules' => [
           # Make spectre to load a relative module
           './modules/some_module.rb',
-          # and let is load a installed one
+          # and let it load an installed one
           'stringio',
         ],
       })
@@ -145,5 +145,32 @@ RSpec.describe Spectre do
 
     expect(specs.count).to eq(2)
     expect((expected_specs - specs.map(&:name)).count).to eq(0)
+  end
+
+  it 'creates separate contexts using same name' do
+    engine = Spectre::Engine.new({
+        'config_file' => @config_file,
+      })
+
+    engine.describe 'Some Subject' do
+      before do
+        info 'first before'
+      end
+    end
+
+    engine.describe 'Some Subject' do
+      before do
+        info 'second before'
+      end
+
+      it 'run a spec' do
+        info 'some actions'
+      end
+    end
+
+    runs = engine.run
+
+    puts runs[2].logs.inspect
+
   end
 end
