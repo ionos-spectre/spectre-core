@@ -20,7 +20,7 @@ def get_call_location call_stack
     .find { |x| x.label.include? 'Spectre::Engine#load_files' or x.base_label == '<top (required)>' }
 
   [
-    loc.path.sub(Dir.pwd, '.'),
+    loc.path.sub(Spectre.pwd, '.'),
     loc.lineno
   ]
 end
@@ -78,6 +78,13 @@ end
 # The main module containing all logic for the framework
 #
 module Spectre
+  # Cache Dir.pwd to avoid repeated system calls
+  @pwd = Dir.pwd
+
+  def self.pwd
+    @pwd
+  end
+
   ##
   # Exception to throw in order to abort a spec run
   #
@@ -320,7 +327,7 @@ module Spectre
       mixins.each_value do |mixin|
         output  = "#{mixin.desc.yellow}\n"
         output += "  params.....: #{mixin.params.join ', '}\n" if mixin.params.any?
-        output += "  location...: #{mixin.file.sub(Dir.pwd, '.')}:#{mixin.line}"
+        output += "  location...: #{mixin.file.sub(Spectre.pwd, '.')}:#{mixin.line}"
         paragraphs << output
       end
 
@@ -1255,7 +1262,7 @@ module Spectre
       file = caller
         .first
         .gsub(/:in .*/, '')
-        .gsub(Dir.pwd, '.')
+        .gsub(Spectre.pwd, '.')
 
       context = DefinitionContext.new(desc, file, self)
       @children << context
@@ -1305,7 +1312,7 @@ module Spectre
       file = caller
         .first
         .gsub(/:in .*/, '')
-        .gsub(Dir.pwd, '.')
+        .gsub(Spectre.pwd, '.')
 
       with ||= [nil]
 
@@ -1663,7 +1670,7 @@ module Spectre
       file = caller
         .first
         .gsub(/:in .*/, '')
-        .gsub(Dir.pwd, '.')
+        .gsub(Spectre.pwd, '.')
 
       main_context = @contexts.find { |x| x.desc == name }
 
