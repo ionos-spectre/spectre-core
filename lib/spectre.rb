@@ -802,7 +802,6 @@ module Spectre
     DEFAULT_ASYNC_NAME = 'default'
 
     @@current = nil
-    @@location_cache = {}
     @@skip_count = 0
 
     ##
@@ -1071,10 +1070,7 @@ module Spectre
     def await name = DEFAULT_ASYNC_NAME
       return unless @threads.key? name
 
-      threads = @threads[name].map(&:join)
-
-      @threads.delete(name)
-
+      threads = @threads.delete(name)
       threads.map(&:join)
     end
 
@@ -1554,9 +1550,11 @@ module Spectre
         resource_files = Dir.glob File.join(resource_path, '**/*')
 
         resource_files.each do |file|
-          file.slice! resource_path
-          file = file[1..]
-          @resources[file] = File.expand_path File.join(resource_path, file)
+          relative_file = file
+            .delete_prefix(resource_path)
+            .delete_prefix('/')
+
+          @resources[relative_file] = File.expand_path(file)
         end
       end
 
