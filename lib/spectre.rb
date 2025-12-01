@@ -1675,13 +1675,8 @@ module Spectre
         .gsub(/:in .*/, '')
         .gsub(Spectre.pwd, '.')
 
-      main_context = @contexts.find { |x| x.desc == name }
-
-      if main_context.nil?
-        main_context = DefinitionContext.new(name, file)
-        @contexts << main_context
-      end
-
+      main_context = DefinitionContext.new(name, file)
+      @contexts << main_context
       main_context.instance_eval(&)
     end
 

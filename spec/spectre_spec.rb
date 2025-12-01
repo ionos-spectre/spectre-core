@@ -147,10 +147,10 @@ RSpec.describe Spectre do
     expect((expected_specs - specs.map(&:name)).count).to eq(0)
   end
 
-  it 'creates separate contexts using same name' do
+  it 'only runs before blocks in its own definition block' do
     engine = Spectre::Engine.new({
-        'config_file' => @config_file,
-      })
+      'stdout' => @console_out,
+    })
 
     engine.describe 'Some Subject' do
       before do
@@ -163,14 +163,14 @@ RSpec.describe Spectre do
         info 'second before'
       end
 
-      it 'run a spec' do
+      it 'runs a spec' do
         info 'some actions'
       end
     end
 
     runs = engine.run
 
-    puts runs[2].logs.inspect
-
+    expect(runs.count).to eq(1)
+    expect(@console_out.string).not_to include('first before')
   end
 end
