@@ -1222,7 +1222,8 @@ module Spectre
 
     attr_reader :id, :name, :desc, :parent, :full_desc, :children, :specs, :file
 
-    def initialize desc, file, parent = nil
+    def initialize desc, file, engine, parent = nil
+      @engine = engine
       @parent = parent
       @desc = desc
       @file = file
@@ -1264,7 +1265,7 @@ module Spectre
         .gsub(/:in .*/, '')
         .gsub(Spectre.pwd, '.')
 
-      context = DefinitionContext.new(desc, file, self)
+      context = DefinitionContext.new(desc, file, @engine, self)
       @children << context
       context.instance_eval(&)
     end
@@ -1316,8 +1317,14 @@ module Spectre
 
       with ||= [nil]
 
-      with.each_with_index do |data, _index|
-        spec_index = root.all_specs.count + 1
+      initial_index = @engine.contexts
+        .select { |x| x.name == @name }
+        .map { |x| x.all_specs }
+        .flatten
+        .count
+
+      with.each_with_index do |data, index|
+        spec_index = initial_index + index + 1
         name = "#{root.name}-#{spec_index}"
 
         spec = Specification.new(self, name, desc, tags, data, file, block)
@@ -1669,15 +1676,16 @@ module Spectre
     ##
     # Describe a test subject
     #
-    def describe(name, &)
+    def describe(desc, &)
       file = caller
         .first
         .gsub(/:in .*/, '')
         .gsub(Spectre.pwd, '.')
 
-      main_context = DefinitionContext.new(name, file)
-      @contexts << main_context
+      main_context = DefinitionContext.new(desc, file, self)
       main_context.instance_eval(&)
+
+      @contexts << main_context
     end
 
     ##
