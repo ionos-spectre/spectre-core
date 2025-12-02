@@ -173,4 +173,27 @@ RSpec.describe Spectre do
     expect(runs.count).to eq(1)
     expect(@console_out.string).not_to include('first before')
   end
+
+  it 'enumerates specs with correct numbers, even if defined in separate DefinitionContext' do
+    engine = Spectre::Engine.new({
+      'stdout' => @console_out,
+    })
+
+    engine.describe 'Some Subject' do
+      it 'does something' do
+        info 'some actions'
+      end
+    end
+
+    engine.describe 'Some Subject' do
+      it 'does another thing' do
+        info 'some actions'
+      end
+    end
+
+    names = engine.list.map { |x| x.name }
+
+    expect(names).to include('some_subject-1')
+    expect(names).to include('some_subject-2')
+  end
 end
