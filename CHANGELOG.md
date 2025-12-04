@@ -1,3 +1,13 @@
+### v2.1.3
+
+#### Minor
+ - Fixed the spec naming and sorting. Specs will now be sorted correctly by number.
+
+### v2.1.2
+
+#### Minor
+ - `before` and `after` blocks are not executed anymore if they are defined in a separate `describe` block.
+
 ### v2.1.1
 
 #### Minor
