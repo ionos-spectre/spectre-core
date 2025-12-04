@@ -1,4 +1,4 @@
-describe 'Some subject' do
+describe 'Example subject' do
   it 'does something', tags: [:success, :first_tag] do
     info 'this is just a log message'
   end

@@ -71,7 +71,7 @@ RSpec.describe Spectre do
   end
 
   it 'filters by specs' do
-    filter = ['some_subject-1', 'some_subject-3']
+    filter = ['example_subject-1', 'example_subject-3']
 
     engine = Spectre::Engine
       .new({
@@ -97,7 +97,7 @@ RSpec.describe Spectre do
     specs = engine.list
 
     expect(specs.count).to eq(2)
-    expect(specs.map(&:name)).to eq(['some_subject-2', 'some_subject-3'])
+    expect(specs.map(&:name)).to eq(['example_subject-2', 'example_subject-3'])
   end
 
   it 'filters by excluded tags' do
@@ -111,7 +111,7 @@ RSpec.describe Spectre do
     specs = engine.list
 
     expect(specs.count).to eq(1)
-    expect(specs.map(&:name)).to eq(['some_subject-3'])
+    expect(specs.map(&:name)).to eq(['example_subject-3'])
   end
 
   it 'filters by multiple tags' do
@@ -131,14 +131,14 @@ RSpec.describe Spectre do
     engine = Spectre::Engine
       .new({
         'config_file' => @config_file,
-        'specs' => ['some_subject-3'],
+        'specs' => ['example_subject-3'],
         'tags' => ['first_tag'],
       })
 
     specs = engine.list
 
     expect(specs.count).to eq(2)
-    expect(specs.map(&:name)).to eq(['some_subject-1', 'some_subject-3'])
+    expect(specs.map(&:name)).to eq(['example_subject-1', 'example_subject-3'])
   end
 
   it 'only runs before blocks in its own definition block' do
