@@ -144,6 +144,7 @@ RSpec.describe Spectre do
   it 'only runs before blocks in its own definition block' do
     engine = Spectre::Engine.new({
       'stdout' => @console_out,
+      'spec_patterns' => [],
     })
 
     engine.describe 'Some Subject' do
@@ -171,6 +172,7 @@ RSpec.describe Spectre do
   it 'enumerates specs with correct numbers, even if defined in separate DefinitionContext' do
     engine = Spectre::Engine.new({
       'stdout' => @console_out,
+      'spec_patterns' => [],
     })
 
     engine.describe 'Some Subject' do
@@ -194,6 +196,7 @@ RSpec.describe Spectre do
   it 'sorts specs with natural ordering' do
     engine = Spectre::Engine.new({
       'stdout' => @console_out,
+      'spec_patterns' => [],
       'formatter' => 'Spectre::SimpleFormatter',
     })
 
