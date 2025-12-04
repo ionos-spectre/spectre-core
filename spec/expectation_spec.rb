@@ -5,7 +5,13 @@ RSpec.describe Spectre::Expectation do
     @console_out = StringIO.new
     @log_out = StringIO.new
 
-    @subject = Spectre::DefinitionContext.new('Some subject', nil)
+    @engine = Spectre::Engine
+      .new({
+        'log_file' => @log_out,
+        'stdout' => @console_out,
+      })
+
+    @subject = Spectre::DefinitionContext.new('Some subject', nil, @engine)
     @spec = Spectre::Specification.new(
       @subject,
       'test',
@@ -15,12 +21,6 @@ RSpec.describe Spectre::Expectation do
       'path/to/file',
       nil
     )
-
-    @engine = Spectre::Engine
-      .new({
-        'log_file' => @log_out,
-        'stdout' => @console_out,
-      })
   end
 
   it 'executes should be' do

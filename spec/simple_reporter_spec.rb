@@ -1,18 +1,20 @@
 RSpec.describe Spectre::SimpleReporter do
-  it 'reports a successful run' do
-    engine = Spectre::Engine
+  before do
+    @engine = Spectre::Engine
       .new({
         'log_file' => StringIO.new,
         'stdout' => StringIO.new,
       })
+  end
 
-    subject = Spectre::DefinitionContext.new('Some subject', nil)
+  it 'reports a successful run' do
+    subject = Spectre::DefinitionContext.new('Some subject', nil, @engine)
 
     subject.it 'does something' do
       info 'a message'
     end
 
-    runs = subject.run(engine, subject.specs)
+    runs = subject.run(subject.specs)
 
     report_output = StringIO.new
 
@@ -27,7 +29,7 @@ RSpec.describe Spectre::SimpleReporter do
   end
 
   it 'reports a failed run' do
-    subject = Spectre::DefinitionContext.new('Some subject', nil)
+    subject = Spectre::DefinitionContext.new('Some subject', nil, @engine)
 
     subject.it 'does something' do
       info 'a message'
@@ -63,13 +65,7 @@ RSpec.describe Spectre::SimpleReporter do
       raise StandardError, 'Oops!'
     end
 
-    engine = Spectre::Engine
-      .new({
-        'log_file' => StringIO.new,
-        'stdout' => StringIO.new,
-      })
-
-    runs = subject.run(engine, subject.specs)
+    runs = subject.run(subject.specs)
 
     report_output = StringIO.new
 

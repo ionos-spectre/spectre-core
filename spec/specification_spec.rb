@@ -9,7 +9,7 @@ RSpec.describe Spectre::Specification do
         'stdout' => @console_out,
       })
 
-    @subject = Spectre::DefinitionContext.new('Some subject', nil)
+    @subject = Spectre::DefinitionContext.new('Some subject', nil, @engine)
   end
 
   after do

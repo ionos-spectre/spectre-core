@@ -139,7 +139,9 @@ describe 'Firehouse' do
     info "it's name is Hook & Ladder Company 8 Firehouse"
     info 'located at 14 North Moore Street'
   end
+end
 
+describe 'Firehouse' do
   it 'has a functioning containment unit', tags: [:fails, :observe, :expect, :assert] do
     # Use observe to capture any error wihtin the block
     observe 'containment unit' do

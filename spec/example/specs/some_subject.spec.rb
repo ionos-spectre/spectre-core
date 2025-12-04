@@ -3,7 +3,7 @@ describe 'Some subject' do
     info 'this is just a log message'
   end
 
-  it 'does something', tags: [:success, :ignore, :second_tag] do
+  it 'does something else', tags: [:success, :ignore, :second_tag] do
     # :nocov:
     info 'this will be ignored'
     # :nocov:

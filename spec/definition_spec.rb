@@ -16,7 +16,7 @@ RSpec.describe Spectre::Specification do
   end
 
   it 'defines a subject' do
-    subject = Spectre::DefinitionContext.new('Some subject', nil)
+    subject = Spectre::DefinitionContext.new('Some subject', nil, @engine)
 
     subject.setup do
       info 'message in first setup'
@@ -66,7 +66,7 @@ RSpec.describe Spectre::Specification do
     expect(subject.specs[0].name).to eq('some_subject-1')
     expect(subject.specs[1].name).to eq('some_subject-2')
 
-    runs = subject.run(@engine, subject.specs)
+    runs = subject.run(subject.specs)
 
     expect(runs.count).to eq(4)
     expect(runs[0].status).to eq(:success)
@@ -94,7 +94,7 @@ RSpec.describe Spectre::Specification do
     proc { assert('a fact') { report failure 'fail' } },
   ].each do |block|
     it 'does not run when setup fails' do
-      subject = Spectre::DefinitionContext.new('Some subject', nil)
+      subject = Spectre::DefinitionContext.new('Some subject', nil, @engine)
 
       subject.setup(&block)
 
@@ -108,14 +108,14 @@ RSpec.describe Spectre::Specification do
         info 'some cleanup'
       end
 
-      runs = subject.run(@engine, subject.specs)
+      runs = subject.run(subject.specs)
 
       expect(runs.count).to eq(2)
     end
   end
 
   it 'preserves bags between runs' do
-    subject = Spectre::DefinitionContext.new('Some subject', nil)
+    subject = Spectre::DefinitionContext.new('Some subject', nil, @engine)
 
     subject.setup do
       bag.foo = 42
@@ -134,7 +134,7 @@ RSpec.describe Spectre::Specification do
       info bag.foo
     end
 
-    runs = subject.run(@engine, subject.specs)
+    runs = subject.run(subject.specs)
 
     expect(runs.all? { |x| x.status == :success }).to eq(true)
 
@@ -147,7 +147,7 @@ RSpec.describe Spectre::Specification do
   end
 
   it 'defines child contexts' do
-    subject = Spectre::DefinitionContext.new('Some subject', nil)
+    subject = Spectre::DefinitionContext.new('Some subject', nil, @engine)
 
     subject.it 'does a main thing' do
       info 'a message'
@@ -181,14 +181,21 @@ RSpec.describe Spectre::Specification do
       end
     end
 
-    expect(subject.children.count).to eq(1)
-    expect(subject.children.first.name).to eq('some_subject-first_child_context')
-    expect(subject.children.first.root).to be(subject)
-    expect(subject.children.first.children.count).to eq(1)
-    expect(subject.children.first.children.first.name).to eq('some_subject-first_child_context-another_child')
-    expect(subject.children.first.children.first.root).to be(subject)
+    children = @engine.contexts.select { |x| x.parent == subject }
 
-    runs = subject.run(@engine, subject.all_specs)
+    expect(children.count).to eq(1)
+    first_child = children.first
+    expect(first_child.name).to eq('some_subject-first_child_context')
+    expect(first_child.root).to be(subject)
+
+    children = @engine.contexts.select { |x| x.parent == first_child }
+
+    expect(children.count).to eq(1)
+    expect(children.first.name).to eq('some_subject-first_child_context-another_child')
+    expect(children.first.root).to be(subject)
+
+    specs = @engine.contexts.flat_map(&:specs)
+    runs = subject.run(specs)
 
     expect(runs.count).to eq(7)
 

@@ -3,23 +3,29 @@ RSpec.describe Spectre::SimpleFormatter do
     @console_out = StringIO.new
     @log_out = StringIO.new
 
-    subject1 = Spectre::DefinitionContext.new('Some subject', nil)
+    @engine = Spectre::Engine
+      .new({
+        'log_file' => @log_out,
+        'stdout' => @console_out,
+      })
+
+    subject1 = Spectre::DefinitionContext.new('Some subject', nil, @engine)
     subject1.it 'does something', tags: [:some_tag] do
       # do nothing
     end
 
-    subject2 = Spectre::DefinitionContext.new('Another subject', nil)
+    subject2 = Spectre::DefinitionContext.new('Another subject', nil, @engine)
     subject2.it 'does another thing', tags: [:some_tag, :another_tag] do
       # do nothing
     end
 
-    context = Spectre::DefinitionContext.new('a sub', nil, subject2)
+    context = Spectre::DefinitionContext.new('a sub', nil, @engine, subject2)
     context.it 'does something in another context', tags: [:a_sub_tag] do
       # do nothing
     end
 
     @specs = []
-    @specs.concat(subject1.all_specs, subject2.all_specs, context.all_specs)
+    @specs.concat(subject1.specs, subject2.specs, context.specs)
   end
 
   it 'lists specs' do

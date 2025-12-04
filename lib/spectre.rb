@@ -265,9 +265,9 @@ module Spectre
       counter = 0
 
       specs
-        .group_by { |x| x.parent.root }
+        .group_by { |x| x.parent.root.name }
         .each_value do |spec_group|
-          spec_group.sort_by!(&:name)
+          spec_group.sort(&:name)
           spec_group.each do |spec|
             spec_id = "[#{spec.name}]".send(@colors[counter % @colors.length])
             @out.puts "#{spec_id} #{spec.full_desc} #{spec.tags.map { |x| "##{x}" }.join(' ').cyan}"
@@ -280,15 +280,15 @@ module Spectre
     ##
     # Outputs all the specs for all contexts
     #
-    def describe contexts, level = 0
-      contexts.each do |context|
+    def describe contexts, level = 0, parent: nil
+      contexts.select { |x| x.parent == parent }.each do |context|
         @out.puts("#{'  ' * level}#{context.desc.send(level.positive? ? :magenta : :blue)}")
 
         context.specs.each do |spec|
           @out.puts("#{'  ' * (level + 1)}#{spec.desc}")
         end
 
-        describe(context.children, level + 1)
+        describe(contexts, level + 1, parent: context)
       end
     end
 
@@ -1220,14 +1220,13 @@ module Spectre
   class DefinitionContext
     include Delegate
 
-    attr_reader :id, :name, :desc, :parent, :full_desc, :children, :specs, :file
+    attr_reader :id, :name, :desc, :parent, :full_desc, :specs, :file
 
     def initialize desc, file, engine, parent = nil
       @engine = engine
       @parent = parent
       @desc = desc
       @file = file
-      @children = []
       @specs = []
 
       @setups = []
@@ -1240,6 +1239,8 @@ module Spectre
       @name = @parent.name + '-' + @name unless @parent.nil?
 
       @full_desc = @parent.nil? ? @desc : "#{@parent.full_desc} #{@desc}"
+
+      @engine.contexts << self
     end
 
     ##
@@ -1247,13 +1248,6 @@ module Spectre
     #
     def root
       @parent ? @parent.root : self
-    end
-
-    ##
-    # A flattened list of all specs including those of child contexts.
-    #
-    def all_specs
-      @specs + @children.map(&:all_specs).flatten
     end
 
     ##
@@ -1266,7 +1260,6 @@ module Spectre
         .gsub(Spectre.pwd, '.')
 
       context = DefinitionContext.new(desc, file, @engine, self)
-      @children << context
       context.instance_eval(&)
     end
 
@@ -1317,14 +1310,14 @@ module Spectre
 
       with ||= [nil]
 
-      initial_index = @engine.contexts
-        .select { |x| x.name == @name }
-        .map { |x| x.all_specs }
-        .flatten
-        .count
+      initial_index = @engine
+        .contexts
+        .select { |x| x.root.name == root.name }
+        .flat_map(&:specs)
+        .count + 1
 
       with.each_with_index do |data, index|
-        spec_index = initial_index + index + 1
+        spec_index = initial_index + index
         name = "#{root.name}-#{spec_index}"
 
         spec = Specification.new(self, name, desc, tags, data, file, block)
@@ -1334,23 +1327,23 @@ module Spectre
     end
 
     # :nodoc:
-    def run engine, specs
+    def run specs
       runs = []
-
-      return runs unless all_specs.any? { |x| specs.include? x }
 
       selected = @specs.select { |x| specs.include? x }
 
-      engine.formatter.scope(@desc, self) do
+      return runs if selected.empty?
+
+      @engine.formatter.scope(@desc, self) do
         if selected.any?
           setup_bag = nil
 
           if @setups.any?
-            setup_run = RunContext.new(engine, self, :setup) do |run_context|
+            setup_run = RunContext.new(@engine, self, :setup) do |run_context|
               @setups.each do |block|
-                engine.formatter.scope('setup', :setup) do
-                  engine.logger.correlate do
-                    engine.logger.debug("setup \"#{@desc}\"")
+                @engine.formatter.scope('setup', :setup) do
+                  @engine.logger.correlate do
+                    @engine.logger.debug("setup \"#{@desc}\"")
                     run_context.execute(nil, &block)
                   end
                 end
@@ -1365,18 +1358,18 @@ module Spectre
           # Only run specs if setup was successful
           if runs.all? { |x| x.status == :success }
             runs += selected.map do |spec|
-              engine.logger.correlate do
-                spec.run(engine, @befores, @afters, setup_bag)
+              @engine.logger.correlate do
+                spec.run(@engine, @befores, @afters, setup_bag)
               end
             end
           end
 
           if @teardowns.any?
-            runs << RunContext.new(engine, self, :teardown, setup_bag) do |run_context|
+            runs << RunContext.new(@engine, self, :teardown, setup_bag) do |run_context|
               @teardowns.each do |block|
-                engine.formatter.scope('teardown', :teardown) do
-                  engine.logger.correlate do
-                    engine.logger.debug("teardown \"#{@desc}\"")
+                @engine.formatter.scope('teardown', :teardown) do
+                  @engine.logger.correlate do
+                    @engine.logger.debug("teardown \"#{@desc}\"")
                     run_context.execute(nil, &block)
                   end
                 end
@@ -1385,9 +1378,12 @@ module Spectre
           end
         end
 
-        @children.each do |context|
-          engine.logger.correlate do
-            runs += context.run(engine, specs)
+        @engine
+          .contexts
+          .select { |x| x.parent == self }
+          .each do |context|
+          @engine.logger.correlate do
+            runs += context.run(specs)
           end
         end
       end
@@ -1616,8 +1612,7 @@ module Spectre
       tag_filter = config['tags'] || []
 
       @contexts
-        .map(&:all_specs)
-        .flatten
+        .flat_map(&:specs)
         .select do |spec|
           (spec_filter.empty? and tag_filter.empty?) or
             spec_filter.any? { |x| spec.name.match?("^#{x.gsub('*', '.*')}$") } or
@@ -1639,10 +1634,9 @@ module Spectre
 
       list
         .group_by { |x| x.parent.root }
-        .map do |context, specs|
-          context.run(self, specs)
+        .flat_map do |context, specs|
+          context.run(specs)
         end
-        .flatten
     rescue Interrupt
       # Do nothing here
     end
@@ -1682,10 +1676,9 @@ module Spectre
         .gsub(/:in .*/, '')
         .gsub(Spectre.pwd, '.')
 
-      main_context = DefinitionContext.new(desc, file, self)
-      main_context.instance_eval(&)
-
-      @contexts << main_context
+      DefinitionContext
+        .new(desc, file, self)
+        .instance_eval(&)
     end
 
     ##

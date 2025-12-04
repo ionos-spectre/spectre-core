@@ -71,7 +71,7 @@ RSpec.describe Spectre do
   end
 
   it 'filters by specs' do
-    filter = ['some_subject-1', 'some_subject-2']
+    filter = ['some_subject-1', 'some_subject-3']
 
     engine = Spectre::Engine
       .new({
@@ -83,12 +83,10 @@ RSpec.describe Spectre do
     specs = engine.list
 
     expect(specs.count).to eq(2)
-    expect((filter - specs.map(&:name)).count).to eq(0)
+    expect(specs.map(&:name)).to eq(filter)
   end
 
   it 'filters by tags' do
-    expected_specs = ['some_subject-2', 'some_subject-3']
-
     engine = Spectre::Engine
       .new({
         'config_file' => @config_file,
@@ -99,12 +97,10 @@ RSpec.describe Spectre do
     specs = engine.list
 
     expect(specs.count).to eq(2)
-    expect((expected_specs - specs.map(&:name)).count).to eq(0)
+    expect(specs.map(&:name)).to eq(['some_subject-2', 'some_subject-3'])
   end
 
   it 'filters by excluded tags' do
-    expected_specs = ['some_subject-3']
-
     engine = Spectre::Engine
       .new({
         'config_file' => @config_file,
@@ -115,7 +111,7 @@ RSpec.describe Spectre do
     specs = engine.list
 
     expect(specs.count).to eq(1)
-    expect((expected_specs - specs.map(&:name)).count).to eq(0)
+    expect(specs.map(&:name)).to eq(['some_subject-3'])
   end
 
   it 'filters by multiple tags' do
@@ -132,8 +128,6 @@ RSpec.describe Spectre do
   end
 
   it 'filters by tags and specs' do
-    expected_specs = ['some_subject-1', 'some_subject-3']
-
     engine = Spectre::Engine
       .new({
         'config_file' => @config_file,
@@ -144,7 +138,7 @@ RSpec.describe Spectre do
     specs = engine.list
 
     expect(specs.count).to eq(2)
-    expect((expected_specs - specs.map(&:name)).count).to eq(0)
+    expect(specs.map(&:name)).to eq(['some_subject-1', 'some_subject-3'])
   end
 
   it 'only runs before blocks in its own definition block' do
@@ -191,7 +185,7 @@ RSpec.describe Spectre do
       end
     end
 
-    names = engine.list.map { |x| x.name }
+    names = engine.list.map(&:name)
 
     expect(names).to include('some_subject-1')
     expect(names).to include('some_subject-2')

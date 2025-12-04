@@ -12,7 +12,7 @@ RSpec.describe Spectre::RunContext do
         'debug' => true,
       })
 
-    subject = Spectre::DefinitionContext.new('Some subject', nil)
+    subject = Spectre::DefinitionContext.new('Some subject', nil, @engine)
 
     @spec = Spectre::Specification.new(
       subject,
@@ -259,7 +259,7 @@ RSpec.describe Spectre::RunContext do
           end
 
           expect(run_context.status).to eq(:failed)
-          failures = run_context.evaluations.map(&:failures).flatten
+          failures = run_context.evaluations.flat_map(&:failures)
           expect(failures.count).to eq(1)
 
           failure = failures.first
