@@ -828,7 +828,13 @@ module Spectre
 
       selected = context.specs.select { |x| specs.include? x }
 
-      return runs if selected.empty?
+      # Check if any child contexts have runs
+      has_child_runs = @engine.contexts
+        .select { |x| x.parent == context }
+        .any? { |child| has_any_specs?(child, specs) }
+
+      # Only display and execute this context if there are selected specs or child runs
+      return runs if selected.empty? && !has_child_runs
 
       @engine.formatter.scope(context.desc, context) do
         if selected.any?
@@ -884,6 +890,19 @@ module Spectre
       end
 
       runs
+    end
+
+    private
+
+    ##
+    # Check recursively if a context or any of its children have specs matching the filter
+    #
+    def has_any_specs?(context, specs)
+      return true if context.specs.any? { |x| specs.include? x }
+
+      @engine.contexts
+        .select { |x| x.parent == context }
+        .any? { |child| has_any_specs?(child, specs) }
     end
   end
 
