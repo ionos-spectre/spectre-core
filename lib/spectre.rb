@@ -776,136 +776,9 @@ module Spectre
   end
 
   ##
-  # The spec runner handles execution of specs and contexts
-  # with their setup, teardown, before, and after blocks.
+  # The run context is passed to all specs and provides the
+  # DSL for assertions, expectations, logging, etc.
   #
-  class SpecRunner
-    def initialize(engine)
-      @engine = engine
-    end
-
-    ##
-    # Run specs grouped by their root context
-    #
-    def run_specs(specs)
-      specs
-        .group_by { |x| x.parent.root }
-        .flat_map { |context, context_specs| run_context(context, context_specs) }
-    end
-
-    ##
-    # Run a single specification with its before/after blocks
-    #
-    def run_spec(spec, befores, afters, bag)
-      RunContext.new(@engine, spec, :spec, bag) do |run_context|
-        @engine.formatter.scope(spec.desc, spec) do
-          befores.each do |block|
-            @engine.formatter.scope('before', :before) do
-              @engine.logger.correlate do
-                run_context.execute(spec.data, &block)
-              end
-            end
-          end
-
-          run_context.execute(spec.data, &spec.block) if run_context.status == :success
-        ensure
-          afters.each do |block|
-            @engine.formatter.scope('after', :after) do
-              @engine.logger.correlate do
-                run_context.execute(spec.data, &block)
-              end
-            end
-          end
-        end
-      end
-    end
-
-    ##
-    # Run a definition context with its specs, setups, and teardowns
-    #
-    def run_context(context, specs)
-      runs = []
-
-      selected = context.specs.select { |x| specs.include? x }
-
-      # Check if any child contexts have runs
-      has_child_runs = @engine.contexts
-        .select { |x| x.parent == context }
-        .any? { |child| has_any_specs?(child, specs) }
-
-      # Only display and execute this context if there are selected specs or child runs
-      return runs if selected.empty? && !has_child_runs
-
-      @engine.formatter.scope(context.desc, context) do
-        if selected.any?
-          setup_bag = nil
-
-          if context.setups.any?
-            setup_run = RunContext.new(@engine, context, :setup) do |run_context|
-              context.setups.each do |block|
-                @engine.formatter.scope('setup', :setup) do
-                  @engine.logger.correlate do
-                    @engine.logger.debug("setup \"#{context.desc}\"")
-                    run_context.execute(nil, &block)
-                  end
-                end
-              end
-            end
-
-            setup_bag = setup_run.bag
-            runs << setup_run
-          end
-
-          # Only run specs if setup was successful
-          if runs.all? { |x| x.status == :success }
-            runs += selected.map do |spec|
-              @engine.logger.correlate do
-                run_spec(spec, context.befores, context.afters, setup_bag)
-              end
-            end
-          end
-
-          if context.teardowns.any?
-            runs << RunContext.new(@engine, context, :teardown, setup_bag) do |run_context|
-              context.teardowns.each do |block|
-                @engine.formatter.scope('teardown', :teardown) do
-                  @engine.logger.correlate do
-                    @engine.logger.debug("teardown \"#{context.desc}\"")
-                    run_context.execute(nil, &block)
-                  end
-                end
-              end
-            end
-          end
-        end
-
-        # Run child contexts
-        @engine.contexts
-          .select { |x| x.parent == context }
-          .each do |child_context|
-            @engine.logger.correlate do
-              runs += run_context(child_context, specs)
-            end
-          end
-      end
-
-      runs
-    end
-
-    private
-
-    ##
-    # Check recursively if a context or any of its children have specs matching the filter
-    #
-    def has_any_specs?(context, specs)
-      return true if context.specs.any? { |x| specs.include? x }
-
-      @engine.contexts
-        .select { |x| x.parent == context }
-        .any? { |child| has_any_specs?(child, specs) }
-    end
-  end
-
   class RunContext
     include Delegate
 
@@ -1289,7 +1162,7 @@ module Spectre
     # Skip the run for this spec. This can be used to skip spec runs when a certain
     # condition occurs.
     #
-    #   skip 'subject is not yet ready to be tests' unless service_is_ready()
+    #   skip 'subject is not yet ready to be tested' unless service_is_ready()
     #
     def skip message
       @skipped = true
@@ -1314,9 +1187,7 @@ module Spectre
     end
 
     ##
-    # Natural sort comparison for spec names.
-    # Compares names with embedded numbers correctly (e.g., spec-2 comes before spec-10)
-    # Handles edge cases like missing dashes or multiple dashes.
+    # Natural sort comparison for spec names respecting numeric parts.
     #
     def <=>(other)
       # Split on dash: text part and numeric part
@@ -1329,6 +1200,33 @@ module Spectre
       return text_compare unless text_compare.zero?
 
       self_parts[1].to_i <=> other_parts[1].to_i
+    end
+
+    ##
+    # Execute this specification with its before/after blocks
+    #
+    def run(engine, befores, afters, bag)
+      RunContext.new(engine, self, :spec, bag) do |run_context|
+        engine.formatter.scope(@desc, self) do
+          befores.each do |block|
+            engine.formatter.scope('before', :before) do
+              engine.logger.correlate do
+                run_context.execute(@data, &block)
+              end
+            end
+          end
+
+          run_context.execute(@data, &@block) if run_context.status == :success
+        ensure
+          afters.each do |block|
+            engine.formatter.scope('after', :after) do
+              engine.logger.correlate do
+                run_context.execute(@data, &block)
+              end
+            end
+          end
+        end
+      end
     end
   end
 
@@ -1364,6 +1262,93 @@ module Spectre
     #
     def root
       @parent ? @parent.root : self
+    end
+
+    ##
+    # Returns all direct child contexts
+    #
+    def children
+      @engine.contexts.select { |x| x.parent == self }
+    end
+
+    ##
+    # Execute this context with its specs, setups, and teardowns.
+    # Recursively executes child contexts using the tree structure.
+    #
+    def run(specs_set)
+      runs = []
+
+      # Find specs in this context that should be executed
+      selected = @specs.select { |x| specs_set.include? x }
+
+      # Check if any child contexts have specs to execute
+      has_child_specs = children.any? { |child| child.specs_in_tree?(specs_set) }
+
+      # Skip this context if it has no matching specs and no children with specs
+      return runs if selected.empty? && !has_child_specs
+
+      @engine.formatter.scope(@desc, self) do
+        # Execute setup, specs, and teardown for this context
+        if selected.any?
+          setup_bag = nil
+
+          if @setups.any?
+            setup_run = RunContext.new(@engine, self, :setup) do |run_context|
+              @setups.each do |block|
+                @engine.formatter.scope('setup', :setup) do
+                  @engine.logger.correlate do
+                    @engine.logger.debug("setup \"#{@desc}\"")
+                    run_context.execute(nil, &block)
+                  end
+                end
+              end
+            end
+
+            setup_bag = setup_run.bag
+            runs << setup_run
+          end
+
+          # Only run specs if setup was successful
+          if runs.all? { |x| x.status == :success }
+            runs += selected.map do |spec|
+              @engine.logger.correlate do
+                spec.run(@engine, @befores, @afters, setup_bag)
+              end
+            end
+          end
+
+          if @teardowns.any?
+            runs << RunContext.new(@engine, self, :teardown, setup_bag) do |run_context|
+              @teardowns.each do |block|
+                @engine.formatter.scope('teardown', :teardown) do
+                  @engine.logger.correlate do
+                    @engine.logger.debug("teardown \"#{@desc}\"")
+                    run_context.execute(nil, &block)
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        # Recursively execute child contexts
+        children.each do |child_context|
+          @engine.logger.correlate do
+            runs += child_context.run(specs_set)
+          end
+        end
+      end
+
+      runs
+    end
+
+    ##
+    # Check recursively if this context or any of its children have specs in the filter set
+    #
+    def specs_in_tree?(specs_set)
+      return true if @specs.any? { |x| specs_set.include? x }
+
+      children.any? { |child| child.specs_in_tree?(specs_set) }
     end
 
     ##
@@ -1680,8 +1665,12 @@ module Spectre
         end
       end
 
-      runner = SpecRunner.new(self)
-      runner.run_specs(list)
+      specs = list
+      specs_set = Set.new(list)
+
+      specs
+        .group_by { |x| x.parent.root }
+        .flat_map { |context, _| context.run(specs_set) }
     rescue Interrupt
       # Do nothing here
     end

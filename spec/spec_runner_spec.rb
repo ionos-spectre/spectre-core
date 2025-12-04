@@ -1,4 +1,4 @@
-RSpec.describe Spectre::SpecRunner do
+RSpec.describe 'Spec Execution' do
   before do
     @console_out = StringIO.new
     @log_out = StringIO.new
@@ -8,8 +8,6 @@ RSpec.describe Spectre::SpecRunner do
         'log_file' => @log_out,
         'stdout' => @console_out,
       })
-
-    @runner = Spectre::SpecRunner.new(@engine)
   end
 
   after do
@@ -17,7 +15,7 @@ RSpec.describe Spectre::SpecRunner do
     @console_out.close
   end
 
-  describe '#run_context' do
+  describe 'DefinitionContext#run' do
     it 'runs a context with setup, teardown, before, after blocks' do
       subject = Spectre::DefinitionContext.new('Some subject', nil, @engine)
 
@@ -69,7 +67,8 @@ RSpec.describe Spectre::SpecRunner do
       expect(subject.specs[0].name).to eq('some_subject-1')
       expect(subject.specs[1].name).to eq('some_subject-2')
 
-      runs = @runner.run_context(subject, subject.specs)
+      specs_set = Set.new(subject.specs)
+      runs = subject.run(specs_set)
 
       expect(runs.count).to eq(4)
       expect(runs[0].status).to eq(:success)
@@ -111,7 +110,8 @@ RSpec.describe Spectre::SpecRunner do
           info 'some cleanup'
         end
 
-        runs = @runner.run_context(subject, subject.specs)
+        specs_set = Set.new(subject.specs)
+        runs = subject.run(specs_set)
 
         expect(runs.count).to eq(2)
       end
@@ -137,7 +137,8 @@ RSpec.describe Spectre::SpecRunner do
         info bag.foo
       end
 
-      runs = @runner.run_context(subject, subject.specs)
+      specs_set = Set.new(subject.specs)
+      runs = subject.run(specs_set)
 
       expect(runs.all? { |x| x.status == :success }).to eq(true)
 
@@ -198,8 +199,9 @@ RSpec.describe Spectre::SpecRunner do
       expect(children.first.root).to be(subject)
 
       specs = @engine.contexts.flat_map(&:specs)
+      specs_set = Set.new(specs)
 
-      runs = @runner.run_context(subject, specs)
+      runs = subject.run(specs_set)
 
       expect(runs.count).to eq(7)
 
@@ -255,7 +257,8 @@ RSpec.describe Spectre::SpecRunner do
       expect(filtered_specs.count).to eq(1)
       expect(filtered_specs[0].name).to eq('level_1-4')
 
-      runs = @runner.run_context(subject, filtered_specs)
+      specs_set = Set.new(filtered_specs)
+      runs = subject.run(specs_set)
 
       # Should have exactly 1 run (the deepest spec)
       expect(runs.count).to eq(1)
@@ -297,7 +300,8 @@ RSpec.describe Spectre::SpecRunner do
       filtered_specs = @engine.list({ 'specs' => [], 'tags' => ['bar'] })
       expect(filtered_specs.count).to eq(1)
 
-      runs = @runner.run_context(subject, filtered_specs)
+      specs_set = Set.new(filtered_specs)
+      runs = subject.run(specs_set)
 
       # Should only have 1 run
       expect(runs.count).to eq(1)
@@ -314,7 +318,7 @@ RSpec.describe Spectre::SpecRunner do
     end
   end
 
-  describe '#run_spec' do
+  describe 'Specification#run' do
     before do
       @subject = Spectre::DefinitionContext.new('Some subject', nil, @engine)
     end
@@ -352,7 +356,7 @@ RSpec.describe Spectre::SpecRunner do
 
       bag = { foo: 'bar' }
 
-      run_context = @runner.run_spec(spec, befores, afters, bag)
+      run_context = spec.run(@engine, befores, afters, bag)
 
       expect(run_context.status).to eq(:success)
       expect(run_context.logs.count).to eq(5)
@@ -400,7 +404,7 @@ RSpec.describe Spectre::SpecRunner do
         end,
       ]
 
-      run_context = @runner.run_spec(spec, [], afters, {})
+      run_context = spec.run(@engine, [], afters, {})
 
       expect(run_context.status).to eq(:failed)
 
@@ -435,7 +439,7 @@ RSpec.describe Spectre::SpecRunner do
         proc { info 'message in after block' },
       ]
 
-      run_context = @runner.run_spec(spec, befores, afters, {})
+      run_context = spec.run(@engine, befores, afters, {})
 
       expect(run_context.status).to eq(:error)
       expect(run_context.logs.count).to eq(3)
@@ -449,7 +453,7 @@ RSpec.describe Spectre::SpecRunner do
     end
   end
 
-  describe '#run_specs' do
+  describe 'Engine#run with reporting' do
     it 'reports a successful run' do
       subject = Spectre::DefinitionContext.new('Some subject', nil, @engine)
 
@@ -457,7 +461,8 @@ RSpec.describe Spectre::SpecRunner do
         info 'a message'
       end
 
-      runs = @runner.run_context(subject, subject.specs)
+      specs_set = Set.new(subject.specs)
+      runs = subject.run(specs_set)
 
       report_output = StringIO.new
 
@@ -508,7 +513,8 @@ RSpec.describe Spectre::SpecRunner do
         raise StandardError, 'Oops!'
       end
 
-      runs = @runner.run_context(subject, subject.specs)
+      specs_set = Set.new(subject.specs)
+      runs = subject.run(specs_set)
 
       report_output = StringIO.new
 
