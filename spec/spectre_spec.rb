@@ -190,4 +190,41 @@ RSpec.describe Spectre do
     expect(names).to include('some_subject-1')
     expect(names).to include('some_subject-2')
   end
+
+  it 'sorts specs with natural ordering' do
+    engine = Spectre::Engine.new({
+      'stdout' => @console_out,
+      'formatter' => 'Spectre::SimpleFormatter',
+    })
+
+    # Create enough specs to test natural sorting (need to go beyond 9)
+    engine.describe 'Test Subject' do
+      (1..12).each do |i|
+        it "does something #{i}" do
+          info 'some actions'
+        end
+      end
+    end
+
+    specs = engine.list
+    names = specs.map(&:name)
+
+    # Natural sort should order: 1, 2, 3, ..., 9, 10, 11, 12
+    # NOT lexicographic: 1, 10, 11, 12, 2, 3, ..., 9
+    expected_order = (1..12).map { |i| "test_subject-#{i}" }
+    expect(names).to eq(expected_order)
+
+    # Verify the formatter outputs them in the correct order
+    engine.formatter.list(specs)
+    @console_out.rewind
+    output = @console_out.read
+
+    # Check that spec-10 appears after spec-9 and before spec-11 in the output
+    spec_9_pos = output.index('[test_subject-9]')
+    spec_10_pos = output.index('[test_subject-10]')
+    spec_11_pos = output.index('[test_subject-11]')
+
+    expect(spec_9_pos).to be < spec_10_pos
+    expect(spec_10_pos).to be < spec_11_pos
+  end
 end

@@ -267,11 +267,12 @@ module Spectre
       specs
         .group_by { |x| x.parent.root.name }
         .each_value do |spec_group|
-          spec_group.sort(&:name)
-          spec_group.each do |spec|
-            spec_id = "[#{spec.name}]".send(@colors[counter % @colors.length])
-            @out.puts "#{spec_id} #{spec.full_desc} #{spec.tags.map { |x| "##{x}" }.join(' ').cyan}"
-          end
+          spec_group
+            .sort
+            .each do |spec|
+              spec_id = "[#{spec.name}]".send(@colors[counter % @colors.length])
+              @out.puts "#{spec_id} #{spec.full_desc} #{spec.tags.map { |x| "##{x}" }.join(' ').cyan}"
+            end
 
           counter += 1
         end
@@ -1186,6 +1187,19 @@ module Spectre
       @file = file
       @block = block
       @full_desc = "#{@parent.full_desc} #{@desc}"
+    end
+
+    def <=>(other)
+      # Split on dash: text part and numeric part
+      self_parts = @name.split('-')
+      other_parts = other.name.split('-')
+
+      text_compare = self_parts[0] <=> other_parts[0]
+
+      # If the text parts are already different, we can return here
+      return text_compare unless text_compare.zero?
+
+      self_parts[1].to_i <=> other_parts[1].to_i
     end
 
     ##
