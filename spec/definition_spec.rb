@@ -66,7 +66,8 @@ RSpec.describe Spectre::Specification do
     expect(subject.specs[0].name).to eq('some_subject-1')
     expect(subject.specs[1].name).to eq('some_subject-2')
 
-    runs = subject.run(subject.specs)
+    runner = Spectre::SpecRunner.new(@engine)
+    runs = runner.run_context(subject, subject.specs)
 
     expect(runs.count).to eq(4)
     expect(runs[0].status).to eq(:success)
@@ -108,7 +109,8 @@ RSpec.describe Spectre::Specification do
         info 'some cleanup'
       end
 
-      runs = subject.run(subject.specs)
+      runner = Spectre::SpecRunner.new(@engine)
+      runs = runner.run_context(subject, subject.specs)
 
       expect(runs.count).to eq(2)
     end
@@ -134,7 +136,8 @@ RSpec.describe Spectre::Specification do
       info bag.foo
     end
 
-    runs = subject.run(subject.specs)
+    runner = Spectre::SpecRunner.new(@engine)
+    runs = runner.run_context(subject, subject.specs)
 
     expect(runs.all? { |x| x.status == :success }).to eq(true)
 
@@ -195,7 +198,9 @@ RSpec.describe Spectre::Specification do
     expect(children.first.root).to be(subject)
 
     specs = @engine.contexts.flat_map(&:specs)
-    runs = subject.run(specs)
+
+    runner = Spectre::SpecRunner.new(@engine)
+    runs = runner.run_context(subject, specs)
 
     expect(runs.count).to eq(7)
 

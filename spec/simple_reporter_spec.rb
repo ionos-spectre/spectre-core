@@ -14,7 +14,8 @@ RSpec.describe Spectre::SimpleReporter do
       info 'a message'
     end
 
-    runs = subject.run(subject.specs)
+    runner = Spectre::SpecRunner.new(@engine)
+    runs = runner.run_context(subject, subject.specs)
 
     report_output = StringIO.new
 
@@ -65,7 +66,8 @@ RSpec.describe Spectre::SimpleReporter do
       raise StandardError, 'Oops!'
     end
 
-    runs = subject.run(subject.specs)
+    runner = Spectre::SpecRunner.new(@engine)
+    runs = runner.run_context(subject, subject.specs)
 
     report_output = StringIO.new
 

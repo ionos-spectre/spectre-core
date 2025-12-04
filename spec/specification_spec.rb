@@ -50,7 +50,8 @@ RSpec.describe Spectre::Specification do
 
     bag = { foo: 'bar' }
 
-    run_context = spec.run(@engine, befores, afters, bag)
+    runner = Spectre::SpecRunner.new(@engine)
+    run_context = runner.run_spec(spec, befores, afters, bag)
 
     expect(run_context.status).to eq(:success)
     expect(run_context.logs.count).to eq(5)
@@ -98,7 +99,8 @@ RSpec.describe Spectre::Specification do
       end,
     ]
 
-    run_context = spec.run(@engine, [], afters, {})
+    runner = Spectre::SpecRunner.new(@engine)
+    run_context = runner.run_spec(spec, [], afters, {})
 
     expect(run_context.status).to eq(:failed)
 
@@ -133,7 +135,8 @@ RSpec.describe Spectre::Specification do
       proc { info 'message in after block' },
     ]
 
-    run_context = spec.run(@engine, befores, afters, {})
+    runner = Spectre::SpecRunner.new(@engine)
+    run_context = runner.run_spec(spec, befores, afters, {})
 
     expect(run_context.status).to eq(:error)
     expect(run_context.logs.count).to eq(3)

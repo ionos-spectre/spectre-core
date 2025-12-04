@@ -775,6 +775,118 @@ module Spectre
     end
   end
 
+  ##
+  # The spec runner handles execution of specs and contexts
+  # with their setup, teardown, before, and after blocks.
+  #
+  class SpecRunner
+    def initialize(engine)
+      @engine = engine
+    end
+
+    ##
+    # Run specs grouped by their root context
+    #
+    def run_specs(specs)
+      specs
+        .group_by { |x| x.parent.root }
+        .flat_map { |context, context_specs| run_context(context, context_specs) }
+    end
+
+    ##
+    # Run a single specification with its before/after blocks
+    #
+    def run_spec(spec, befores, afters, bag)
+      RunContext.new(@engine, spec, :spec, bag) do |run_context|
+        @engine.formatter.scope(spec.desc, spec) do
+          befores.each do |block|
+            @engine.formatter.scope('before', :before) do
+              @engine.logger.correlate do
+                run_context.execute(spec.data, &block)
+              end
+            end
+          end
+
+          run_context.execute(spec.data, &spec.block) if run_context.status == :success
+        ensure
+          afters.each do |block|
+            @engine.formatter.scope('after', :after) do
+              @engine.logger.correlate do
+                run_context.execute(spec.data, &block)
+              end
+            end
+          end
+        end
+      end
+    end
+
+    ##
+    # Run a definition context with its specs, setups, and teardowns
+    #
+    def run_context(context, specs)
+      runs = []
+
+      selected = context.specs.select { |x| specs.include? x }
+
+      return runs if selected.empty?
+
+      @engine.formatter.scope(context.desc, context) do
+        if selected.any?
+          setup_bag = nil
+
+          if context.setups.any?
+            setup_run = RunContext.new(@engine, context, :setup) do |run_context|
+              context.setups.each do |block|
+                @engine.formatter.scope('setup', :setup) do
+                  @engine.logger.correlate do
+                    @engine.logger.debug("setup \"#{context.desc}\"")
+                    run_context.execute(nil, &block)
+                  end
+                end
+              end
+            end
+
+            setup_bag = setup_run.bag
+            runs << setup_run
+          end
+
+          # Only run specs if setup was successful
+          if runs.all? { |x| x.status == :success }
+            runs += selected.map do |spec|
+              @engine.logger.correlate do
+                run_spec(spec, context.befores, context.afters, setup_bag)
+              end
+            end
+          end
+
+          if context.teardowns.any?
+            runs << RunContext.new(@engine, context, :teardown, setup_bag) do |run_context|
+              context.teardowns.each do |block|
+                @engine.formatter.scope('teardown', :teardown) do
+                  @engine.logger.correlate do
+                    @engine.logger.debug("teardown \"#{context.desc}\"")
+                    run_context.execute(nil, &block)
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        # Run child contexts
+        @engine.contexts
+          .select { |x| x.parent == context }
+          .each do |child_context|
+            @engine.logger.correlate do
+              runs += run_context(child_context, specs)
+            end
+          end
+      end
+
+      runs
+    end
+  end
+
   class RunContext
     include Delegate
 
@@ -1168,7 +1280,7 @@ module Spectre
   end
 
   class Specification
-    attr_reader :id, :name, :desc, :full_desc, :parent, :root, :tags, :data, :file
+    attr_reader :id, :name, :desc, :full_desc, :parent, :root, :tags, :data, :file, :block
 
     def initialize parent, name, desc, tags, data, file, block
       @parent = parent
@@ -1182,6 +1294,11 @@ module Spectre
       @full_desc = "#{@parent.full_desc} #{@desc}"
     end
 
+    ##
+    # Natural sort comparison for spec names.
+    # Compares names with embedded numbers correctly (e.g., spec-2 comes before spec-10)
+    # Handles edge cases like missing dashes or multiple dashes.
+    #
     def <=>(other)
       # Split on dash: text part and numeric part
       self_parts = @name.split('-')
@@ -1194,40 +1311,13 @@ module Spectre
 
       self_parts[1].to_i <=> other_parts[1].to_i
     end
-
-    ##
-    # Creates a new +RunContext+ and executes the spec,
-    # +before+ and +after+ blocks
-    #
-    def run engine, befores, afters, bag
-      RunContext.new(engine, self, :spec, bag) do |run_context|
-        engine.formatter.scope(@desc, self) do
-          befores.each do |block|
-            engine.formatter.scope('before', :before) do
-              engine.logger.correlate do
-                run_context.execute(@data, &block)
-              end
-            end
-          end
-
-          run_context.execute(@data, &@block) if run_context.status == :success
-        ensure
-          afters.each do |block|
-            engine.formatter.scope('after', :after) do
-              engine.logger.correlate do
-                run_context.execute(@data, &block)
-              end
-            end
-          end
-        end
-      end
-    end
   end
 
   class DefinitionContext
     include Delegate
 
-    attr_reader :id, :name, :desc, :parent, :full_desc, :specs, :file
+    attr_reader :id, :name, :desc, :parent, :full_desc, :specs, :file,
+                :setups, :teardowns, :befores, :afters
 
     def initialize desc, file, engine, parent = nil
       @engine = engine
@@ -1331,71 +1421,6 @@ module Spectre
 
         @specs << spec
       end
-    end
-
-    # :nodoc:
-    def run specs
-      runs = []
-
-      selected = @specs.select { |x| specs.include? x }
-
-      return runs if selected.empty?
-
-      @engine.formatter.scope(@desc, self) do
-        if selected.any?
-          setup_bag = nil
-
-          if @setups.any?
-            setup_run = RunContext.new(@engine, self, :setup) do |run_context|
-              @setups.each do |block|
-                @engine.formatter.scope('setup', :setup) do
-                  @engine.logger.correlate do
-                    @engine.logger.debug("setup \"#{@desc}\"")
-                    run_context.execute(nil, &block)
-                  end
-                end
-              end
-            end
-
-            setup_bag = setup_run.bag
-
-            runs << setup_run
-          end
-
-          # Only run specs if setup was successful
-          if runs.all? { |x| x.status == :success }
-            runs += selected.map do |spec|
-              @engine.logger.correlate do
-                spec.run(@engine, @befores, @afters, setup_bag)
-              end
-            end
-          end
-
-          if @teardowns.any?
-            runs << RunContext.new(@engine, self, :teardown, setup_bag) do |run_context|
-              @teardowns.each do |block|
-                @engine.formatter.scope('teardown', :teardown) do
-                  @engine.logger.correlate do
-                    @engine.logger.debug("teardown \"#{@desc}\"")
-                    run_context.execute(nil, &block)
-                  end
-                end
-              end
-            end
-          end
-        end
-
-        @engine
-          .contexts
-          .select { |x| x.parent == self }
-          .each do |context|
-          @engine.logger.correlate do
-            runs += context.run(specs)
-          end
-        end
-      end
-
-      runs
     end
   end
 
@@ -1636,11 +1661,8 @@ module Spectre
         end
       end
 
-      list
-        .group_by { |x| x.parent.root }
-        .flat_map do |context, specs|
-          context.run(specs)
-        end
+      runner = SpecRunner.new(self)
+      runner.run_specs(list)
     rescue Interrupt
       # Do nothing here
     end

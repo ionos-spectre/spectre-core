@@ -69,6 +69,27 @@ describe 'Ghostbuster' do
         end
       end
     end
+
+    context 'with faulty equipment' do
+      setup do
+        info 'check proton pack'
+        info 'pack is faulty'
+
+        bag.proton_pack_functional = false
+      end
+
+      it 'cannot fire proton pack', tags: [:failure, :proton, :expect, :assert] do
+        expect 'to fire the proton pack' do
+          report 'proton pack is not functional' unless bag.proton_pack_functional
+        end
+
+        assert 'to capture any ghost' do
+          report 'no ghost can be captured with faulty equipment' unless bag.proton_pack_functional
+        end
+
+        info 'this line will not be reached if the assert above fails'
+      end
+    end
   end
 
   it 'hunts at the Sedgewick Hotel', tags: [:ghosts, :success, :expect, :assert] do
