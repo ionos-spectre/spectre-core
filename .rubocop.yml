@@ -48,6 +48,9 @@ Style/StringConcatenation:
 Style/EvalWithLocation:
   Enabled: false
 
+Style/OneClassPerFile:
+  Enabled: false
+
 Layout/SpaceInsideHashLiteralBraces:
   Enabled: false
 
